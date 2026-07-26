@@ -1,0 +1,706 @@
+/* =========================================================
+   MEU MOMENTO COM DEUS — LIVRO V2
+   ========================================================= */
+
+:root {
+    color-scheme: light;
+
+    --fundo: #e9e2d6;
+    --fundo-profundo: #d8cbb9;
+    --papel: #fffdf7;
+    --papel-secundario: #f8f2e7;
+
+    --texto: #2d2924;
+    --texto-suave: #756c61;
+
+    --destaque: #795c38;
+    --destaque-escuro: #4e3821;
+    --destaque-claro: #eee1ce;
+
+    --borda: #d7cab8;
+    --sombra: rgba(61, 45, 29, 0.18);
+
+    --largura-livro: 820px;
+    --largura-topo: 1120px;
+
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: Inter, "Segoe UI", Arial, sans-serif;
+
+    --transicao: 180ms ease;
+}
+
+body.tema-escuro {
+    color-scheme: dark;
+
+    --fundo: #151412;
+    --fundo-profundo: #23201b;
+    --papel: #24211d;
+    --papel-secundario: #2d2822;
+
+    --texto: #f3ede4;
+    --texto-suave: #bbb0a3;
+
+    --destaque: #d4ae7d;
+    --destaque-escuro: #f0d2aa;
+    --destaque-claro: #3b3127;
+
+    --borda: #494138;
+    --sombra: rgba(0, 0, 0, 0.38);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+
+    background:
+        radial-gradient(circle at 50% -10%, var(--fundo-profundo), transparent 44%),
+        var(--fundo);
+
+    color: var(--texto);
+    font-family: var(--sans);
+    line-height: 1.6;
+
+    transition:
+        background-color var(--transicao),
+        color var(--transicao);
+}
+
+button,
+select {
+    font: inherit;
+}
+
+/* =========================================================
+   CABEÇALHO FIXO
+   ========================================================= */
+
+.topo {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+    border-bottom: 1px solid color-mix(in srgb, var(--borda) 82%, transparent);
+    background: color-mix(in srgb, var(--fundo) 88%, transparent);
+    backdrop-filter: blur(18px);
+}
+
+.topo__conteudo {
+    width: min(calc(100% - 32px), var(--largura-topo));
+    min-height: 78px;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.marca {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.marca__simbolo {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid var(--borda);
+    border-radius: 50%;
+
+    background: var(--papel);
+    color: var(--destaque);
+    box-shadow: 0 8px 20px var(--sombra);
+}
+
+.marca__rotulo {
+    margin: 0 0 2px;
+    color: var(--destaque);
+
+    font-size: 0.63rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.marca__titulo {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: var(--texto);
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 3vw, 1.58rem);
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.topo__acoes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.campo-data {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: var(--texto-suave);
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.campo-data select {
+    min-width: 185px;
+    height: 42px;
+    padding: 0 38px 0 13px;
+
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+
+    background: var(--papel);
+    color: var(--texto);
+
+    cursor: pointer;
+    outline: none;
+
+    transition:
+        border-color var(--transicao),
+        box-shadow var(--transicao);
+}
+
+.campo-data select:hover,
+.campo-data select:focus {
+    border-color: var(--destaque);
+    box-shadow: 0 0 0 3px var(--destaque-claro);
+}
+
+.botao-icone {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid var(--borda);
+    border-radius: 50%;
+
+    background: var(--papel);
+    color: var(--texto);
+
+    cursor: pointer;
+    box-shadow: 0 8px 20px var(--sombra);
+
+    transition:
+        transform var(--transicao),
+        border-color var(--transicao);
+}
+
+.botao-icone:hover {
+    transform: translateY(-2px);
+    border-color: var(--destaque);
+}
+
+/* =========================================================
+   ESTRUTURA DO LIVRO
+   ========================================================= */
+
+.pagina {
+    width: min(100%, 1120px);
+    margin: 0 auto;
+    padding: 34px 20px 54px;
+}
+
+.livro {
+    position: relative;
+    width: min(100%, var(--largura-livro));
+    min-height: 760px;
+    margin: 0 auto;
+    padding: clamp(38px, 6vw, 64px) clamp(28px, 7vw, 72px) 34px;
+
+    border: 1px solid var(--borda);
+    border-radius: 3px 18px 18px 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(80, 55, 30, 0.055),
+            transparent 4.5%,
+            transparent 95%,
+            rgba(80, 55, 30, 0.025)
+        ),
+        repeating-linear-gradient(
+            0deg,
+            rgba(85, 65, 40, 0.012) 0,
+            rgba(85, 65, 40, 0.012) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+        var(--papel);
+
+    box-shadow:
+        -9px 0 0 color-mix(in srgb, var(--papel-secundario) 82%, var(--borda)),
+        -11px 0 0 var(--borda),
+        0 30px 75px var(--sombra);
+
+    transition:
+        background-color var(--transicao),
+        border-color var(--transicao),
+        box-shadow var(--transicao);
+}
+
+.livro::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+
+    width: 104px;
+    height: 3px;
+
+    background: var(--destaque);
+    border-radius: 0 0 6px 6px;
+    transform: translateX(-50%);
+    opacity: 0.72;
+}
+
+.livro__cabecalho {
+    margin-bottom: 38px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--borda);
+    text-align: center;
+}
+
+.livro__data {
+    margin: 0 0 10px;
+    color: var(--destaque);
+
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.livro__titulo {
+    max-width: 650px;
+    margin: 0 auto;
+
+    color: var(--texto);
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5.5vw, 3.15rem);
+    font-weight: 500;
+    line-height: 1.08;
+    text-wrap: balance;
+}
+
+.metadados {
+    margin-top: 19px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.metadado {
+    padding: 6px 10px;
+    border: 1px solid var(--borda);
+    border-radius: 999px;
+
+    background: var(--papel-secundario);
+    color: var(--texto-suave);
+
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+/* =========================================================
+   CONTEÚDO
+   ========================================================= */
+
+.meditacao {
+    color: var(--texto);
+    font-family: var(--serif);
+    font-size: clamp(1.05rem, 2vw, 1.16rem);
+    line-height: 1.84;
+
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.meditacao__secao + .meditacao__secao {
+    margin-top: 34px;
+}
+
+.meditacao__titulo-secao {
+    margin: 0 0 13px;
+
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+
+    color: var(--destaque);
+    font-family: var(--sans);
+    font-size: 0.77rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    line-height: 1.35;
+    text-transform: uppercase;
+}
+
+.meditacao__numero {
+    color: var(--texto-suave);
+    font-size: 0.68rem;
+}
+
+.meditacao__titulo-secao::after {
+    content: "";
+    width: 28px;
+    height: 1px;
+    margin-left: 2px;
+
+    background: var(--destaque);
+    opacity: 0.42;
+}
+
+.meditacao p {
+    margin: 0;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.meditacao p + p {
+    margin-top: 15px;
+    text-indent: 1.55em;
+}
+
+.meditacao strong {
+    color: var(--texto);
+    font-weight: 700;
+}
+
+.meditacao em {
+    color: var(--texto-suave);
+}
+
+.meditacao ul,
+.meditacao ol {
+    margin: 12px 0 0;
+    padding-left: 1.6em;
+}
+
+.meditacao li {
+    padding-left: 0.25em;
+    text-align: justify;
+}
+
+.meditacao li + li {
+    margin-top: 7px;
+}
+
+.meditacao blockquote,
+.meditacao__secao--versiculo .meditacao__corpo {
+    position: relative;
+    margin: 0;
+    padding: 24px 25px 22px 29px;
+
+    border-left: 3px solid var(--destaque);
+    border-radius: 0 9px 9px 0;
+
+    background:
+        linear-gradient(90deg, var(--destaque-claro), transparent);
+
+    color: var(--texto);
+    font-size: 1.04em;
+    font-style: italic;
+    line-height: 1.75;
+}
+
+.meditacao blockquote::before,
+.meditacao__secao--versiculo .meditacao__corpo::before {
+    content: "“";
+    position: absolute;
+    top: -2px;
+    left: 11px;
+
+    color: var(--destaque);
+    font-family: var(--serif);
+    font-size: 3.5rem;
+    line-height: 1;
+    opacity: 0.2;
+}
+
+.meditacao__secao--oracao {
+    padding: 24px 26px;
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    background: var(--papel-secundario);
+}
+
+.meditacao__secao--essencial .meditacao__corpo,
+.meditacao__secao--semente .meditacao__corpo {
+    padding: 18px 20px;
+    border-radius: 10px;
+    background: var(--destaque-claro);
+}
+
+.meditacao hr {
+    width: 52px;
+    height: 1px;
+    margin: 34px auto;
+    border: 0;
+    background: var(--destaque);
+    opacity: 0.34;
+}
+
+.estado-carregando,
+.estado-vazio {
+    color: var(--texto-suave);
+    text-align: center !important;
+}
+
+/* =========================================================
+   RODAPÉ DA PÁGINA E NAVEGAÇÃO
+   ========================================================= */
+
+.pagina-livro__rodape {
+    margin-top: 45px;
+    padding-top: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-top: 1px solid var(--borda);
+    color: var(--texto-suave);
+    font-size: 0.7rem;
+}
+
+.pagina-livro__ornamento {
+    color: var(--destaque);
+}
+
+.navegacao {
+    width: min(100%, var(--largura-livro));
+    margin: 16px auto 0;
+
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+}
+
+.botao-navegacao {
+    min-height: 44px;
+    padding: 10px 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+
+    background: color-mix(in srgb, var(--papel) 88%, transparent);
+    color: var(--texto-suave);
+
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+
+    transition:
+        transform var(--transicao),
+        border-color var(--transicao),
+        color var(--transicao),
+        box-shadow var(--transicao);
+}
+
+.botao-navegacao:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: var(--destaque);
+    color: var(--destaque-escuro);
+    box-shadow: 0 9px 20px var(--sombra);
+}
+
+.botao-navegacao:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.botao-navegacao--principal {
+    min-width: 84px;
+    border-color: var(--destaque);
+    background: var(--destaque);
+    color: #fffdf7;
+    font-weight: 800;
+}
+
+.botao-navegacao--principal:hover:not(:disabled) {
+    color: #fffdf7;
+}
+
+.rodape-site {
+    padding: 0 20px 30px;
+    color: var(--texto-suave);
+    font-size: 0.76rem;
+    text-align: center;
+}
+
+.rodape-site p {
+    margin: 0;
+}
+
+::selection {
+    background: var(--destaque-claro);
+    color: var(--texto);
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 760px) {
+    .topo__conteudo {
+        min-height: 70px;
+    }
+
+    .marca__simbolo {
+        display: none;
+    }
+
+    .campo-data > span {
+        display: none;
+    }
+
+    .campo-data select {
+        min-width: 145px;
+        max-width: 42vw;
+    }
+
+    .pagina {
+        padding: 18px 10px 38px;
+    }
+
+    .livro {
+        min-height: auto;
+        padding: 34px 24px 30px;
+        border-radius: 2px 13px 13px 2px;
+        box-shadow:
+            -5px 0 0 var(--papel-secundario),
+            -6px 0 0 var(--borda),
+            0 22px 50px var(--sombra);
+    }
+
+    .livro__cabecalho {
+        margin-bottom: 31px;
+        padding-bottom: 23px;
+    }
+
+    .meditacao {
+        font-size: 1.02rem;
+        line-height: 1.78;
+    }
+
+    .navegacao {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .botao-navegacao--principal {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+}
+
+@media (max-width: 430px) {
+    .topo__conteudo {
+        width: min(calc(100% - 20px), var(--largura-topo));
+        gap: 8px;
+    }
+
+    .marca__rotulo {
+        display: none;
+    }
+
+    .marca__titulo {
+        max-width: 145px;
+        font-size: 1rem;
+    }
+
+    .campo-data select {
+        min-width: 120px;
+        max-width: 36vw;
+        font-size: 0.72rem;
+    }
+
+    .livro {
+        padding-inline: 19px;
+    }
+
+    .meditacao p,
+    .meditacao li {
+        text-align: left;
+    }
+
+    .meditacao p + p {
+        text-indent: 0;
+    }
+}
+
+/* =========================================================
+   IMPRESSÃO
+   ========================================================= */
+
+@media print {
+    .topo,
+    .navegacao,
+    .rodape-site,
+    .botao-icone {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .pagina {
+        width: 100%;
+        padding: 0;
+    }
+
+    .livro {
+        width: 100%;
+        max-width: none;
+        min-height: auto;
+        padding: 0;
+
+        border: 0;
+        border-radius: 0;
+        background: #fff;
+        box-shadow: none;
+    }
+
+    .livro::before {
+        display: none;
+    }
+
+    .meditacao {
+        color: #000;
+        font-size: 12pt;
+        line-height: 1.6;
+    }
+}
