@@ -704,3 +704,37 @@ select {
         line-height: 1.6;
     }
 }
+
+/* =========================================================
+   SPOTIFY
+   ========================================================= */
+
+.spotify-player{
+    margin:35px 0 45px;
+    text-align:center;
+}
+
+.spotify-player h3{
+    margin-bottom:8px;
+
+    color:var(--destaque);
+
+    font-family:var(--sans);
+    font-size:.80rem;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+
+.spotify-player__texto{
+    margin:0 0 18px;
+    color:var(--texto-suave);
+    font-size:.95rem;
+}
+
+.spotify-player iframe{
+    width:100%;
+    border:none;
+    border-radius:12px;
+    box-shadow:0 12px 30px var(--sombra);
+}
