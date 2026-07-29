@@ -738,3 +738,13 @@ select {
     border-radius:12px;
     box-shadow:0 12px 30px var(--sombra);
 }
+/* =========================================================
+   NAVEGAÇÃO ENTRE ÁREAS
+   ========================================================= */
+.menu-principal { display: flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid var(--borda); border-radius: 999px; background: var(--papel); }
+.menu-principal__link { padding: 7px 12px; border-radius: 999px; color: var(--texto-suave); font-size: .78rem; font-weight: 800; text-decoration: none; transition: background var(--transicao), color var(--transicao); }
+.menu-principal__link:hover { color: var(--destaque-escuro); }
+.menu-principal__link--ativo { background: var(--destaque-claro); color: var(--destaque-escuro); }
+@media (max-width: 720px) {
+    .menu-principal__link { padding: 6px 9px; }
+}

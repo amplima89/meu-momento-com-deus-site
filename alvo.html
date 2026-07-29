@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Acompanhamento da missão Retomar o controle">
+    <title>Alvo — Meu Momento com Deus</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="alvo.css">
+</head>
+<body>
+    <header class="topo">
+        <div class="topo__conteudo">
+            <div class="marca">
+                <span class="marca__simbolo" aria-hidden="true">✦</span>
+                <div><p class="marca__rotulo">Meu Momento com Deus</p></div>
+            </div>
+
+            <div class="topo__acoes">
+                <nav class="menu-principal" aria-label="Áreas do site">
+                    <a class="menu-principal__link" href="index.html">Meditação</a>
+                    <a class="menu-principal__link menu-principal__link--ativo" href="alvo.html">Alvo</a>
+                </nav>
+                <button id="botao-tema" class="botao-icone" type="button" aria-label="Ativar tema escuro" title="Ativar tema escuro">
+                    <span id="icone-tema" aria-hidden="true">☾</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="alvo-pagina">
+        <section class="alvo-hero">
+            <p class="alvo-hero__rotulo">Missão atual</p>
+            <h1>Retomar o controle</h1>
+            <p id="periodo-missao" class="alvo-hero__periodo"></p>
+            <div class="progresso-geral" aria-label="Progresso geral da missão">
+                <div class="progresso-geral__linha">
+                    <span>Progresso geral</span>
+                    <strong id="progresso-geral-texto">0%</strong>
+                </div>
+                <div class="barra"><span id="progresso-geral-barra"></span></div>
+            </div>
+            <p id="mensagem-hoje" class="alvo-hero__mensagem"></p>
+        </section>
+
+        <section class="peso-card" aria-labelledby="titulo-peso">
+            <div>
+                <p class="meta-card__rotulo">Meta de resultado</p>
+                <h2 id="titulo-peso">Peso abaixo de 93,5 kg</h2>
+                <p>Não é sobre perder 5 kg. É sobre mostrar que você retomou o controle.</p>
+            </div>
+            <form id="form-peso" class="peso-form">
+                <label for="peso-atual">Peso de hoje</label>
+                <div class="peso-form__linha">
+                    <input id="peso-atual" type="number" min="40" max="250" step="0.1" inputmode="decimal" placeholder="Ex.: 94,2" required>
+                    <span>kg</span>
+                    <button type="submit">Registrar</button>
+                </div>
+            </form>
+            <div id="peso-status" class="peso-status"></div>
+            <div id="peso-historico" class="peso-historico"></div>
+        </section>
+
+        <section class="metas-secao" aria-labelledby="titulo-metas">
+            <div class="metas-secao__cabecalho">
+                <div>
+                    <p class="meta-card__rotulo">Compromissos diários</p>
+                    <h2 id="titulo-metas">Marque o que você realmente cumpriu</h2>
+                </div>
+                <p>Clique em qualquer dia do período para corrigir ou completar o histórico.</p>
+            </div>
+            <div id="lista-metas" class="lista-metas"></div>
+        </section>
+
+        <section class="regra-card">
+            <p class="meta-card__rotulo">Regra desta missão</p>
+            <blockquote>Treino feito vale mais que treino perfeito. Sem negociação e sem transformar um deslize em desistência.</blockquote>
+        </section>
+    </main>
+
+    <footer class="rodape-site"><p>Pequenas decisões. Evidências reais de mudança.</p></footer>
+    <script src="alvo.js"></script>
+</body>
+</html>
