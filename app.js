@@ -857,9 +857,14 @@ function renderizarMeditacao() {
         return;
     }
 
+    const markdownLimpo = String(meditacao.markdown || "")
+        .split("\n")
+        .filter(linha => !/^(<{7}|={7}|>{7})(\s.*)?$/.test(linha.trim()))
+        .join("\n");
+
     const estrutura =
         extrairEstrutura(
-            meditacao.markdown
+            markdownLimpo
         );
 
     /*
@@ -916,6 +921,8 @@ function aplicarTema(tema) {
     const escuro =
         tema === "escuro";
 
+    document.documentElement.dataset.tema = escuro ? "escuro" : "claro";
+
     document.body.classList.toggle(
         "tema-escuro",
         escuro
@@ -938,10 +945,8 @@ function aplicarTema(tema) {
             ? "Ativar tema claro"
             : "Ativar tema escuro";
 
-    localStorage.setItem(
-        "tema-livro",
-        tema
-    );
+    localStorage.setItem("mmcd:tema", tema);
+    localStorage.setItem("tema-livro", tema);
 }
 
 
@@ -1058,9 +1063,9 @@ document.addEventListener(
 
 function iniciar() {
     const temaSalvo =
-        localStorage.getItem(
-            "tema-livro"
-        ) ?? "claro";
+        localStorage.getItem("mmcd:tema")
+        ?? localStorage.getItem("tema-livro")
+        ?? "claro";
 
     aplicarTema(
         temaSalvo

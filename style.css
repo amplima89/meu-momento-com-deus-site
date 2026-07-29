@@ -748,3 +748,155 @@ select {
 @media (max-width: 720px) {
     .menu-principal__link { padding: 6px 9px; }
 }
+
+/* =========================================================
+   LIFE STYLE — DEVOCIONAL HORIZONTAL, MODERNO E LEGÍVEL
+   ========================================================= */
+:root{
+    --fundo:#eef3f9;
+    --fundo-profundo:#dce8f6;
+    --papel:#ffffff;
+    --papel-secundario:#f5f8fc;
+    --texto:#0b1220;
+    --texto-suave:#52637a;
+    --destaque:#2563eb;
+    --destaque-escuro:#1746a2;
+    --destaque-claro:#dbeafe;
+    --borda:#d8e2ef;
+    --sombra:rgba(15,23,42,.12);
+    --largura-livro:1540px;
+    --largura-topo:1700px;
+}
+body.tema-escuro{
+    --fundo:#060a11;
+    --fundo-profundo:#0b1422;
+    --papel:#0e1623;
+    --papel-secundario:#131f30;
+    --texto:#f8fafc;
+    --texto-suave:#9fb0c7;
+    --destaque:#60a5fa;
+    --destaque-escuro:#93c5fd;
+    --destaque-claro:#172b48;
+    --borda:#26364d;
+    --sombra:rgba(0,0,0,.42);
+}
+body{background:linear-gradient(135deg,var(--fundo) 0%,color-mix(in srgb,var(--fundo) 86%,#fff) 48%,var(--fundo-profundo) 100%);font-size:16px}
+.topo{background:color-mix(in srgb,var(--papel) 88%,transparent);border-bottom-color:var(--borda)}
+.marca__simbolo{border-radius:12px;color:var(--destaque);box-shadow:0 8px 24px rgba(37,99,235,.14)}
+.marca__rotulo{color:var(--destaque)}
+.pagina{width:min(calc(100% - 40px),1700px);padding:28px 0 50px}
+.livro{
+    width:100%;
+    min-height:720px;
+    margin:0;
+    padding:36px;
+    border-radius:22px;
+    border:1px solid var(--borda);
+    background:var(--papel);
+    box-shadow:0 24px 70px var(--sombra);
+    display:grid;
+    grid-template-columns:minmax(300px,360px) minmax(0,1fr);
+    grid-template-areas:
+      "cab cab"
+      "spotify conteudo"
+      "rodape rodape";
+    column-gap:38px;
+    align-items:start;
+}
+.livro::before{width:160px;height:4px;background:linear-gradient(90deg,#2563eb,#60a5fa)}
+.livro__cabecalho{grid-area:cab;text-align:left;margin-bottom:28px;padding:0 0 24px;border-bottom:1px solid var(--borda)}
+.livro__data{font-family:var(--sans);color:var(--destaque);font-size:.76rem}
+.livro__titulo{max-width:none;margin:0;font-size:clamp(2.4rem,4vw,4.6rem);letter-spacing:-.035em}
+.spotify-player{grid-area:spotify;position:sticky;top:90px;padding:22px;border:1px solid var(--borda);border-radius:18px;background:var(--papel-secundario)}
+.spotify-player h3{margin-top:0;color:var(--destaque);font-family:var(--sans);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase}
+.spotify-player__texto{color:var(--texto-suave);font-size:.86rem;line-height:1.55}
+.spotify-player iframe{height:352px!important;border-radius:14px!important}
+.meditacao{grid-area:conteudo;max-width:none;font-size:clamp(1.05rem,1.1vw,1.22rem);line-height:1.8}
+.meditacao__secao{padding:0 0 28px;border-bottom:1px solid color-mix(in srgb,var(--borda) 70%,transparent)}
+.meditacao__secao+.meditacao__secao{margin-top:28px}
+.meditacao__titulo-secao{font-size:.78rem;color:var(--destaque)}
+.meditacao p{text-align:left;max-width:92ch}
+.meditacao p+p{text-indent:0;margin-top:14px}
+.meditacao blockquote,.meditacao__secao--versiculo .meditacao__corpo{background:linear-gradient(110deg,var(--destaque-claro),color-mix(in srgb,var(--papel) 88%,transparent));border-left-color:var(--destaque);border-radius:12px;padding:24px 28px}
+.meditacao__secao--oracao{background:var(--papel-secundario);border-color:var(--borda);border-radius:16px}
+.meditacao__secao--essencial .meditacao__corpo,.meditacao__secao--semente .meditacao__corpo{background:var(--destaque-claro);border-radius:14px}
+.pagina-livro__rodape{grid-area:rodape}
+.navegacao{width:100%;max-width:1540px}
+.botao-navegacao--principal{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#2563eb}
+@media(max-width:1180px){
+  .livro{grid-template-columns:1fr;grid-template-areas:"cab" "spotify" "conteudo" "rodape";gap:24px;padding:28px}
+  .spotify-player{position:static;display:grid;grid-template-columns:1fr 2fr;gap:18px;align-items:center}
+  .spotify-player iframe{grid-column:2;height:232px!important}
+}
+@media(max-width:760px){
+  .pagina{width:calc(100% - 18px);padding-top:12px}
+  .livro{padding:24px 20px;border-radius:16px}
+  .livro__titulo{font-size:2.35rem}
+  .spotify-player{display:block;padding:16px}
+  .spotify-player iframe{height:260px!important}
+  .meditacao{font-size:1.02rem;line-height:1.72}
+}
+
+/* =========================================================
+   ÚLTIMO AJUSTE DO DEVOCIONAL — TEMA UNIFICADO E SEM GUTTERS
+   ========================================================= */
+html[data-tema="claro"]{
+    --fundo:#f4f4f5;
+    --fundo-profundo:#ececef;
+    --papel:#ffffff;
+    --papel-secundario:#f7f7f8;
+    --texto:#17171a;
+    --texto-suave:#67676f;
+    --destaque:#2563eb;
+    --destaque-escuro:#1d4ed8;
+    --destaque-claro:#e8eefc;
+    --borda:#dedee3;
+    --sombra:rgba(0,0,0,.10);
+}
+html[data-tema="escuro"]{
+    --fundo:#09090b;
+    --fundo-profundo:#09090b;
+    --papel:#111113;
+    --papel-secundario:#18181b;
+    --texto:#f4f4f5;
+    --texto-suave:#a1a1aa;
+    --destaque:#60a5fa;
+    --destaque-escuro:#93c5fd;
+    --destaque-claro:#1d2635;
+    --borda:#2a2a30;
+    --sombra:rgba(0,0,0,.50);
+}
+body{background:var(--fundo)!important}
+.topo{background:color-mix(in srgb,var(--fundo) 94%,transparent)!important}
+.livro{
+    max-width:none;
+    background:var(--papel);
+    border-color:var(--borda);
+    box-shadow:0 18px 52px var(--sombra);
+}
+.livro__cabecalho{border-bottom-color:var(--borda)}
+.spotify-player{background:var(--papel-secundario);border-color:var(--borda)}
+.meditacao__secao{border-bottom-color:var(--borda)}
+.meditacao blockquote,
+.meditacao__secao--versiculo .meditacao__corpo{
+    background:linear-gradient(110deg,var(--destaque-claro),var(--papel-secundario));
+}
+/* Evita a aparência de painel escuro flutuando sobre uma página clara. */
+html[data-tema="escuro"] body.app-body>.pagina,
+html[data-tema="escuro"] body.app-body>.rodape-site{background:#09090b}
+html[data-tema="claro"] body.app-body>.pagina,
+html[data-tema="claro"] body.app-body>.rodape-site{background:#f4f4f5}
+/* Horizontal, porém com leitura confortável e sem exagero. */
+body.app-body .livro{
+    grid-template-columns:minmax(280px,330px) minmax(0,1fr);
+    column-gap:34px;
+    padding:clamp(28px,2.5vw,44px);
+}
+body.app-body .meditacao{
+    font-size:clamp(1rem,.92vw,1.16rem);
+    line-height:1.78;
+}
+body.app-body .meditacao p{max-width:100%}
+@media(max-width:1180px){
+  body.app-body .livro{grid-template-columns:1fr;column-gap:0}
+}
