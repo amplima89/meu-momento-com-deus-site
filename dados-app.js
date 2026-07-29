@@ -78,6 +78,7 @@ window.MMCD = (() => {
       body: JSON.stringify(dados)
     });
     if (!r.ok) throw new Error("Não foi possível gravar o arquivo pelo Python.");
+    return await r.json();
   }
 
   async function carregar() {
@@ -103,7 +104,7 @@ window.MMCD = (() => {
     if (local) { cache = local; return cache; }
 
     try {
-      const r = await fetch("../vida/dados.json", { cache: "no-store" });
+      const r = await fetch("dados/vida.json", { cache: "no-store" });
       if (r.ok) {
         cache = mesclar(ARQUIVO_PADRAO, await r.json());
         localStorage.setItem(CHAVE, JSON.stringify(cache));
@@ -120,8 +121,8 @@ window.MMCD = (() => {
     cache.atualizadoEm = new Date().toISOString();
     localStorage.setItem(CHAVE, JSON.stringify(cache));
     if (apiDisponivel) {
-      await gravarApi(cache);
-      return { modo: "arquivo" };
+      const resposta = await gravarApi(cache);
+      return { modo: "arquivo", publicado: Boolean(resposta.publicado), aviso: resposta.aviso || "" };
     }
     return { modo: "navegador" };
   }

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 2,
+  "atualizadoEm": "2026-07-29T04:11:25.299Z",
+  "configuracoes": {
+    "metaLivrosAno": 30,
+    "anoMetaLivros": 2026,
+    "missaoAtual": {
+      "id": "retomar-controle-2026-07",
+      "titulo": "Retomar o controle",
+      "inicio": "2026-07-28",
+      "fim": "2026-08-09",
+      "pesoAlvo": 93.5
+    }
+  },
+  "habitos": {
+    "2026-07-29": {
+      "habitos": {
+        "treino": true,
+        "cardio": false,
+        "alimentacao": false,
+        "agua": true,
+        "sono": false,
+        "espiritual": true,
+        "leitura": true,
+        "estudo": false
+      },
+      "peso": 94.5,
+      "observacao": ""
+    },
+    "2026-07-28": {
+      "habitos": {
+        "treino": true,
+        "cardio": false,
+        "alimentacao": false,
+        "agua": true,
+        "sono": false,
+        "espiritual": false,
+        "leitura": true,
+        "estudo": false
+      },
+      "peso": null,
+      "observacao": ""
+    }
+  },
+  "livros": {
+    "atual": {
+      "titulo": "Sem Esforço",
+      "autor": "Greg McKeown",
+      "dataInicio": "",
+      "observacoes": ""
+    },
+    "concluidos": [
+      {
+        "id": "3b8091fb-ba83-4eb4-8dd6-6a67c5aa69c2",
+        "titulo": "Hábitos Atômicos",
+        "autor": "James Clear",
+        "dataInicio": "2026-07-04",
+        "dataConclusao": "2026-07-04",
+        "aprendizado": ""
+      },
+      {
+        "id": "6e5d9314-14b3-4fc1-94ec-499ba6aafd8a",
+        "titulo": "Conversas Cruciais",
+        "autor": "Kerry Patterson",
+        "dataInicio": "2026-06-13",
+        "dataConclusao": "2026-06-20",
+        "aprendizado": ""
+      },
+      {
+        "id": "8f277474-51d0-41a3-9503-505e7d5000a5",
+        "titulo": "A Sociedade do Cansaço",
+        "autor": "Byung-Chul Han",
+        "dataInicio": "",
+        "dataConclusao": "2026-06-10",
+        "aprendizado": ""
+      },
+      {
+        "id": "4fbed257-2fe3-483b-9562-da99fa61c9cd",
+        "titulo": "Os 5 desafios das equipes",
+        "autor": "",
+        "dataInicio": "2026-06-08",
+        "dataConclusao": "2026-06-08",
+        "aprendizado": ""
+      }
+    ],
+    "pendentesData": []
+  }
+}
