@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "atualizadoEm": "2026-07-29T04:11:25.299Z",
+  "atualizadoEm": "2026-07-30T02:48:56.901Z",
   "configuracoes": {
     "metaLivrosAno": 30,
     "anoMetaLivros": 2026,
@@ -35,6 +35,20 @@
         "agua": true,
         "sono": false,
         "espiritual": false,
+        "leitura": true,
+        "estudo": false
+      },
+      "peso": null,
+      "observacao": ""
+    },
+    "2026-07-27": {
+      "habitos": {
+        "treino": true,
+        "cardio": false,
+        "alimentacao": false,
+        "agua": true,
+        "sono": false,
+        "espiritual": true,
         "leitura": true,
         "estudo": false
       },
