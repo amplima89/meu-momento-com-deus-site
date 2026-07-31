@@ -1,6 +1,6 @@
 {
   "schemaVersion": 4,
-  "atualizadoEm": "2026-07-31T13:25:18.209Z",
+  "atualizadoEm": "2026-07-31T13:41:33.016Z",
   "configuracoes": {
     "metaLivrosAno": 20,
     "anoMetaLivros": 2026,
@@ -412,8 +412,8 @@
     "2026-07-31": [
       {
         "metaId": "agua",
-        "concluida": false,
-        "valor": 0,
+        "concluida": true,
+        "valor": 1,
         "observacao": ""
       },
       {
@@ -424,8 +424,8 @@
       },
       {
         "metaId": "leitura",
-        "concluida": false,
-        "valor": 0,
+        "concluida": true,
+        "valor": 1,
         "observacao": ""
       },
       {
