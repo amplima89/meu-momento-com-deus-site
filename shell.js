@@ -9,15 +9,16 @@ window.MMCDShell = async function(active){
   const consistencia = checks.length ? Math.round(checks.filter(Boolean).length/checks.length*100) : 0;
   document.body.insertAdjacentHTML("afterbegin", `
     <aside class="sidebar">
-      <a class="sidebar-brand" href="index.html" aria-label="Life Style">
+      <a class="sidebar-brand" href="painel.html" aria-label="Life Style">
         <span class="sidebar-brand__mark">LS</span>
         <div><small>PERSONAL OPERATING SYSTEM</small><strong>LIFE STYLE</strong><em>Fé, disciplina e evolução.</em></div>
       </a>
       <nav class="sidebar-nav">
-        ${link("meditacao","index.html","01","Meditação","Seu encontro diário",active)}
-        ${link("alvo","alvo.html","02","Alvo","Hábitos e missão",active)}
-        ${link("livros","livros.html","03","Livros","Leituras e conclusões",active)}
-        ${link("relatorios","relatorios.html","04","Relatórios","Performance e evolução",active)}
+        ${link("missoes","painel.html","01","Missões","Direção e foco",active)}
+        ${link("metas","alvo.html","02","Metas","Hábitos do dia",active)}
+        ${link("meditacao","index.html","03","Meditação","Seu encontro diário",active)}
+        ${link("livros","livros.html","04","Livros","Leituras e conclusões",active)}
+        ${link("estatisticas","relatorios.html","05","Estatísticas","Performance e evolução",active)}
       </nav>
       <div class="sidebar-summary">
         <div class="summary-card summary-card--dark"><span class="summary-card__label">Missão atual</span><strong>${esc(missao.titulo)}</strong><small>${consistencia}% de consistência registrada</small><div class="mini-progress"><i style="width:${consistencia}%"></i></div></div>
