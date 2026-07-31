@@ -1,111 +1,15 @@
-"use strict";
-(async function(){
-  const dados = await MMCD.carregar();
-  const hoje = new Date();
-  const isoHoje = localISO(hoje);
-  const registroHoje = dados.habitos?.[isoHoje] || {habitos:{}};
-  const habitos = [
-    ["espiritual","Meditação","Encontro diário com Deus","ME"],
-    ["leitura","Leitura","Avançar no livro atual","LE"],
-    ["agua","Água","Cuidar do corpo","AG"],
-    ["treino","Treino","Movimento e disciplina","TR"],
-    ["cardio","Cardio","Resistência e saúde","CA"],
-    ["estudo","Estudo","Aprendizado intencional","ES"]
-  ];
-
-  const hora = hoje.getHours();
-  const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
-  text("welcome-title", `${saudacao}, André.`);
-  text("welcome-date", hoje.toLocaleDateString("pt-BR", {weekday:"long", day:"2-digit", month:"long", year:"numeric"}));
-
-  const missao = dados.configuracoes.missaoAtual;
-  text("dash-mission-title", missao.titulo);
-  text("dash-mission-period", `${formatar(missao.inicio)} até ${formatar(missao.fim)}`);
-
-  const todosRegistros = Object.entries(dados.habitos || {}).sort(([a],[b])=>a.localeCompare(b));
-  const checks = todosRegistros.flatMap(([,d])=>Object.values(d.habitos||{}));
-  const consistencia = checks.length ? Math.round(checks.filter(Boolean).length/checks.length*100) : 0;
-  text("dash-mission-percent", `${consistencia}%`);
-  width("dash-mission-bar", consistencia);
-  text("dash-days-done", todosRegistros.length);
-  text("dash-streak", calcularStreak(dados.habitos || {}, hoje));
-
-  const concluidosAno = (dados.livros.concluidos||[]).filter(l=>String(l.dataConclusao||"").startsWith(String(dados.configuracoes.anoMetaLivros))).length;
-  text("dash-books", concluidosAno);
-
-  const habitsEl = document.querySelector("#dash-habits");
-  habitsEl.innerHTML = habitos.map(([id,nome,desc,icone])=>{
-    const feito = Boolean(registroHoje.habitos?.[id]);
-    return `<a class="dash-habit ${feito?"done":""}" href="alvo.html">
-      <span class="dash-habit__icon">${icone}</span>
-      <span class="dash-habit__copy"><strong>${nome}</strong><small>${desc}</small></span>
-      <span class="dash-habit__state">${feito?"Concluído":"Pendente"}</span>
-    </a>`;
-  }).join("");
-
-  montarSemana(dados.habitos || {}, hoje);
-  montarCalendario(dados.habitos || {}, hoje);
-
-  const livroAtual = dados.livros.atual || {};
-  text("dash-book-title", livroAtual.titulo || "Nenhum livro atual");
-  text("dash-book-author", livroAtual.autor || "Cadastre o autor");
-  const meta = Number(dados.configuracoes.metaLivrosAno || 30);
-  text("dash-book-goal", `${concluidosAno} / ${meta}`);
-  width("dash-book-bar", Math.min(100, concluidosAno/meta*100));
-
-  const feitosHoje = Object.values(registroHoje.habitos||{}).filter(Boolean).length;
-  const insight = feitosHoje >= 5
-    ? "Seu dia já tem uma base forte. Preserve o ritmo sem transformar disciplina em excesso."
-    : feitosHoje >= 2
-      ? "Você já começou. Agora escolha a próxima ação essencial e conclua antes de abrir uma nova frente."
-      : "O dia ainda pode mudar com uma decisão pequena e concreta. Comece pela meta mais essencial.";
-  text("dash-insight", insight);
+"use strict";(async()=>{
+ const d=await MMCD.carregar(),today=new Date(),pad=n=>String(n).padStart(2,'0'),isoDate=x=>`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`,iso=isoDate(today),fmt=x=>x.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'}),meta=d.configuracoes.missaoAtual||{};
+ document.querySelector('#today-label').textContent=today.toLocaleDateString('pt-BR');
+ document.querySelector('#mission-card').innerHTML=`<div><p class="eyebrow">Missão de vida</p><h2>${MMCDUI.esc(meta.titulo||'Defina sua missão de vida')}</h2><span class="muted">Sua direção principal para decisões, hábitos e prioridades.</span></div><div class="mission-date"><span class="eyebrow">Hoje</span><strong>${pad(today.getDate())}</strong><span>${today.toLocaleDateString('pt-BR',{month:'long'})}</span></div>`;
+ const due=MMCD.metasNaData(d,iso),done=due.filter(m=>MMCD.registro(d,iso,m.id)?.concluida).length,books=d.livros.concluidos.filter(x=>(x.dataConclusao||'').startsWith(String(d.configuracoes.anoMetaLivros))),weights=Object.entries(d.pesos).sort(),lastW=weights.at(-1)?.[1],medDates=Object.keys(d.meditacoes||{}).sort(),lastMed=medDates.at(-1)||'';
+ function streak(){let n=0,c=new Date(today);for(;;){const s=isoDate(c),goals=MMCD.metasNaData(d,s);if(!goals.length){c.setDate(c.getDate()-1);if(c<new Date('2020-01-01'))break;continue}if(!goals.some(m=>MMCD.registro(d,s,m.id)?.concluida))break;n++;c.setDate(c.getDate()-1)}return n}
+ const medMeta=d.metas.find(m=>m.nome.toLowerCase().includes('medita')),medDone=!!(d.meditacoes[iso]||medMeta&&MMCD.registro(d,iso,medMeta.id)?.concluida);
+ const cards=[['🎯','Missão de vida',meta.titulo||'Não definida','Direção principal'],['📅','Data atual',fmt(today),'Hoje'],['🔥','Sequência de dias',`${streak()} dias`,'Com algum registro'],['📖','Livro em andamento',d.livros.atual.titulo||'Nenhum',d.livros.atual.autor||'Cadastre sua leitura'],['📚','Livros concluídos',String(books.length),`Meta anual: ${d.configuracoes.metaLivrosAno}`],['🙏','Meditação de hoje',medDone?'Concluída':'Pendente',lastMed?`Última: ${MMCDUI.date(lastMed)}`:'Sem registro'],['⚖️','Peso atual',lastW!=null?`${Number(lastW).toFixed(1).replace('.',',')} kg`:'Não informado','Último registro'],['✅','Hábitos concluídos hoje',`${done} de ${due.length}`,'Metas previstas']];
+ document.querySelector('#main-cards').innerHTML=cards.map(c=>`<article class="card dash-card"><span class="dash-card__icon">${c[0]}</span><span class="dash-card__label">${c[1]}</span><strong>${MMCDUI.esc(c[2])}</strong><small>${MMCDUI.esc(c[3])}</small></article>`).join('');
+ function rate(days){let ok=0,all=0;for(let i=0;i<days;i++){let x=new Date(today);x.setDate(x.getDate()-i);let s=isoDate(x),goals=MMCD.metasNaData(d,s);all+=goals.length;ok+=goals.filter(m=>MMCD.registro(d,s,m.id)?.concluida).length}return all?Math.round(ok/all*100):0}
+ let weekly=rate(7),monthly=rate(30),goal=Math.min(100,Math.round(books.length/(+d.configuracoes.metaLivrosAno||30)*100));
+ document.querySelector('#consistency-metrics').innerHTML=[['Consistência semanal',weekly],['Consistência mensal',monthly],['Meta anual de livros',goal]].map(x=>`<div class="metric-row"><span>${x[0]}</span><strong>${x[1]}%</strong><div class="progress"><i style="width:${x[1]}%"></i></div></div>`).join('');
+ const cv=document.querySelector('#mini-weight'),ctx=cv.getContext('2d'),pts=weights.slice(-30);function draw(){let r=cv.getBoundingClientRect(),q=devicePixelRatio||1;cv.width=r.width*q;cv.height=170*q;ctx.setTransform(q,0,0,q,0,0);ctx.clearRect(0,0,r.width,170);if(pts.length<2){ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.fillText('Registre pelo menos dois pesos.',15,35);return}let vals=pts.map(x=>+x[1]),min=Math.min(...vals)-.5,max=Math.max(...vals)+.5;ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent');ctx.lineWidth=3;ctx.beginPath();pts.forEach((p,i)=>{let x=12+i*(r.width-24)/(pts.length-1),y=150-(+p[1]-min)/(max-min)*125;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()}draw();addEventListener('resize',draw);
+ document.querySelector('#last-meditation').innerHTML=lastMed?`<p class="meditation-date">${MMCDUI.date(lastMed)}</p><p class="meditation-note">Seu registro espiritual mais recente. Continue transformando constância em profundidade.</p><a class="text-link" href="index.html">Abrir meditação →</a>`:'<div class="empty">Nenhuma meditação registrada.</div>';
 })();
-
-function montarSemana(registros, hoje){
-  const el=document.querySelector("#dash-week-chart");
-  let soma=0;
-  const itens=[];
-  for(let i=6;i>=0;i--){
-    const d=new Date(hoje); d.setDate(hoje.getDate()-i);
-    const r=registros[localISO(d)]?.habitos||{};
-    const vals=Object.values(r);
-    const pct=vals.length?Math.round(vals.filter(Boolean).length/vals.length*100):0;
-    soma+=pct;
-    itens.push(`<div class="week-bar"><span class="week-bar__value">${pct}%</span><div><i style="height:${Math.max(5,pct)}%"></i></div><small>${d.toLocaleDateString("pt-BR",{weekday:"short"}).replace(".","")}</small></div>`);
-  }
-  el.innerHTML=itens.join("");
-  text("dash-week-score", `${Math.round(soma/7)}%`);
-}
-function montarCalendario(registros, hoje){
-  text("dash-month-title", hoje.toLocaleDateString("pt-BR",{month:"long",year:"numeric"}));
-  const el=document.querySelector("#dash-calendar");
-  const ano=hoje.getFullYear(), mes=hoje.getMonth();
-  const primeiro=new Date(ano,mes,1);
-  const offset=(primeiro.getDay()+6)%7;
-  const total=new Date(ano,mes+1,0).getDate();
-  const cells=[];
-  for(let i=0;i<offset;i++) cells.push('<span class="mini-day empty"></span>');
-  for(let dia=1;dia<=total;dia++){
-    const d=new Date(ano,mes,dia); const iso=localISO(d);
-    const vals=Object.values(registros[iso]?.habitos||{});
-    const pct=vals.length?vals.filter(Boolean).length/vals.length:0;
-    const classe=pct>=.75?"good":pct>0?"partial":"";
-    const atual=iso===localISO(hoje)?"today":"";
-    cells.push(`<span class="mini-day ${classe} ${atual}" title="${Math.round(pct*100)}%">${dia}</span>`);
-  }
-  el.innerHTML=cells.join("");
-}
-function calcularStreak(registros, hoje){
-  let streak=0;
-  for(let i=0;i<365;i++){
-    const d=new Date(hoje); d.setDate(hoje.getDate()-i);
-    const vals=Object.values(registros[localISO(d)]?.habitos||{});
-    if(vals.length && vals.some(Boolean)) streak++; else if(i===0) continue; else break;
-  }
-  return streak;
-}
-function localISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-function formatar(s){if(!s)return "—"; const [a,m,d]=s.split("-"); return `${d}/${m}/${a}`}
-function text(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
-function width(id,v){const e=document.getElementById(id);if(e)e.style.width=`${Number.isFinite(v)?v:0}%`}

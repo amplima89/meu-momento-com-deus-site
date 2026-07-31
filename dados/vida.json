@@ -1,59 +1,471 @@
 {
-  "schemaVersion": 2,
-  "atualizadoEm": "2026-07-30T02:50:34.769Z",
+  "schemaVersion": 4,
+  "atualizadoEm": "2026-07-31T13:09:20.547Z",
   "configuracoes": {
-    "metaLivrosAno": 30,
+    "metaLivrosAno": 20,
     "anoMetaLivros": 2026,
     "missaoAtual": {
-      "id": "retomar-controle-2026-07",
       "titulo": "Retomar o controle",
+      "id": "retomar-controle-2026-07",
       "inicio": "2026-07-28",
       "fim": "2026-08-09",
       "pesoAlvo": 93.5
     }
   },
-  "habitos": {
-    "2026-07-29": {
-      "habitos": {
-        "treino": true,
-        "cardio": false,
-        "alimentacao": false,
-        "agua": true,
-        "sono": false,
-        "espiritual": true,
-        "leitura": true,
-        "estudo": false
-      },
-      "peso": 94.5,
-      "observacao": ""
+  "metas": [
+    {
+      "id": "agua",
+      "nome": "Água",
+      "categoria": "Saúde",
+      "icone": "💧",
+      "cor": "#2563eb",
+      "tipo": "check",
+      "frequencia": "diaria",
+      "descricao": "Beber 2 litros de água diariamente",
+      "diasSemana": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "quantidade": 1,
+      "unidade": "",
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": "",
+      "ativa": true
     },
-    "2026-07-28": {
-      "habitos": {
-        "treino": true,
-        "cardio": false,
-        "alimentacao": false,
-        "agua": true,
-        "sono": false,
-        "espiritual": false,
-        "leitura": true,
-        "estudo": false
+    {
+      "id": "meditacao",
+      "nome": "Meditação",
+      "categoria": "Espiritual",
+      "icone": "🙏",
+      "cor": "#7c3aed",
+      "tipo": "check",
+      "frequencia": "diaria",
+      "descricao": "Fazer a meditação todos os dias",
+      "diasSemana": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "quantidade": 1,
+      "unidade": "",
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": "",
+      "ativa": true
+    },
+    {
+      "id": "leitura",
+      "nome": "Leitura",
+      "categoria": "Desenvolvimento",
+      "icone": "📖",
+      "cor": "#d97706",
+      "tipo": "check",
+      "frequencia": "diaria",
+      "descricao": "Ler um pouco todos os dias",
+      "diasSemana": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "quantidade": 1,
+      "unidade": "",
+      "ativa": true,
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": ""
+    },
+    {
+      "id": "treino",
+      "nome": "Treino",
+      "categoria": "Saúde",
+      "icone": "🏋️",
+      "cor": "#059669",
+      "tipo": "check",
+      "frequencia": "semanal",
+      "descricao": "Treinar musculação 3 vezes na semana",
+      "diasSemana": [
+        2,
+        4,
+        6
+      ],
+      "quantidade": 3,
+      "unidade": "vezes",
+      "ativa": true,
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": ""
+    },
+    {
+      "id": "cardio",
+      "nome": "Cardio",
+      "categoria": "Saúde",
+      "icone": "🏃",
+      "cor": "#dc2626",
+      "tipo": "check",
+      "frequencia": "semanal",
+      "descricao": "Fazer cardio duas vezes na semana",
+      "diasSemana": [
+        3,
+        5
+      ],
+      "quantidade": 2,
+      "unidade": "",
+      "ativa": true,
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": ""
+    },
+    {
+      "id": "alimentacao",
+      "nome": "Alimentação",
+      "categoria": "Saúde",
+      "icone": "🥗",
+      "cor": "#16a34a",
+      "tipo": "check",
+      "frequencia": "diaria",
+      "descricao": "Não beber refrigerante durante a semana",
+      "diasSemana": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "quantidade": 5,
+      "unidade": "vezes",
+      "ativa": true,
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": ""
+    },
+    {
+      "id": "sono",
+      "nome": "Sono",
+      "categoria": "Saúde",
+      "icone": "🌙",
+      "cor": "#4f46e5",
+      "tipo": "check",
+      "frequencia": "diaria",
+      "descricao": "Dormir até 23:00 todos os dias",
+      "diasSemana": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "quantidade": 1,
+      "unidade": "",
+      "ativa": true,
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": ""
+    },
+    {
+      "id": "estudo",
+      "nome": "Estudo",
+      "categoria": "Desenvolvimento",
+      "icone": "🎓",
+      "cor": "#0891b2",
+      "tipo": "check",
+      "frequencia": "diaria",
+      "descricao": "",
+      "diasSemana": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "quantidade": 3,
+      "unidade": "",
+      "inicioVigencia": "2026-08-03",
+      "fimVigencia": "",
+      "ativa": true
+    },
+    {
+      "id": "5e36fb11-dcc3-42fd-ae70-36d12f625435",
+      "nome": "Futebol",
+      "categoria": "Saúde",
+      "icone": "🏋️",
+      "cor": "#0891b2",
+      "tipo": "check",
+      "frequencia": "semanal",
+      "descricao": "",
+      "diasSemana": [
+        1
+      ],
+      "quantidade": 1,
+      "unidade": "vez",
+      "ativa": true,
+      "inicioVigencia": "2026-07-27",
+      "fimVigencia": ""
+    }
+  ],
+  "registros": {
+    "2026-07-29": [
+      {
+        "metaId": "treino",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
       },
-      "peso": null,
-      "observacao": ""
+      {
+        "metaId": "cardio",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "alimentacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "agua",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "sono",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "meditacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "leitura",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "estudo",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      }
+    ],
+    "2026-07-28": [
+      {
+        "metaId": "treino",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "cardio",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "alimentacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "agua",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "sono",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "meditacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "leitura",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "estudo",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      }
+    ],
+    "2026-07-27": [
+      {
+        "metaId": "treino",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "cardio",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "alimentacao",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "agua",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "sono",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "meditacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "leitura",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "estudo",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "5e36fb11-dcc3-42fd-ae70-36d12f625435",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      }
+    ],
+    "2026-07-26": [
+      {
+        "metaId": "meditacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      }
+    ],
+    "2026-07-30": [
+      {
+        "metaId": "agua",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "meditacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "leitura",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "alimentacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "treino",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      }
+    ],
+    "2026-07-31": [
+      {
+        "metaId": "agua",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "meditacao",
+        "concluida": true,
+        "valor": 1,
+        "observacao": ""
+      },
+      {
+        "metaId": "leitura",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      },
+      {
+        "metaId": "alimentacao",
+        "concluida": false,
+        "valor": 0,
+        "observacao": ""
+      }
+    ]
+  },
+  "pesos": {
+    "2026-07-29": 94.2,
+    "2026-07-28": 94.5,
+    "2026-07-30": 95.2
+  },
+  "observacoesDiarias": {},
+  "meditacoes": {
+    "2026-07-26": {
+      "titulo": "1. 💧 Água e Respiração",
+      "arquivo": "meditacoes/2026-07-26.md"
     },
     "2026-07-27": {
-      "habitos": {
-        "treino": true,
-        "cardio": false,
-        "alimentacao": false,
-        "agua": true,
-        "sono": false,
-        "espiritual": true,
-        "leitura": true,
-        "estudo": false
-      },
-      "peso": null,
-      "observacao": ""
+      "titulo": "💧 Água e Respiração",
+      "arquivo": "meditacoes/2026-07-27.md"
+    },
+    "2026-07-28": {
+      "titulo": "💧 Água e Respiração",
+      "arquivo": "meditacoes/2026-07-28.md"
+    },
+    "2026-07-29": {
+      "titulo": "💧 Água e Respiração",
+      "arquivo": "meditacoes/2026-07-29.md"
+    },
+    "2026-07-30": {
+      "titulo": "💧 Água e Respiração",
+      "arquivo": "meditacoes/2026-07-30.md"
+    },
+    "2026-07-31": {
+      "titulo": "💧 Água e Respiração",
+      "arquivo": "meditacoes/2026-07-31.md"
     }
   },
   "livros": {
@@ -98,5 +510,49 @@
       }
     ],
     "pendentesData": []
+  },
+  "habitos": {
+    "2026-07-29": {
+      "habitos": {
+        "treino": true,
+        "cardio": false,
+        "alimentacao": false,
+        "agua": true,
+        "sono": false,
+        "espiritual": true,
+        "leitura": true,
+        "estudo": false
+      },
+      "peso": 94.2,
+      "observacao": ""
+    },
+    "2026-07-28": {
+      "habitos": {
+        "treino": true,
+        "cardio": false,
+        "alimentacao": false,
+        "agua": true,
+        "sono": false,
+        "espiritual": false,
+        "leitura": true,
+        "estudo": false
+      },
+      "peso": 94.5,
+      "observacao": ""
+    },
+    "2026-07-27": {
+      "habitos": {
+        "treino": true,
+        "cardio": false,
+        "alimentacao": false,
+        "agua": true,
+        "sono": false,
+        "espiritual": true,
+        "leitura": true,
+        "estudo": false
+      },
+      "peso": null,
+      "observacao": ""
+    }
   }
 }

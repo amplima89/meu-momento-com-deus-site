@@ -1,149 +1,25 @@
 "use strict";
-
-window.MMCD = (() => {
-  const CHAVE = "mmcd:vida:v2";
-  const CHAVE_LEGADA = "mmcd:alvos:v1";
-  const ARQUIVO_PADRAO = {
-    schemaVersion: 2,
-    atualizadoEm: "",
-    configuracoes: {
-      metaLivrosAno: 30,
-      anoMetaLivros: 2026,
-      missaoAtual: { id: "retomar-controle-2026-07", titulo: "Retomar o controle", inicio: "2026-07-28", fim: "2026-08-09", pesoAlvo: 93.5 }
-    },
-    habitos: {},
-    livros: { atual: { titulo: "Sem Esforço", autor: "Greg McKeown", dataInicio: "", observacoes: "" }, concluidos: [], pendentesData: [] }
-  };
-
-  let cache = null;
-  let apiDisponivel = false;
-
-  function clonar(valor) { return JSON.parse(JSON.stringify(valor)); }
-
-  function mesclar(base, valor) {
-    const v = valor && typeof valor === "object" ? valor : {};
-    return {
-      ...base, ...v,
-      configuracoes: { ...base.configuracoes, ...(v.configuracoes || {}), missaoAtual: { ...base.configuracoes.missaoAtual, ...(v.configuracoes?.missaoAtual || {}) } },
-      habitos: v.habitos && typeof v.habitos === "object" ? v.habitos : {},
-      livros: {
-        ...base.livros, ...(v.livros || {}),
-        atual: { ...base.livros.atual, ...(v.livros?.atual || {}) },
-        concluidos: Array.isArray(v.livros?.concluidos) ? v.livros.concluidos : [],
-        pendentesData: Array.isArray(v.livros?.pendentesData) ? v.livros.pendentesData : []
-      }
-    };
-  }
-
-  function lerLocal() {
-    try {
-      const atual = JSON.parse(localStorage.getItem(CHAVE));
-      if (atual) return mesclar(ARQUIVO_PADRAO, atual);
-    } catch (_) {}
-
-    // Migração automática da primeira versão do calendário, quando estiver na mesma origem.
-    try {
-      const legado = JSON.parse(localStorage.getItem(CHAVE_LEGADA));
-      if (legado?.dias && typeof legado.dias === "object") {
-        const migrado = mesclar(ARQUIVO_PADRAO, {
-          atualizadoEm: legado.atualizadoEm || new Date().toISOString(),
-          habitos: legado.dias
-        });
-        localStorage.setItem(CHAVE, JSON.stringify(migrado));
-        return migrado;
-      }
-    } catch (_) {}
-    return null;
-  }
-
-  function pontuacao(dados) {
-    if (!dados) return 0;
-    const dias = Object.keys(dados.habitos || {}).length;
-    const livros = (dados.livros?.concluidos || []).length;
-    const atual = dados.livros?.atual?.titulo ? 1 : 0;
-    return dias * 100 + livros * 10 + atual;
-  }
-
-  function maisRecente(a, b) {
-    const ta = Date.parse(a?.atualizadoEm || "") || 0;
-    const tb = Date.parse(b?.atualizadoEm || "") || 0;
-    if (ta !== tb) return ta > tb ? a : b;
-    return pontuacao(a) >= pontuacao(b) ? a : b;
-  }
-
-  async function gravarApi(dados) {
-    const r = await fetch("/api/dados", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dados)
-    });
-    if (!r.ok) throw new Error("Não foi possível gravar o arquivo pelo Python.");
-    return await r.json();
-  }
-
-  async function carregar() {
-    if (cache) return cache;
-    const local = lerLocal();
-
-    try {
-      const r = await fetch("/api/dados", { cache: "no-store" });
-      if (r.ok) {
-        apiDisponivel = true;
-        const servidor = mesclar(ARQUIVO_PADRAO, await r.json());
-        cache = maisRecente(local, servidor) || servidor;
-
-        // Nunca substitui silenciosamente um histórico local mais completo por um arquivo vazio.
-        if (local && cache === local && pontuacao(local) > pontuacao(servidor)) {
-          await gravarApi(local);
-        }
-        localStorage.setItem(CHAVE, JSON.stringify(cache));
-        return cache;
-      }
-    } catch (_) {}
-
-    if (local) { cache = local; return cache; }
-
-    try {
-      const r = await fetch("dados/vida.json", { cache: "no-store" });
-      if (r.ok) {
-        cache = mesclar(ARQUIVO_PADRAO, await r.json());
-        localStorage.setItem(CHAVE, JSON.stringify(cache));
-        return cache;
-      }
-    } catch (_) {}
-
-    cache = clonar(ARQUIVO_PADRAO);
-    return cache;
-  }
-
-  async function salvar(dados) {
-    cache = mesclar(ARQUIVO_PADRAO, dados);
-    cache.atualizadoEm = new Date().toISOString();
-    localStorage.setItem(CHAVE, JSON.stringify(cache));
-    if (apiDisponivel) {
-      const resposta = await gravarApi(cache);
-      return { modo: "arquivo", publicado: Boolean(resposta.publicado), aviso: resposta.aviso || "" };
-    }
-    return { modo: "navegador" };
-  }
-
-  async function exportar() {
-    const dados = await carregar();
-    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `mmcd-dados-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  async function importar(arquivo) {
-    const texto = await arquivo.text();
-    const dados = mesclar(ARQUIVO_PADRAO, JSON.parse(texto));
-    return salvar(dados);
-  }
-
-  function modo() { return apiDisponivel ? "arquivo" : "navegador"; }
-  function invalidar() { cache = null; }
-  return { carregar, salvar, exportar, importar, modo, invalidar };
+window.MMCD=(()=>{
+ const KEY='mmcd:vida:v4',OLD_KEYS=['mmcd:vida:v3','mmcd:vida:v2'];let cache=null,api=false;
+ const hoje=()=>new Date().toISOString().slice(0,10);
+ const defs=[['agua','Água','Saúde','diaria','💧','#2563eb'],['meditacao','Meditação','Espiritual','diaria','🙏','#7c3aed'],['leitura','Leitura','Desenvolvimento','diaria','📖','#d97706'],['treino','Treino','Saúde','semanal','🏋️','#059669'],['cardio','Cardio','Saúde','semanal','🏃','#dc2626'],['alimentacao','Alimentação','Saúde','diaria','🥗','#16a34a'],['sono','Sono','Saúde','diaria','🌙','#4f46e5'],['estudo','Estudo','Desenvolvimento','semanal','🎓','#0891b2']];
+ const base={schemaVersion:4,atualizadoEm:'',configuracoes:{metaLivrosAno:30,anoMetaLivros:2026,missaoAtual:{titulo:'Ser um homem melhor diante de Deus, da família e do meu propósito.'}},metas:[],registros:{},pesos:{},observacoesDiarias:{},meditacoes:{},livros:{atual:{titulo:'Sem Esforço',autor:'Greg McKeown',dataInicio:'',observacoes:''},concluidos:[]}};
+ const clone=x=>JSON.parse(JSON.stringify(x));
+ const norm=s=>(s||'').trim().toLocaleLowerCase('pt-BR');
+ function merge(v={}){return {...clone(base),...v,schemaVersion:4,configuracoes:{...base.configuracoes,...(v.configuracoes||{}),missaoAtual:{...base.configuracoes.missaoAtual,...(v.configuracoes?.missaoAtual||{})}},metas:Array.isArray(v.metas)?v.metas:[],registros:v.registros||{},pesos:v.pesos||{},observacoesDiarias:v.observacoesDiarias||{},meditacoes:v.meditacoes||{},livros:{...base.livros,...(v.livros||{}),atual:{...base.livros.atual,...(v.livros?.atual||{})},concluidos:Array.isArray(v.livros?.concluidos)?v.livros.concluidos:[]}}}
+ function earliest(v,id){return Object.keys(v.registros||{}).filter(dt=>(v.registros[dt]||[]).some(r=>r.metaId===id)).sort()[0]||Object.keys(v.habitos||{}).sort()[0]||hoje()}
+ function migrate(v){let n=merge(v||{});if(!Array.isArray(n.metas)||!n.metas.length){n.metas=defs.map(x=>({id:x[0],nome:x[1],categoria:x[2],tipo:'check',frequencia:x[3],diasSemana:x[3]==='semanal'?[1,3,5]:[0,1,2,3,4,5,6],quantidade:x[3]==='semanal'?3:1,cor:x[5],icone:x[4],ativa:true,descricao:'',inicioVigencia:Object.keys(v?.habitos||{}).sort()[0]||hoje(),fimVigencia:''}))}
+ if(v?.habitos){for(const [date,day] of Object.entries(v.habitos)){n.registros[date] ||= [];for(const [old,val] of Object.entries(day.habitos||{})){const id=old==='espiritual'?'meditacao':old;if(!n.registros[date].some(r=>r.metaId===id))n.registros[date].push({metaId:id,concluida:!!val,valor:val?1:0,observacao:''})}if(Number.isFinite(day.peso)&&n.pesos[date]==null)n.pesos[date]=day.peso}}
+ n.metas=n.metas.map(m=>({...m,inicioVigencia:m.inicioVigencia||earliest(n,m.id),fimVigencia:m.fimVigencia||''}));n.schemaVersion=4;return n}
+ function unionBooks(a=[],b=[]){const out=[];for(const x of [...a,...b]){const key=[norm(x.titulo),norm(x.autor),x.dataConclusao||'',x.dataInicio||''].join('|');if(!out.some(y=>[norm(y.titulo),norm(y.autor),y.dataConclusao||'',y.dataInicio||''].join('|')===key))out.push({...x,id:x.id||crypto.randomUUID()})}return out}
+ function combine(a,b){a=migrate(a||{});b=migrate(b||{});const newer=Date.parse(a.atualizadoEm||0)>=Date.parse(b.atualizadoEm||0)?a:b,older=newer===a?b:a,n=merge(newer);n.metas=[...newer.metas];for(const m of older.metas)if(!n.metas.some(x=>x.id===m.id||norm(x.nome)===norm(m.nome)))n.metas.push(m);n.registros={...older.registros,...newer.registros};for(const [dt,rs] of Object.entries(older.registros||{})){n.registros[dt] ||= [];for(const r of rs)if(!n.registros[dt].some(x=>x.metaId===r.metaId))n.registros[dt].push(r)}n.pesos={...older.pesos,...newer.pesos};n.observacoesDiarias={...older.observacoesDiarias,...newer.observacoesDiarias};n.meditacoes={...older.meditacoes,...newer.meditacoes};n.livros.concluidos=unionBooks(newer.livros.concluidos,older.livros.concluidos);if(!n.livros.atual?.titulo&&older.livros.atual?.titulo)n.livros.atual=older.livros.atual;return migrate(n)}
+ function local(){let out=null;for(const k of [KEY,...OLD_KEYS]){try{const v=JSON.parse(localStorage.getItem(k));if(v)out=out?combine(out,v):migrate(v)}catch{}}return out}
+ function syncMeditacoes(d){const lista=window.MEDITACOES_DO_LIVRO||[];const meta=d.metas.find(m=>norm(m.nome).includes('medita'));for(const item of lista){if(!item?.data)continue;d.meditacoes[item.data]={...(d.meditacoes[item.data]||{}),titulo:item.titulo||'Meu Momento com Deus',arquivo:item.arquivo||''};if(meta)setRegistro(d,item.data,meta.id,{concluida:true,valor:1})}return d}
+ async function carregar(){if(cache)return cache;let l=local(),s=null;try{const r=await fetch('/api/dados',{cache:'no-store'});if(r.ok){api=true;s=migrate(await r.json())}}catch{}if(!s)try{const r=await fetch('../vida/dados.json',{cache:'no-store'});if(r.ok)s=migrate(await r.json())}catch{}cache=syncMeditacoes(l&&s?combine(l,s):(l||s||migrate({})));localStorage.setItem(KEY,JSON.stringify(cache));if(api)salvar(cache);return cache}
+ async function salvar(d){cache=syncMeditacoes(merge(d));cache.atualizadoEm=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(cache));if(api){try{const r=await fetch('/api/dados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cache)});if(!r.ok)throw new Error(await r.text())}catch(e){console.error('Falha ao persistir dados:',e)}}return cache}
+ function registro(d,date,id){return (d.registros?.[date]||[]).find(r=>r.metaId===id)}
+ function setRegistro(d,date,id,patch){d.registros[date] ||= [];let r=registro(d,date,id);if(!r){r={metaId:id,concluida:false,valor:0,observacao:''};d.registros[date].push(r)}Object.assign(r,patch)}
+ function ativaNaData(m,date){if(!m?.ativa)return false;if(m.inicioVigencia&&date<m.inicioVigencia)return false;if(m.fimVigencia&&date>m.fimVigencia)return false;const dow=new Date(date+'T12:00:00').getDay();return (m.diasSemana||[]).includes(dow)}
+ function metasNaData(d,date){return (d.metas||[]).filter(m=>ativaNaData(m,date))}
+ return{carregar,salvar,registro,setRegistro,ativaNaData,metasNaData};
 })();
