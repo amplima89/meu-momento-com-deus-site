@@ -50,9 +50,9 @@ window.MMCD=(()=>{
     throw e
    }
   }
-  // No GitHub Pages o site é somente leitura. A rotina local publica o JSON.
-  // Não guardamos alterações estruturais no navegador para não reaparecerem no refresh.
-  return cache
+  // No GitHub Pages o site é somente leitura. Não simulamos salvamento:
+  // isso evita que o usuário veja uma alteração que desaparecerá ao atualizar.
+  throw new Error('Este endereço está em modo de consulta. Para cadastrar ou editar, abra o painel local.')
  }
  function registro(d,date,id){return (d.registros?.[date]||[]).find(r=>r.metaId===id)}
  function setRegistro(d,date,id,patch){d.registros[date] ||= [];let r=registro(d,date,id);if(!r){r={metaId:id,concluida:false,valor:0,observacao:''};d.registros[date].push(r)}Object.assign(r,patch)}
