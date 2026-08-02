@@ -2,3 +2,41 @@
 .english-level{display:inline-flex;margin-top:10px;padding:7px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.82rem}.english-level[hidden]{display:none}
 
 .english-highlight-btn{background:#dceeff!important;color:#0b3a67!important;border-color:#82bdf2!important}.english-reading mark.english-highlight:hover{outline:2px solid #4e9ee5;outline-offset:1px}
+
+
+/* Barra de marcação sempre acessível durante a leitura */
+.english-card{
+  overflow:visible;
+}
+.english-highlight-toolbar{
+  position:sticky;
+  top:74px;
+  z-index:26;
+  align-items:center;
+  border-bottom:1px solid var(--line);
+  border-radius:var(--radius) var(--radius) 0 0;
+  background:color-mix(in srgb,var(--surface) 94%,transparent);
+  box-shadow:0 10px 24px rgba(16,17,20,.08);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.english-highlight-toolbar p{
+  margin:0;
+}
+html[data-tema="escuro"] .english-highlight-toolbar{
+  box-shadow:0 12px 28px rgba(0,0,0,.3);
+}
+@media(max-width:820px){
+  .english-highlight-toolbar{
+    top:70px;
+    padding:12px 14px;
+  }
+  .english-highlight-toolbar .btn{
+    min-height:38px;
+    padding-left:11px;
+    padding-right:11px;
+  }
+  .english-highlight-toolbar p{
+    display:none;
+  }
+}

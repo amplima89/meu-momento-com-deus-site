@@ -86,3 +86,9 @@ html[data-tema="escuro"] .meditacao mark.reflection-highlight{
     text-align:left;
   }
 }
+
+
+/* A narração ignora elementos visuais e cria pausas entre blocos. */
+.narration-status{
+  line-height:1.4;
+}

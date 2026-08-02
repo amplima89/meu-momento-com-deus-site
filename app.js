@@ -732,6 +732,8 @@ const estadoNarracao = {
     indice: 0,
     ativa: false,
     pausada: false,
+    aguardandoProximo: false,
+    temporizador: null,
     token: 0,
     voz: null
 };
@@ -918,34 +920,135 @@ function escolherVozNarracao() {
 }
 
 
-function textoDaMeditacaoParaNarracao() {
-    return String(
-        elementos.conteudo?.innerText
-        || elementos.conteudo?.textContent
-        || ""
-    )
+function limparTextoParaNarracao(texto = "") {
+    return String(texto)
+        /* Imagens Markdown e endereços não devem ser pronunciados. */
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+        .replace(/https?:\/\/\S+/gi, " ")
+        /* Remove emojis, pictogramas, variações e junções visuais. */
+        .replace(/[\u2600-\u27BF]/g, " ")
+        .replace(/[\u{1F000}-\u{1FAFF}]/gu, " ")
+        .replace(/[\uFE0E\uFE0F\u200D]/g, "")
         .replace(/\s+/g, " ")
-        .replace(/\s+([,.;:!?])/g, "$1")
+        .replace(/\s+([,.;:!?…])/g, "$1")
         .trim();
+}
+
+
+function textoDoElementoParaNarracao(elemento) {
+    const copia = elemento.cloneNode(true);
+
+    copia.querySelectorAll(
+        [
+            "img",
+            "picture",
+            "svg",
+            "figure",
+            "figcaption",
+            "canvas",
+            "video",
+            "audio",
+            "iframe",
+            "object",
+            "embed",
+            "button",
+            "select",
+            "option",
+            "[role='img']",
+            "[aria-hidden='true']",
+            ".meditacao__numero"
+        ].join(",")
+    ).forEach(item => item.remove());
+
+    return limparTextoParaNarracao(
+        copia.innerText
+        || copia.textContent
+        || ""
+    );
+}
+
+
+function garantirPausaTextual(texto) {
+    const limpo = texto.trim();
+
+    if (!limpo) {
+        return "";
+    }
+
+    if (/[.!?…][\"'”’)}\]]*$/.test(limpo)) {
+        return limpo;
+    }
+
+    /*
+     * Vírgula, dois-pontos e ponto e vírgula no fim nem sempre
+     * geram uma pausa perceptível nas vozes do navegador.
+     */
+    return `${limpo.replace(/[,;:]+$/, "").trim()}.`;
+}
+
+
+function coletarBlocosNarracao() {
+    if (!elementos.conteudo) {
+        return [];
+    }
+
+    const nos = [...elementos.conteudo.querySelectorAll(
+        "h1, h2, h3, h4, p, li, blockquote"
+    )].filter(no => {
+        /* O parágrafo interno de um blockquote seria lido duas vezes. */
+        if (
+            no.matches("p")
+            && no.closest("blockquote")
+        ) {
+            return false;
+        }
+
+        return true;
+    });
+
+    return nos
+        .map(no => {
+            const texto = garantirPausaTextual(
+                textoDoElementoParaNarracao(no)
+            );
+
+            let pausa = 460;
+
+            if (no.matches("h1, h2, h3, h4")) {
+                pausa = 760;
+            } else if (no.matches("blockquote")) {
+                pausa = 620;
+            } else if (no.matches("li")) {
+                pausa = 340;
+            }
+
+            return {
+                texto,
+                pausa
+            };
+        })
+        .filter(bloco => bloco.texto);
 }
 
 
 function dividirTextoNarracao(
     texto,
-    limite = 360
+    limite = 320
 ) {
     const sentencas =
-        texto.match(/[^.!?]+[.!?]+|[^.!?]+$/g)
+        texto.match(/[^.!?…]+[.!?…]+|[^.!?…]+$/g)
         || [texto];
 
-    const blocos = [];
+    const partes = [];
     let atual = "";
 
     function adicionarAtual() {
-        const pronto = atual.trim();
+        const pronto = garantirPausaTextual(
+            atual.trim()
+        );
 
         if (pronto) {
-            blocos.push(pronto);
+            partes.push(pronto);
         }
 
         atual = "";
@@ -960,50 +1063,77 @@ function dividirTextoNarracao(
 
         if (
             atual
-            && `${atual} ${limpa}`.length
-                > limite
+            && `${atual} ${limpa}`.length > limite
         ) {
             adicionarAtual();
         }
 
         if (limpa.length <= limite) {
-            atual =
-                atual
-                    ? `${atual} ${limpa}`
-                    : limpa;
+            atual = atual
+                ? `${atual} ${limpa}`
+                : limpa;
             return;
         }
 
         adicionarAtual();
 
-        const palavras =
-            limpa.split(/\s+/);
+        const palavras = limpa.split(/\s+/);
         let parte = "";
 
         palavras.forEach(palavra => {
             if (
                 parte
-                && `${parte} ${palavra}`.length
-                    > limite
+                && `${parte} ${palavra}`.length > limite
             ) {
-                blocos.push(parte);
+                partes.push(
+                    garantirPausaTextual(parte)
+                );
                 parte = palavra;
             } else {
-                parte =
-                    parte
-                        ? `${parte} ${palavra}`
-                        : palavra;
+                parte = parte
+                    ? `${parte} ${palavra}`
+                    : palavra;
             }
         });
 
         if (parte) {
-            blocos.push(parte);
+            partes.push(
+                garantirPausaTextual(parte)
+            );
         }
     });
 
     adicionarAtual();
 
-    return blocos;
+    return partes;
+}
+
+
+function prepararBlocosNarracao() {
+    return coletarBlocosNarracao()
+        .flatMap(bloco => {
+            const partes = dividirTextoNarracao(
+                bloco.texto
+            );
+
+            return partes.map((texto, indice) => ({
+                texto,
+                pausa:
+                    indice === partes.length - 1
+                        ? bloco.pausa
+                        : 180
+            }));
+        });
+}
+
+
+function limparTemporizadorNarracao() {
+    if (estadoNarracao.temporizador) {
+        window.clearTimeout(
+            estadoNarracao.temporizador
+        );
+        estadoNarracao.temporizador = null;
+    }
 }
 
 
@@ -1017,9 +1147,11 @@ function pararNarracao(
     estadoNarracao.token += 1;
     estadoNarracao.ativa = false;
     estadoNarracao.pausada = false;
+    estadoNarracao.aguardandoProximo = false;
     estadoNarracao.blocos = [];
     estadoNarracao.indice = 0;
 
+    limparTemporizadorNarracao();
     window.speechSynthesis.cancel();
 
     if (atualizarMensagem) {
@@ -1032,9 +1164,29 @@ function pararNarracao(
 }
 
 
+function agendarProximoBloco(token, pausa) {
+    estadoNarracao.aguardandoProximo = true;
+    limparTemporizadorNarracao();
+
+    if (estadoNarracao.pausada) {
+        return;
+    }
+
+    estadoNarracao.temporizador = window.setTimeout(
+        () => {
+            estadoNarracao.temporizador = null;
+            estadoNarracao.aguardandoProximo = false;
+            falarProximoBloco(token);
+        },
+        pausa
+    );
+}
+
+
 function falarProximoBloco(token) {
     if (
         !estadoNarracao.ativa
+        || estadoNarracao.pausada
         || token !== estadoNarracao.token
     ) {
         return;
@@ -1046,6 +1198,7 @@ function falarProximoBloco(token) {
     ) {
         estadoNarracao.ativa = false;
         estadoNarracao.pausada = false;
+        estadoNarracao.aguardandoProximo = false;
 
         atualizarStatusNarracao(
             "Narração concluída."
@@ -1054,21 +1207,23 @@ function falarProximoBloco(token) {
         return;
     }
 
-    const texto =
+    const bloco =
         estadoNarracao.blocos[
             estadoNarracao.indice
         ];
 
     const fala =
-        new SpeechSynthesisUtterance(texto);
+        new SpeechSynthesisUtterance(
+            bloco.texto
+        );
 
     fala.lang =
         estadoNarracao.voz?.lang
         || "pt-BR";
     fala.voice =
         estadoNarracao.voz;
-    fala.rate = 0.88;
-    fala.pitch = 0.76;
+    fala.rate = 0.86;
+    fala.pitch = 0.74;
     fala.volume = 1;
 
     fala.onstart = () => {
@@ -1086,7 +1241,10 @@ function falarProximoBloco(token) {
         }
 
         estadoNarracao.indice += 1;
-        falarProximoBloco(token);
+        agendarProximoBloco(
+            token,
+            bloco.pausa
+        );
     };
 
     fala.onerror = evento => {
@@ -1104,6 +1262,8 @@ function falarProximoBloco(token) {
 
         estadoNarracao.ativa = false;
         estadoNarracao.pausada = false;
+        estadoNarracao.aguardandoProximo = false;
+        limparTemporizadorNarracao();
 
         atualizarStatusNarracao(
             "Não foi possível continuar a narração."
@@ -1121,10 +1281,9 @@ function iniciarNarracao() {
         return;
     }
 
-    const texto =
-        textoDaMeditacaoParaNarracao();
+    const blocos = prepararBlocosNarracao();
 
-    if (!texto) {
+    if (!blocos.length) {
         atualizarStatusNarracao(
             "Não há texto disponível para narrar."
         );
@@ -1134,15 +1293,14 @@ function iniciarNarracao() {
     pararNarracao(false);
     escolherVozNarracao();
 
-    estadoNarracao.blocos =
-        dividirTextoNarracao(texto);
+    estadoNarracao.blocos = blocos;
     estadoNarracao.indice = 0;
     estadoNarracao.ativa = true;
     estadoNarracao.pausada = false;
+    estadoNarracao.aguardandoProximo = false;
     estadoNarracao.token += 1;
 
-    const token =
-        estadoNarracao.token;
+    const token = estadoNarracao.token;
 
     atualizarControlesNarracao();
     falarProximoBloco(token);
@@ -1158,15 +1316,25 @@ function alternarPausaNarracao() {
     }
 
     if (estadoNarracao.pausada) {
-        window.speechSynthesis.resume();
         estadoNarracao.pausada = false;
+
+        if (estadoNarracao.aguardandoProximo) {
+            estadoNarracao.aguardandoProximo = false;
+            agendarProximoBloco(
+                estadoNarracao.token,
+                180
+            );
+        } else {
+            window.speechSynthesis.resume();
+        }
 
         atualizarStatusNarracao(
             `Ouvindo ${estadoNarracao.indice + 1} de ${estadoNarracao.blocos.length}…`
         );
     } else {
-        window.speechSynthesis.pause();
         estadoNarracao.pausada = true;
+        limparTemporizadorNarracao();
+        window.speechSynthesis.pause();
 
         atualizarStatusNarracao(
             "Narração pausada."
