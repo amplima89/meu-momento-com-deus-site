@@ -61,7 +61,7 @@
 
   function freq(m){
     const map={diaria:'Diária',semanal:'Semanal',mensal:'Mensal',anual:'Anual'};
-    return map[m.frequencia]||m.frequencia;
+    return map[m.frequencia]||m.frequencia||'Sem frequência';
   }
 
   function dayText(m){
@@ -73,23 +73,111 @@
   function levelsText(m){
     const map=legacyLevels(m);
     const parts=(m.diasSemana||[]).filter(i=>map[String(i)]).map(i=>`${days[i]}: ${levels[map[String(i)]]||map[String(i)]}`);
-    return parts.length?` · ${parts.join(' | ')}`:'';
+    return parts.length?parts.join(' | '):'';
+  }
+
+  function categoryLabel(value){
+    return String(value||'').trim()||'Sem categoria';
+  }
+
+  function categoryKey(value){
+    const normalized=categoryLabel(value).toLocaleLowerCase('pt-BR');
+    return normalized==='sem categoria'?'__sem_categoria__':normalized;
+  }
+
+  function refreshCategoryFilter(){
+    const select=$('#goal-category-filter');
+    const previous=select.value||'todas';
+    const categories=new Map();
+
+    for(const meta of d.metas){
+      const key=categoryKey(meta.categoria);
+      if(!categories.has(key)) categories.set(key,categoryLabel(meta.categoria));
+    }
+
+    const ordered=[...categories.entries()].sort((a,b)=>a[1].localeCompare(b[1],'pt-BR',{sensitivity:'base'}));
+    select.innerHTML='<option value="todas">Todas as categorias</option>'+ordered.map(([key,label])=>`<option value="${MMCDUI.esc(key)}">${MMCDUI.esc(label)}</option>`).join('');
+    select.value=[...select.options].some(option=>option.value===previous)?previous:'todas';
+  }
+
+  function periodText(m){
+    return `${MMCDUI.date(m.inicioVigencia)}${m.fimVigencia?' até '+MMCDUI.date(m.fimVigencia):' em diante'}`;
   }
 
   function render(){
-    const filter=$('#goal-filter').value;
-    const list=d.metas.filter(m=>filter==='todas'||(filter==='ativas'&&m.ativa)||(filter==='inativas'&&!m.ativa));
-    $('#goal-count').textContent=`${d.metas.filter(x=>x.ativa).length} ativas · ${d.metas.length} no total`;
-    $('#goals-list').innerHTML=list.map(m=>`<article class="goal-item ${m.ativa?'':'inactive'}"><span class="goal-icon" style="color:${m.cor};background:${m.cor}14">${MMCDUI.esc(m.icone)}</span><div class="goal-info"><div class="goal-title-line"><strong>${MMCDUI.esc(m.nome)}</strong><span class="status-pill ${m.ativa?'active':'inactive'}">${m.ativa?'Ativa':'Desativada'}</span></div><small>${MMCDUI.esc(m.categoria||'Sem categoria')} · ${freq(m)} · ${MMCDUI.esc(dayText(m))}${MMCDUI.esc(levelsText(m))} · ${MMCDUI.date(m.inicioVigencia)}${m.fimVigencia?' até '+MMCDUI.date(m.fimVigencia):' em diante'}</small>${m.descricao?`<p>${MMCDUI.esc(m.descricao)}</p>`:''}</div><div class="goal-actions"><button class="btn small" data-edit="${m.id}">Editar</button><button class="btn small" data-dup="${m.id}">Duplicar</button><button class="btn small" data-toggle="${m.id}">${m.ativa?'Desativar':'Ativar'}</button><button class="btn small danger" data-del="${m.id}">Excluir</button></div></article>`).join('')||'<div class="empty">Nenhuma meta encontrada.</div>';
+    refreshCategoryFilter();
+
+    const statusFilter=$('#goal-filter').value;
+    const categoryFilter=$('#goal-category-filter').value;
+    const list=d.metas.filter(m=>{
+      const statusOk=statusFilter==='todas'||(statusFilter==='ativas'&&m.ativa)||(statusFilter==='inativas'&&!m.ativa);
+      const categoryOk=categoryFilter==='todas'||categoryKey(m.categoria)===categoryFilter;
+      return statusOk&&categoryOk;
+    });
+
+    const activeCount=d.metas.filter(x=>x.ativa).length;
+    $('#goal-count').textContent=`${list.length} exibidas · ${activeCount} ativas · ${d.metas.length} no total`;
+
+    $('#goals-list').innerHTML=list.map(m=>{
+      const levelDetails=levelsText(m);
+      return `<article class="goal-item ${m.ativa?'':'inactive'}">
+        <div class="goal-main-cell" data-label="Meta">
+          <span class="goal-icon" style="color:${m.cor};background:${m.cor}14">${MMCDUI.esc(m.icone)}</span>
+          <div class="goal-info">
+            <strong>${MMCDUI.esc(m.nome)}</strong>
+            ${m.descricao?`<p>${MMCDUI.esc(m.descricao)}</p>`:'<p class="goal-empty-description">Sem descrição</p>'}
+          </div>
+        </div>
+        <div class="goal-report-cell goal-category-cell" data-label="Categoria">
+          <span class="category-pill">${MMCDUI.esc(categoryLabel(m.categoria))}</span>
+        </div>
+        <div class="goal-report-cell goal-schedule-cell" data-label="Programação">
+          <strong>${MMCDUI.esc(freq(m))}</strong>
+          <small>${MMCDUI.esc(dayText(m))}</small>
+          ${levelDetails?`<small class="english-level-summary">${MMCDUI.esc(levelDetails)}</small>`:''}
+        </div>
+        <div class="goal-report-cell goal-period-cell" data-label="Vigência">
+          <span>${MMCDUI.esc(periodText(m))}</span>
+        </div>
+        <div class="goal-report-cell goal-status-cell" data-label="Status">
+          <span class="status-pill ${m.ativa?'active':'inactive'}">${m.ativa?'Ativa':'Desativada'}</span>
+        </div>
+        <div class="goal-actions" data-label="Ações">
+          <button class="btn small" data-edit="${m.id}">Editar</button>
+          <button class="btn small" data-dup="${m.id}">Duplicar</button>
+          <button class="btn small" data-toggle="${m.id}">${m.ativa?'Desativar':'Ativar'}</button>
+          <button class="btn small danger" data-del="${m.id}">Excluir</button>
+        </div>
+      </article>`;
+    }).join('')||'<div class="empty">Nenhuma meta encontrada para os filtros selecionados.</div>';
+
     document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>open(d.metas.find(x=>x.id===b.dataset.edit)));
-    document.querySelectorAll('[data-dup]').forEach(b=>b.onclick=async()=>{let x=d.metas.find(x=>x.id===b.dataset.dup);d.metas.push({...x,id:crypto.randomUUID(),nome:x.nome+' (cópia)'});await MMCD.salvar(d);render();MMCDUI.toast('Meta duplicada')});
-    document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=async()=>{let x=d.metas.find(x=>x.id===b.dataset.toggle);x.ativa=!x.ativa;await MMCD.salvar(d);render()});
-    document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Excluir esta meta e mantê-la fora das atividades futuras?')){d.metas=d.metas.filter(x=>x.id!==b.dataset.del);await MMCD.salvar(d);render()}});
+    document.querySelectorAll('[data-dup]').forEach(b=>b.onclick=async()=>{
+      const x=d.metas.find(x=>x.id===b.dataset.dup);
+      d.metas.push({...x,id:crypto.randomUUID(),nome:x.nome+' (cópia)'});
+      await MMCD.salvar(d);
+      render();
+      MMCDUI.toast('Meta duplicada');
+    });
+    document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=async()=>{
+      const x=d.metas.find(x=>x.id===b.dataset.toggle);
+      x.ativa=!x.ativa;
+      await MMCD.salvar(d);
+      render();
+    });
+    document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+      if(confirm('Excluir esta meta e mantê-la fora das atividades futuras?')){
+        d.metas=d.metas.filter(x=>x.id!==b.dataset.del);
+        await MMCD.salvar(d);
+        render();
+      }
+    });
   }
 
   $('#new-goal').onclick=()=>open();
   $('#close-form').onclick=$('#cancel-form').onclick=close;
   $('#goal-filter').onchange=render;
+  $('#goal-category-filter').onchange=render;
   $('#goal-name').addEventListener('input',refreshEnglishLevels);
   $('#goal-category').addEventListener('input',refreshEnglishLevels);
   document.querySelectorAll('#weekdays input').forEach(x=>x.addEventListener('change',refreshEnglishLevels));
@@ -122,11 +210,17 @@
       fimVigencia:$('#goal-end').value,
       ativa:$('#goal-active').value==='true'
     };
-    if(obj.fimVigencia&&obj.fimVigencia<obj.inicioVigencia){alert('A data final não pode ser anterior à data inicial.');return}
+    if(obj.fimVigencia&&obj.fimVigencia<obj.inicioVigencia){
+      alert('A data final não pode ser anterior à data inicial.');
+      return;
+    }
     const i=d.metas.findIndex(x=>x.id===id);
     i>=0?d.metas[i]=obj:d.metas.push(obj);
     await MMCD.salvar(d);
-    close();render();MMCDUI.toast('Meta salva');
+    close();
+    render();
+    MMCDUI.toast('Meta salva');
   };
+
   render();
 })();

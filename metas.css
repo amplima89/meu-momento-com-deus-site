@@ -1,3 +1,68 @@
-#goal-form-card{margin-bottom:16px}.weekday-picker{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0 18px}.weekday-picker label{display:flex;align-items:center;gap:6px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;font-size:.75rem}.field-label{display:block;font-size:.75rem;font-weight:700}.goals-list{display:grid;gap:10px}.goal-item{display:flex;align-items:center;gap:14px;padding:15px;border:1px solid var(--line);border-radius:15px;background:var(--surface);transition:.2s}.goal-item:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(15,23,42,.06)}.goal-item.inactive{opacity:.62}.goal-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:1.08rem;flex:0 0 auto}.goal-info{min-width:0;flex:1}.goal-title-line{display:flex;align-items:center;gap:8px}.goal-info strong{display:block}.goal-info small{display:block;color:var(--muted);margin-top:4px}.goal-info p{font-size:.78rem;color:var(--muted);margin:7px 0 0}.goal-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.goal-toolbar{display:flex;align-items:center;gap:12px}.compact-select{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:8px 10px}.status-pill{font-size:.62rem;font-weight:800;padding:4px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}.status-pill.active{background:#dcfce7;color:#166534}.status-pill.inactive{background:var(--surface-2);color:var(--muted)}@media(max-width:760px){.goal-item{align-items:flex-start;flex-wrap:wrap}.goal-actions{width:100%;justify-content:flex-start;padding-left:58px}.goal-toolbar{align-items:flex-end;flex-direction:column}.page-header__actions{flex-wrap:wrap}}
+#goal-form-card{margin-bottom:16px}
+.weekday-picker{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0 18px}
+.weekday-picker label{display:flex;align-items:center;gap:6px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;font-size:.75rem}
+.field-label{display:block;font-size:.75rem;font-weight:700}
 
-.english-levels-card{margin:2px 0 18px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}.english-levels-card .muted{margin:4px 0 12px}.english-levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.english-day-level{display:grid;gap:6px;padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}.english-day-level span{font-size:.75rem;font-weight:800}.english-day-level select{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px;background:var(--surface);color:var(--text)}
+.report-section-head{align-items:flex-end;gap:18px}
+.goal-toolbar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.goal-count{white-space:nowrap;padding-bottom:9px}
+.compact-filter{display:grid;gap:5px}
+.compact-filter>span{font-size:.62rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.compact-select{min-width:150px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:10px;padding:8px 10px}
+#goal-category-filter{min-width:200px}
+
+.goals-report-head,.goal-item{display:grid;grid-template-columns:minmax(230px,2fr) minmax(120px,.85fr) minmax(170px,1.35fr) minmax(145px,1fr) 92px minmax(238px,1.45fr);gap:12px;align-items:center}
+.goals-report-head{padding:0 15px 8px;color:var(--muted);font-size:.63rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.goals-list{display:grid;gap:10px}
+.goal-item{padding:15px;border:1px solid var(--line);border-radius:15px;background:var(--surface);transition:.2s}
+.goal-item:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.goal-item.inactive{opacity:.62}
+.goal-main-cell{display:flex;align-items:center;gap:12px;min-width:0}
+.goal-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:1.08rem;flex:0 0 auto}
+.goal-info{min-width:0}
+.goal-info strong{display:block;overflow:hidden;text-overflow:ellipsis}
+.goal-info p{font-size:.75rem;color:var(--muted);margin:5px 0 0;line-height:1.35}
+.goal-empty-description{font-style:italic;opacity:.72}
+.goal-report-cell{min-width:0}
+.goal-report-cell strong{display:block;font-size:.78rem}
+.goal-report-cell small{display:block;color:var(--muted);font-size:.7rem;line-height:1.35;margin-top:3px}
+.goal-period-cell{font-size:.74rem;line-height:1.4;color:var(--muted)}
+.english-level-summary{margin-top:5px!important}
+.category-pill{display:inline-flex;align-items:center;max-width:100%;padding:6px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:.69rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goal-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.status-pill{font-size:.62rem;font-weight:800;padding:4px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.status-pill.active{background:#dcfce7;color:#166534}
+.status-pill.inactive{background:var(--surface-2);color:var(--muted)}
+
+.english-levels-card{margin:2px 0 18px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.english-levels-card .muted{margin:4px 0 12px}
+.english-levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.english-day-level{display:grid;gap:6px;padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+.english-day-level span{font-size:.75rem;font-weight:800}
+.english-day-level select{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px;background:var(--surface);color:var(--text)}
+
+@media(max-width:1180px){
+  .goals-report-head{display:none}
+  .goal-item{grid-template-columns:minmax(250px,2fr) minmax(130px,1fr) minmax(180px,1.2fr);align-items:start}
+  .goal-main-cell{grid-row:span 2}
+  .goal-period-cell,.goal-status-cell{padding-top:5px}
+  .goal-actions{grid-column:2/-1;justify-content:flex-start}
+}
+
+@media(max-width:760px){
+  .report-section-head{align-items:flex-start;flex-direction:column}
+  .goal-toolbar{width:100%;justify-content:flex-start;align-items:stretch}
+  .goal-count{width:100%;padding-bottom:0}
+  .compact-filter{flex:1 1 160px}
+  .compact-select,#goal-category-filter{width:100%;min-width:0}
+  .goal-item{display:block;padding:14px}
+  .goal-main-cell{margin-bottom:14px}
+  .goal-report-cell,.goal-actions{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+  .goal-report-cell::before,.goal-actions::before{content:attr(data-label);font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+  .goal-category-cell .category-pill{justify-self:start}
+  .goal-status-cell .status-pill{justify-self:start}
+  .goal-actions{justify-content:initial;padding-left:0}
+  .goal-actions::before{grid-row:1/span 2}
+  .goal-actions .btn{justify-self:start}
+  .page-header__actions{flex-wrap:wrap}
+}
