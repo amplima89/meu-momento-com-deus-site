@@ -4,7 +4,7 @@
    DADOS E ESTADO
    ========================================================= */
 
-const meditacoes = [...(window.MEDITACOES_DO_LIVRO ?? [])]
+let meditacoes = [...(window.MEDITACOES_DO_LIVRO ?? [])]
     .filter(item =>
         item &&
         item.data &&
@@ -717,22 +717,40 @@ function atualizarMetadados(
    MARCAÇÕES DE TEXTO
    ========================================================= */
 
-function chaveMarcacoes() {
-    const data = meditacoes[indiceAtual]?.data || "sem-data";
-    return `mmcd:marcacoes:${data}`;
+function textosMarcados() {
+    return [...elementos.conteudo.querySelectorAll("mark.user-highlight")]
+        .map(marca => marca.textContent.trim())
+        .filter(Boolean);
 }
 
-function salvarMarcacoes() {
-    if (!elementos.conteudo) return;
-    localStorage.setItem(chaveMarcacoes(), elementos.conteudo.innerHTML);
+async function salvarMarcacoes() {
+    const data = meditacoes[indiceAtual]?.data;
+    if (!data || !window.MMCD?.salvarMarcacoesMeditacao) return;
+    await window.MMCD.salvarMarcacoesMeditacao(data, textosMarcados());
 }
 
-function restaurarMarcacoes() {
-    const html = localStorage.getItem(chaveMarcacoes());
-    if (html) elementos.conteudo.innerHTML = html;
+async function restaurarMarcacoes() {
+    const data = meditacoes[indiceAtual]?.data;
+    if (!data || !window.MMCD?.listarMarcacoesMeditacao) return;
+    const textos = await window.MMCD.listarMarcacoesMeditacao(data);
+    for (const texto of textos) {
+        const walker = document.createTreeWalker(elementos.conteudo, NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+            const indice = node.nodeValue.indexOf(texto);
+            if (indice < 0) continue;
+            const range = document.createRange();
+            range.setStart(node, indice);
+            range.setEnd(node, indice + texto.length);
+            const marca = document.createElement("mark");
+            marca.className = "user-highlight";
+            try { range.surroundContents(marca); } catch {}
+            break;
+        }
+    }
 }
 
-function marcarSelecao() {
+async function marcarSelecao() {
     const selecao = window.getSelection();
     if (!selecao || selecao.isCollapsed || !selecao.rangeCount) {
         window.MMCDUI?.toast?.("Selecione primeiro um trecho da meditação.");
@@ -766,7 +784,7 @@ function marcarSelecao() {
     window.MMCDUI?.toast?.("Trecho marcado.");
 }
 
-function desmarcarTrecho(marca) {
+async function desmarcarTrecho(marca) {
     if (!(marca instanceof HTMLElement) || !marca.matches("mark.user-highlight")) {
         return;
     }
@@ -774,16 +792,12 @@ function desmarcarTrecho(marca) {
     marca.replaceWith(...marca.childNodes);
     elementos.conteudo.normalize();
 
-    if (elementos.conteudo.querySelector("mark.user-highlight")) {
-        salvarMarcacoes();
-    } else {
-        localStorage.removeItem(chaveMarcacoes());
-    }
+    await salvarMarcacoes();
 
     window.MMCDUI?.toast?.("Marcação removida deste trecho.");
 }
 
-function limparMarcacoes() {
+async function limparMarcacoes() {
     const marcas = elementos.conteudo.querySelectorAll("mark.user-highlight");
 
     if (!marcas.length) {
@@ -800,7 +814,7 @@ function limparMarcacoes() {
     });
 
     elementos.conteudo.normalize();
-    localStorage.removeItem(chaveMarcacoes());
+    await salvarMarcacoes();
     window.MMCDUI?.toast?.("Todas as marcações foram removidas.");
 }
 
@@ -990,7 +1004,7 @@ function renderizarMeditacao() {
             .map(renderizarSecao)
             .join("");
 
-    restaurarMarcacoes();
+    restaurarMarcacoes().catch(console.error);
 
     elementos.numeroPagina.textContent =
         `${indiceAtual + 1} de ${meditacoes.length}`;
@@ -1174,7 +1188,7 @@ document.addEventListener(
    INICIALIZAÇÃO
    ========================================================= */
 
-function iniciar() {
+async function iniciar() {
     const temaSalvo =
         localStorage.getItem("mmcd:tema")
         ?? localStorage.getItem("tema-livro")
@@ -1183,6 +1197,10 @@ function iniciar() {
     aplicarTema(
         temaSalvo
     );
+
+    if (window.MMCD?.listarMeditacoes) {
+        meditacoes = await window.MMCD.listarMeditacoes();
+    }
 
     if (!meditacoes.length) {
         renderizarVazio();

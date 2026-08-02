@@ -8,3 +8,11 @@ html[data-tema="escuro"]{--bg:#0b0c0f;--surface:#13151a;--surface-2:#1a1d23;--te
 /* Estados da barra de consistência: concluída, não realizada e não programada. */
 .consistency-cell.missed{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
 .consistency-cell.off{opacity:.28;background:var(--surface-2)}
+
+/* Supabase authentication */
+#mmcd-auth-overlay{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px;background:rgba(7,20,38,.86);backdrop-filter:blur(10px)}
+#mmcd-auth-overlay[hidden]{display:none}
+.auth-card{width:min(440px,100%);padding:32px;border-radius:24px;background:var(--card,#fff);color:var(--text,#111827);box-shadow:0 24px 80px rgba(0,0,0,.35)}
+.auth-card h1{margin:.25rem 0 1rem}.auth-card p{line-height:1.55}.auth-error{min-height:1.4em;color:#b91c1c}
+.account-menu{display:flex;gap:8px;align-items:center;margin-top:auto;padding:12px}.account-button{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sync-status{font-size:12px;color:var(--muted,#64748b);padding:0 12px 10px}

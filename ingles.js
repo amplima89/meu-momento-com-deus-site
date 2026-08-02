@@ -1,7 +1,7 @@
 
 "use strict";
 (async()=>{
- const lista=window.MEDITACOES_DO_LIVRO||[],sel=document.querySelector('#ingles-data'),box=document.querySelector('#ingles-conteudo');
+ const lista=await MMCD.listarMeditacoes(),sel=document.querySelector('#ingles-data'),box=document.querySelector('#ingles-conteudo');
  const nivelBox=document.querySelector('#ingles-nivel');
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
@@ -14,7 +14,7 @@
 
  async function carregarNivel(){
   try{
-   const r=await fetch('/api/dados',{cache:'no-store'});if(!r.ok)return;const d=await r.json();
+   const d=await MMCD.carregar();
    const hoje=new Date(),dia=hoje.getDay(),iso=hoje.toISOString().slice(0,10);
    const meta=(d.metas||[]).find(m=>{const n=((m.nome||'')+' '+(m.categoria||'')).toLowerCase();const mapa=m.nivelInglesPorDia||{};const nivelHoje=mapa[String(dia)]||m.nivelIngles||'';m.__nivelHoje=nivelHoje;return m.ativa!==false&&nivelHoje&&n.includes('ingl')&&(!(m.diasSemana||[]).length||(m.diasSemana||[]).includes(dia))&&(!m.inicioVigencia||iso>=m.inicioVigencia)&&(!m.fimVigencia||iso<=m.fimVigencia)});
    if(!meta){nivelBox.hidden=true;return}
@@ -22,9 +22,12 @@
   }catch{nivelBox.hidden=true}
  }
  function dataAtual(){return lista[+sel.value]?.data||''}
- async function carregarMarcacoes(){const key='mmcd:ingles:marcacoes:'+dataAtual();try{const r=await fetch('/api/marcacoes-ingles?data='+encodeURIComponent(dataAtual()),{cache:'no-store'});if(r.ok){const j=await r.json();const textos=(j.marcacoes||[]).map(x=>x.texto);localStorage.setItem(key,JSON.stringify(textos));aplicarTextos(textos);return}}catch{}try{aplicarTextos(JSON.parse(localStorage.getItem(key)||'[]'))}catch{}}
+ async function carregarMarcacoes(){
+   try{const rows=await MMCD.listarMarcacoesIngles(dataAtual());aplicarTextos(rows.map(x=>x.texto))}
+   catch(e){console.error(e);MMCDUI.toast('Não foi possível carregar as marcações.')}
+ }
  function aplicarTextos(textos){for(const texto of textos){const walker=document.createTreeWalker(box,NodeFilter.SHOW_TEXT);let node;while(node=walker.nextNode()){const i=node.nodeValue.indexOf(texto);if(i>=0){const range=document.createRange();range.setStart(node,i);range.setEnd(node,i+texto.length);const mark=document.createElement('mark');mark.className='user-highlight';try{range.surroundContents(mark)}catch{}break}}}}
- async function salvar(){const textos=[...box.querySelectorAll('mark.user-highlight')].map(x=>' '.concat(x.textContent).trim()).filter(Boolean);localStorage.setItem('mmcd:ingles:marcacoes:'+dataAtual(),JSON.stringify(textos));try{await fetch('/api/marcacoes-ingles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:dataAtual(),textos})})}catch{} }
+ async function salvar(){const textos=[...box.querySelectorAll('mark.user-highlight')].map(x=>' '.concat(x.textContent).trim()).filter(Boolean);await MMCD.substituirMarcacoesIngles(dataAtual(),textos)}
  async function abrir(){box.innerHTML=render(lista[+sel.value]?.markdown||'');await carregarMarcacoes()}
  lista.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m.data.split('-').reverse().join('/');sel.append(o)});sel.value=Math.max(0,lista.length-1);sel.addEventListener('change',abrir);
  document.querySelector('#ingles-marcar').addEventListener('click',async()=>{const s=getSelection();if(!s||s.isCollapsed||!s.rangeCount)return MMCDUI.toast('Selecione uma expressão primeiro.');const r=s.getRangeAt(0),a=r.commonAncestorContainer.nodeType===1?r.commonAncestorContainer:r.commonAncestorContainer.parentElement;if(!box.contains(a))return MMCDUI.toast('Selecione um trecho do inglês diário.');const m=document.createElement('mark');m.className='user-highlight';try{r.surroundContents(m)}catch{const f=r.extractContents();m.append(f);r.insertNode(m)}s.removeAllRanges();await salvar();MMCDUI.toast('Expressão salva no banco para revisão.')});
