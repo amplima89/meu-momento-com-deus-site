@@ -40,6 +40,13 @@ const elementos = {
 
     tema: $("#botao-tema"),
     iconeTema: $("#icone-tema"),
+
+    narracaoOuvir: $("#narracao-ouvir"),
+    narracaoPausar: $("#narracao-pausar"),
+    narracaoParar: $("#narracao-parar"),
+    narracaoVoz: $("#narracao-voz"),
+    narracaoStatus: $("#narracao-status"),
+
     marcar: $("#botao-marcar"),
     limparMarcas: $("#botao-limpar-marcas")
 };
@@ -714,108 +721,879 @@ function atualizarMetadados(
 
 
 /* =========================================================
-   MARCAÇÕES DE TEXTO
+   NARRAÇÃO OPCIONAL
    ========================================================= */
 
-function textosMarcados() {
-    return [...elementos.conteudo.querySelectorAll("mark.user-highlight")]
-        .map(marca => marca.textContent.trim())
-        .filter(Boolean);
+const estadoNarracao = {
+    suportada:
+        "speechSynthesis" in window
+        && "SpeechSynthesisUtterance" in window,
+    blocos: [],
+    indice: 0,
+    ativa: false,
+    pausada: false,
+    token: 0,
+    voz: null
+};
+
+
+function atualizarStatusNarracao(texto) {
+    if (elementos.narracaoStatus) {
+        elementos.narracaoStatus.textContent = texto;
+    }
 }
 
-async function salvarMarcacoes() {
-    const data = meditacoes[indiceAtual]?.data;
-    if (!data || !window.MMCD?.salvarMarcacoesMeditacao) return;
-    await window.MMCD.salvarMarcacoesMeditacao(data, textosMarcados());
+
+function atualizarControlesNarracao() {
+    if (!elementos.narracaoOuvir) {
+        return;
+    }
+
+    if (!estadoNarracao.suportada) {
+        elementos.narracaoOuvir.disabled = true;
+        elementos.narracaoPausar.disabled = true;
+        elementos.narracaoParar.disabled = true;
+        elementos.narracaoVoz.disabled = true;
+        atualizarStatusNarracao(
+            "A narração não está disponível neste navegador."
+        );
+        return;
+    }
+
+    elementos.narracaoOuvir.disabled = false;
+    elementos.narracaoPausar.disabled =
+        !estadoNarracao.ativa;
+    elementos.narracaoParar.disabled =
+        !estadoNarracao.ativa;
+
+    elementos.narracaoOuvir.textContent =
+        estadoNarracao.ativa
+            ? "↻ Reiniciar"
+            : "▶ Ouvir";
+
+    elementos.narracaoPausar.textContent =
+        estadoNarracao.pausada
+            ? "▶ Continuar"
+            : "⏸ Pausar";
 }
 
-async function restaurarMarcacoes() {
-    const data = meditacoes[indiceAtual]?.data;
-    if (!data || !window.MMCD?.listarMarcacoesMeditacao) return;
-    const textos = await window.MMCD.listarMarcacoesMeditacao(data);
-    for (const texto of textos) {
-        const walker = document.createTreeWalker(elementos.conteudo, NodeFilter.SHOW_TEXT);
-        let node;
-        while ((node = walker.nextNode())) {
-            const indice = node.nodeValue.indexOf(texto);
-            if (indice < 0) continue;
-            const range = document.createRange();
-            range.setStart(node, indice);
-            range.setEnd(node, indice + texto.length);
-            const marca = document.createElement("mark");
-            marca.className = "user-highlight";
-            try { range.surroundContents(marca); } catch {}
-            break;
+
+function pontuarVoz(voz) {
+    const nome = normalizarTexto(
+        `${voz.name || ""} ${voz.voiceURI || ""}`
+    );
+    const idioma = String(voz.lang || "")
+        .toLowerCase();
+
+    let pontos = 0;
+
+    if (idioma === "pt-br") {
+        pontos += 120;
+    } else if (idioma.startsWith("pt")) {
+        pontos += 80;
+    }
+
+    if (
+        /(antonio|ant[oô]nio|donato|daniel|felipe|ricardo|jo[aã]o|luciano|paulo|rafael|thiago|carlos|marcos|male|mascul)/i
+            .test(nome)
+    ) {
+        pontos += 55;
+    }
+
+    if (
+        /(francisca|maria|luciana|helena|vitoria|vit[oó]ria|camila|fernanda|isabela|female|femin)/i
+            .test(nome)
+    ) {
+        pontos -= 35;
+    }
+
+    if (voz.localService) {
+        pontos += 5;
+    }
+
+    return pontos;
+}
+
+
+function vozesDisponiveis() {
+    if (!estadoNarracao.suportada) {
+        return [];
+    }
+
+    return window.speechSynthesis
+        .getVoices()
+        .filter(voz =>
+            String(voz.lang || "")
+                .toLowerCase()
+                .startsWith("pt")
+        )
+        .sort((a, b) =>
+            pontuarVoz(b) - pontuarVoz(a)
+            || a.name.localeCompare(b.name, "pt-BR")
+        );
+}
+
+
+function carregarVozesNarracao() {
+    if (!elementos.narracaoVoz) {
+        return;
+    }
+
+    const vozes = vozesDisponiveis();
+    const preferidaSalva =
+        localStorage.getItem("mmcd:narracao:voz")
+        || "";
+
+    elementos.narracaoVoz.replaceChildren();
+
+    const automatica =
+        document.createElement("option");
+    automatica.value = "";
+    automatica.textContent =
+        "Automática — grave";
+    elementos.narracaoVoz.appendChild(
+        automatica
+    );
+
+    vozes.forEach(voz => {
+        const opcao =
+            document.createElement("option");
+
+        opcao.value =
+            voz.voiceURI || voz.name;
+        opcao.textContent =
+            `${voz.name} (${voz.lang})`;
+
+        elementos.narracaoVoz.appendChild(
+            opcao
+        );
+    });
+
+    if (
+        preferidaSalva
+        && [...elementos.narracaoVoz.options]
+            .some(opcao =>
+                opcao.value === preferidaSalva
+            )
+    ) {
+        elementos.narracaoVoz.value =
+            preferidaSalva;
+    }
+
+    escolherVozNarracao();
+}
+
+
+function escolherVozNarracao() {
+    const vozes = vozesDisponiveis();
+    const escolha =
+        elementos.narracaoVoz?.value
+        || "";
+
+    estadoNarracao.voz =
+        vozes.find(voz =>
+            (voz.voiceURI || voz.name)
+            === escolha
+        )
+        || vozes[0]
+        || window.speechSynthesis
+            ?.getVoices()
+            ?.find(voz =>
+                String(voz.lang || "")
+                    .toLowerCase()
+                    .startsWith("pt")
+            )
+        || null;
+
+    if (escolha) {
+        localStorage.setItem(
+            "mmcd:narracao:voz",
+            escolha
+        );
+    } else {
+        localStorage.removeItem(
+            "mmcd:narracao:voz"
+        );
+    }
+}
+
+
+function textoDaMeditacaoParaNarracao() {
+    return String(
+        elementos.conteudo?.innerText
+        || elementos.conteudo?.textContent
+        || ""
+    )
+        .replace(/\s+/g, " ")
+        .replace(/\s+([,.;:!?])/g, "$1")
+        .trim();
+}
+
+
+function dividirTextoNarracao(
+    texto,
+    limite = 360
+) {
+    const sentencas =
+        texto.match(/[^.!?]+[.!?]+|[^.!?]+$/g)
+        || [texto];
+
+    const blocos = [];
+    let atual = "";
+
+    function adicionarAtual() {
+        const pronto = atual.trim();
+
+        if (pronto) {
+            blocos.push(pronto);
         }
+
+        atual = "";
     }
+
+    sentencas.forEach(sentenca => {
+        const limpa = sentenca.trim();
+
+        if (!limpa) {
+            return;
+        }
+
+        if (
+            atual
+            && `${atual} ${limpa}`.length
+                > limite
+        ) {
+            adicionarAtual();
+        }
+
+        if (limpa.length <= limite) {
+            atual =
+                atual
+                    ? `${atual} ${limpa}`
+                    : limpa;
+            return;
+        }
+
+        adicionarAtual();
+
+        const palavras =
+            limpa.split(/\s+/);
+        let parte = "";
+
+        palavras.forEach(palavra => {
+            if (
+                parte
+                && `${parte} ${palavra}`.length
+                    > limite
+            ) {
+                blocos.push(parte);
+                parte = palavra;
+            } else {
+                parte =
+                    parte
+                        ? `${parte} ${palavra}`
+                        : palavra;
+            }
+        });
+
+        if (parte) {
+            blocos.push(parte);
+        }
+    });
+
+    adicionarAtual();
+
+    return blocos;
 }
 
-async function marcarSelecao() {
-    const selecao = window.getSelection();
-    if (!selecao || selecao.isCollapsed || !selecao.rangeCount) {
-        window.MMCDUI?.toast?.("Selecione primeiro um trecho da meditação.");
+
+function pararNarracao(
+    atualizarMensagem = true
+) {
+    if (!estadoNarracao.suportada) {
         return;
     }
 
-    const range = selecao.getRangeAt(0);
-    const ancestral = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
-        ? range.commonAncestorContainer
-        : range.commonAncestorContainer.parentElement;
+    estadoNarracao.token += 1;
+    estadoNarracao.ativa = false;
+    estadoNarracao.pausada = false;
+    estadoNarracao.blocos = [];
+    estadoNarracao.indice = 0;
 
-    if (!elementos.conteudo.contains(ancestral)) {
-        window.MMCDUI?.toast?.("A marcação funciona somente no texto da meditação.");
+    window.speechSynthesis.cancel();
+
+    if (atualizarMensagem) {
+        atualizarStatusNarracao(
+            "Narração interrompida."
+        );
+    }
+
+    atualizarControlesNarracao();
+}
+
+
+function falarProximoBloco(token) {
+    if (
+        !estadoNarracao.ativa
+        || token !== estadoNarracao.token
+    ) {
         return;
+    }
+
+    if (
+        estadoNarracao.indice
+        >= estadoNarracao.blocos.length
+    ) {
+        estadoNarracao.ativa = false;
+        estadoNarracao.pausada = false;
+
+        atualizarStatusNarracao(
+            "Narração concluída."
+        );
+        atualizarControlesNarracao();
+        return;
+    }
+
+    const texto =
+        estadoNarracao.blocos[
+            estadoNarracao.indice
+        ];
+
+    const fala =
+        new SpeechSynthesisUtterance(texto);
+
+    fala.lang =
+        estadoNarracao.voz?.lang
+        || "pt-BR";
+    fala.voice =
+        estadoNarracao.voz;
+    fala.rate = 0.88;
+    fala.pitch = 0.76;
+    fala.volume = 1;
+
+    fala.onstart = () => {
+        atualizarStatusNarracao(
+            `Ouvindo ${estadoNarracao.indice + 1} de ${estadoNarracao.blocos.length}…`
+        );
+    };
+
+    fala.onend = () => {
+        if (
+            token !== estadoNarracao.token
+            || !estadoNarracao.ativa
+        ) {
+            return;
+        }
+
+        estadoNarracao.indice += 1;
+        falarProximoBloco(token);
+    };
+
+    fala.onerror = evento => {
+        if (
+            ["canceled", "interrupted"]
+                .includes(evento.error)
+        ) {
+            return;
+        }
+
+        console.error(
+            "Erro na narração:",
+            evento.error
+        );
+
+        estadoNarracao.ativa = false;
+        estadoNarracao.pausada = false;
+
+        atualizarStatusNarracao(
+            "Não foi possível continuar a narração."
+        );
+        atualizarControlesNarracao();
+    };
+
+    window.speechSynthesis.speak(fala);
+}
+
+
+function iniciarNarracao() {
+    if (!estadoNarracao.suportada) {
+        atualizarControlesNarracao();
+        return;
+    }
+
+    const texto =
+        textoDaMeditacaoParaNarracao();
+
+    if (!texto) {
+        atualizarStatusNarracao(
+            "Não há texto disponível para narrar."
+        );
+        return;
+    }
+
+    pararNarracao(false);
+    escolherVozNarracao();
+
+    estadoNarracao.blocos =
+        dividirTextoNarracao(texto);
+    estadoNarracao.indice = 0;
+    estadoNarracao.ativa = true;
+    estadoNarracao.pausada = false;
+    estadoNarracao.token += 1;
+
+    const token =
+        estadoNarracao.token;
+
+    atualizarControlesNarracao();
+    falarProximoBloco(token);
+}
+
+
+function alternarPausaNarracao() {
+    if (
+        !estadoNarracao.suportada
+        || !estadoNarracao.ativa
+    ) {
+        return;
+    }
+
+    if (estadoNarracao.pausada) {
+        window.speechSynthesis.resume();
+        estadoNarracao.pausada = false;
+
+        atualizarStatusNarracao(
+            `Ouvindo ${estadoNarracao.indice + 1} de ${estadoNarracao.blocos.length}…`
+        );
+    } else {
+        window.speechSynthesis.pause();
+        estadoNarracao.pausada = true;
+
+        atualizarStatusNarracao(
+            "Narração pausada."
+        );
+    }
+
+    atualizarControlesNarracao();
+}
+
+
+/* =========================================================
+   DESTAQUES PESSOAIS — SOMENTE NESTE NAVEGADOR
+   ========================================================= */
+
+function chaveDestaquesMeditacao() {
+    const data =
+        meditacoes[indiceAtual]?.data;
+
+    return data
+        ? `mmcd:destaques:${data}`
+        : "";
+}
+
+
+function lerDestaquesLocais() {
+    const chave =
+        chaveDestaquesMeditacao();
+
+    if (!chave) {
+        return [];
     }
 
     try {
-        const marca = document.createElement("mark");
-        marca.className = "user-highlight";
+        const valor =
+            JSON.parse(
+                localStorage.getItem(chave)
+                || "[]"
+            );
+
+        if (!Array.isArray(valor)) {
+            return [];
+        }
+
+        return valor
+            .filter(item =>
+                item
+                && Number.isInteger(item.inicio)
+                && Number.isInteger(item.fim)
+                && item.fim > item.inicio
+                && typeof item.texto === "string"
+            )
+            .sort((a, b) =>
+                a.inicio - b.inicio
+            );
+    } catch {
+        return [];
+    }
+}
+
+
+function salvarDestaquesLocais(
+    destaques
+) {
+    const chave =
+        chaveDestaquesMeditacao();
+
+    if (!chave) {
+        return;
+    }
+
+    if (!destaques.length) {
+        localStorage.removeItem(chave);
+        return;
+    }
+
+    localStorage.setItem(
+        chave,
+        JSON.stringify(destaques)
+    );
+}
+
+
+function offsetGlobalNoConteudo(
+    node,
+    offset
+) {
+    const range =
+        document.createRange();
+
+    range.selectNodeContents(
+        elementos.conteudo
+    );
+
+    try {
+        range.setEnd(node, offset);
+        return range.toString().length;
+    } catch {
+        return -1;
+    }
+}
+
+
+function posicaoPorOffset(
+    offset
+) {
+    const walker =
+        document.createTreeWalker(
+            elementos.conteudo,
+            NodeFilter.SHOW_TEXT
+        );
+
+    let acumulado = 0;
+    let node;
+
+    while ((node = walker.nextNode())) {
+        const proximo =
+            acumulado
+            + node.nodeValue.length;
+
+        if (offset <= proximo) {
+            return {
+                node,
+                offset:
+                    Math.max(
+                        0,
+                        offset - acumulado
+                    )
+            };
+        }
+
+        acumulado = proximo;
+    }
+
+    return null;
+}
+
+
+function criarRangePorOffsets(
+    inicio,
+    fim
+) {
+    const comeco =
+        posicaoPorOffset(inicio);
+    const termino =
+        posicaoPorOffset(fim);
+
+    if (!comeco || !termino) {
+        return null;
+    }
+
+    const range =
+        document.createRange();
+
+    try {
+        range.setStart(
+            comeco.node,
+            comeco.offset
+        );
+        range.setEnd(
+            termino.node,
+            termino.offset
+        );
+        return range;
+    } catch {
+        return null;
+    }
+}
+
+
+function aplicarMarcaAoRange(
+    range,
+    id
+) {
+    const marca =
+        document.createElement("mark");
+
+    marca.className =
+        "reflection-highlight";
+    marca.dataset.highlightId = id;
+
+    try {
         range.surroundContents(marca);
     } catch {
-        const fragmento = range.extractContents();
-        const marca = document.createElement("mark");
-        marca.className = "user-highlight";
+        const fragmento =
+            range.extractContents();
+
         marca.append(fragmento);
         range.insertNode(marca);
     }
 
-    selecao.removeAllRanges();
-    salvarMarcacoes();
-    window.MMCDUI?.toast?.("Trecho marcado.");
+    return marca;
 }
 
-async function desmarcarTrecho(marca) {
-    if (!(marca instanceof HTMLElement) || !marca.matches("mark.user-highlight")) {
+
+function restaurarDestaquesLocais() {
+    const destaques =
+        lerDestaquesLocais()
+            .sort((a, b) =>
+                b.inicio - a.inicio
+            );
+
+    destaques.forEach(destaque => {
+        const range =
+            criarRangePorOffsets(
+                destaque.inicio,
+                destaque.fim
+            );
+
+        if (!range) {
+            return;
+        }
+
+        const textoAtual =
+            range.toString();
+
+        if (
+            textoAtual
+            !== destaque.texto
+        ) {
+            return;
+        }
+
+        aplicarMarcaAoRange(
+            range,
+            destaque.id
+        );
+    });
+}
+
+
+function rangeCruzaDestaque(
+    range
+) {
+    return [
+        ...elementos.conteudo
+            .querySelectorAll(
+                "mark.reflection-highlight"
+            )
+    ].some(marca => {
+        try {
+            return range.intersectsNode(marca);
+        } catch {
+            return false;
+        }
+    });
+}
+
+
+function novoIdDestaque() {
+    return window.crypto?.randomUUID?.()
+        || `destaque-${Date.now()}-${Math.random()
+            .toString(16)
+            .slice(2)}`;
+}
+
+
+function marcarSelecao() {
+    const selecao =
+        window.getSelection();
+
+    if (
+        !selecao
+        || selecao.isCollapsed
+        || !selecao.rangeCount
+    ) {
+        window.MMCDUI?.toast?.(
+            "Selecione primeiro um trecho da meditação."
+        );
         return;
     }
 
-    marca.replaceWith(...marca.childNodes);
+    const range =
+        selecao.getRangeAt(0);
+
+    const ancestral =
+        range.commonAncestorContainer
+            .nodeType
+            === Node.ELEMENT_NODE
+            ? range.commonAncestorContainer
+            : range.commonAncestorContainer
+                .parentElement;
+
+    if (
+        !ancestral
+        || !elementos.conteudo
+            .contains(ancestral)
+    ) {
+        window.MMCDUI?.toast?.(
+            "O destaque funciona somente no texto da meditação."
+        );
+        return;
+    }
+
+    if (rangeCruzaDestaque(range)) {
+        window.MMCDUI?.toast?.(
+            "Esse trecho já cruza um destaque existente."
+        );
+        return;
+    }
+
+    const inicio =
+        offsetGlobalNoConteudo(
+            range.startContainer,
+            range.startOffset
+        );
+    const fim =
+        offsetGlobalNoConteudo(
+            range.endContainer,
+            range.endOffset
+        );
+    const texto =
+        range.toString();
+
+    if (
+        inicio < 0
+        || fim <= inicio
+        || !texto.trim()
+    ) {
+        window.MMCDUI?.toast?.(
+            "Não foi possível destacar essa seleção."
+        );
+        return;
+    }
+
+    const id =
+        novoIdDestaque();
+
+    aplicarMarcaAoRange(range, id);
+
+    const destaques =
+        lerDestaquesLocais();
+
+    destaques.push({
+        id,
+        inicio,
+        fim,
+        texto
+    });
+
+    salvarDestaquesLocais(
+        destaques
+    );
+
+    selecao.removeAllRanges();
+
+    window.MMCDUI?.toast?.(
+        "Destaque salvo somente neste navegador."
+    );
+}
+
+
+function desmarcarTrecho(
+    marca
+) {
+    if (
+        !(marca instanceof HTMLElement)
+        || !marca.matches(
+            "mark.reflection-highlight"
+        )
+    ) {
+        return;
+    }
+
+    const id =
+        marca.dataset.highlightId;
+
+    marca.replaceWith(
+        ...marca.childNodes
+    );
     elementos.conteudo.normalize();
 
-    await salvarMarcacoes();
+    const restantes =
+        lerDestaquesLocais()
+            .filter(item =>
+                item.id !== id
+            );
 
-    window.MMCDUI?.toast?.("Marcação removida deste trecho.");
+    salvarDestaquesLocais(
+        restantes
+    );
+
+    window.MMCDUI?.toast?.(
+        "Destaque removido."
+    );
 }
 
-async function limparMarcacoes() {
-    const marcas = elementos.conteudo.querySelectorAll("mark.user-highlight");
+
+function limparMarcacoes() {
+    const marcas =
+        elementos.conteudo
+            .querySelectorAll(
+                "mark.reflection-highlight"
+            );
 
     if (!marcas.length) {
-        window.MMCDUI?.toast?.("Não há marcações para remover.");
+        window.MMCDUI?.toast?.(
+            "Não há destaques para remover."
+        );
         return;
     }
 
-    if (!window.confirm("Remover todas as marcações amarelas desta meditação?")) {
+    if (
+        !window.confirm(
+            "Remover todos os destaques amarelos desta meditação?"
+        )
+    ) {
         return;
     }
 
     marcas.forEach(marca => {
-        marca.replaceWith(...marca.childNodes);
+        marca.replaceWith(
+            ...marca.childNodes
+        );
     });
 
     elementos.conteudo.normalize();
-    await salvarMarcacoes();
-    window.MMCDUI?.toast?.("Todas as marcações foram removidas.");
+
+    const chave =
+        chaveDestaquesMeditacao();
+
+    if (chave) {
+        localStorage.removeItem(chave);
+    }
+
+    window.MMCDUI?.toast?.(
+        "Todos os destaques foram removidos."
+    );
 }
 
 /* =========================================================
@@ -956,6 +1734,8 @@ function renderizarVazio() {
 
 
 function renderizarMeditacao() {
+    pararNarracao(false);
+
     const meditacao =
         meditacoes[indiceAtual];
 
@@ -1004,7 +1784,7 @@ function renderizarMeditacao() {
             .map(renderizarSecao)
             .join("");
 
-    restaurarMarcacoes().catch(console.error);
+    restaurarDestaquesLocais();
 
     elementos.numeroPagina.textContent =
         `${indiceAtual + 1} de ${meditacoes.length}`;
@@ -1132,17 +1912,68 @@ elementos.tema.addEventListener(
 );
 
 
-elementos.marcar?.addEventListener("click", marcarSelecao);
+elementos.narracaoOuvir?.addEventListener(
+    "click",
+    iniciarNarracao
+);
 
-elementos.conteudo?.addEventListener("click", evento => {
-    const marca = evento.target.closest?.("mark.user-highlight");
+elementos.narracaoPausar?.addEventListener(
+    "click",
+    alternarPausaNarracao
+);
 
-    if (marca && elementos.conteudo.contains(marca)) {
-        desmarcarTrecho(marca);
+elementos.narracaoParar?.addEventListener(
+    "click",
+    () => pararNarracao(true)
+);
+
+elementos.narracaoVoz?.addEventListener(
+    "change",
+    escolherVozNarracao
+);
+
+if (estadoNarracao.suportada) {
+    window.speechSynthesis.addEventListener?.(
+        "voiceschanged",
+        carregarVozesNarracao
+    );
+
+    window.speechSynthesis.onvoiceschanged =
+        carregarVozesNarracao;
+}
+
+window.addEventListener(
+    "pagehide",
+    () => pararNarracao(false)
+);
+
+elementos.marcar?.addEventListener(
+    "click",
+    marcarSelecao
+);
+
+elementos.conteudo?.addEventListener(
+    "click",
+    evento => {
+        const marca =
+            evento.target.closest?.(
+                "mark.reflection-highlight"
+            );
+
+        if (
+            marca
+            && elementos.conteudo
+                .contains(marca)
+        ) {
+            desmarcarTrecho(marca);
+        }
     }
-});
+);
 
-elementos.limparMarcas?.addEventListener("click", limparMarcacoes);
+elementos.limparMarcas?.addEventListener(
+    "click",
+    limparMarcacoes
+);
 
 /* =========================================================
    NAVEGAÇÃO PELO TECLADO
@@ -1197,6 +2028,9 @@ async function iniciar() {
     aplicarTema(
         temaSalvo
     );
+
+    atualizarControlesNarracao();
+    carregarVozesNarracao();
 
     if (window.MMCD?.listarMeditacoes) {
         meditacoes = await window.MMCD.listarMeditacoes();

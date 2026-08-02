@@ -480,28 +480,6 @@ window.MMCD = (() => {
     }));
   }
 
-  async function listarMarcacoesMeditacao(date) {
-    await mustUser();
-    const chave = `marcacoes_meditacao:${date}`;
-    const { data, error } = await db.from("configuracoes_usuario")
-      .select("valor")
-      .eq("user_id", currentUser.id)
-      .eq("chave", chave)
-      .maybeSingle();
-    if (error) fail(error, "Falha ao carregar marcações da meditação");
-    return Array.isArray(data?.valor?.textos) ? data.valor.textos : [];
-  }
-
-  async function salvarMarcacoesMeditacao(date, textos) {
-    await mustUser();
-    const chave = `marcacoes_meditacao:${date}`;
-    const unicos = [...new Set((textos || []).map(x => String(x || "").trim()).filter(Boolean))];
-    const { error } = await db.from("configuracoes_usuario").upsert({
-      user_id: currentUser.id, chave, valor: { textos: unicos }
-    }, { onConflict: "user_id,chave" });
-    if (error) fail(error, "Falha ao salvar marcações da meditação");
-    return unicos;
-  }
 
   function registro(data, date, id) { return (data.registros?.[date] || []).find(x => x.metaId === id); }
   function setRegistro(data, date, id, patch) {
@@ -518,5 +496,5 @@ window.MMCD = (() => {
   }
   function metasNaData(data, date) { return (data.metas || []).filter(item => ativaNaData(item, date)); }
 
-  return { carregar, salvar, salvarRegistroAtividade, salvarRegistroDiario, salvarLivros, salvarMetaLivros, registro, setRegistro, ativaNaData, metasNaData, listarMarcacoesIngles, substituirMarcacoesIngles, listarMeditacoes, listarMarcacoesMeditacao, salvarMarcacoesMeditacao };
+  return { carregar, salvar, salvarRegistroAtividade, salvarRegistroDiario, salvarLivros, salvarMetaLivros, registro, setRegistro, ativaNaData, metasNaData, listarMarcacoesIngles, substituirMarcacoesIngles, listarMeditacoes };
 })();

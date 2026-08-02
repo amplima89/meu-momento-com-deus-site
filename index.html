@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Meditação — Meu Momento com Deus</title>
-  <link rel="stylesheet" href="painel.css?v=20260802-1">
-  <link rel="stylesheet" href="style.css?v=20260802-1">
+  <link rel="stylesheet" href="painel.css?v=20260802-5">
+  <link rel="stylesheet" href="style.css?v=20260802-5">
 </head>
 <body>
   <div class="app-shell">
@@ -48,10 +48,32 @@
                 <iframe src="https://open.spotify.com/embed/artist/6nrqAqb26GkZsICC5sCZaO" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="eager" title="Música para meditação"></iframe>
               </section>
 
-              <div class="highlight-tools" aria-label="Ferramentas de marcação">
-                <button id="botao-marcar" class="btn highlight-btn" type="button">Marcar em amarelo</button>
-                <button id="botao-limpar-marcas" class="btn" type="button">Limpar todas</button>
-                <p class="muted">Selecione um trecho para marcar. Para remover só uma marcação, clique diretamente no trecho amarelo.</p>
+              <section class="narration-box" aria-labelledby="titulo-narracao">
+                <div>
+                  <p class="eyebrow" id="titulo-narracao">Ouvir a meditação</p>
+                  <p class="muted">Narração opcional com preferência por uma voz masculina, grave e serena.</p>
+                </div>
+
+                <div class="narration-controls" role="group" aria-label="Controles da narração">
+                  <button id="narracao-ouvir" class="btn primary" type="button">▶ Ouvir</button>
+                  <button id="narracao-pausar" class="btn" type="button" disabled>⏸ Pausar</button>
+                  <button id="narracao-parar" class="btn" type="button" disabled>■ Parar</button>
+                </div>
+
+                <label class="narration-voice">
+                  <span>Voz</span>
+                  <select id="narracao-voz" aria-label="Escolher voz da narração">
+                    <option value="">Automática — grave</option>
+                  </select>
+                </label>
+
+                <p id="narracao-status" class="narration-status muted" aria-live="polite">Pronto para ouvir.</p>
+              </section>
+
+              <div class="highlight-tools" aria-label="Destaques pessoais">
+                <button id="botao-marcar" class="btn highlight-btn" type="button">Destacar em amarelo</button>
+                <button id="botao-limpar-marcas" class="btn" type="button">Limpar destaques</button>
+                <p class="muted">O amarelo é apenas um destaque pessoal. Ele fica salvo neste navegador e nunca é enviado para o banco ou para o estudo de inglês.</p>
               </div>
             </div>
           </aside>
@@ -71,11 +93,11 @@
     </main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=1"></script><script src="supabase-client.js?v=1"></script><script src="auth.js?v=1"></script><script src="dados-app.js?v=30"></script>
-  <script src="shell.js?v=30"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=1"></script><script src="supabase-client.js?v=1"></script><script src="auth.js?v=1"></script><script src="dados-app.js?v=35"></script>
+  <script src="shell.js?v=35"></script>
   <script>MMCDShell('meditacao')</script>
   
-  <script src="app.js?v=30"></script>
-  <script src="meditacao-consistencia.js?v=30"></script>
+  <script src="app.js?v=35"></script>
+  <script src="meditacao-consistencia.js?v=35"></script>
 </body>
 </html>
