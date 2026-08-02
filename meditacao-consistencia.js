@@ -1,1 +1,39 @@
-"use strict";(async()=>{const d=await MMCD.carregar(),meta=d.metas.find(m=>m.nome.toLowerCase().includes('medita')),pad=n=>String(n).padStart(2,'0'),iso=x=>`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`,dates=[];for(let i=29;i>=0;i--){let x=new Date();x.setDate(x.getDate()-i);dates.push(iso(x))}const done=x=>!!(d.meditacoes?.[x]||(meta&&MMCD.registro(d,x,meta.id)?.concluida));let valid=dates.filter(x=>meta?MMCD.ativaNaData(meta,x):true),count=valid.filter(done).length,record=0,run=0,current=0;let start=meta?.inicioVigencia||Object.keys(d.meditacoes||{}).sort()[0]||iso(new Date()),x=new Date(start+'T12:00'),end=new Date();while(x<=end){let s=iso(x);if(!meta||MMCD.ativaNaData(meta,s)){run=done(s)?run+1:0;record=Math.max(record,run)}x.setDate(x.getDate()+1)}for(let i=valid.length-1;i>=0&&done(valid[i]);i--)current++;document.querySelector('#meditation-consistency').innerHTML=`<div class="consistency__top"><div><h2>CONSISTÊNCIA NA MEDITAÇÃO</h2><p>Você está há <strong>${current} dias</strong> consecutivos.</p><p>Seu recorde é <strong>${record} dias</strong>.</p></div><strong>${valid.length?Math.round(count/valid.length*100):0}%</strong></div><div class="consistency-grid">${dates.map(x=>`<i class="consistency-cell ${done(x)?'on':''}" title="${MMCDUI.date(x)}"></i>`).join('')}</div>`})();
+"use strict";
+(async()=>{
+  const d=await MMCD.carregar();
+  const meta=d.metas.find(m=>(m.nome||'').toLocaleLowerCase('pt-BR').includes('medita'));
+  const pad=n=>String(n).padStart(2,'0');
+  const iso=x=>`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;
+  const parse=s=>new Date(`${s}T12:00:00`);
+  const hoje=iso(new Date());
+  const concluida=date=>!!(meta&&MMCD.registro(d,date,meta.id)?.concluida);
+
+  const ultimos30=[];
+  for(let i=29;i>=0;i--){const x=new Date();x.setDate(x.getDate()-i);ultimos30.push(iso(x))}
+  const validos30=ultimos30.filter(date=>meta?MMCD.ativaNaData(meta,date):false);
+  const totalConcluido=validos30.filter(concluida).length;
+
+  const inicio=meta?.inicioVigencia||validos30[0]||hoje;
+  const historico=[];
+  for(let x=parse(inicio),fim=parse(hoje);x<=fim;x.setDate(x.getDate()+1)){
+    const date=iso(x);
+    if(meta&&MMCD.ativaNaData(meta,date))historico.push(date);
+  }
+
+  let recorde=0,sequencia=0;
+  for(const date of historico){
+    sequencia=concluida(date)?sequencia+1:0;
+    recorde=Math.max(recorde,sequencia);
+  }
+
+  // Durante o dia atual, uma atividade ainda não marcada não encerra a sequência de ontem.
+  let indice=historico.length-1;
+  if(indice>=0&&historico[indice]===hoje&&!concluida(hoje))indice--;
+  let atual=0;
+  for(;indice>=0&&concluida(historico[indice]);indice--)atual++;
+  recorde=Math.max(recorde,atual);
+
+  const el=document.querySelector('#meditation-consistency');
+  if(!el)return;
+  el.innerHTML=`<div class="consistency__top"><div><h2>CONSISTÊNCIA NA MEDITAÇÃO</h2><p>Você está há <strong>${atual} ${atual===1?'dia':'dias'}</strong> consecutivos.</p><p>Seu recorde é <strong>${recorde} ${recorde===1?'dia':'dias'}</strong>.</p></div><strong>${validos30.length?Math.round(totalConcluido/validos30.length*100):0}%</strong></div><div class="consistency-grid">${ultimos30.map(date=>{const programada=meta&&MMCD.ativaNaData(meta,date);const estado=!programada?'off':concluida(date)?'on':'missed';const texto=!programada?'Não programada':concluida(date)?'Realizada':'Não realizada';return `<i class="consistency-cell ${estado}" title="${MMCDUI.date(date)} — ${texto}"></i>`}).join('')}</div>`;
+})();

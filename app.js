@@ -39,7 +39,9 @@ const elementos = {
     proximo: $("#botao-proximo"),
 
     tema: $("#botao-tema"),
-    iconeTema: $("#icone-tema")
+    iconeTema: $("#icone-tema"),
+    marcar: $("#botao-marcar"),
+    limparMarcas: $("#botao-limpar-marcas")
 };
 
 
@@ -712,6 +714,97 @@ function atualizarMetadados(
 
 
 /* =========================================================
+   MARCAÇÕES DE TEXTO
+   ========================================================= */
+
+function chaveMarcacoes() {
+    const data = meditacoes[indiceAtual]?.data || "sem-data";
+    return `mmcd:marcacoes:${data}`;
+}
+
+function salvarMarcacoes() {
+    if (!elementos.conteudo) return;
+    localStorage.setItem(chaveMarcacoes(), elementos.conteudo.innerHTML);
+}
+
+function restaurarMarcacoes() {
+    const html = localStorage.getItem(chaveMarcacoes());
+    if (html) elementos.conteudo.innerHTML = html;
+}
+
+function marcarSelecao() {
+    const selecao = window.getSelection();
+    if (!selecao || selecao.isCollapsed || !selecao.rangeCount) {
+        window.MMCDUI?.toast?.("Selecione primeiro um trecho da meditação.");
+        return;
+    }
+
+    const range = selecao.getRangeAt(0);
+    const ancestral = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+        ? range.commonAncestorContainer
+        : range.commonAncestorContainer.parentElement;
+
+    if (!elementos.conteudo.contains(ancestral)) {
+        window.MMCDUI?.toast?.("A marcação funciona somente no texto da meditação.");
+        return;
+    }
+
+    try {
+        const marca = document.createElement("mark");
+        marca.className = "user-highlight";
+        range.surroundContents(marca);
+    } catch {
+        const fragmento = range.extractContents();
+        const marca = document.createElement("mark");
+        marca.className = "user-highlight";
+        marca.append(fragmento);
+        range.insertNode(marca);
+    }
+
+    selecao.removeAllRanges();
+    salvarMarcacoes();
+    window.MMCDUI?.toast?.("Trecho marcado.");
+}
+
+function desmarcarTrecho(marca) {
+    if (!(marca instanceof HTMLElement) || !marca.matches("mark.user-highlight")) {
+        return;
+    }
+
+    marca.replaceWith(...marca.childNodes);
+    elementos.conteudo.normalize();
+
+    if (elementos.conteudo.querySelector("mark.user-highlight")) {
+        salvarMarcacoes();
+    } else {
+        localStorage.removeItem(chaveMarcacoes());
+    }
+
+    window.MMCDUI?.toast?.("Marcação removida deste trecho.");
+}
+
+function limparMarcacoes() {
+    const marcas = elementos.conteudo.querySelectorAll("mark.user-highlight");
+
+    if (!marcas.length) {
+        window.MMCDUI?.toast?.("Não há marcações para remover.");
+        return;
+    }
+
+    if (!window.confirm("Remover todas as marcações amarelas desta meditação?")) {
+        return;
+    }
+
+    marcas.forEach(marca => {
+        marca.replaceWith(...marca.childNodes);
+    });
+
+    elementos.conteudo.normalize();
+    localStorage.removeItem(chaveMarcacoes());
+    window.MMCDUI?.toast?.("Todas as marcações foram removidas.");
+}
+
+/* =========================================================
    NAVEGAÇÃO POR DATA
    ========================================================= */
 
@@ -888,8 +981,16 @@ function renderizarMeditacao() {
 
     elementos.conteudo.innerHTML =
         estrutura.secoes
+            .filter(secao => {
+                const titulo = normalizarTexto(secao.titulo || "");
+                return !titulo.includes("my prayer in english")
+                    && !titulo.includes("english prayer")
+                    && !titulo.includes("oracao em ingles");
+            })
             .map(renderizarSecao)
             .join("");
+
+    restaurarMarcacoes();
 
     elementos.numeroPagina.textContent =
         `${indiceAtual + 1} de ${meditacoes.length}`;
@@ -1016,6 +1117,18 @@ elementos.tema.addEventListener(
     }
 );
 
+
+elementos.marcar?.addEventListener("click", marcarSelecao);
+
+elementos.conteudo?.addEventListener("click", evento => {
+    const marca = evento.target.closest?.("mark.user-highlight");
+
+    if (marca && elementos.conteudo.contains(marca)) {
+        desmarcarTrecho(marca);
+    }
+});
+
+elementos.limparMarcas?.addEventListener("click", limparMarcacoes);
 
 /* =========================================================
    NAVEGAÇÃO PELO TECLADO

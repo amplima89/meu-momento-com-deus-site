@@ -1,1 +1,81 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meditação — Meu Momento com Deus</title><link rel="stylesheet" href="painel.css"><link rel="stylesheet" href="style.css"></head><body><div class="app-shell"><header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">← MEU MOMENTO COM DEUS</span><span class="app-topbar__subtitle">Livro digital devocional</span></div><div class="topbar-actions"><label class="date-select"><span>Data</span><select id="seletor-data"></select></label><button id="theme-toggle" class="icon-btn">☾</button><button id="botao-tema" hidden><span id="icone-tema"></span></button></div></div></header><main class="app-main meditation-page"><section id="meditation-consistency" class="card consistency"></section><article class="devotional-book card"><header class="devotional-header"><p id="data-meditacao" class="devotional-date">Carregando...</p><h1 id="titulo-meditacao">Meu Momento com Deus</h1><div id="metadados-meditacao" class="metadata" hidden><span id="meta-clima" hidden></span><span id="meta-temperatura" hidden></span><span id="meta-referencia" hidden></span></div></header><section class="music-box"><div><p class="eyebrow">Prepare seu coração</p><p class="muted">Uma trilha discreta para acompanhar seu momento.</p></div><iframe src="https://open.spotify.com/embed/artist/6nrqAqb26GkZsICC5sCZaO" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></section><div id="conteudo-meditacao" class="meditacao"><p class="muted">Carregando a meditação...</p></div><footer class="book-footer"><span id="numero-pagina"></span><span>✦</span></footer></article><nav class="meditation-nav"><button id="botao-anterior" class="btn">← Anterior</button><button id="botao-hoje" class="btn primary">Hoje</button><button id="botao-proximo" class="btn">Próxima →</button></nav></main></div><script src="dados-app.js"></script><script src="shell.js"></script><script>MMCDShell('meditacao')</script><script src="dados/meditacoes.js"></script><script src="app.js"></script><script src="meditacao-consistencia.js"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meditação — Meu Momento com Deus</title>
+  <link rel="stylesheet" href="painel.css?v=20260802-1">
+  <link rel="stylesheet" href="style.css?v=20260802-1">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div>
+          <span class="app-topbar__title">← MEU MOMENTO COM DEUS</span>
+          <span class="app-topbar__subtitle">Livro digital devocional</span>
+        </div>
+        <div class="topbar-actions">
+          <label class="date-select"><span>Data</span><select id="seletor-data"></select></label>
+          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+          <button id="botao-tema" hidden><span id="icone-tema"></span></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main meditation-page">
+      <section id="meditation-consistency" class="card consistency"></section>
+
+      <article class="devotional-book card">
+        <div class="devotional-layout">
+          <aside class="devotional-sidebar">
+            <div class="devotional-sidebar__sticky">
+              <header class="devotional-header">
+                <p id="data-meditacao" class="devotional-date">Carregando...</p>
+                <h1 id="titulo-meditacao">Meu Momento com Deus</h1>
+                <div id="metadados-meditacao" class="metadata" hidden>
+                  <span id="meta-clima" hidden></span>
+                  <span id="meta-temperatura" hidden></span>
+                  <span id="meta-referencia" hidden></span>
+                </div>
+              </header>
+
+              <section class="music-box">
+                <div>
+                  <p class="eyebrow">Prepare seu coração</p>
+                  <p class="muted">A música permanece ao lado sem mover o ponto da leitura.</p>
+                </div>
+                <iframe src="https://open.spotify.com/embed/artist/6nrqAqb26GkZsICC5sCZaO" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="eager" title="Música para meditação"></iframe>
+              </section>
+
+              <div class="highlight-tools" aria-label="Ferramentas de marcação">
+                <button id="botao-marcar" class="btn highlight-btn" type="button">Marcar em amarelo</button>
+                <button id="botao-limpar-marcas" class="btn" type="button">Limpar todas</button>
+                <p class="muted">Selecione um trecho para marcar. Para remover só uma marcação, clique diretamente no trecho amarelo.</p>
+              </div>
+            </div>
+          </aside>
+
+          <div class="devotional-reading">
+            <div id="conteudo-meditacao" class="meditacao"><p class="muted">Carregando a meditação...</p></div>
+            <footer class="book-footer"><span id="numero-pagina"></span><span>✦</span></footer>
+          </div>
+        </div>
+      </article>
+
+      <nav class="meditation-nav">
+        <button id="botao-anterior" class="btn">← Anterior</button>
+        <button id="botao-hoje" class="btn primary">Hoje</button>
+        <button id="botao-proximo" class="btn">Próxima →</button>
+      </nav>
+    </main>
+  </div>
+
+  <script src="dados-app.js?v=20260802-1"></script>
+  <script src="shell.js?v=20260802-1"></script>
+  <script>MMCDShell('meditacao')</script>
+  <script src="dados/meditacoes.js?v=20260802-1"></script>
+  <script src="app.js?v=20260802-1"></script>
+  <script src="meditacao-consistencia.js?v=20260802-1"></script>
+</body>
+</html>
