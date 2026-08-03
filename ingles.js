@@ -7,10 +7,10 @@
  const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
  function extrair(md=''){
   const linhas=md.split(/\r?\n/);let ini=-1,fim=linhas.length;
-  for(let i=0;i<linhas.length;i++){const n=linhas[i].normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(/^#{2,3}\s+/.test(linhas[i])&&(n.includes('my prayer in english')||n.includes('oracao em ingles'))){ini=i+1;continue}if(ini>=0&&i>=ini&&/^##\s+/.test(linhas[i])){fim=i;break}}
+  for(let i=0;i<linhas.length;i++){const n=linhas[i].normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(/^#{2,3}\s+/.test(linhas[i])&&(n.includes('my life in english')||n.includes('english for my life')||n.includes('daily english')||n.includes('ingles diario')||n.includes('my prayer in english')||n.includes('oracao em ingles'))){ini=i+1;continue}if(ini>=0&&i>=ini&&/^##\s+/.test(linhas[i])){fim=i;break}}
   return ini<0?'':linhas.slice(ini,fim).join('\n').trim();
  }
- function render(md){const text=extrair(md);if(!text)return '<div class="empty">Esta meditação não possui a seção de inglês.</div>';let out='<div class="practice-note"><strong>Como usar:</strong> leia em voz alta, repita as expressões e selecione e salve em azul o que deseja praticar novamente.</div>';let paras=text.split(/\n\s*\n/);for(const p of paras){const lines=p.split('\n').map(x=>x.trim()).filter(Boolean);if(lines.every(x=>/^[-*]\s+/.test(x)))out+='<ul>'+lines.map(x=>'<li>'+inline(x.replace(/^[-*]\s+/,''))+'</li>').join('')+'</ul>';else out+='<p>'+inline(lines.join(' ').replace(/\s{2,}/g,' '))+'</p>'}return out}
+ function render(md){const text=extrair(md);if(!text)return '<div class="empty">Esta meditação não possui uma prática de inglês.</div>';let out='<div class="practice-note"><strong>Como usar:</strong> leia em voz alta, responda à prática final e salve em azul as expressões que deseja revisar.</div>';let paras=text.split(/\n\s*\n/);for(const p of paras){const lines=p.split('\n').map(x=>x.trim()).filter(Boolean);if(lines.every(x=>/^[-*]\s+/.test(x)))out+='<ul>'+lines.map(x=>'<li>'+inline(x.replace(/^[-*]\s+/,''))+'</li>').join('')+'</ul>';else out+='<p>'+inline(lines.join(' ').replace(/\s{2,}/g,' '))+'</p>'}return out}
 
  async function carregarNivel(){
   try{

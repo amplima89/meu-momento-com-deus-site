@@ -1945,7 +1945,11 @@ function renderizarMeditacao() {
         estrutura.secoes
             .filter(secao => {
                 const titulo = normalizarTexto(secao.titulo || "");
-                return !titulo.includes("my prayer in english")
+                return !titulo.includes("my life in english")
+                    && !titulo.includes("english for my life")
+                    && !titulo.includes("daily english")
+                    && !titulo.includes("ingles diario")
+                    && !titulo.includes("my prayer in english")
                     && !titulo.includes("english prayer")
                     && !titulo.includes("oracao em ingles");
             })
