@@ -4,7 +4,7 @@
    DADOS E ESTADO
    ========================================================= */
 
-let meditacoes = [...(window.MEDITACOES_DO_LIVRO ?? [])]
+let meditacoes = []
     .filter(item =>
         item &&
         item.data &&

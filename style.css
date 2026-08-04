@@ -92,3 +92,7 @@ html[data-tema="escuro"] .meditacao mark.reflection-highlight{
 .narration-status{
   line-height:1.4;
 }
+
+
+/* Player contínuo do YouTube para a meditação */
+.music-box .youtube-player{width:100%;height:auto;min-height:0;aspect-ratio:16/9;border:0;border-radius:12px;background:#000}.music-box__link{justify-self:start;color:var(--accent);font-size:.74rem;font-weight:700;text-decoration:none}.music-box__link:hover{text-decoration:underline}

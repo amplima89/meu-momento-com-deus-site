@@ -1,19 +1,16 @@
 # Meu Momento com Deus — Site
 
-Aplicação web do projeto **Meu Momento com Deus**.
+Aplicação web publicada no GitHub Pages.
 
-## Estrutura
+## Módulos
 
-- `index.html` e `app.js`: livro digital e meditações.
-- `painel.html`: painel principal.
-- `atividades.html`: atividades diárias.
-- `livros.html`: biblioteca e meta anual.
-- `metas.html`, `ingles.html`, `relatorios.html` e `alvo.html`: demais módulos.
-- `dados-app.js`: acesso e persistência no Supabase.
-- `configuracao-banco/SUPABASE_CONFIGURAR_BANCO.sql`: índices e permissões necessárias.
+- `index.html`: meditação diária com player do YouTube.
+- `ingles.html`: prática diária com tradução ao passar o mouse ou tocar.
+- `painel.html`: visão geral.
+- `atividades.html`: rotina e registros.
+- `livros.html`: biblioteca.
+- `metas.html`: cadastro de metas.
+- `relatorios.html`: evolução e indicadores.
 
-## Banco de dados
-
-Antes do primeiro teste, execute uma única vez o arquivo SQL da pasta `configuracao-banco` no SQL Editor do Supabase.
-
-O site usa autenticação do Supabase e grava cada usuário apenas nos próprios registros.
+Os dados são carregados do Supabase. O arquivo `ATUALIZAR_SITE.bat` publica
+as alterações no repositório do GitHub sem depender da pasta `.git` local.

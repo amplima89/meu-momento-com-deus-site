@@ -37,14 +37,6 @@ window.MMCD = (() => {
     };
   }
 
-  function syncMeditacoes(data) {
-    for (const item of (window.MEDITACOES_DO_LIVRO || [])) {
-      if (item?.data) data.meditacoes[item.data] = {
-        ...(data.meditacoes[item.data] || {}), titulo: item.titulo || "Meu Momento com Deus", arquivo: item.arquivo || ""
-      };
-    }
-    return data;
-  }
 
   async function mustUser() {
     const session = await window.MMCDAuth.requireSession();
@@ -108,13 +100,21 @@ window.MMCD = (() => {
   }
 
   async function loadRemote() {
-    const [categories, activities, activityRecords, books, goals, daily, configs, englishConfigs] = await Promise.all([
+    const [categories, activities, activityRecords, books, goals, daily, configs, englishConfigs, meditations] = await Promise.all([
       select("categorias"), select("atividades"), select("registros_atividades"), select("livros"),
-      select("metas"), select("registros_diarios"), select("configuracoes_usuario"), select("ingles_configuracao")
+      select("metas"), select("registros_diarios"), select("configuracoes_usuario"), select("ingles_configuracao"),
+      select("meditacoes", "data_meditacao,titulo,status")
     ]);
     const categoryById = Object.fromEntries(categories.map(x => [x.id, x.nome]));
     const englishByActivity = Object.fromEntries(englishConfigs.map(x => [x.atividade_id, x.niveis_por_dia || {}]));
     const data = merge({});
+
+    for (const row of meditations) {
+      if (!row.data_meditacao || row.status !== "publicada") continue;
+      data.meditacoes[row.data_meditacao] = {
+        titulo: row.titulo || "Meu Momento com Deus"
+      };
+    }
 
     data.metas = activities.map(row => ({
       id: row.id, nome: row.nome, descricao: row.descricao || "", categoria: categoryById[row.categoria_id] || "",
@@ -155,7 +155,7 @@ window.MMCD = (() => {
     const mission = configs.find(x => x.chave === "missao_atual");
     if (mission?.valor?.titulo) data.configuracoes.missaoAtual.titulo = mission.valor.titulo;
     data.atualizadoEm = new Date().toISOString();
-    return syncMeditacoes(data);
+    return data;
   }
 
   async function carregar() {
@@ -167,7 +167,7 @@ window.MMCD = (() => {
 
   async function salvar(input) {
     await mustUser();
-    const data = normalizeIds(syncMeditacoes(merge(input)));
+    const data = normalizeIds(merge(input));
     const categories = await categoryMap(data.metas.map(x => x.categoria));
 
     const activityRows = data.metas.map(item => ({
@@ -285,7 +285,7 @@ window.MMCD = (() => {
 
   async function salvarRegistroAtividade(input, date, activityId) {
     await mustUser();
-    const data = normalizeIds(syncMeditacoes(merge(input)));
+    const data = normalizeIds(merge(input));
     const item = data.metas.find(meta => meta.id === activityId);
     if (!item) throw new Error("Atividade não encontrada. Atualize a página e tente novamente.");
 
@@ -308,7 +308,7 @@ window.MMCD = (() => {
 
   async function salvarRegistroDiario(input, date) {
     await mustUser();
-    const data = normalizeIds(syncMeditacoes(merge(input)));
+    const data = normalizeIds(merge(input));
     const payload = {
       user_id: currentUser.id,
       data_registro: date,
@@ -381,7 +381,7 @@ window.MMCD = (() => {
 
   async function salvarLivros(input) {
     await mustUser();
-    const data = normalizeIds(syncMeditacoes(merge(input)));
+    const data = normalizeIds(merge(input));
     const rows = montarLinhasLivros(data);
     const desiredIds = new Set(rows.map(row => row.id));
     const existing = await select("livros", "id,livro_atual,status");
@@ -438,7 +438,7 @@ window.MMCD = (() => {
 
   async function salvarMetaLivros(input) {
     await mustUser();
-    const data = normalizeIds(syncMeditacoes(merge(input)));
+    const data = normalizeIds(merge(input));
     await salvarMetaLivrosInterna(data);
     return atualizarCache(data);
   }
