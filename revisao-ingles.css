@@ -1,6 +1,7 @@
 /* MMCD_REVIEW_ANKI_START */
 .english-review-card {
-  margin-bottom: 22px;
+  margin-top: 22px;
+  margin-bottom: 0;
   overflow: hidden;
 }
 .english-review-head {
@@ -119,3 +120,12 @@
 [data-tema="escuro"] .review-help { background: rgba(47, 128, 237, .15); color: #edf3fb; }
 [data-tema="escuro"] .review-help-list span { background: rgba(10, 20, 35, .65); }
 /* MMCD_REVIEW_ANKI_END */
+
+
+/* MMCD_REVIEW_ORDER_20260805-anki-abaixo2 */
+.english-review-card .review-help:not([hidden]) {
+  display: block;
+}
+.english-review-card {
+  scroll-margin-top: 24px;
+}

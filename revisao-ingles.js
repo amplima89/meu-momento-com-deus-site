@@ -2,6 +2,49 @@
 
 (() => {
   const LIMITE = 10;
+
+  const GLOSSARIO_BASE = {
+    "a": "um / uma", "an": "um / uma", "the": "o / a",
+    "i": "eu", "i'm": "eu estou / eu sou", "i've": "eu tenho",
+    "i'll": "eu vou", "i'd": "eu iria / eu tinha", "my": "meu / minha",
+    "me": "me / mim", "mine": "meu / minha", "we": "nós",
+    "we're": "nós estamos / somos", "we've": "nós temos",
+    "we'll": "nós vamos", "our": "nosso / nossa", "us": "nos / nós",
+    "you": "você / vocês", "you're": "você está / é",
+    "you've": "você tem", "your": "seu / sua", "he": "ele",
+    "she": "ela", "it": "isso / ele / ela", "they": "eles / elas",
+    "this": "isto / este / esta", "that": "isso / aquilo / que",
+    "these": "estes / estas", "those": "aqueles / aquelas",
+    "and": "e", "or": "ou", "but": "mas", "because": "porque",
+    "so": "então / por isso", "if": "se", "when": "quando",
+    "while": "enquanto", "with": "com", "without": "sem",
+    "for": "para / por", "from": "de / desde", "to": "para / a",
+    "in": "em / dentro de", "on": "em / sobre", "at": "em / no / na",
+    "of": "de", "by": "por / perto de", "about": "sobre",
+    "as": "como / enquanto", "is": "é / está", "are": "são / estão",
+    "was": "era / estava", "were": "eram / estavam", "be": "ser / estar",
+    "been": "sido / estado", "being": "sendo / estando", "have": "ter",
+    "has": "tem", "had": "tinha / teve", "do": "fazer", "does": "faz",
+    "did": "fez", "don't": "não", "doesn't": "não", "didn't": "não",
+    "can": "poder / consegue", "can't": "não pode / não consegue",
+    "could": "poderia", "will": "vai / irá", "would": "iria",
+    "should": "deveria", "must": "deve / precisa", "not": "não",
+    "very": "muito", "more": "mais", "less": "menos", "than": "do que",
+    "too": "demais / também", "much": "muito", "today": "hoje",
+    "today's": "de hoje", "topic": "tema", "useful": "úteis",
+    "expressions": "expressões", "example": "exemplo", "quick": "rápida",
+    "practice": "prática", "forgive": "perdoe", "try": "tentar",
+    "control": "controlar", "carry": "carregar", "act": "agir",
+    "continuity": "continuidade", "things": "coisas", "depends": "depende",
+    "present": "presente", "family": "família", "steady": "constante / equilibrado",
+    "work": "trabalho / trabalhar", "need": "preciso", "healthier": "mais saudáveis",
+    "boundaries": "limites", "faithfulness": "fidelidade",
+    "rest": "descanso / descansar", "week": "semana", "weekend": "fim de semana",
+    "want": "querer / quero", "remember": "lembrar", "learn": "aprender",
+    "learning": "aprendendo", "trust": "confiar", "trusting": "confiando",
+    "life": "vida", "day": "dia", "days": "dias", "time": "tempo",
+    "good": "bom", "better": "melhor", "strong": "forte", "weak": "fraco"
+  };
   const CHAVE_ESTADO = "revisao_ingles_v2";
   const seletorData = document.querySelector("#ingles-data");
   const card = document.querySelector("#revisao-ingles-card");
@@ -69,13 +112,14 @@
   }
 
   function localizarGlossario(markdown = "") {
+    const resultado = { ...GLOSSARIO_BASE };
     const inicioNome = "MMCD_ENGLISH_GLOSSARY_START";
     const fimNome = "MMCD_ENGLISH_GLOSSARY_END";
     const texto = String(markdown);
     const inicio = texto.indexOf(inicioNome);
-    if (inicio < 0) return {};
+    if (inicio < 0) return resultado;
     const fim = texto.indexOf(fimNome, inicio + inicioNome.length);
-    if (fim < 0) return {};
+    if (fim < 0) return resultado;
 
     const bruto = texto.slice(inicio + inicioNome.length, fim)
       .replace(/-->/g, "")
@@ -87,15 +131,15 @@
 
     try {
       const objeto = JSON.parse(bruto);
-      const resultado = {};
       for (const [palavra, traducao] of Object.entries(objeto || {})) {
         if (typeof traducao !== "string" || !traducao.trim()) continue;
-        resultado[normalizar(palavra).replace(/^[^a-z]+|[^a-z']+$/g, "")] = traducao.trim();
+        const chave = normalizar(palavra).replace(/^[^a-z]+|[^a-z']+$/g, "");
+        if (chave) resultado[chave] = traducao.trim();
       }
-      return resultado;
-    } catch {
-      return {};
+    } catch (erro) {
+      console.warn("Glossário contextual inválido; usando o apoio básico.", erro);
     }
+    return resultado;
   }
 
   function removerGlossario(markdown = "") {
@@ -392,9 +436,9 @@
         <div class="review-answer-row">
           <button class="btn small remember ${resposta === "lembrei" ? "is-active" : ""}" type="button" data-resposta="lembrei">✓ Lembrei</button>
           <button class="btn small forgot ${resposta === "nao_lembrei" ? "is-active" : ""}" type="button" data-resposta="nao_lembrei">✕ Não lembrei</button>
-          <button class="btn small" type="button" data-ajuda>Ver apoio</button>
+          <button class="btn small" type="button" data-ajuda>Ocultar apoio</button>
         </div>
-        <div class="review-help" hidden>
+        <div class="review-help">
           <strong>Palavra ou expressão marcada:</strong> ${esc(item.textoMarcado)}
           ${apoio.length ? `<div class="review-help-list">${apoio.map(x => `<span><b>${esc(x.palavra)}</b> — ${esc(x.traducao)}</span>`).join("")}</div>` : `<p class="muted">A tradução contextual aparecerá na leitura ao passar o mouse sobre as palavras.</p>`}
         </div>`;
