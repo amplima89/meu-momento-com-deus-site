@@ -1,9 +1,121 @@
-<!doctype html><html lang="pt-BR"><head>
-    <!-- LS_FAVICON_START -->
-    <link rel="icon" href="favicon.ico?v=20260804-ls2" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=20260804-ls2">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=20260804-ls2">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260804-ls2">
-    <link rel="manifest" href="site.webmanifest?v=20260804-ls2">
-    <meta name="theme-color" content="#0b1628">
-    <!-- LS_FAVICON_END --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Estatísticas — Life Style</title><link rel="stylesheet" href="painel.css?v=20260804-ls-brand2"><link rel="stylesheet" href="relatorios.css?v=20260803-50"></head><body><div class="app-shell"><header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">LIFE STYLE</span><span class="app-topbar__subtitle">Performance e evolução</span></div><button id="theme-toggle" class="icon-btn">☾</button></div></header><main class="app-main"><section class="page-header"><div><p class="eyebrow">Dados da jornada</p><h1>Estatísticas</h1><p class="muted">Informação útil, sem gráficos decorativos.</p></div><div class="period-filter"><button data-days="7">7</button><button data-days="15">15</button><button data-days="30" class="active">30</button><button data-days="60">60</button><button data-days="180">180</button><button data-days="365">365 dias</button></div></section><section id="stat-kpis" class="stats-kpis"></section><section class="stats-grid"><article class="card section heat-panel"><div class="section-head"><div><p class="eyebrow">Calendário</p><h2>Consistência diária</h2></div></div><div id="heatmap" class="heatmap"></div><div class="heat-legend"><span>Menor</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>Maior</span></div></article><article class="card section weight-panel"><div class="section-head"><div><p class="eyebrow">Peso</p><h2>Últimos <span id="weight-period">30</span> dias</h2></div><button id="add-weight" class="btn small">+ Registrar</button></div><canvas id="weight-chart" height="280"></canvas></article><article class="card section"><div class="section-head"><div><p class="eyebrow">Hábitos</p><h2>Ranking de consistência</h2></div></div><div id="habit-ranking" class="ranking"></div></article><article class="card section"><div class="section-head"><div><p class="eyebrow">Livros</p><h2>Leitura</h2></div></div><div id="book-stats" class="stat-detail-grid"></div></article><article class="card section"><div class="section-head"><div><p class="eyebrow">Meditação</p><h2>Vida espiritual</h2></div></div><div id="meditation-stats" class="stat-detail-grid"></div></article></section></main></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=20260803-50"></script><script src="supabase-client.js?v=20260803-50"></script><script src="auth.js?v=20260803-50"></script><script src="dados-app.js?v=20260803-50"></script><script src="shell.js?v=20260805-anki-biblia1"></script><script>MMCDShell('estatisticas')</script><script src="relatorios.js?v=20260803-50"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Análise de atividades — Life Style</title>
+  <link rel="stylesheet" href="painel.css?v=20260805-ls-brand2">
+  <link rel="stylesheet" href="relatorios.css?v=20260805-atividades7d1">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div>
+          <span class="app-topbar__title">LIFE STYLE</span>
+          <span class="app-topbar__subtitle">Análise das suas atividades</span>
+        </div>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+      </div>
+    </header>
+
+    <main class="app-main activity-analysis-page">
+      <section class="page-header analysis-header">
+        <div>
+          <p class="eyebrow">Últimos 7 dias</p>
+          <h1>Análise das atividades</h1>
+          <p class="muted">
+            Uma leitura objetiva somente do que foi programado e marcado na página Atividades.
+          </p>
+        </div>
+        <div class="analysis-period">
+          <span>Período analisado</span>
+          <strong id="analysis-period-label">Carregando...</strong>
+        </div>
+      </section>
+
+      <section id="activity-kpis" class="activity-kpis" aria-live="polite"></section>
+
+      <section class="analysis-grid">
+        <article class="card section analysis-main-card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Leitura da semana</p>
+              <h2>O que os registros mostram</h2>
+            </div>
+            <span id="weekly-status-badge" class="analysis-badge">Analisando</span>
+          </div>
+          <div id="weekly-summary" class="analysis-prose loading-copy">
+            Preparando a análise dos últimos 7 dias...
+          </div>
+        </article>
+
+        <article class="card section insight-card insight-positive">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Pontos fortes</p>
+              <h2>Onde você foi bem</h2>
+            </div>
+          </div>
+          <div id="weekly-strengths" class="insight-list"></div>
+        </article>
+
+        <article class="card section insight-card insight-warning">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Pontos fracos</p>
+              <h2>O que foi negligenciado</h2>
+            </div>
+          </div>
+          <div id="weekly-weaknesses" class="insight-list"></div>
+        </article>
+
+        <article class="card section activity-performance-card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Evidências</p>
+              <h2>Desempenho por atividade</h2>
+              <p class="muted">Somente oportunidades já encerradas; pendências de hoje não contam como falha.</p>
+            </div>
+          </div>
+          <div id="activity-performance" class="activity-performance"></div>
+        </article>
+
+        <article class="card section next-focus-card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Próximos 7 dias</p>
+              <h2>Foco recomendado</h2>
+            </div>
+          </div>
+          <div id="next-focus" class="focus-content"></div>
+        </article>
+
+        <article class="card section monthly-analysis-card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Visão ampliada</p>
+              <h2 id="monthly-title">Análise mensal</h2>
+              <p id="monthly-period-label" class="muted"></p>
+            </div>
+            <span id="monthly-status-badge" class="analysis-badge">Mês</span>
+          </div>
+          <div id="monthly-summary" class="analysis-prose"></div>
+          <div id="monthly-highlights" class="monthly-highlights"></div>
+        </article>
+      </section>
+
+      <p id="analysis-footnote" class="analysis-footnote"></p>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=1"></script>
+  <script src="supabase-client.js?v=1"></script>
+  <script src="auth.js?v=1"></script>
+  <script src="dados-app.js?v=30"></script>
+  <script src="shell.js?v=20260805-anki-biblia1"></script>
+  <script>MMCDShell('estatisticas')</script>
+  <script src="relatorios.js?v=20260805-atividades7d1"></script>
+</body>
+</html>

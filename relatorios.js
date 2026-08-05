@@ -1,44 +1,498 @@
-"use strict";(async()=>{let d=await MMCD.carregar(),period=30;const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0'),iso=x=>`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;
-function dates(n){let a=[];for(let i=n-1;i>=0;i--){let x=new Date();x.setDate(x.getDate()-i);a.push(iso(x))}return a}
-function medDone(date,meta){return !!(meta&&MMCD.registro(d,date,meta.id)?.concluida)}
-function scheduledDates(meta){if(!meta)return[];const start=meta.inicioVigencia||Object.keys(d.registros).sort()[0]||iso(new Date()),end=meta.fimVigencia||iso(new Date()),a=[];let x=new Date(start+'T12:00');const e=new Date(end+'T12:00');while(x<=e){let s=iso(x);if(MMCD.ativaNaData({...meta,ativa:true},s))a.push(s);x.setDate(x.getDate()+1)}return a}
-function streak(meta){let max=0,run=0;for(const date of scheduledDates(meta)){run=(meta.nome.toLowerCase().includes('medita')?medDone(date,meta):MMCD.registro(d,date,meta.id)?.concluida)?run+1:0;max=Math.max(max,run)}return max}
-function currentStreak(meta){if(!meta)return 0;let list=scheduledDates(meta),n=0;for(let i=list.length-1;i>=0;i--){let date=list[i],ok=meta.nome.toLowerCase().includes('medita')?medDone(date,meta):MMCD.registro(d,date,meta.id)?.concluida;if(!ok)break;n++}return n}
-function drawWeight(list){
-let c=$('#weight-chart'),ctx=c.getContext('2d'),r=c.getBoundingClientRect(),q=devicePixelRatio||1;
-c.width=r.width*q;c.height=280*q;ctx.setTransform(q,0,0,q,0,0);ctx.clearRect(0,0,r.width,280);
-c._weightPoints=[];
-if(list.length<2){ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.font='13px sans-serif';ctx.fillText('Registre pelo menos dois pesos.',25,45);return}
-let vals=list.map(x=>+x[1]),min=Math.min(...vals)-.8,max=Math.max(...vals)+.8;
-const css=getComputedStyle(document.documentElement),line=css.getPropertyValue('--line').trim(),accent=css.getPropertyValue('--accent').trim(),text=css.getPropertyValue('--text').trim(),surface=css.getPropertyValue('--surface').trim();
-ctx.strokeStyle=line;ctx.lineWidth=1;
-for(let i=0;i<5;i++){let y=25+i*52;ctx.beginPath();ctx.moveTo(40,y);ctx.lineTo(r.width-15,y);ctx.stroke()}
-const points=list.map((p,i)=>({date:p[0],value:+p[1],x:40+i*(r.width-60)/(list.length-1),y:245-(+p[1]-min)/(max-min)*210}));
-c._weightPoints=points;
-ctx.strokeStyle=accent;ctx.lineWidth=3;ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
-points.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fillStyle=accent;ctx.fill()});
-/* Exibe o valor de cada ponto. Quando os pontos ficam muito próximos, alterna a altura para evitar sobreposição. */
-ctx.font='600 11px sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle=text;
-points.forEach((p,i)=>{let y=p.y-(i%2?12:7);ctx.fillText(p.value.toFixed(1).replace('.',',')+' kg',p.x,Math.max(15,y))});
-function tooltip(ev){
- const box=c.getBoundingClientRect(),mx=ev.clientX-box.left,my=ev.clientY-box.top;
- let nearest=null,dist=Infinity;
- for(const p of c._weightPoints||[]){const d=Math.hypot(mx-p.x,my-p.y);if(d<dist){dist=d;nearest=p}}
- drawWeight(list);
- if(!nearest||dist>18)return;
- const label=nearest.value.toFixed(1).replace('.',',')+' kg · '+nearest.date.split('-').reverse().join('/');
- ctx.font='600 12px sans-serif';const w=ctx.measureText(label).width+18,h=28;
- let x=Math.min(Math.max(8,nearest.x-w/2),r.width-w-8),y=Math.max(8,nearest.y-45);
- ctx.fillStyle=surface;ctx.strokeStyle=line;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(x,y,w,h,7);ctx.fill();ctx.stroke();
- ctx.fillStyle=text;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,x+w/2,y+h/2);
-}
-if(!c._weightHoverBound){c.addEventListener('mousemove',tooltip);c.addEventListener('mouseleave',()=>drawWeight(list));c._weightHoverBound=true}
-}
-function render(){let ds=dates(period),active=d.metas.filter(m=>m.ativa),weights=Object.entries(d.pesos).filter(x=>ds.includes(x[0])).sort(),last=weights.at(-1)?.[1],first=weights[0]?.[1],diff=last!=null&&first!=null?+last-+first:null,bookList=d.livros.concluidos,med=d.metas.find(m=>m.nome.toLowerCase().includes('medita')),medCount=Object.keys(d.registros||{}).filter(x=>med&&MMCD.registro(d,x,med.id)?.concluida).length;let all=0,ok=0;for(const date of ds){const due=MMCD.metasNaData(d,date);all+=due.length;ok+=due.filter(m=>MMCD.registro(d,date,m.id)?.concluida).length}let rate=all?Math.round(ok/all*100):0;
-$('#stat-kpis').innerHTML=`<article class="card stat-kpi"><span>Peso atual</span><strong>${last!=null?(+last).toFixed(1).replace('.',',')+' kg':'—'}</strong><small>${diff==null?'Sem comparação':(diff>0?'▲ ':'▼ ')+Math.abs(diff).toFixed(1).replace('.',',')+' kg'}</small></article><article class="card stat-kpi"><span>Consistência</span><strong>${rate}%</strong><small>${period} dias, respeitando vigência</small></article><article class="card stat-kpi"><span>Livros</span><strong>${bookList.length}</strong><small>Total concluído</small></article><article class="card stat-kpi"><span>Meditações</span><strong>${medCount}</strong><small>Registros concluídos</small></article>`;
-$('#weight-period').textContent=period;drawWeight(weights);
-let rank=active.map(m=>{let due=ds.filter(x=>MMCD.ativaNaData(m,x)),done=due.filter(x=>MMCD.registro(d,x,m.id)?.concluida).length;return[m.nome,due.length?Math.round(done/due.length*100):0]}).sort((a,b)=>b[1]-a[1]);$('#habit-ranking').innerHTML=rank.slice(0,8).map(x=>`<div class="rank-row"><span>${MMCDUI.esc(x[0])}</span><strong>${x[1]}%</strong><div class="progress"><i style="width:${x[1]}%"></i></div></div>`).join('')||'<div class="empty">Sem metas vigentes no período.</div>';
-let durations=bookList.map(x=>x.dataInicio&&x.dataConclusao?Math.max(1,Math.round((new Date(x.dataConclusao)-new Date(x.dataInicio))/86400000)+1):null).filter(Boolean),authors=new Set(bookList.map(x=>x.autor).filter(Boolean));$('#book-stats').innerHTML=[['Quantidade',bookList.length],['Tempo médio',durations.length?Math.round(durations.reduce((a,b)=>a+b,0)/durations.length)+' dias':'—'],['Autores',authors.size],['Meta anual',d.configuracoes.metaLivrosAno]].map(x=>`<div class="stat-detail"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join('');
-$('#meditation-stats').innerHTML=[['Quantidade',medCount],['Sequência atual',currentStreak(med)],['Maior sequência',streak(med)],['Versículos','—']].map(x=>`<div class="stat-detail"><span>${x[0]}</span><strong>${x[1]}</strong></div>`).join('');
-$('#heatmap').innerHTML=ds.map(date=>{let due=MMCD.metasNaData(d,date),done=due.filter(m=>MMCD.registro(d,date,m.id)?.concluida).length,p=due.length?done/due.length:0,cl=p>=.85?'l4':p>=.6?'l3':p>=.3?'l2':p>0?'l1':'';return `<i class="heat ${cl}" title="${MMCDUI.date(date)} — ${Math.round(p*100)}%"></i>`}).join('')}
-document.querySelectorAll('[data-days]').forEach(b=>b.onclick=()=>{period=+b.dataset.days;document.querySelectorAll('[data-days]').forEach(x=>x.classList.toggle('active',x===b));render()});$('#add-weight').onclick=async()=>{let date=prompt('Data (AAAA-MM-DD):',iso(new Date())),value=prompt('Peso em kg:');if(date&&value&&!isNaN(+String(value).replace(',','.'))){d.pesos[date]=+String(value).replace(',','.');await MMCD.salvar(d);render()}};render();addEventListener('resize',render)})();
+"use strict";
+
+(async () => {
+  const data = await MMCD.carregar();
+
+  const $ = selector => document.querySelector(selector);
+  const pad = value => String(value).padStart(2, "0");
+  const iso = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const parseDate = value => new Date(`${value}T12:00:00`);
+  const addDays = (date, amount) => {
+    const copy = new Date(date);
+    copy.setDate(copy.getDate() + amount);
+    return copy;
+  };
+  const escapeHtml = value => String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+  const todayDate = new Date();
+  todayDate.setHours(12, 0, 0, 0);
+  const today = iso(todayDate);
+
+  const shortDate = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" });
+  const longDate = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "long" });
+  const weekday = new Intl.DateTimeFormat("pt-BR", { weekday: "long" });
+  const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" });
+
+  function dateRange(start, end) {
+    const dates = [];
+    for (let cursor = new Date(start); cursor <= end; cursor = addDays(cursor, 1)) {
+      dates.push(iso(cursor));
+    }
+    return dates;
+  }
+
+  function lastDays(amount, end = todayDate) {
+    return dateRange(addDays(end, -(amount - 1)), end);
+  }
+
+  function record(date, activityId) {
+    return MMCD.registro(data, date, activityId);
+  }
+
+  function dueOn(date) {
+    return MMCD.metasNaData(data, date);
+  }
+
+  function analyze(dates) {
+    const byActivity = new Map();
+    const byCategory = new Map();
+    const byDay = [];
+    let planned = 0;
+    let completed = 0;
+    let missed = 0;
+    let pendingToday = 0;
+    let evaluated = 0;
+
+    for (const date of dates) {
+      const due = dueOn(date);
+      let dayCompleted = 0;
+      let dayMissed = 0;
+      let dayPending = 0;
+
+      for (const activity of due) {
+        const done = !!record(date, activity.id)?.concluida;
+        const isTodayPending = date === today && !done;
+
+        planned += 1;
+        if (done) {
+          completed += 1;
+          evaluated += 1;
+          dayCompleted += 1;
+        } else if (isTodayPending) {
+          pendingToday += 1;
+          dayPending += 1;
+        } else {
+          missed += 1;
+          evaluated += 1;
+          dayMissed += 1;
+        }
+
+        if (!byActivity.has(activity.id)) {
+          byActivity.set(activity.id, {
+            id: activity.id,
+            name: activity.nome || "Atividade",
+            category: activity.categoria || "Sem categoria",
+            icon: activity.icone || "✓",
+            due: 0,
+            evaluated: 0,
+            completed: 0,
+            missed: 0,
+            pendingToday: 0
+          });
+        }
+        const activityStats = byActivity.get(activity.id);
+        activityStats.due += 1;
+        if (done) {
+          activityStats.completed += 1;
+          activityStats.evaluated += 1;
+        } else if (isTodayPending) {
+          activityStats.pendingToday += 1;
+        } else {
+          activityStats.missed += 1;
+          activityStats.evaluated += 1;
+        }
+
+        const categoryName = activity.categoria || "Sem categoria";
+        if (!byCategory.has(categoryName)) {
+          byCategory.set(categoryName, { name: categoryName, evaluated: 0, completed: 0, missed: 0 });
+        }
+        const categoryStats = byCategory.get(categoryName);
+        if (done) {
+          categoryStats.completed += 1;
+          categoryStats.evaluated += 1;
+        } else if (!isTodayPending) {
+          categoryStats.missed += 1;
+          categoryStats.evaluated += 1;
+        }
+      }
+
+      const dayEvaluated = dayCompleted + dayMissed;
+      byDay.push({
+        date,
+        due: due.length,
+        completed: dayCompleted,
+        missed: dayMissed,
+        pendingToday: dayPending,
+        evaluated: dayEvaluated,
+        rate: dayEvaluated ? Math.round((dayCompleted / dayEvaluated) * 100) : null
+      });
+    }
+
+    const activities = [...byActivity.values()].map(item => ({
+      ...item,
+      rate: item.evaluated ? Math.round((item.completed / item.evaluated) * 100) : null
+    }));
+    const categories = [...byCategory.values()].map(item => ({
+      ...item,
+      rate: item.evaluated ? Math.round((item.completed / item.evaluated) * 100) : null
+    }));
+
+    return {
+      dates,
+      planned,
+      completed,
+      missed,
+      pendingToday,
+      evaluated,
+      rate: evaluated ? Math.round((completed / evaluated) * 100) : null,
+      activities,
+      categories,
+      days: byDay,
+      fullDays: byDay.filter(day => day.evaluated > 0 && day.missed === 0).length,
+      activeDays: byDay.filter(day => day.due > 0).length
+    };
+  }
+
+  function level(rate) {
+    if (rate == null) return { label: "Sem base", key: "medium" };
+    if (rate >= 85) return { label: "Muito consistente", key: "high" };
+    if (rate >= 70) return { label: "Boa semana", key: "high" };
+    if (rate >= 50) return { label: "Semana irregular", key: "medium" };
+    return { label: "Atenção necessária", key: "low" };
+  }
+
+  function formatPeriod(dates) {
+    if (!dates.length) return "Sem período";
+    return `${shortDate.format(parseDate(dates[0]))} a ${shortDate.format(parseDate(dates.at(-1)))}`;
+  }
+
+  function sortedBest(items) {
+    return [...items]
+      .filter(item => item.evaluated > 0)
+      .sort((a, b) => (b.rate - a.rate) || (b.evaluated - a.evaluated) || a.name.localeCompare(b.name, "pt-BR"));
+  }
+
+  function sortedWeak(items) {
+    return [...items]
+      .filter(item => item.evaluated > 0)
+      .sort((a, b) => (b.missed - a.missed) || (a.rate - b.rate) || (b.evaluated - a.evaluated));
+  }
+
+  function listHtml(items, emptyMessage) {
+    if (!items.length) return `<div class="insight-empty">${escapeHtml(emptyMessage)}</div>`;
+    return items.map(item => `<div class="insight-item">${item}</div>`).join("");
+  }
+
+  function renderKpis(weekly) {
+    const rateText = weekly.rate == null ? "—" : `${weekly.rate}%`;
+    $("#activity-kpis").innerHTML = `
+      <article class="card activity-kpi">
+        <span>Atividades previstas</span>
+        <strong>${weekly.planned}</strong>
+        <small>Distribuídas em ${weekly.activeDays} dia${weekly.activeDays === 1 ? "" : "s"} com programação.</small>
+      </article>
+      <article class="card activity-kpi">
+        <span>Concluídas</span>
+        <strong>${weekly.completed}</strong>
+        <small>${weekly.missed} negligenciada${weekly.missed === 1 ? "" : "s"} em dias já encerrados.</small>
+      </article>
+      <article class="card activity-kpi">
+        <span>Taxa de conclusão</span>
+        <strong>${rateText}</strong>
+        <small>Calculada sobre ${weekly.evaluated} oportunidade${weekly.evaluated === 1 ? "" : "s"} já avaliadas.</small>
+      </article>
+      <article class="card activity-kpi">
+        <span>Dias completos</span>
+        <strong>${weekly.fullDays}</strong>
+        <small>${weekly.pendingToday ? `${weekly.pendingToday} atividade${weekly.pendingToday === 1 ? "" : "s"} ainda pendente${weekly.pendingToday === 1 ? "" : "s"} hoje.` : "Nenhuma pendência aberta para hoje."}</small>
+      </article>`;
+  }
+
+  function renderWeeklySummary(weekly, previousWeekly) {
+    const status = level(weekly.rate);
+    const badge = $("#weekly-status-badge");
+    badge.textContent = status.label;
+    badge.dataset.level = status.key;
+
+    if (!weekly.evaluated) {
+      $("#weekly-summary").classList.remove("loading-copy");
+      $("#weekly-summary").innerHTML = `
+        <p>Ainda não há oportunidades encerradas suficientes para avaliar a semana. Marque as atividades na página <strong>Atividades</strong> e a análise será construída automaticamente.</p>`;
+      return;
+    }
+
+    const previousRate = previousWeekly.rate;
+    let comparison = "";
+    if (previousRate != null) {
+      const delta = weekly.rate - previousRate;
+      if (Math.abs(delta) < 3) {
+        comparison = `O desempenho ficou praticamente estável em relação aos 7 dias anteriores, que registraram ${previousRate}%.`;
+      } else if (delta > 0) {
+        comparison = `Houve evolução de ${delta} ponto${delta === 1 ? "" : "s"} percentual${delta === 1 ? "" : "is"} em relação aos 7 dias anteriores.`;
+      } else {
+        comparison = `A taxa caiu ${Math.abs(delta)} ponto${Math.abs(delta) === 1 ? "" : "s"} percentual${Math.abs(delta) === 1 ? "" : "is"} em relação aos 7 dias anteriores.`;
+      }
+    }
+
+    const pastDays = weekly.days.filter(day => day.date < today && day.evaluated > 0);
+    const bestDay = [...pastDays].sort((a, b) => (b.rate - a.rate) || (b.evaluated - a.evaluated))[0];
+    const worstDay = [...pastDays].sort((a, b) => (a.rate - b.rate) || (b.evaluated - a.evaluated))[0];
+    let daySentence = "";
+    if (bestDay && worstDay && bestDay.date !== worstDay.date) {
+      daySentence = `Seu melhor dia foi <strong>${weekday.format(parseDate(bestDay.date))}</strong>, com ${bestDay.rate}% de conclusão. O dia de maior fragilidade foi <strong>${weekday.format(parseDate(worstDay.date))}</strong>, com ${worstDay.rate}%.`;
+    } else if (bestDay) {
+      daySentence = `O principal registro diário foi <strong>${weekday.format(parseDate(bestDay.date))}</strong>, com ${bestDay.rate}% de conclusão.`;
+    }
+
+    $("#weekly-summary").classList.remove("loading-copy");
+    $("#weekly-summary").innerHTML = `
+      <p>Nos últimos 7 dias, você concluiu <strong>${weekly.completed} de ${weekly.evaluated} atividades já avaliadas</strong>, atingindo <strong>${weekly.rate}%</strong> de conclusão. Foram ${weekly.fullDays} dia${weekly.fullDays === 1 ? "" : "s"} sem nenhuma falha entre as atividades encerradas.</p>
+      ${comparison ? `<p>${comparison}</p>` : ""}
+      ${daySentence ? `<p>${daySentence}</p>` : ""}
+      ${weekly.pendingToday ? `<p>Hoje ainda existem <strong>${weekly.pendingToday} atividade${weekly.pendingToday === 1 ? "" : "s"} em aberto</strong>. Elas não foram tratadas como negligência nesta análise.</p>` : ""}`;
+  }
+
+  function renderStrengths(weekly) {
+    const bestActivities = sortedBest(weekly.activities);
+    const bestCategories = sortedBest(weekly.categories);
+    const insights = [];
+
+    const reliable = bestActivities.find(item => item.evaluated >= 2 && item.rate >= 70);
+    if (reliable) {
+      insights.push(`<strong>${escapeHtml(reliable.name)}</strong> foi sua atividade mais consistente: ${reliable.completed} de ${reliable.evaluated} oportunidades concluídas (${reliable.rate}%).`);
+    }
+
+    const bestCategory = bestCategories.find(item => item.evaluated >= 2 && item.rate >= 70);
+    if (bestCategory && (!reliable || bestCategory.name !== reliable.category)) {
+      insights.push(`A categoria <strong>${escapeHtml(bestCategory.name)}</strong> apresentou o melhor equilíbrio da semana, com ${bestCategory.rate}% de conclusão.`);
+    }
+
+    if (weekly.fullDays > 0) {
+      insights.push(`Você fechou <strong>${weekly.fullDays} dia${weekly.fullDays === 1 ? "" : "s"} completo${weekly.fullDays === 1 ? "" : "s"}</strong>, sem deixar atividade programada para trás.`);
+    }
+
+    if (weekly.rate >= 70) {
+      insights.push(`A taxa geral de <strong>${weekly.rate}%</strong> mostra que a maior parte do que foi planejado virou execução real.`);
+    }
+
+    $("#weekly-strengths").innerHTML = listHtml(
+      insights.slice(0, 4),
+      "Ainda não há um ponto forte recorrente comprovado. A base precisa de mais dias marcados."
+    );
+  }
+
+  function renderWeaknesses(weekly) {
+    const weakActivities = sortedWeak(weekly.activities);
+    const weakCategories = sortedWeak(weekly.categories);
+    const insights = [];
+
+    const neglected = weakActivities.find(item => item.missed > 0);
+    if (neglected) {
+      insights.push(`<strong>${escapeHtml(neglected.name)}</strong> foi a principal negligência: ficou pendente em ${neglected.missed} de ${neglected.evaluated} oportunidades encerradas.`);
+    }
+
+    const repeated = weakActivities.find(item => item.missed >= 2 && (!neglected || item.id !== neglected.id));
+    if (repeated) {
+      insights.push(`Também houve repetição de falha em <strong>${escapeHtml(repeated.name)}</strong>, não concluída ${repeated.missed} vezes.`);
+    }
+
+    const weakCategory = weakCategories.find(item => item.missed >= 2);
+    if (weakCategory && (!neglected || weakCategory.name !== neglected.category)) {
+      insights.push(`A categoria <strong>${escapeHtml(weakCategory.name)}</strong> concentrou ${weakCategory.missed} falha${weakCategory.missed === 1 ? "" : "s"} e merece revisão de prioridade.`);
+    }
+
+    const pastDays = weekly.days.filter(day => day.date < today && day.evaluated > 0);
+    const weakDay = [...pastDays].sort((a, b) => (a.rate - b.rate) || (b.evaluated - a.evaluated))[0];
+    if (weakDay && weakDay.rate < 70) {
+      insights.push(`<strong>${weekday.format(parseDate(weakDay.date))}</strong> foi o dia mais frágil, com ${weakDay.missed} atividade${weakDay.missed === 1 ? "" : "s"} não concluída${weakDay.missed === 1 ? "" : "s"}.`);
+    }
+
+    $("#weekly-weaknesses").innerHTML = listHtml(
+      insights.slice(0, 4),
+      "Nenhuma negligência recorrente foi identificada nos dias já encerrados."
+    );
+  }
+
+  function renderActivityPerformance(weekly) {
+    const rows = [...weekly.activities]
+      .filter(item => item.evaluated > 0 || item.pendingToday > 0)
+      .sort((a, b) => (b.missed - a.missed) || ((a.rate ?? 101) - (b.rate ?? 101)) || a.name.localeCompare(b.name, "pt-BR"));
+
+    if (!rows.length) {
+      $("#activity-performance").innerHTML = `<div class="activity-performance-empty">Nenhuma atividade programada foi encontrada no período.</div>`;
+      return;
+    }
+
+    $("#activity-performance").innerHTML = rows.map(item => {
+      const rate = item.rate ?? 0;
+      const rateLabel = item.rate == null ? "Ainda não avaliada" : `${item.rate}% concluído`;
+      return `
+        <div class="activity-row">
+          <div class="activity-row__name">
+            <strong>${escapeHtml(item.icon)} ${escapeHtml(item.name)}</strong>
+            <small>${escapeHtml(item.category)}</small>
+          </div>
+          <div class="activity-row__metric"><span>Previstas</span><strong>${item.due}</strong></div>
+          <div class="activity-row__metric"><span>Concluídas</span><strong>${item.completed}</strong></div>
+          <div class="activity-row__metric"><span>Negligenciadas</span><strong>${item.missed}</strong></div>
+          <div class="activity-row__rate">
+            <div><i style="width:${Math.max(0, Math.min(100, rate))}%"></i></div>
+            <span>${rateLabel}${item.pendingToday ? ` · ${item.pendingToday} pendente hoje` : ""}</span>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function nextScheduledDate(activity) {
+    for (let offset = 0; offset <= 7; offset += 1) {
+      const date = iso(addDays(todayDate, offset));
+      if (MMCD.ativaNaData(activity, date)) return date;
+    }
+    return null;
+  }
+
+  function renderFocus(weekly) {
+    const neglected = sortedWeak(weekly.activities).find(item => item.missed > 0);
+    if (!neglected) {
+      $("#next-focus").innerHTML = `
+        <div class="focus-primary">
+          <strong>Preserve o que já está funcionando</strong>
+          <p>Não há uma negligência recorrente comprovada. O foco é repetir a organização que permitiu concluir ${weekly.rate ?? 0}% das oportunidades avaliadas.</p>
+        </div>
+        <ul class="focus-action">
+          <li>Mantenha a marcação diária no momento em que a atividade for concluída.</li>
+          <li>Evite aumentar a quantidade de atividades antes de consolidar a semana atual.</li>
+        </ul>`;
+      return;
+    }
+
+    const meta = data.metas.find(item => item.id === neglected.id);
+    const nextDate = meta ? nextScheduledDate(meta) : null;
+    $("#next-focus").innerHTML = `
+      <div class="focus-primary">
+        <strong>Prioridade: ${escapeHtml(neglected.name)}</strong>
+        <p>Essa foi a atividade mais negligenciada da semana. O objetivo não é compensar tudo de uma vez, mas impedir uma nova falha na próxima oportunidade${nextDate ? `, em ${longDate.format(parseDate(nextDate))}` : ""}.</p>
+      </div>
+      <ul class="focus-action">
+        <li>Defina antecipadamente o horário mínimo para executar essa atividade.</li>
+        <li>Reduza a tarefa para uma versão pequena, mas concluível, nos dias de menor energia.</li>
+        <li>Marque no Life Style imediatamente após concluir para não perder o registro.</li>
+      </ul>`;
+  }
+
+  function monthPeriod() {
+    const day = todayDate.getDate();
+    let start;
+    let end;
+    let title;
+    let badge;
+
+    if (day <= 3) {
+      start = new Date(todayDate.getFullYear(), todayDate.getMonth() - 1, 1, 12);
+      end = new Date(todayDate.getFullYear(), todayDate.getMonth(), 0, 12);
+      title = `Fechamento de ${monthName.format(start)}`;
+      badge = "Fechado";
+    } else {
+      start = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1, 12);
+      end = new Date(todayDate);
+      const lastDay = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 0).getDate();
+      const closing = lastDay - day <= 2;
+      title = `${closing ? "Fechamento" : "Parcial"} de ${monthName.format(start)}`;
+      badge = closing ? "Fechamento" : "Parcial";
+    }
+
+    return { start, end, title, badge };
+  }
+
+  function previousEquivalent(period) {
+    const length = Math.round((period.end - period.start) / 86400000) + 1;
+    const previousEnd = addDays(period.start, -1);
+    const previousStart = addDays(previousEnd, -(length - 1));
+    return analyze(dateRange(previousStart, previousEnd));
+  }
+
+  function renderMonthly() {
+    const period = monthPeriod();
+    const monthly = analyze(dateRange(period.start, period.end));
+    const previous = previousEquivalent(period);
+    const best = sortedBest(monthly.activities).find(item => item.evaluated >= 2);
+    const weak = sortedWeak(monthly.activities).find(item => item.missed > 0);
+    const badge = $("#monthly-status-badge");
+
+    $("#monthly-title").textContent = period.title;
+    $("#monthly-period-label").textContent = `${longDate.format(period.start)} a ${longDate.format(period.end)}`;
+    badge.textContent = period.badge;
+    badge.dataset.level = monthly.rate != null && monthly.rate >= 70 ? "high" : monthly.rate != null && monthly.rate < 50 ? "low" : "medium";
+
+    if (!monthly.evaluated) {
+      $("#monthly-summary").innerHTML = `<p>Ainda não há atividades encerradas suficientes para construir o fechamento mensal.</p>`;
+      $("#monthly-highlights").innerHTML = "";
+      return;
+    }
+
+    let trend = "Não há período anterior equivalente suficiente para comparação.";
+    if (previous.rate != null) {
+      const delta = monthly.rate - previous.rate;
+      if (Math.abs(delta) < 3) trend = `O resultado ficou estável em comparação ao período anterior equivalente (${previous.rate}%).`;
+      else if (delta > 0) trend = `O desempenho avançou ${delta} ponto${delta === 1 ? "" : "s"} percentual${delta === 1 ? "" : "is"} sobre o período anterior equivalente.`;
+      else trend = `O desempenho recuou ${Math.abs(delta)} ponto${Math.abs(delta) === 1 ? "" : "s"} percentual${Math.abs(delta) === 1 ? "" : "is"} em relação ao período anterior equivalente.`;
+    }
+
+    const finalSentence = weak
+      ? `A principal fragilidade foi <strong>${escapeHtml(weak.name)}</strong>, com ${weak.missed} oportunidade${weak.missed === 1 ? "" : "s"} perdida${weak.missed === 1 ? "" : "s"}.`
+      : "Nenhuma atividade concentrou falhas recorrentes no período.";
+
+    $("#monthly-summary").innerHTML = `
+      <p>No período mensal analisado, você concluiu <strong>${monthly.completed} de ${monthly.evaluated} oportunidades</strong>, alcançando <strong>${monthly.rate}%</strong>. Foram ${monthly.fullDays} dia${monthly.fullDays === 1 ? "" : "s"} completos.</p>
+      <p>${trend}</p>
+      <p>${finalSentence}</p>`;
+
+    $("#monthly-highlights").innerHTML = `
+      <div class="monthly-highlight">
+        <span>Maior força</span>
+        <strong>${best ? `${escapeHtml(best.name)} · ${best.rate}%` : "Base insuficiente"}</strong>
+      </div>
+      <div class="monthly-highlight">
+        <span>Maior fragilidade</span>
+        <strong>${weak ? `${escapeHtml(weak.name)} · ${weak.missed} falha${weak.missed === 1 ? "" : "s"}` : "Sem recorrência"}</strong>
+      </div>
+      <div class="monthly-highlight">
+        <span>Direção seguinte</span>
+        <strong>${weak ? `Proteger a execução de ${escapeHtml(weak.name)}` : "Manter a consistência atual"}</strong>
+      </div>`;
+  }
+
+  const weeklyDates = lastDays(7);
+  const previousWeeklyDates = dateRange(addDays(parseDate(weeklyDates[0]), -7), addDays(parseDate(weeklyDates[0]), -1));
+  const weekly = analyze(weeklyDates);
+  const previousWeekly = analyze(previousWeeklyDates);
+
+  $("#analysis-period-label").textContent = formatPeriod(weeklyDates);
+  renderKpis(weekly);
+  renderWeeklySummary(weekly, previousWeekly);
+  renderStrengths(weekly);
+  renderWeaknesses(weekly);
+  renderActivityPerformance(weekly);
+  renderFocus(weekly);
+  renderMonthly();
+
+  $("#analysis-footnote").textContent =
+    "A análise considera apenas atividades programadas e registros de conclusão da página Atividades. Livros, peso, meditação, inglês e Bíblia não entram como indicadores independentes.";
+})().catch(error => {
+  console.error(error);
+  const page = document.querySelector(".activity-analysis-page");
+  if (page) {
+    page.innerHTML = `
+      <section class="card section">
+        <p class="eyebrow">Erro ao carregar</p>
+        <h1>Não foi possível analisar as atividades</h1>
+        <p class="muted">${String(error?.message || "Atualize a página e tente novamente.")}</p>
+      </section>`;
+  }
+  window.MMCDUI?.toast(error?.message || "Erro ao analisar as atividades.", 6000);
+});
