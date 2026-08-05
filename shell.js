@@ -1,6 +1,15 @@
 "use strict";
 window.MMCDShell=async function(active){
- const nav=[['missoes','painel.html','01','Missões','Visão da vida'],['meditacao','index.html','02','Meditação','Momento com Deus'],['ingles','ingles.html','03','Inglês diário','Prática e revisão'],['livros','livros.html','04','Livros','Biblioteca'],['atividades','atividades.html','05','Atividades','Rotina diária'],['metas','metas.html','06','Metas','Cadastro'],['estatisticas','relatorios.html','07','Estatísticas','Evolução']];
+ const nav=[
+  ['missoes','painel.html','01','Missões','Visão da vida'],
+  ['meditacao','index.html','02','Meditação','Momento com Deus'],
+  ['biblia','biblia.html','03','Bíblia','Leitura e marcações'],
+  ['ingles','ingles.html','04','Inglês diário','Prática e revisão'],
+  ['atividades','atividades.html','05','Atividades','Rotina diária'],
+  ['livros','livros.html','06','Livros','Biblioteca'],
+  ['metas','metas.html','07','Metas','Cadastro'],
+  ['estatisticas','relatorios.html','08','Estatísticas','Evolução']
+ ];
  document.body.insertAdjacentHTML('afterbegin',`<aside class="sidebar"><a class="sidebar-brand" href="painel.html"><span class="sidebar-brand__mark"><img src="logo-ls-sidebar.png?v=20260804-ls-brand2" alt="Logo Life Style"></span><div class="sidebar-brand__copy"><small>SISTEMA DE EVOLUÇÃO</small><strong>LIFE STYLE</strong></div></a><nav class="sidebar-nav">${nav.map(x=>`<a class="sidebar-link ${active===x[0]?'active':''}" href="${x[1]}"><span class="sidebar-link__icon">${x[2]}</span><div><strong>${x[3]}</strong><small>${x[4]}</small></div><span class="sidebar-link__arrow">›</span></a>`).join('')}</nav><div class="sidebar-summary">Fé, disciplina e evolução.<br>Um dia de cada vez.</div></aside>`);
  document.body.classList.add('app-body');
  try{const session=await MMCDAuth.requireSession();const sidebar=document.querySelector('.sidebar');if(sidebar){sidebar.append(MMCDAuth.accountButton(session.user));sidebar.insertAdjacentHTML('beforeend','<div class="sync-status">Dados online · Supabase</div>')}}catch(e){console.error(e)}
