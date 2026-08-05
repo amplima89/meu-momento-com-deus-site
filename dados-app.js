@@ -443,6 +443,56 @@ window.MMCD = (() => {
     return atualizarCache(data);
   }
 
+  function normalizarDestaquesMeditacao(items) {
+    if (!Array.isArray(items)) return [];
+    return items
+      .map((item, indice) => ({
+        id: String(item?.id || `destaque-${indice}-${Date.now()}`),
+        inicio: Number(item?.inicio),
+        fim: Number(item?.fim),
+        texto: String(item?.texto || "")
+      }))
+      .filter(item =>
+        Number.isInteger(item.inicio) &&
+        Number.isInteger(item.fim) &&
+        item.fim > item.inicio &&
+        item.texto.trim()
+      )
+      .sort((a, b) => a.inicio - b.inicio);
+  }
+
+  async function listarDestaquesMeditacao(date) {
+    await mustUser();
+    const chave = `destaques_meditacao:${date}`;
+    const { data, error } = await db
+      .from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", currentUser.id)
+      .eq("chave", chave)
+      .maybeSingle();
+
+    if (error) fail(error, "Falha ao carregar os destaques da meditação");
+
+    if (!data) return null;
+
+    const valor = data.valor;
+    const itens = Array.isArray(valor) ? valor : valor?.destaques;
+    return normalizarDestaquesMeditacao(itens);
+  }
+
+  async function substituirDestaquesMeditacao(date, items) {
+    await mustUser();
+    const destaques = normalizarDestaquesMeditacao(items);
+    const { error } = await db.from("configuracoes_usuario").upsert({
+      user_id: currentUser.id,
+      chave: `destaques_meditacao:${date}`,
+      valor: { destaques, atualizadoEm: new Date().toISOString() }
+    }, { onConflict: "user_id,chave" });
+
+    if (error) fail(error, "Falha ao salvar os destaques da meditação");
+    return destaques;
+  }
+
   async function listarMarcacoesIngles(date) {
     await mustUser();
     const { data, error } = await db.from("marcacoes_ingles").select("id,texto,ordem").eq("user_id", currentUser.id).eq("data_meditacao", date).eq("ativo", true).order("ordem");
@@ -496,5 +546,5 @@ window.MMCD = (() => {
   }
   function metasNaData(data, date) { return (data.metas || []).filter(item => ativaNaData(item, date)); }
 
-  return { carregar, salvar, salvarRegistroAtividade, salvarRegistroDiario, salvarLivros, salvarMetaLivros, registro, setRegistro, ativaNaData, metasNaData, listarMarcacoesIngles, substituirMarcacoesIngles, listarMeditacoes };
+  return { carregar, salvar, salvarRegistroAtividade, salvarRegistroDiario, salvarLivros, salvarMetaLivros, registro, setRegistro, ativaNaData, metasNaData, listarDestaquesMeditacao, substituirDestaquesMeditacao, listarMarcacoesIngles, substituirMarcacoesIngles, listarMeditacoes };
 })();

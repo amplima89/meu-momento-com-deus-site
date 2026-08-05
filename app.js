@@ -1346,60 +1346,87 @@ function alternarPausaNarracao() {
 
 
 /* =========================================================
-   DESTAQUES PESSOAIS — SOMENTE NESTE NAVEGADOR
+   DESTAQUES PESSOAIS — SINCRONIZADOS NO SUPABASE
    ========================================================= */
 
-function chaveDestaquesMeditacao() {
-    const data =
-        meditacoes[indiceAtual]?.data;
+let destaquesMeditacaoAtuais = [];
+let tokenCargaDestaques = 0;
+let filaPersistenciaDestaques = Promise.resolve();
+let temporizadorSelecaoAutomatica = null;
 
+
+function dataDestaquesMeditacao() {
+    return meditacoes[indiceAtual]?.data || "";
+}
+
+
+function chaveDestaquesMeditacao(
+    data = dataDestaquesMeditacao()
+) {
     return data
         ? `mmcd:destaques:${data}`
         : "";
 }
 
 
-function lerDestaquesLocais() {
+function normalizarDestaques(
+    destaques
+) {
+    if (!Array.isArray(destaques)) {
+        return [];
+    }
+
+    return destaques
+        .map((item, indice) => ({
+            id: String(
+                item?.id
+                || `destaque-${indice}-${Date.now()}`
+            ),
+            inicio: Number(item?.inicio),
+            fim: Number(item?.fim),
+            texto: String(item?.texto || "")
+        }))
+        .filter(item =>
+            Number.isInteger(item.inicio)
+            && Number.isInteger(item.fim)
+            && item.fim > item.inicio
+            && item.texto.trim()
+        )
+        .sort((a, b) =>
+            a.inicio - b.inicio
+        );
+}
+
+
+function lerDestaquesLocais(
+    data = dataDestaquesMeditacao()
+) {
     const chave =
-        chaveDestaquesMeditacao();
+        chaveDestaquesMeditacao(data);
 
     if (!chave) {
         return [];
     }
 
     try {
-        const valor =
+        return normalizarDestaques(
             JSON.parse(
                 localStorage.getItem(chave)
                 || "[]"
-            );
-
-        if (!Array.isArray(valor)) {
-            return [];
-        }
-
-        return valor
-            .filter(item =>
-                item
-                && Number.isInteger(item.inicio)
-                && Number.isInteger(item.fim)
-                && item.fim > item.inicio
-                && typeof item.texto === "string"
             )
-            .sort((a, b) =>
-                a.inicio - b.inicio
-            );
+        );
     } catch {
         return [];
     }
 }
 
 
-function salvarDestaquesLocais(
+function salvarCacheLocalDestaques(
+    data,
     destaques
 ) {
     const chave =
-        chaveDestaquesMeditacao();
+        chaveDestaquesMeditacao(data);
 
     if (!chave) {
         return;
@@ -1514,6 +1541,8 @@ function aplicarMarcaAoRange(
     marca.className =
         "reflection-highlight";
     marca.dataset.highlightId = id;
+    marca.title =
+        "Duplo clique para remover o destaque";
 
     try {
         range.surroundContents(marca);
@@ -1529,39 +1558,181 @@ function aplicarMarcaAoRange(
 }
 
 
-function restaurarDestaquesLocais() {
-    const destaques =
-        lerDestaquesLocais()
-            .sort((a, b) =>
-                b.inicio - a.inicio
+function removerMarcasVisuais() {
+    elementos.conteudo
+        .querySelectorAll(
+            "mark.reflection-highlight"
+        )
+        .forEach(marca => {
+            marca.replaceWith(
+                ...marca.childNodes
             );
+        });
 
-    destaques.forEach(destaque => {
-        const range =
-            criarRangePorOffsets(
-                destaque.inicio,
-                destaque.fim
+    elementos.conteudo.normalize();
+}
+
+
+function aplicarDestaquesVisuais(
+    destaques
+) {
+    removerMarcasVisuais();
+
+    normalizarDestaques(destaques)
+        .sort((a, b) =>
+            b.inicio - a.inicio
+        )
+        .forEach(destaque => {
+            const range =
+                criarRangePorOffsets(
+                    destaque.inicio,
+                    destaque.fim
+                );
+
+            if (!range) {
+                return;
+            }
+
+            if (
+                range.toString()
+                !== destaque.texto
+            ) {
+                return;
+            }
+
+            aplicarMarcaAoRange(
+                range,
+                destaque.id
             );
+        });
+}
 
-        if (!range) {
-            return;
-        }
 
-        const textoAtual =
-            range.toString();
+async function carregarDestaquesPersistidos() {
+    const data =
+        dataDestaquesMeditacao();
+
+    if (!data) {
+        return;
+    }
+
+    const token =
+        ++tokenCargaDestaques;
+    const locais =
+        lerDestaquesLocais(data);
+
+    destaquesMeditacaoAtuais = locais;
+    aplicarDestaquesVisuais(locais);
+
+    if (
+        !window.MMCD
+        ?.listarDestaquesMeditacao
+    ) {
+        return;
+    }
+
+    try {
+        const respostaBanco =
+            await window.MMCD
+                .listarDestaquesMeditacao(data);
+        const possuiRegistroNoBanco =
+            respostaBanco !== null;
+        const banco =
+            normalizarDestaques(
+                respostaBanco || []
+            );
 
         if (
-            textoAtual
-            !== destaque.texto
+            token !== tokenCargaDestaques
+            || data !== dataDestaquesMeditacao()
         ) {
             return;
         }
 
-        aplicarMarcaAoRange(
-            range,
-            destaque.id
+        let finais = banco;
+
+        if (
+            !possuiRegistroNoBanco
+            && locais.length
+        ) {
+            finais = locais;
+
+            await window.MMCD
+                .substituirDestaquesMeditacao(
+                    data,
+                    locais
+                );
+
+            window.MMCDUI?.toast?.(
+                "Seus destaques antigos foram sincronizados com o banco."
+            );
+        }
+
+        destaquesMeditacaoAtuais = finais;
+        salvarCacheLocalDestaques(
+            data,
+            finais
         );
-    });
+        aplicarDestaquesVisuais(finais);
+    } catch (erro) {
+        console.error(
+            "Não foi possível carregar os destaques do banco.",
+            erro
+        );
+
+        if (locais.length) {
+            window.MMCDUI?.toast?.(
+                "Destaques carregados deste navegador; a sincronização falhou."
+            );
+        }
+    }
+}
+
+
+function salvarDestaquesPersistidos(
+    destaques,
+    data = dataDestaquesMeditacao()
+) {
+    const normalizados =
+        normalizarDestaques(destaques);
+
+    destaquesMeditacaoAtuais = normalizados;
+    salvarCacheLocalDestaques(
+        data,
+        normalizados
+    );
+
+    if (
+        !data
+        || !window.MMCD
+            ?.substituirDestaquesMeditacao
+    ) {
+        return Promise.resolve(false);
+    }
+
+    filaPersistenciaDestaques =
+        filaPersistenciaDestaques
+            .catch(() => undefined)
+            .then(async () => {
+                await window.MMCD
+                    .substituirDestaquesMeditacao(
+                        data,
+                        normalizados
+                    );
+                return true;
+            });
+
+    return filaPersistenciaDestaques
+        .catch(erro => {
+            console.error(
+                "Não foi possível salvar os destaques no banco.",
+                erro
+            );
+            window.MMCDUI?.toast?.(
+                "O destaque ficou salvo neste navegador, mas não sincronizou."
+            );
+            return false;
+        });
 }
 
 
@@ -1591,7 +1762,11 @@ function novoIdDestaque() {
 }
 
 
-function marcarSelecao() {
+async function marcarSelecao(
+    opcoes = {}
+) {
+    const silencioso =
+        Boolean(opcoes.silencioso);
     const selecao =
         window.getSelection();
 
@@ -1600,10 +1775,12 @@ function marcarSelecao() {
         || selecao.isCollapsed
         || !selecao.rangeCount
     ) {
-        window.MMCDUI?.toast?.(
-            "Selecione primeiro um trecho da meditação."
-        );
-        return;
+        if (!silencioso) {
+            window.MMCDUI?.toast?.(
+                "Selecione primeiro uma palavra ou frase da meditação."
+            );
+        }
+        return false;
     }
 
     const range =
@@ -1622,17 +1799,21 @@ function marcarSelecao() {
         || !elementos.conteudo
             .contains(ancestral)
     ) {
-        window.MMCDUI?.toast?.(
-            "O destaque funciona somente no texto da meditação."
-        );
-        return;
+        if (!silencioso) {
+            window.MMCDUI?.toast?.(
+                "Selecione um trecho do texto da meditação."
+            );
+        }
+        return false;
     }
 
     if (rangeCruzaDestaque(range)) {
-        window.MMCDUI?.toast?.(
-            "Esse trecho já cruza um destaque existente."
-        );
-        return;
+        if (!silencioso) {
+            window.MMCDUI?.toast?.(
+                "Esse trecho já cruza um destaque existente."
+            );
+        }
+        return false;
     }
 
     const inicio =
@@ -1653,10 +1834,12 @@ function marcarSelecao() {
         || fim <= inicio
         || !texto.trim()
     ) {
-        window.MMCDUI?.toast?.(
-            "Não foi possível destacar essa seleção."
-        );
-        return;
+        if (!silencioso) {
+            window.MMCDUI?.toast?.(
+                "Não foi possível destacar essa seleção."
+            );
+        }
+        return false;
     }
 
     const id =
@@ -1664,29 +1847,34 @@ function marcarSelecao() {
 
     aplicarMarcaAoRange(range, id);
 
-    const destaques =
-        lerDestaquesLocais();
-
-    destaques.push({
-        id,
-        inicio,
-        fim,
-        texto
-    });
-
-    salvarDestaquesLocais(
-        destaques
-    );
+    const novos = [
+        ...destaquesMeditacaoAtuais,
+        {
+            id,
+            inicio,
+            fim,
+            texto
+        }
+    ];
 
     selecao.removeAllRanges();
 
+    const sincronizado =
+        await salvarDestaquesPersistidos(
+            novos
+        );
+
     window.MMCDUI?.toast?.(
-        "Destaque salvo somente neste navegador."
+        sincronizado
+            ? "Destaque salvo e sincronizado."
+            : "Destaque salvo neste navegador."
     );
+
+    return true;
 }
 
 
-function desmarcarTrecho(
+async function desmarcarTrecho(
     marca
 ) {
     if (
@@ -1707,22 +1895,25 @@ function desmarcarTrecho(
     elementos.conteudo.normalize();
 
     const restantes =
-        lerDestaquesLocais()
+        destaquesMeditacaoAtuais
             .filter(item =>
                 item.id !== id
             );
 
-    salvarDestaquesLocais(
+    await salvarDestaquesPersistidos(
         restantes
     );
 
+    window.getSelection()
+        ?.removeAllRanges();
+
     window.MMCDUI?.toast?.(
-        "Destaque removido."
+        "Destaque removido e sincronizado."
     );
 }
 
 
-function limparMarcacoes() {
+async function limparMarcacoes() {
     const marcas =
         elementos.conteudo
             .querySelectorAll(
@@ -1744,24 +1935,69 @@ function limparMarcacoes() {
         return;
     }
 
-    marcas.forEach(marca => {
-        marca.replaceWith(
-            ...marca.childNodes
-        );
-    });
-
-    elementos.conteudo.normalize();
-
-    const chave =
-        chaveDestaquesMeditacao();
-
-    if (chave) {
-        localStorage.removeItem(chave);
-    }
+    removerMarcasVisuais();
+    await salvarDestaquesPersistidos([]);
 
     window.MMCDUI?.toast?.(
         "Todos os destaques foram removidos."
     );
+}
+
+
+function agendarMarcacaoAutomatica(
+    evento
+) {
+    if (
+        evento.button !== undefined
+        && evento.button !== 0
+    ) {
+        return;
+    }
+
+    if (evento.detail > 1) {
+        return;
+    }
+
+    clearTimeout(
+        temporizadorSelecaoAutomatica
+    );
+
+    temporizadorSelecaoAutomatica =
+        setTimeout(() => {
+            marcarSelecao({
+                silencioso: true
+            });
+        }, 250);
+}
+
+
+function alternarDestaqueComDuploClique(
+    evento
+) {
+    clearTimeout(
+        temporizadorSelecaoAutomatica
+    );
+
+    const marca =
+        evento.target.closest?.(
+            "mark.reflection-highlight"
+        );
+
+    if (
+        marca
+        && elementos.conteudo
+            .contains(marca)
+    ) {
+        evento.preventDefault();
+        desmarcarTrecho(marca);
+        return;
+    }
+
+    setTimeout(() => {
+        marcarSelecao({
+            silencioso: true
+        });
+    }, 0);
 }
 
 /* =========================================================
@@ -1956,7 +2192,7 @@ function renderizarMeditacao() {
             .map(renderizarSecao)
             .join("");
 
-    restaurarDestaquesLocais();
+    carregarDestaquesPersistidos();
 
     elementos.numeroPagina.textContent =
         `${indiceAtual + 1} de ${meditacoes.length}`;
@@ -2121,25 +2357,17 @@ window.addEventListener(
 
 elementos.marcar?.addEventListener(
     "click",
-    marcarSelecao
+    () => marcarSelecao()
 );
 
 elementos.conteudo?.addEventListener(
-    "click",
-    evento => {
-        const marca =
-            evento.target.closest?.(
-                "mark.reflection-highlight"
-            );
+    "mouseup",
+    agendarMarcacaoAutomatica
+);
 
-        if (
-            marca
-            && elementos.conteudo
-                .contains(marca)
-        ) {
-            desmarcarTrecho(marca);
-        }
-    }
+elementos.conteudo?.addEventListener(
+    "dblclick",
+    alternarDestaqueComDuploClique
 );
 
 elementos.limparMarcas?.addEventListener(

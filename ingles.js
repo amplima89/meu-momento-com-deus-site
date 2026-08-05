@@ -436,6 +436,7 @@
         range.setEnd(no, inicio + texto.length);
         const marca = document.createElement("mark");
         marca.className = "english-highlight";
+        marca.title = "Duplo clique para remover a marcação";
 
         try {
           range.surroundContents(marca);
@@ -447,11 +448,127 @@
     }
   }
 
-  async function salvarMarcacoes() {
-    const textos = [...conteudo.querySelectorAll("mark.english-highlight")]
+  let filaMarcacoes = Promise.resolve();
+  let temporizadorSelecao = null;
+
+  function textosMarcados() {
+    return [...conteudo.querySelectorAll("mark.english-highlight")]
       .map(item => item.textContent.trim())
       .filter(Boolean);
-    await MMCD.substituirMarcacoesIngles(dataAtual(), textos);
+  }
+
+  function salvarMarcacoes() {
+    const data = dataAtual();
+    const textos = textosMarcados();
+
+    filaMarcacoes = filaMarcacoes
+      .catch(() => undefined)
+      .then(() => MMCD.substituirMarcacoesIngles(data, textos));
+
+    return filaMarcacoes;
+  }
+
+  function rangeCruzaMarcacao(range) {
+    return [...conteudo.querySelectorAll("mark.english-highlight")]
+      .some(marca => {
+        try {
+          return range.intersectsNode(marca);
+        } catch {
+          return false;
+        }
+      });
+  }
+
+  async function marcarSelecaoIngles({ silencioso = false } = {}) {
+    const selecao = getSelection();
+    if (!selecao || selecao.isCollapsed || !selecao.rangeCount) {
+      if (!silencioso) MMCDUI.toast("Selecione uma palavra ou expressão primeiro.");
+      return false;
+    }
+
+    const range = selecao.getRangeAt(0);
+    const ancestral = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+      ? range.commonAncestorContainer
+      : range.commonAncestorContainer.parentElement;
+
+    if (!ancestral || !conteudo.contains(ancestral)) {
+      if (!silencioso) MMCDUI.toast("Selecione um trecho do inglês diário.");
+      return false;
+    }
+
+    const texto = range.toString().trim();
+    if (!texto) return false;
+
+    if (rangeCruzaMarcacao(range)) {
+      if (!silencioso) MMCDUI.toast("Esse trecho já cruza uma marcação existente.");
+      return false;
+    }
+
+    const marca = document.createElement("mark");
+    marca.className = "english-highlight";
+    marca.title = "Duplo clique para remover a marcação";
+
+    try {
+      range.surroundContents(marca);
+    } catch {
+      const fragmento = range.extractContents();
+      marca.append(fragmento);
+      range.insertNode(marca);
+    }
+
+    selecao.removeAllRanges();
+
+    try {
+      await salvarMarcacoes();
+      MMCDUI.toast("Marcação salva e sincronizada.");
+    } catch (erro) {
+      console.error(erro);
+      MMCDUI.toast("A marcação apareceu, mas não foi sincronizada.");
+    }
+
+    return true;
+  }
+
+  async function removerMarcacaoIngles(marca) {
+    if (!marca?.matches?.("mark.english-highlight")) return;
+
+    marca.replaceWith(...marca.childNodes);
+    conteudo.normalize();
+    getSelection()?.removeAllRanges();
+
+    try {
+      await salvarMarcacoes();
+      MMCDUI.toast("Marcação removida e sincronizada.");
+    } catch (erro) {
+      console.error(erro);
+      MMCDUI.toast("A marcação foi removida da tela, mas não sincronizou.");
+    }
+  }
+
+  function agendarMarcacaoDaSelecao(evento) {
+    if (evento.button !== undefined && evento.button !== 0) return;
+    if (evento.detail > 1) return;
+
+    clearTimeout(temporizadorSelecao);
+    temporizadorSelecao = setTimeout(() => {
+      marcarSelecaoIngles({ silencioso: true });
+    }, 250);
+  }
+
+  function alternarComDuploClique(evento) {
+    clearTimeout(temporizadorSelecao);
+
+    const marca = evento.target.closest?.("mark.english-highlight");
+    if (marca && conteudo.contains(marca)) {
+      evento.preventDefault();
+      evento.stopPropagation();
+      removerMarcacaoIngles(marca);
+      return;
+    }
+
+    setTimeout(() => {
+      marcarSelecaoIngles({ silencioso: true });
+    }, 0);
   }
 
   async function abrir() {
@@ -484,49 +601,14 @@
   seletor.value = String(lista.length - 1);
   seletor.addEventListener("change", abrir);
 
-  document.querySelector("#ingles-marcar").addEventListener("click", async () => {
-    const selecao = getSelection();
-    if (!selecao || selecao.isCollapsed || !selecao.rangeCount) {
-      MMCDUI.toast("Selecione uma expressão primeiro.");
-      return;
-    }
-
-    const range = selecao.getRangeAt(0);
-    const ancestral = range.commonAncestorContainer.nodeType === 1
-      ? range.commonAncestorContainer
-      : range.commonAncestorContainer.parentElement;
-
-    if (!conteudo.contains(ancestral)) {
-      MMCDUI.toast("Selecione um trecho do inglês diário.");
-      return;
-    }
-
-    const marca = document.createElement("mark");
-    marca.className = "english-highlight";
-
-    try {
-      range.surroundContents(marca);
-    } catch {
-      const fragmento = range.extractContents();
-      marca.append(fragmento);
-      range.insertNode(marca);
-    }
-
-    selecao.removeAllRanges();
-    await salvarMarcacoes();
-    MMCDUI.toast("Expressão salva no banco para revisão.");
+  document.querySelector("#ingles-marcar").addEventListener("click", () => {
+    marcarSelecaoIngles();
   });
 
-  conteudo.addEventListener("click", async evento => {
-    const marca = evento.target.closest?.("mark.english-highlight");
-    if (marca) {
-      marca.replaceWith(...marca.childNodes);
-      conteudo.normalize();
-      await salvarMarcacoes();
-      MMCDUI.toast("Marcação removida.");
-      return;
-    }
+  conteudo.addEventListener("mouseup", agendarMarcacaoDaSelecao);
+  conteudo.addEventListener("dblclick", alternarComDuploClique);
 
+  conteudo.addEventListener("click", evento => {
     const palavra = evento.target.closest?.(".english-word");
     if (!palavra) return;
 
@@ -547,8 +629,14 @@
 
     marcas.forEach(marca => marca.replaceWith(...marca.childNodes));
     conteudo.normalize();
-    await salvarMarcacoes();
-    MMCDUI.toast("Marcações removidas.");
+
+    try {
+      await salvarMarcacoes();
+      MMCDUI.toast("Marcações removidas e sincronizadas.");
+    } catch (erro) {
+      console.error(erro);
+      MMCDUI.toast("As marcações saíram da tela, mas não sincronizaram.");
+    }
   });
 
   await abrir();
