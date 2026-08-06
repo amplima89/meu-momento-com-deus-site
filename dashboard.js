@@ -129,7 +129,12 @@
     </div>`;
 
   const due = MMCD.metasNaData(d, iso);
-  const done = due.filter(item => MMCD.registro(d, iso, item.id)?.concluida).length;
+  const excusedToday = due.filter(item => MMCD.estaAbonada(MMCD.registro(d, iso, item.id))).length;
+  const validToday = Math.max(0, due.length - excusedToday);
+  const done = due.filter(item => {
+    const row = MMCD.registro(d, iso, item.id);
+    return !MMCD.estaAbonada(row) && !!row?.concluida;
+  }).length;
   const books = d.livros.concluidos.filter(item => (item.dataConclusao || "").startsWith(String(d.configuracoes.anoMetaLivros)));
   const medDates = Object.keys(d.meditacoes || {}).sort();
   const lastMed = medDates.at(-1) || "";
@@ -173,7 +178,7 @@
     ["📚", "Livros concluídos", String(books.length), `Meta anual: ${d.configuracoes.metaLivrosAno}`],
     ["🙏", "Meditação de hoje", medDone ? "Concluída" : "Pendente", lastMed ? `Última: ${MMCDUI.date(lastMed)}` : "Sem registro"],
     ["⚖️", "Peso atual", currentWeight != null ? kg(currentWeight) : "Não informado", weightDetail],
-    ["✅", "Hábitos concluídos hoje", `${done} de ${due.length}`, "Metas previstas"]
+    ["✅", "Hábitos concluídos hoje", `${done} de ${validToday}`, excusedToday ? `${excusedToday} abonada${excusedToday === 1 ? "" : "s"} fora do cálculo` : "Metas válidas previstas"]
   ];
 
   document.querySelector("#main-cards").innerHTML = cards.map(card => `
@@ -192,8 +197,12 @@
       date.setDate(date.getDate() - endOffset - index);
       const value = isoDate(date);
       const goals = MMCD.metasNaData(d, value);
-      planned += goals.length;
-      completed += goals.filter(item => MMCD.registro(d, value, item.id)?.concluida).length;
+      for (const item of goals) {
+        const row = MMCD.registro(d, value, item.id);
+        if (MMCD.estaAbonada(row)) continue;
+        planned += 1;
+        if (row?.concluida) completed += 1;
+      }
     }
     return planned ? Math.round((completed / planned) * 100) : 0;
   }
@@ -217,7 +226,6 @@
     </div>`).join("");
 
   const canvas = document.querySelector("#mini-weight");
-  const chartStage = canvas.closest(".chart-stage") || canvas;
   const chartCard = canvas.closest(".card");
   const header = chartCard.querySelector(".section-head");
   header.querySelector(".eyebrow").textContent = "Peso e objetivo";
@@ -232,14 +240,14 @@
   const summary = document.createElement("div");
   summary.id = "weight-goal-summary";
   summary.className = "weight-goal-summary";
-  chartStage.before(summary);
+  canvas.before(summary);
 
   const legend = document.createElement("div");
-  legend.className = "weight-chart-legend chart-legend";
+  legend.className = "weight-chart-legend";
   legend.innerHTML = `
     <span><i class="weight-chart-legend__history"></i>Peso registrado</span>
     <span><i class="weight-chart-legend__target"></i>Meta de peso</span>`;
-  chartStage.after(legend);
+  canvas.after(legend);
 
   function renderSummary() {
     const values = metaMetrics();
@@ -295,7 +303,7 @@
     const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
     const ratio = window.devicePixelRatio || 1;
-    const height = 310;
+    const height = 230;
 
     canvas.width = Math.max(1, rect.width * ratio);
     canvas.height = height * ratio;
@@ -321,9 +329,8 @@
 
     // Mantém a leitura do peso em intervalos exatos de 1 kg. O arredondamento
     // para baixo e para cima também cria uma margem visual ao redor dos pontos.
-    const observedMax = Math.max(...values);
-    let min = Math.floor(Math.min(...values)) - 2;
-    let max = Number.isInteger(observedMax) ? observedMax + 1 : Math.ceil(observedMax);
+    let min = Math.floor(Math.min(...values)) - 1;
+    let max = Math.ceil(Math.max(...values)) + 1;
     if (max <= min) max = min + 1;
 
     const left = 52;
@@ -338,7 +345,7 @@
       ? left + chartWidth / 2
       : left + index * chartWidth / (points.length - 1);
 
-    ctx.font = "600 11px sans-serif";
+    ctx.font = "11px sans-serif";
     ctx.textBaseline = "middle";
     ctx.lineWidth = 1;
 

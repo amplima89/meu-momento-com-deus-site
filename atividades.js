@@ -44,8 +44,23 @@
 
   function stats(date) {
     const goals = goalsFor(date);
-    const done = goals.filter(meta => MMCD.registro(d, date, meta.id)?.concluida).length;
-    return { goals, done, pct: goals.length ? Math.round((done / goals.length) * 100) : 0 };
+    let done = 0;
+    let excused = 0;
+
+    for (const meta of goals) {
+      const row = MMCD.registro(d, date, meta.id);
+      if (MMCD.estaAbonada(row)) excused += 1;
+      else if (row?.concluida) done += 1;
+    }
+
+    const valid = Math.max(0, goals.length - excused);
+    return {
+      goals,
+      done,
+      excused,
+      valid,
+      pct: valid ? Math.round((done / valid) * 100) : null
+    };
   }
 
   function renderCalendar() {
@@ -64,15 +79,23 @@
       const dayStats = stats(key);
       const outside = date.getMonth() !== month;
       const dots = dayStats.goals.slice(0, 8).map(meta => {
-        const done = MMCD.registro(d, key, meta.id)?.concluida;
-        return `<i class="day-dot ${done ? "done" : ""}"></i>`;
+        const row = MMCD.registro(d, key, meta.id);
+        const state = MMCD.estaAbonada(row) ? "excused" : row?.concluida ? "done" : "";
+        const title = state === "excused" ? "Abonada" : state === "done" ? "Concluída" : "Pendente";
+        return `<i class="day-dot ${state}" title="${title}"></i>`;
       }).join("");
+
+      let dayLabel = "Sem atividades";
+      if (dayStats.goals.length && dayStats.valid === 0) dayLabel = "Tudo abonado";
+      else if (dayStats.goals.length) {
+        dayLabel = `${dayStats.pct}%${dayStats.excused ? ` · ${dayStats.excused} abono${dayStats.excused === 1 ? "" : "s"}` : ""}`;
+      }
 
       html += `
         <button class="calendar-day ${outside ? "outside" : ""} ${key === selected ? "selected" : ""} ${key === today ? "today" : ""}" data-date="${key}">
           <span class="day-top"><span class="day-number">${date.getDate()}</span></span>
           <span class="day-dots">${dots}</span>
-          <span class="day-percent">${dayStats.goals.length ? `${dayStats.pct}%` : "Sem atividades"}</span>
+          <span class="day-percent">${dayLabel}</span>
         </button>`;
     }
 
@@ -87,6 +110,29 @@
     });
   }
 
+  function restoreRecord(goalId, previousState) {
+    const rows = d.registros[selected] || [];
+    const index = rows.findIndex(row => row.metaId === goalId);
+    if (previousState && index >= 0) rows[index] = previousState;
+    else if (previousState && index < 0) rows.push(previousState);
+    else if (!previousState && index >= 0) rows.splice(index, 1);
+  }
+
+  async function saveGoalChange(goalId, previousState, successMessage) {
+    render();
+    setStatus("Salvando no banco...", "saving");
+
+    try {
+      d = await MMCD.salvarRegistroAtividade(d, selected, goalId);
+      render();
+      setStatus(successMessage, "success", true);
+    } catch (error) {
+      restoreRecord(goalId, previousState);
+      render();
+      showError(error, "Não foi possível salvar a atividade.");
+    }
+  }
+
   async function toggleGoal(button) {
     if (button.disabled) return;
 
@@ -95,30 +141,62 @@
     const previousState = previous ? { ...previous } : null;
     const nextValue = !previous?.concluida;
 
-    button.disabled = true;
     MMCD.setRegistro(d, selected, goalId, {
       concluida: nextValue,
+      abonada: false,
       valor: nextValue ? 1 : 0,
+      texto: "",
+      observacao: "",
       origem: "manual"
     });
-    render();
-    setStatus("Salvando no banco...", "saving");
 
-    try {
-      d = await MMCD.salvarRegistroAtividade(d, selected, goalId);
-      render();
-      setStatus("Atividade salva no banco", "success", true);
-    } catch (error) {
-      const rows = d.registros[selected] || [];
-      const index = rows.findIndex(row => row.metaId === goalId);
-      if (previousState && index >= 0) rows[index] = previousState;
-      if (!previousState && index >= 0) rows.splice(index, 1);
-      render();
-      showError(error, "Não foi possível salvar a atividade.");
-    } finally {
-      const currentButton = document.querySelector(`[data-goal="${goalId}"]`);
-      if (currentButton) currentButton.disabled = false;
+    await saveGoalChange(goalId, previousState, "Atividade salva no banco");
+  }
+
+  async function toggleExcuse(button) {
+    if (button.disabled) return;
+
+    const goalId = button.dataset.goal;
+    const goal = d.metas.find(meta => meta.id === goalId);
+    const previous = MMCD.registro(d, selected, goalId);
+    const previousState = previous ? { ...previous } : null;
+    const alreadyExcused = MMCD.estaAbonada(previous);
+
+    if (alreadyExcused) {
+      MMCD.setRegistro(d, selected, goalId, {
+        concluida: false,
+        abonada: false,
+        valor: 0,
+        texto: "",
+        observacao: "",
+        origem: "manual"
+      });
+      await saveGoalChange(goalId, previousState, "Abono removido");
+      return;
     }
+
+    const reason = window.prompt(
+      `Informe o motivo do abono para ${goal?.nome || "esta atividade"} em ${dateFmt.format(parseDate(selected))}:`,
+      previous?.observacao || ""
+    );
+    if (reason == null) return;
+
+    const cleanReason = reason.trim();
+    if (!cleanReason) {
+      MMCDUI.toast("Informe um motivo para registrar o abono.", 3500);
+      return;
+    }
+
+    MMCD.setRegistro(d, selected, goalId, {
+      concluida: false,
+      abonada: true,
+      valor: 0,
+      texto: "",
+      observacao: cleanReason,
+      origem: "abono"
+    });
+
+    await saveGoalChange(goalId, previousState, "Atividade abonada");
   }
 
   function renderDay() {
@@ -126,25 +204,48 @@
     const dayStats = stats(selected);
     $("#selected-date").textContent = dateFmt.format(date);
     $("#selected-weekday").textContent = weekFmt.format(date);
-    $("#day-progress-label").textContent = `${dayStats.pct}%`;
-    $("#day-progress-bar").style.width = `${dayStats.pct}%`;
+
+    let progressLabel = "0%";
+    if (dayStats.goals.length && dayStats.valid === 0) progressLabel = "Tudo abonado";
+    else if (dayStats.valid) progressLabel = `${dayStats.pct}%`;
+    if (dayStats.excused && dayStats.valid) {
+      progressLabel += ` · ${dayStats.excused} abonada${dayStats.excused === 1 ? "" : "s"}`;
+    }
+
+    $("#day-progress-label").textContent = progressLabel;
+    $("#day-progress-bar").style.width = `${dayStats.pct ?? 0}%`;
 
     $("#daily-goals").innerHTML = dayStats.goals.map(meta => {
-      const done = !!MMCD.registro(d, selected, meta.id)?.concluida;
+      const row = MMCD.registro(d, selected, meta.id);
+      const excused = MMCD.estaAbonada(row);
+      const done = !excused && !!row?.concluida;
+      const reason = excused ? MMCD.motivoAbono(row) : "";
       const color = meta.cor || "#2563eb";
       return `
-        <article class="daily-goal">
+        <article class="daily-goal ${done ? "is-done" : ""} ${excused ? "is-excused" : ""}">
           <span class="daily-goal-icon" style="color:${color};background:${color}14">${MMCDUI.esc(meta.icone || "✓")}</span>
-          <div>
-            <strong>${MMCDUI.esc(meta.nome || "Atividade")}</strong>
+          <div class="daily-goal-copy">
+            <div class="daily-goal-title">
+              <strong>${MMCDUI.esc(meta.nome || "Atividade")}</strong>
+              ${excused ? '<span class="excuse-badge">Abonada</span>' : ""}
+            </div>
             <small>${MMCDUI.esc(meta.descricao || "Marque somente quando realmente cumprir.")}</small>
+            ${reason ? `<small class="excuse-reason">Motivo: ${MMCDUI.esc(reason)}</small>` : ""}
           </div>
-          <button class="daily-check ${done ? "done" : ""}" data-goal="${meta.id}" aria-label="${done ? "Desmarcar" : "Marcar"} atividade">${done ? "✓" : ""}</button>
+          <div class="daily-goal-actions">
+            <button class="daily-excuse ${excused ? "active" : ""}" data-action="excuse" data-goal="${meta.id}" aria-label="${excused ? "Remover abono" : "Abonar"} ${MMCDUI.esc(meta.nome || "atividade")}" title="${excused ? "Remover abono" : "Registrar abono"}">
+              <span aria-hidden="true">A</span><span>${excused ? "Abonado" : "Abonar"}</span>
+            </button>
+            <button class="daily-check ${done ? "done" : ""}" data-action="check" data-goal="${meta.id}" aria-label="${done ? "Desmarcar" : "Marcar"} atividade" ${excused ? "disabled" : ""}>${done ? "✓" : ""}</button>
+          </div>
         </article>`;
     }).join("") || '<div class="empty-day">Nenhuma meta programada para este dia.</div>';
 
-    document.querySelectorAll("[data-goal]").forEach(button => {
+    document.querySelectorAll('[data-action="check"]').forEach(button => {
       button.onclick = () => toggleGoal(button);
+    });
+    document.querySelectorAll('[data-action="excuse"]').forEach(button => {
+      button.onclick = () => toggleExcuse(button);
     });
 
     $("#day-weight").value = d.pesos[selected] ?? "";

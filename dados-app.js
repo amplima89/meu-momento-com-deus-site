@@ -4,11 +4,12 @@ window.MMCD = (() => {
   const hoje = () => new Date().toISOString().slice(0, 10);
   const uuid = value => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value || "");
   const clone = value => JSON.parse(JSON.stringify(value));
+  const ABONO_MARKER = "__MMCD_ABONADO__";
   let cache = null;
   let currentUser = null;
 
   const base = {
-    schemaVersion: 5,
+    schemaVersion: 6,
     atualizadoEm: "",
     configuracoes: {
       metaLivrosAno: 20,
@@ -21,7 +22,7 @@ window.MMCD = (() => {
 
   function merge(value = {}) {
     return {
-      ...clone(base), ...value, schemaVersion: 5,
+      ...clone(base), ...value, schemaVersion: 6,
       configuracoes: {
         ...base.configuracoes, ...(value.configuracoes || {}),
         missaoAtual: { ...base.configuracoes.missaoAtual, ...(value.configuracoes?.missaoAtual || {}) }
@@ -127,9 +128,14 @@ window.MMCD = (() => {
 
     for (const row of activityRecords) {
       data.registros[row.data_registro] ||= [];
+      const abonada = row.valor_texto === ABONO_MARKER;
       data.registros[row.data_registro].push({
-        metaId: row.atividade_id, concluida: !!row.concluido, valor: Number(row.valor_numerico || 0),
-        observacao: row.observacao || "", texto: row.valor_texto || ""
+        metaId: row.atividade_id,
+        concluida: abonada ? false : !!row.concluido,
+        abonada,
+        valor: abonada ? 0 : Number(row.valor_numerico || 0),
+        observacao: row.observacao || "",
+        texto: abonada ? "" : (row.valor_texto || "")
       });
     }
 
@@ -196,8 +202,10 @@ window.MMCD = (() => {
         if (!uuid(row.metaId)) continue;
         recordRows.push({
           user_id: currentUser.id, atividade_id: row.metaId, data_registro: date,
-          concluido: !!row.concluida, valor_numerico: Number(row.valor || 0),
-          valor_texto: row.texto || null, observacao: row.observacao || null
+          concluido: estaAbonada(row) ? false : !!row.concluida,
+          valor_numerico: estaAbonada(row) ? 0 : Number(row.valor || 0),
+          valor_texto: estaAbonada(row) ? ABONO_MARKER : (row.texto || null),
+          observacao: row.observacao || null
         });
       }
     }
@@ -294,9 +302,9 @@ window.MMCD = (() => {
       user_id: currentUser.id,
       atividade_id: activityId,
       data_registro: date,
-      concluido: !!row.concluida,
-      valor_numerico: Number(row.valor || 0),
-      valor_texto: row.texto || null,
+      concluido: estaAbonada(row) ? false : !!row.concluida,
+      valor_numerico: estaAbonada(row) ? 0 : Number(row.valor || 0),
+      valor_texto: estaAbonada(row) ? ABONO_MARKER : (row.texto || null),
       observacao: row.observacao || null
     };
 
@@ -532,10 +540,15 @@ window.MMCD = (() => {
 
 
   function registro(data, date, id) { return (data.registros?.[date] || []).find(x => x.metaId === id); }
+  function estaAbonada(row) { return !!row && (row.abonada === true || row.texto === ABONO_MARKER); }
+  function motivoAbono(row) { return estaAbonada(row) ? String(row.observacao || "").trim() : ""; }
   function setRegistro(data, date, id, patch) {
     data.registros[date] ||= [];
     let row = registro(data, date, id);
-    if (!row) { row = { metaId: id, concluida: false, valor: 0, observacao: "" }; data.registros[date].push(row); }
+    if (!row) {
+      row = { metaId: id, concluida: false, abonada: false, valor: 0, texto: "", observacao: "" };
+      data.registros[date].push(row);
+    }
     Object.assign(row, patch);
   }
   function ativaNaData(item, date) {
@@ -546,5 +559,5 @@ window.MMCD = (() => {
   }
   function metasNaData(data, date) { return (data.metas || []).filter(item => ativaNaData(item, date)); }
 
-  return { carregar, salvar, salvarRegistroAtividade, salvarRegistroDiario, salvarLivros, salvarMetaLivros, registro, setRegistro, ativaNaData, metasNaData, listarDestaquesMeditacao, substituirDestaquesMeditacao, listarMarcacoesIngles, substituirMarcacoesIngles, listarMeditacoes };
+  return { carregar, salvar, salvarRegistroAtividade, salvarRegistroDiario, salvarLivros, salvarMetaLivros, registro, estaAbonada, motivoAbono, setRegistro, ativaNaData, metasNaData, listarDestaquesMeditacao, substituirDestaquesMeditacao, listarMarcacoesIngles, substituirMarcacoesIngles, listarMeditacoes };
 })();

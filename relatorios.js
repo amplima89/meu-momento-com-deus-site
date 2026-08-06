@@ -55,6 +55,7 @@
     let planned = 0;
     let completed = 0;
     let missed = 0;
+    let excused = 0;
     let pendingToday = 0;
     let evaluated = 0;
 
@@ -62,14 +63,20 @@
       const due = dueOn(date);
       let dayCompleted = 0;
       let dayMissed = 0;
+      let dayExcused = 0;
       let dayPending = 0;
 
       for (const activity of due) {
-        const done = !!record(date, activity.id)?.concluida;
-        const isTodayPending = date === today && !done;
+        const activityRecord = record(date, activity.id);
+        const isExcused = MMCD.estaAbonada(activityRecord);
+        const done = !isExcused && !!activityRecord?.concluida;
+        const isTodayPending = date === today && !done && !isExcused;
 
         planned += 1;
-        if (done) {
+        if (isExcused) {
+          excused += 1;
+          dayExcused += 1;
+        } else if (done) {
           completed += 1;
           evaluated += 1;
           dayCompleted += 1;
@@ -92,12 +99,15 @@
             evaluated: 0,
             completed: 0,
             missed: 0,
+            excused: 0,
             pendingToday: 0
           });
         }
         const activityStats = byActivity.get(activity.id);
         activityStats.due += 1;
-        if (done) {
+        if (isExcused) {
+          activityStats.excused += 1;
+        } else if (done) {
           activityStats.completed += 1;
           activityStats.evaluated += 1;
         } else if (isTodayPending) {
@@ -109,10 +119,13 @@
 
         const categoryName = activity.categoria || "Sem categoria";
         if (!byCategory.has(categoryName)) {
-          byCategory.set(categoryName, { name: categoryName, evaluated: 0, completed: 0, missed: 0 });
+          byCategory.set(categoryName, { name: categoryName, due: 0, evaluated: 0, completed: 0, missed: 0, excused: 0 });
         }
         const categoryStats = byCategory.get(categoryName);
-        if (done) {
+        categoryStats.due += 1;
+        if (isExcused) {
+          categoryStats.excused += 1;
+        } else if (done) {
           categoryStats.completed += 1;
           categoryStats.evaluated += 1;
         } else if (!isTodayPending) {
@@ -127,6 +140,7 @@
         due: due.length,
         completed: dayCompleted,
         missed: dayMissed,
+        excused: dayExcused,
         pendingToday: dayPending,
         evaluated: dayEvaluated,
         rate: dayEvaluated ? Math.round((dayCompleted / dayEvaluated) * 100) : null
@@ -147,6 +161,7 @@
       planned,
       completed,
       missed,
+      excused,
       pendingToday,
       evaluated,
       rate: evaluated ? Math.round((completed / evaluated) * 100) : null,
@@ -199,17 +214,22 @@
       <article class="card activity-kpi">
         <span>Concluídas</span>
         <strong>${weekly.completed}</strong>
-        <small>${weekly.missed} negligenciada${weekly.missed === 1 ? "" : "s"} em dias já encerrados.</small>
+        <small>${weekly.missed} não concluída${weekly.missed === 1 ? "" : "s"} em oportunidades válidas.</small>
+      </article>
+      <article class="card activity-kpi activity-kpi--excused">
+        <span>Abonadas</span>
+        <strong>${weekly.excused}</strong>
+        <small>Registradas no histórico, mas retiradas do cálculo da aderência.</small>
       </article>
       <article class="card activity-kpi">
         <span>Taxa de conclusão</span>
         <strong>${rateText}</strong>
-        <small>Calculada sobre ${weekly.evaluated} oportunidade${weekly.evaluated === 1 ? "" : "s"} já avaliadas.</small>
+        <small>Calculada sobre ${weekly.evaluated} oportunidade${weekly.evaluated === 1 ? "" : "s"} válida${weekly.evaluated === 1 ? "" : "s"}.</small>
       </article>
       <article class="card activity-kpi">
         <span>Dias completos</span>
         <strong>${weekly.fullDays}</strong>
-        <small>Janela fechada: o dia vigente não entra no cálculo.</small>
+        <small>Sem falhas entre as atividades válidas; abonos não prejudicam o dia.</small>
       </article>`;
   }
 
@@ -221,8 +241,9 @@
 
     if (!weekly.evaluated) {
       $("#weekly-summary").classList.remove("loading-copy");
-      $("#weekly-summary").innerHTML = `
-        <p>Ainda não há oportunidades encerradas suficientes para avaliar a semana. Marque as atividades na página <strong>Atividades</strong> e a análise será construída automaticamente.</p>`;
+      $("#weekly-summary").innerHTML = weekly.excused
+        ? `<p>As ${weekly.excused} atividade${weekly.excused === 1 ? "" : "s"} programada${weekly.excused === 1 ? "" : "s"} no período ${weekly.excused === 1 ? "foi abonada" : "foram abonadas"}. ${weekly.excused === 1 ? "Ela permanece" : "Elas permanecem"} no histórico, mas não há oportunidades válidas suficientes para calcular uma taxa.</p>`
+        : `<p>Ainda não há oportunidades encerradas suficientes para avaliar a semana. Marque as atividades na página <strong>Atividades</strong> e a análise será construída automaticamente.</p>`;
       return;
     }
 
@@ -251,7 +272,8 @@
 
     $("#weekly-summary").classList.remove("loading-copy");
     $("#weekly-summary").innerHTML = `
-      <p>Nos 7 dias completos anteriores, você concluiu <strong>${weekly.completed} de ${weekly.evaluated} atividades avaliadas</strong>, atingindo <strong>${weekly.rate}%</strong> de conclusão. Foram ${weekly.fullDays} dia${weekly.fullDays === 1 ? "" : "s"} sem nenhuma falha entre as atividades encerradas.</p>
+      <p>Nos 7 dias completos anteriores, você concluiu <strong>${weekly.completed} de ${weekly.evaluated} oportunidades válidas</strong>, atingindo <strong>${weekly.rate}%</strong> de conclusão. Foram ${weekly.fullDays} dia${weekly.fullDays === 1 ? "" : "s"} sem nenhuma falha entre as atividades consideradas.</p>
+      ${weekly.excused ? `<p>Houve <strong>${weekly.excused} atividade${weekly.excused === 1 ? "" : "s"} abonada${weekly.excused === 1 ? "" : "s"}</strong>. ${weekly.excused === 1 ? "Ela foi mantida no histórico, mas não entrou" : "Elas foram mantidas no histórico, mas não entraram"} no denominador da taxa.</p>` : ""}
       ${comparison ? `<p>${comparison}</p>` : ""}
       ${daySentence ? `<p>${daySentence}</p>` : ""}`;
   }
@@ -319,7 +341,7 @@
 
   function renderActivityPerformance(weekly) {
     const rows = [...weekly.activities]
-      .filter(item => item.evaluated > 0 || item.pendingToday > 0)
+      .filter(item => item.evaluated > 0 || item.excused > 0 || item.pendingToday > 0)
       .sort((a, b) => (b.missed - a.missed) || ((a.rate ?? 101) - (b.rate ?? 101)) || a.name.localeCompare(b.name, "pt-BR"));
 
     const badge = $("#evidence-summary-badge");
@@ -348,10 +370,11 @@
           </div>
           <div class="activity-row__metric"><span>Previstas</span><strong>${item.due}</strong></div>
           <div class="activity-row__metric"><span>Concluídas</span><strong>${item.completed}</strong></div>
-          <div class="activity-row__metric"><span>Negligenciadas</span><strong>${item.missed}</strong></div>
+          <div class="activity-row__metric"><span>Não concluídas</span><strong>${item.missed}</strong></div>
+          <div class="activity-row__metric activity-row__metric--excused"><span>Abonadas</span><strong>${item.excused}</strong></div>
           <div class="activity-row__rate">
             <div><i style="width:${Math.max(0, Math.min(100, rate))}%"></i></div>
-            <span>${rateLabel}${item.pendingToday ? ` · ${item.pendingToday} pendente hoje` : ""}</span>
+            <span>${rateLabel}${item.excused ? ` · ${item.excused} abonada${item.excused === 1 ? "" : "s"}` : ""}${item.pendingToday ? ` · ${item.pendingToday} pendente hoje` : ""}</span>
           </div>
         </div>`;
     }).join("");
@@ -650,7 +673,7 @@
       : "Nenhuma atividade concentrou falhas recorrentes no período.";
 
     $("#monthly-summary").innerHTML = `
-      <p>No período mensal analisado, você concluiu <strong>${monthly.completed} de ${monthly.evaluated} oportunidades</strong>, alcançando <strong>${monthly.rate}%</strong>. Foram ${monthly.fullDays} dia${monthly.fullDays === 1 ? "" : "s"} completos.</p>
+      <p>No período mensal analisado, você concluiu <strong>${monthly.completed} de ${monthly.evaluated} oportunidades válidas</strong>, alcançando <strong>${monthly.rate}%</strong>. Foram ${monthly.fullDays} dia${monthly.fullDays === 1 ? "" : "s"} completos.${monthly.excused ? ` O período teve ${monthly.excused} atividade${monthly.excused === 1 ? "" : "s"} abonada${monthly.excused === 1 ? "" : "s"}, preservada${monthly.excused === 1 ? "" : "s"} no histórico e excluída${monthly.excused === 1 ? "" : "s"} do cálculo.` : ""}</p>
       <p>${trend}</p>
       <p>${finalSentence}</p>`;
 
@@ -695,7 +718,7 @@
   });
 
   $("#analysis-footnote").textContent =
-    "A análise semanal usa os 7 dias completos anteriores e exclui o dia vigente. Considera apenas atividades programadas e registros de conclusão da página Atividades. Livros, peso, meditação, inglês e Bíblia não entram como indicadores independentes.";
+    "A análise semanal usa os 7 dias completos anteriores e exclui o dia vigente. Atividades abonadas permanecem no histórico, mas não contam como conclusão nem como falha e são retiradas do denominador da taxa. Livros, peso, meditação, inglês e Bíblia não entram como indicadores independentes.";
 })().catch(error => {
   console.error(error);
   const page = document.querySelector(".activity-analysis-page");

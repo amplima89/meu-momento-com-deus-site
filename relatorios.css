@@ -3,11 +3,13 @@
 .analysis-period{min-width:230px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .analysis-period span{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.09em}
 .analysis-period strong{display:block;margin-top:5px;font-size:.94rem}
-.activity-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.activity-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:14px}
 .activity-kpi{padding:18px;min-height:124px}
 .activity-kpi span{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.09em}
 .activity-kpi strong{display:block;margin-top:8px;font-size:2rem;line-height:1}
 .activity-kpi small{display:block;margin-top:10px;color:var(--muted);line-height:1.45}
+.activity-kpi--excused{border-color:rgba(245,158,11,.38)}
+.activity-kpi--excused strong,.activity-row__metric--excused strong{color:#b36500}
 .analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .analysis-main-card,.activity-performance-card,.monthly-analysis-card{grid-column:1/-1}
 .analysis-badge{display:inline-flex;align-items:center;justify-content:center;min-width:88px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
@@ -25,7 +27,7 @@
 .insight-warning .insight-item::before{content:"!";color:#c44343;background:rgba(196,67,67,.12)}
 .insight-empty{padding:16px;border:1px dashed var(--line);border-radius:13px;color:var(--muted);line-height:1.5}
 .activity-performance{display:grid;gap:10px}
-.activity-row{display:grid;grid-template-columns:minmax(190px,1.2fr) 100px 100px 100px minmax(150px,.8fr);gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.activity-row{display:grid;grid-template-columns:minmax(190px,1.2fr) repeat(4,90px) minmax(150px,.8fr);gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
 .activity-row__name strong{display:block}
 .activity-row__name small{display:block;margin-top:4px;color:var(--muted)}
 .activity-row__metric span{display:block;color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.07em}
@@ -89,9 +91,10 @@
   display: block;
   width: 100%;
   height: 310px;
+  margin-top: 6px;
 }
 .radar-empty {
-  min-height: 310px;
+  min-height: 240px;
   place-items: center;
   padding: 28px;
   border: 1px dashed var(--line);
@@ -242,29 +245,3 @@
   }
 }
 /* MMCD_TWO_RADARS_LAYOUT_END */
-
-
-/* MMCD_CHART_STANDARD_START */
-.chart-card{
-  display:grid;
-  align-content:start;
-  min-width:0;
-  overflow:hidden;
-}
-.chart-stage{
-  position:relative;
-  width:100%;
-  height:310px;
-  min-height:310px;
-  margin-top:6px;
-}
-.chart-canvas{
-  display:block;
-  width:100%;
-  height:310px;
-}
-.chart-legend{
-  min-height:31px;
-  align-content:flex-start;
-}
-/* MMCD_CHART_STANDARD_END */
