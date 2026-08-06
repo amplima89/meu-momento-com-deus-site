@@ -436,9 +436,9 @@
         <div class="review-answer-row">
           <button class="btn small remember ${resposta === "lembrei" ? "is-active" : ""}" type="button" data-resposta="lembrei">✓ Lembrei</button>
           <button class="btn small forgot ${resposta === "nao_lembrei" ? "is-active" : ""}" type="button" data-resposta="nao_lembrei">✕ Não lembrei</button>
-          <button class="btn small" type="button" data-ajuda>Ocultar apoio</button>
+          <button class="btn small" type="button" data-ajuda>Ver apoio</button>
         </div>
-        <div class="review-help">
+        <div class="review-help" hidden>
           <strong>Palavra ou expressão marcada:</strong> ${esc(item.textoMarcado)}
           ${apoio.length ? `<div class="review-help-list">${apoio.map(x => `<span><b>${esc(x.palavra)}</b> — ${esc(x.traducao)}</span>`).join("")}</div>` : `<p class="muted">A tradução contextual aparecerá na leitura ao passar o mouse sobre as palavras.</p>`}
         </div>`;
