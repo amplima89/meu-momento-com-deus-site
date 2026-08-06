@@ -396,61 +396,68 @@
   }
 
 
-  function radarSource(weekly) {
-    const categories = [...weekly.categories]
+  function goalRadarSource(weekly) {
+    const items = [...weekly.activities]
       .filter(item => item.evaluated > 0)
-      .sort((a, b) => (b.evaluated - a.evaluated) || a.name.localeCompare(b.name, "pt-BR"))
-      .slice(0, 7)
+      .sort((a, b) =>
+        (b.missed - a.missed) ||
+        (b.evaluated - a.evaluated) ||
+        a.name.localeCompare(b.name, "pt-BR")
+      )
+      .slice(0, 8)
       .map(item => ({
         label: item.name,
         value: item.rate ?? 0,
-        evidence: item.evaluated,
-        source: "category"
-      }));
-
-    if (categories.length >= 3) {
-      return {
-        title: "Conclusão por área nos últimos 7 dias.",
-        items: categories
-      };
-    }
-
-    const activities = [...weekly.activities]
-      .filter(item => item.evaluated > 0)
-      .sort((a, b) => (b.evaluated - a.evaluated) || a.name.localeCompare(b.name, "pt-BR"))
-      .slice(0, 7)
-      .map(item => ({
-        label: item.name,
-        value: item.rate ?? 0,
-        evidence: item.evaluated,
-        source: "activity"
+        evidence: item.evaluated
       }));
 
     return {
-      title: "Conclusão por atividade nos últimos 7 dias.",
-      items: activities
+      items,
+      emptyMessage: "O radar por meta precisa de pelo menos três atividades com oportunidades encerradas."
     };
   }
 
-  function shortenRadarLabel(value, limit = 18) {
+  function groupRadarSource(weekly) {
+    const items = [...weekly.categories]
+      .filter(item => item.evaluated > 0)
+      .sort((a, b) =>
+        (b.evaluated - a.evaluated) ||
+        a.name.localeCompare(b.name, "pt-BR")
+      )
+      .slice(0, 8)
+      .map(item => ({
+        label: item.name,
+        value: item.rate ?? 0,
+        evidence: item.evaluated
+      }));
+
+    return {
+      items,
+      emptyMessage: "O radar agrupado precisa de pelo menos três categorias com oportunidades encerradas."
+    };
+  }
+
+  function shortenRadarLabel(value, limit = 17) {
     const text = String(value || "");
     return text.length <= limit ? text : `${text.slice(0, limit - 1)}…`;
   }
 
-  function renderRadar(weekly) {
-    const canvas = $("#activity-radar");
-    const empty = $("#activity-radar-empty");
-    const legend = $("#radar-legend");
-    const subtitle = $("#radar-subtitle");
+  function drawRadar({
+    canvasSelector,
+    emptySelector,
+    legendSelector,
+    source,
+    accentOverride = ""
+  }) {
+    const canvas = $(canvasSelector);
+    const empty = $(emptySelector);
+    const legend = $(legendSelector);
     if (!canvas || !empty || !legend) return;
-
-    const source = radarSource(weekly);
-    subtitle.textContent = source.title;
 
     if (source.items.length < 3) {
       canvas.hidden = true;
       empty.hidden = false;
-      empty.textContent = "O radar precisa de pelo menos três áreas ou atividades com oportunidades encerradas. Ele aparecerá automaticamente quando houver base suficiente.";
+      empty.textContent = source.emptyMessage;
       legend.innerHTML = "";
       return;
     }
@@ -477,17 +484,18 @@
     ctx.clearRect(0, 0, cssWidth, cssHeight);
 
     const styles = getComputedStyle(document.documentElement);
-    const accent = styles.getPropertyValue("--accent").trim() || "#2563eb";
+    const accent = accentOverride || styles.getPropertyValue("--accent").trim() || "#2563eb";
     const line = styles.getPropertyValue("--line").trim() || "#d8dde5";
     const muted = styles.getPropertyValue("--muted").trim() || "#6b7280";
     const text = styles.getPropertyValue("--text").trim() || "#111827";
 
     const centerX = cssWidth / 2;
     const centerY = cssHeight / 2 + 7;
-    const radius = Math.min(cssWidth * .31, cssHeight * .34);
+    const radius = Math.min(cssWidth * .30, cssHeight * .34);
     const count = source.items.length;
     const angleStep = (Math.PI * 2) / count;
     const startAngle = -Math.PI / 2;
+
     const point = (index, scale) => {
       const angle = startAngle + index * angleStep;
       return {
@@ -526,11 +534,13 @@
       else ctx.lineTo(p.x, p.y);
     });
     ctx.closePath();
+
     ctx.save();
     ctx.globalAlpha = .16;
     ctx.fillStyle = accent;
     ctx.fill();
     ctx.restore();
+
     ctx.strokeStyle = accent;
     ctx.lineWidth = 2.5;
     ctx.stroke();
@@ -559,6 +569,23 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     ctx.fillText("25% · 50% · 75% · 100%", centerX, cssHeight - 2);
+  }
+
+  function renderRadars(weekly) {
+    drawRadar({
+      canvasSelector: "#goal-radar",
+      emptySelector: "#goal-radar-empty",
+      legendSelector: "#goal-radar-legend",
+      source: goalRadarSource(weekly)
+    });
+
+    drawRadar({
+      canvasSelector: "#group-radar",
+      emptySelector: "#group-radar-empty",
+      legendSelector: "#group-radar-legend",
+      source: groupRadarSource(weekly),
+      accentOverride: "#8258d6"
+    });
   }
 
   function monthPeriod() {
@@ -653,15 +680,15 @@
   renderWeeklySummary(weekly, previousWeekly);
   renderStrengths(weekly);
   renderWeaknesses(weekly);
+  renderRadars(weekly);
   renderActivityPerformance(weekly);
   renderFocus(weekly);
-  renderRadar(weekly);
   renderMonthly();
 
   let radarResizeTimer = null;
   addEventListener("resize", () => {
     clearTimeout(radarResizeTimer);
-    radarResizeTimer = setTimeout(() => renderRadar(weekly), 120);
+    radarResizeTimer = setTimeout(() => renderRadars(weekly), 120);
   });
 
   $("#analysis-footnote").textContent =

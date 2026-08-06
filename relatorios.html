@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Análise de atividades — Life Style</title>
   <link rel="stylesheet" href="painel.css?v=20260805-ls-brand2">
-  <link rel="stylesheet" href="relatorios.css?v=20260805-peso-radar2">
+  <link rel="stylesheet" href="relatorios.css?v=20260805-dois-radares3">
 </head>
 <body>
   <div class="app-shell">
@@ -70,12 +70,42 @@
           <div id="weekly-weaknesses" class="insight-list"></div>
         </article>
 
+        <section class="radar-grid" aria-label="Gráficos de execução">
+          <article class="card section radar-card radar-card--goals">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Metas individuais</p>
+                <h2>Radar por atividade</h2>
+                <p class="muted">Cada eixo representa uma meta cadastrada.</p>
+              </div>
+              <span class="radar-scale">Centro 0% · borda 100%</span>
+            </div>
+            <div id="goal-radar-empty" class="radar-empty" hidden></div>
+            <canvas id="goal-radar" height="310" aria-label="Radar das metas individuais"></canvas>
+            <div id="goal-radar-legend" class="radar-legend"></div>
+          </article>
+
+          <article class="card section radar-card radar-card--groups">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Visão agrupada</p>
+                <h2>Radar por categoria</h2>
+                <p class="muted">As atividades são consolidadas por área.</p>
+              </div>
+              <span class="radar-scale">Centro 0% · borda 100%</span>
+            </div>
+            <div id="group-radar-empty" class="radar-empty" hidden></div>
+            <canvas id="group-radar" height="310" aria-label="Radar agrupado por categoria"></canvas>
+            <div id="group-radar-legend" class="radar-legend"></div>
+          </article>
+        </section>
+
         <details class="card section activity-performance-card evidence-panel">
           <summary class="evidence-summary">
             <div>
               <p class="eyebrow">Evidências</p>
               <h2>Desempenho por atividade</h2>
-              <p class="muted">Abra para conferir os números que sustentam a análise.</p>
+              <p class="muted">Abra para conferir os números que sustentam os dois radares.</p>
             </div>
             <div class="evidence-summary__action">
               <span id="evidence-summary-badge" class="analysis-badge">Carregando</span>
@@ -88,28 +118,15 @@
           </div>
         </details>
 
-        <article class="card section next-focus-card">
+        <article class="card section next-focus-card next-focus-card--wide">
           <div class="section-head">
             <div>
               <p class="eyebrow">Próximos 7 dias</p>
               <h2>Foco recomendado</h2>
+              <p class="muted">Ação prioritária construída a partir das evidências da semana.</p>
             </div>
           </div>
-          <div id="next-focus" class="focus-content"></div>
-        </article>
-
-        <article class="card section radar-card">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Equilíbrio da semana</p>
-              <h2>Radar de execução</h2>
-              <p id="radar-subtitle" class="muted">Conclusão por área nos últimos 7 dias.</p>
-            </div>
-            <span class="radar-scale">Centro 0% · borda 100%</span>
-          </div>
-          <div id="activity-radar-empty" class="radar-empty" hidden></div>
-          <canvas id="activity-radar" height="310" aria-label="Radar de conclusão das atividades"></canvas>
-          <div id="radar-legend" class="radar-legend"></div>
+          <div id="next-focus" class="focus-content focus-content--wide"></div>
         </article>
 
         <article class="card section monthly-analysis-card">
@@ -137,6 +154,6 @@
   <script src="dados-app.js?v=30"></script>
   <script src="shell.js?v=20260805-anki-biblia1"></script>
   <script>MMCDShell('estatisticas')</script>
-  <script src="relatorios.js?v=20260805-peso-radar2"></script>
+  <script src="relatorios.js?v=20260805-dois-radares3"></script>
 </body>
 </html>
