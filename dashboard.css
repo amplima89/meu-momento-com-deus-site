@@ -22,6 +22,10 @@
 .weight-goal-modal[hidden]{display:none}
 .weight-goal-dialog{width:min(560px,100%);padding:22px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 24px 70px rgba(0,0,0,.35)}
 .weight-goal-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.weight-goal-current{display:grid;gap:4px;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.weight-goal-current span{color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.weight-goal-current strong{font-size:1.15rem}
+.weight-goal-current small{color:var(--muted);font-size:.72rem;line-height:1.4}
 .weight-goal-form .field:last-of-type,.weight-goal-help,.weight-goal-form__actions{grid-column:1/-1}
 .weight-goal-help{margin:0}
 .weight-goal-form__actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}

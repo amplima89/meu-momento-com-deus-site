@@ -13,7 +13,10 @@
   const iso = isoDate(today);
   const fmt = date => date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
   const meta = d.configuracoes.missaoAtual || {};
-  const number = value => Number(String(value ?? "").replace(",", "."));
+  const number = value => {
+    const normalized = String(value ?? "").trim().replace(",", ".");
+    return normalized === "" ? Number.NaN : Number(normalized);
+  };
   const kg = value => Number(value).toFixed(1).replace(".", ",") + " kg";
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const escapeHtml = value => String(value ?? "")
@@ -181,12 +184,12 @@
       <small>${MMCDUI.esc(card[3])}</small>
     </article>`).join("");
 
-  function rate(days) {
+  function rate(days, endOffset = 0) {
     let completed = 0;
     let planned = 0;
     for (let index = 0; index < days; index += 1) {
       const date = new Date(today);
-      date.setDate(date.getDate() - index);
+      date.setDate(date.getDate() - endOffset - index);
       const value = isoDate(date);
       const goals = MMCD.metasNaData(d, value);
       planned += goals.length;
@@ -195,7 +198,10 @@
     return planned ? Math.round((completed / planned) * 100) : 0;
   }
 
-  const weekly = rate(7);
+  // A consistência semanal usa sempre os sete dias completos anteriores.
+  // O dia vigente fica fora do cálculo para não reduzir a taxa enquanto ainda
+  // existem atividades que podem ser concluídas.
+  const weekly = rate(7, 1);
   const monthly = rate(30);
   const bookGoal = Math.min(100, Math.round(books.length / (+d.configuracoes.metaLivrosAno || 30) * 100));
 
@@ -249,7 +255,7 @@
       summary.innerHTML = `
         <div class="weight-goal-empty">
           <strong>Você está com ${kg(currentWeight)}, mas ainda não existe um objetivo.</strong>
-          <span>Defina peso inicial, peso-alvo e prazo para transformar o gráfico em acompanhamento.</span>
+          <span>Defina o peso-alvo e o prazo. O peso inicial será capturado automaticamente do último registro.</span>
         </div>`;
       return;
     }
@@ -312,11 +318,11 @@
       return;
     }
 
-    let min = Math.min(...values);
-    let max = Math.max(...values);
-    const spread = Math.max(1, max - min);
-    min -= Math.max(0.6, spread * 0.16);
-    max += Math.max(0.6, spread * 0.16);
+    // Mantém a leitura do peso em intervalos exatos de 1 kg. O arredondamento
+    // para baixo e para cima também cria uma margem visual ao redor dos pontos.
+    let min = Math.floor(Math.min(...values)) - 1;
+    let max = Math.ceil(Math.max(...values)) + 1;
+    if (max <= min) max = min + 1;
 
     const left = 52;
     const right = 18;
@@ -334,8 +340,7 @@
     ctx.textBaseline = "middle";
     ctx.lineWidth = 1;
 
-    for (let tick = 0; tick < 5; tick += 1) {
-      const value = max - tick * (max - min) / 4;
+    for (let value = max; value >= min; value -= 1) {
       const yPos = y(value);
       ctx.strokeStyle = lineColor;
       ctx.beginPath();
@@ -414,10 +419,11 @@
           <button class="icon-btn" type="button" data-close-weight-goal aria-label="Fechar">×</button>
         </div>
         <form id="weight-goal-form" class="weight-goal-form">
-          <label class="field">
-            <span>Peso inicial (kg)</span>
-            <input id="weight-goal-start" type="number" min="30" max="300" step="0.1" required>
-          </label>
+          <div class="weight-goal-current">
+            <span>Peso atual capturado</span>
+            <strong id="weight-goal-current-value">—</strong>
+            <small>Preenchido automaticamente com o último peso registrado.</small>
+          </div>
           <label class="field">
             <span>Peso-alvo (kg)</span>
             <input id="weight-goal-target" type="number" min="30" max="300" step="0.1" required>
@@ -426,7 +432,7 @@
             <span>Data limite</span>
             <input id="weight-goal-deadline" type="date">
           </label>
-          <p class="muted weight-goal-help">A meta fica salva no Supabase e aparecerá em qualquer computador.</p>
+          <p class="muted weight-goal-help">O peso inicial é capturado automaticamente no cadastro. A meta fica salva no Supabase e aparecerá em qualquer computador.</p>
           <div class="weight-goal-form__actions">
             <button id="delete-weight-goal" class="btn danger" type="button">Remover meta</button>
             <div>
@@ -448,12 +454,18 @@
 
     overlay.querySelector("#weight-goal-form").addEventListener("submit", async event => {
       event.preventDefault();
-      const start = number(overlay.querySelector("#weight-goal-start").value);
+      const start = Number.isFinite(number(metaPeso?.pesoInicial))
+        ? number(metaPeso.pesoInicial)
+        : currentWeight;
       const target = number(overlay.querySelector("#weight-goal-target").value);
       const deadline = overlay.querySelector("#weight-goal-deadline").value;
 
-      if (!Number.isFinite(start) || !Number.isFinite(target)) {
-        alert("Informe o peso inicial e o peso-alvo.");
+      if (!Number.isFinite(start)) {
+        alert("Registre seu peso na página Atividades antes de criar a meta.");
+        return;
+      }
+      if (!Number.isFinite(target)) {
+        alert("Informe o peso-alvo.");
         return;
       }
       if (Math.abs(start - target) < 0.05) {
@@ -471,7 +483,7 @@
         metaPeso = {
           pesoInicial: start,
           pesoAlvo: target,
-          dataInicio: metaPeso?.dataInicio || iso,
+          dataInicio: metaPeso?.dataInicio || lastWeightEntry?.[0] || iso,
           dataLimite: deadline
         };
         await salvarMetaPeso(metaPeso);
@@ -507,9 +519,17 @@
   }
 
   document.querySelector("#open-weight-goal").addEventListener("click", () => {
+    if (!metaPeso && currentWeight == null) {
+      alert("Registre seu peso na página Atividades antes de criar a meta.");
+      return;
+    }
+
     const overlay = ensureModal();
+    const automaticStart = Number.isFinite(number(metaPeso?.pesoInicial))
+      ? number(metaPeso.pesoInicial)
+      : currentWeight;
     overlay.querySelector("#weight-goal-title").textContent = metaPeso ? "Editar meta de peso" : "Definir meta de peso";
-    overlay.querySelector("#weight-goal-start").value = metaPeso?.pesoInicial ?? currentWeight ?? "";
+    overlay.querySelector("#weight-goal-current-value").textContent = Number.isFinite(automaticStart) ? kg(automaticStart) : "—";
     overlay.querySelector("#weight-goal-target").value = metaPeso?.pesoAlvo ?? "";
     overlay.querySelector("#weight-goal-deadline").value = metaPeso?.dataLimite ?? "";
     overlay.querySelector("#delete-weight-goal").hidden = !metaPeso;

@@ -209,7 +209,7 @@
       <article class="card activity-kpi">
         <span>Dias completos</span>
         <strong>${weekly.fullDays}</strong>
-        <small>${weekly.pendingToday ? `${weekly.pendingToday} atividade${weekly.pendingToday === 1 ? "" : "s"} ainda pendente${weekly.pendingToday === 1 ? "" : "s"} hoje.` : "Nenhuma pendência aberta para hoje."}</small>
+        <small>Janela fechada: o dia vigente não entra no cálculo.</small>
       </article>`;
   }
 
@@ -251,10 +251,9 @@
 
     $("#weekly-summary").classList.remove("loading-copy");
     $("#weekly-summary").innerHTML = `
-      <p>Nos últimos 7 dias, você concluiu <strong>${weekly.completed} de ${weekly.evaluated} atividades já avaliadas</strong>, atingindo <strong>${weekly.rate}%</strong> de conclusão. Foram ${weekly.fullDays} dia${weekly.fullDays === 1 ? "" : "s"} sem nenhuma falha entre as atividades encerradas.</p>
+      <p>Nos 7 dias completos anteriores, você concluiu <strong>${weekly.completed} de ${weekly.evaluated} atividades avaliadas</strong>, atingindo <strong>${weekly.rate}%</strong> de conclusão. Foram ${weekly.fullDays} dia${weekly.fullDays === 1 ? "" : "s"} sem nenhuma falha entre as atividades encerradas.</p>
       ${comparison ? `<p>${comparison}</p>` : ""}
-      ${daySentence ? `<p>${daySentence}</p>` : ""}
-      ${weekly.pendingToday ? `<p>Hoje ainda existem <strong>${weekly.pendingToday} atividade${weekly.pendingToday === 1 ? "" : "s"} em aberto</strong>. Elas não foram tratadas como negligência nesta análise.</p>` : ""}`;
+      ${daySentence ? `<p>${daySentence}</p>` : ""}`;
   }
 
   function renderStrengths(weekly) {
@@ -670,7 +669,8 @@
       </div>`;
   }
 
-  const weeklyDates = lastDays(7);
+  const lastCompletedDay = addDays(todayDate, -1);
+  const weeklyDates = lastDays(7, lastCompletedDay);
   const previousWeeklyDates = dateRange(addDays(parseDate(weeklyDates[0]), -7), addDays(parseDate(weeklyDates[0]), -1));
   const weekly = analyze(weeklyDates);
   const previousWeekly = analyze(previousWeeklyDates);
@@ -692,7 +692,7 @@
   });
 
   $("#analysis-footnote").textContent =
-    "A análise considera apenas atividades programadas e registros de conclusão da página Atividades. Livros, peso, meditação, inglês e Bíblia não entram como indicadores independentes.";
+    "A análise semanal usa os 7 dias completos anteriores e exclui o dia vigente. Considera apenas atividades programadas e registros de conclusão da página Atividades. Livros, peso, meditação, inglês e Bíblia não entram como indicadores independentes.";
 })().catch(error => {
   console.error(error);
   const page = document.querySelector(".activity-analysis-page");
