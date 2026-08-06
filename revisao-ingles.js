@@ -7,43 +7,160 @@
     "a": "um / uma", "an": "um / uma", "the": "o / a",
     "i": "eu", "i'm": "eu estou / eu sou", "i've": "eu tenho",
     "i'll": "eu vou", "i'd": "eu iria / eu tinha", "my": "meu / minha",
-    "me": "me / mim", "mine": "meu / minha", "we": "nós",
-    "we're": "nós estamos / somos", "we've": "nós temos",
-    "we'll": "nós vamos", "our": "nosso / nossa", "us": "nos / nós",
-    "you": "você / vocês", "you're": "você está / é",
-    "you've": "você tem", "your": "seu / sua", "he": "ele",
-    "she": "ela", "it": "isso / ele / ela", "they": "eles / elas",
+    "me": "me / mim", "mine": "meu / minha", "myself": "eu mesmo",
+    "we": "nós", "we're": "nós estamos / somos", "we've": "nós temos",
+    "we'll": "nós vamos", "our": "nosso / nossa", "ours": "nosso / nossa",
+    "us": "nos / nós", "you": "você / vocês", "you're": "você está / é",
+    "you've": "você tem", "you'll": "você vai", "your": "seu / sua",
+    "yours": "seu / sua", "yourself": "você mesmo", "he": "ele",
+    "him": "ele / o", "his": "dele / seu", "himself": "ele mesmo",
+    "she": "ela", "her": "ela / dela", "hers": "dela", "herself": "ela mesma",
+    "it": "isso / ele / ela", "its": "seu / sua", "they": "eles / elas",
+    "them": "eles / elas", "their": "deles / delas", "theirs": "deles / delas",
     "this": "isto / este / esta", "that": "isso / aquilo / que",
     "these": "estes / estas", "those": "aqueles / aquelas",
+    "who": "quem / que", "whom": "quem", "whose": "de quem",
+    "what": "o que / qual", "which": "qual / que", "where": "onde",
+    "why": "por que", "how": "como",
+
     "and": "e", "or": "ou", "but": "mas", "because": "porque",
     "so": "então / por isso", "if": "se", "when": "quando",
-    "while": "enquanto", "with": "com", "without": "sem",
-    "for": "para / por", "from": "de / desde", "to": "para / a",
-    "in": "em / dentro de", "on": "em / sobre", "at": "em / no / na",
-    "of": "de", "by": "por / perto de", "about": "sobre",
-    "as": "como / enquanto", "is": "é / está", "are": "são / estão",
+    "while": "enquanto", "although": "embora", "though": "embora",
+    "with": "com", "without": "sem", "for": "para / por",
+    "from": "de / desde", "to": "para / a", "in": "em / dentro de",
+    "on": "em / sobre", "at": "em / no / na", "of": "de",
+    "by": "por / perto de", "about": "sobre", "as": "como / enquanto",
+    "into": "para dentro / em", "through": "através de", "under": "sob",
+    "over": "sobre / acima de", "before": "antes", "after": "depois",
+    "between": "entre", "among": "entre", "around": "ao redor",
+    "toward": "em direção a", "against": "contra", "within": "dentro de",
+
+    "is": "é / está", "are": "são / estão", "am": "sou / estou",
     "was": "era / estava", "were": "eram / estavam", "be": "ser / estar",
-    "been": "sido / estado", "being": "sendo / estando", "have": "ter",
-    "has": "tem", "had": "tinha / teve", "do": "fazer", "does": "faz",
-    "did": "fez", "don't": "não", "doesn't": "não", "didn't": "não",
+    "been": "sido / estado", "being": "sendo / estando",
+    "have": "ter", "has": "tem", "had": "tinha / teve",
+    "do": "fazer", "does": "faz", "did": "fez",
+    "don't": "não", "doesn't": "não", "didn't": "não",
     "can": "poder / consegue", "can't": "não pode / não consegue",
-    "could": "poderia", "will": "vai / irá", "would": "iria",
-    "should": "deveria", "must": "deve / precisa", "not": "não",
+    "could": "poderia", "couldn't": "não poderia",
+    "will": "vai / irá", "won't": "não vai", "would": "iria",
+    "wouldn't": "não iria", "should": "deveria", "shouldn't": "não deveria",
+    "must": "deve / precisa", "may": "pode / talvez", "might": "poderia / talvez",
+    "not": "não",
+
+    "make": "fazer / tornar", "makes": "faz / torna", "made": "fez / tornou",
+    "take": "pegar / levar", "takes": "pega / leva", "took": "pegou / levou",
+    "give": "dar", "gives": "dá", "gave": "deu",
+    "get": "obter / ficar", "gets": "obtém / fica", "got": "obteve / ficou",
+    "go": "ir", "goes": "vai", "went": "foi", "come": "vir",
+    "comes": "vem", "came": "veio", "know": "saber / conhecer",
+    "knows": "sabe / conhece", "knew": "sabia / conhecia",
+    "think": "pensar", "thinks": "pensa", "thought": "pensou / pensamento",
+    "see": "ver", "sees": "vê", "saw": "viu", "look": "olhar / parecer",
+    "looks": "olha / parece", "feel": "sentir", "feels": "sente / parece",
+    "felt": "sentiu / pareceu", "find": "encontrar", "found": "encontrou",
+    "want": "querer / quero", "wants": "quer", "need": "precisar / preciso",
+    "needs": "precisa", "try": "tentar", "tries": "tenta", "tried": "tentou",
+    "use": "usar", "uses": "usa", "used": "usou / costumava",
+    "work": "trabalho / trabalhar", "works": "trabalha / funciona",
+    "working": "trabalhando", "live": "viver", "lives": "vive",
+    "living": "vivendo / vida", "leave": "deixar / partir",
+    "leaves": "deixa / parte", "left": "deixou / partiu",
+    "stay": "ficar / permanecer", "stays": "fica / permanece",
+    "keep": "manter / guardar", "keeps": "mantém / guarda",
+    "hold": "segurar / manter", "holds": "segura / mantém",
+    "carry": "carregar", "carries": "carrega", "carried": "carregou",
+    "bring": "trazer", "brings": "traz", "brought": "trouxe",
+    "put": "colocar", "set": "estabelecer / colocar",
+    "let": "deixar / permitir", "help": "ajudar / ajuda",
+    "helps": "ajuda", "serve": "servir", "serves": "serve",
+    "lead": "liderar / conduzir", "leads": "lidera / conduz",
+    "follow": "seguir", "follows": "segue", "teach": "ensinar",
+    "teaches": "ensina", "learn": "aprender", "learning": "aprendendo",
+    "grow": "crescer", "grows": "cresce", "build": "construir",
+    "builds": "constrói", "create": "criar", "creates": "cria",
+    "protect": "proteger", "protects": "protege", "trust": "confiar",
+    "trusts": "confia", "believe": "acreditar / crer", "believes": "acredita / crê",
+    "remember": "lembrar", "remembers": "lembra", "forget": "esquecer",
+    "forgets": "esquece", "forgive": "perdoar / perdoe",
+    "forgives": "perdoa", "wait": "esperar", "waits": "espera",
+    "rest": "descansar / descanso", "rests": "descansa",
+    "stop": "parar", "stops": "para", "start": "começar",
+    "starts": "começa", "continue": "continuar", "continues": "continua",
+    "change": "mudar / mudança", "changes": "muda / mudanças",
+    "become": "tornar-se", "becomes": "torna-se", "act": "agir",
+    "acts": "age", "depend": "depender", "depends": "depende",
+    "control": "controlar / controle", "controls": "controla",
+
     "very": "muito", "more": "mais", "less": "menos", "than": "do que",
-    "too": "demais / também", "much": "muito", "today": "hoje",
-    "today's": "de hoje", "topic": "tema", "useful": "úteis",
-    "expressions": "expressões", "example": "exemplo", "quick": "rápida",
-    "practice": "prática", "forgive": "perdoe", "try": "tentar",
-    "control": "controlar", "carry": "carregar", "act": "agir",
-    "continuity": "continuidade", "things": "coisas", "depends": "depende",
-    "present": "presente", "family": "família", "steady": "constante / equilibrado",
-    "work": "trabalho / trabalhar", "need": "preciso", "healthier": "mais saudáveis",
-    "boundaries": "limites", "faithfulness": "fidelidade",
-    "rest": "descanso / descansar", "week": "semana", "weekend": "fim de semana",
-    "want": "querer / quero", "remember": "lembrar", "learn": "aprender",
-    "learning": "aprendendo", "trust": "confiar", "trusting": "confiando",
-    "life": "vida", "day": "dia", "days": "dias", "time": "tempo",
-    "good": "bom", "better": "melhor", "strong": "forte", "weak": "fraco"
+    "too": "demais / também", "much": "muito", "many": "muitos / muitas",
+    "all": "todo / tudo", "some": "algum / alguns", "any": "qualquer / algum",
+    "each": "cada", "every": "cada / todo", "another": "outro / outra",
+    "other": "outro / outra", "only": "apenas", "even": "mesmo / até",
+    "still": "ainda", "already": "já", "again": "novamente",
+    "always": "sempre", "never": "nunca", "sometimes": "às vezes",
+    "often": "frequentemente", "usually": "geralmente", "now": "agora",
+    "today": "hoje", "today's": "de hoje", "tomorrow": "amanhã",
+    "yesterday": "ontem", "here": "aqui", "there": "lá / ali",
+    "together": "juntos", "alone": "sozinho", "away": "longe",
+    "back": "de volta / atrás", "forward": "adiante",
+    "first": "primeiro", "last": "último / durar", "next": "próximo",
+    "new": "novo", "old": "antigo / velho", "same": "mesmo",
+    "different": "diferente", "right": "certo / direito",
+    "wrong": "errado", "good": "bom", "better": "melhor",
+    "best": "melhor", "bad": "ruim", "strong": "forte",
+    "weak": "fraco", "small": "pequeno", "great": "grande / excelente",
+    "greater": "maior", "clear": "claro", "simple": "simples",
+    "hard": "difícil / duro", "easy": "fácil", "healthy": "saudável",
+    "healthier": "mais saudável", "steady": "constante / equilibrado",
+    "faithful": "fiel", "faithfully": "fielmente", "dependent": "dependente",
+    "present": "presente", "patient": "paciente", "quiet": "silencioso / quieto",
+    "wise": "sábio", "worthy": "digno", "true": "verdadeiro",
+    "real": "real", "ready": "pronto", "able": "capaz",
+
+    "day": "dia", "days": "dias", "week": "semana", "weekend": "fim de semana",
+    "time": "tempo", "moment": "momento", "morning": "manhã",
+    "night": "noite", "year": "ano", "life": "vida", "way": "caminho / maneira",
+    "place": "lugar / colocar", "home": "casa", "workplace": "local de trabalho",
+    "family": "família", "father": "pai", "mother": "mãe", "son": "filho",
+    "daughter": "filha", "child": "criança / filho", "children": "crianças / filhos",
+    "people": "pessoas", "person": "pessoa", "man": "homem", "woman": "mulher",
+    "friend": "amigo", "team": "equipe", "leader": "líder",
+    "leadership": "liderança", "heart": "coração", "mind": "mente",
+    "body": "corpo", "hands": "mãos", "voice": "voz", "word": "palavra",
+    "words": "palavras", "sentence": "frase", "question": "pergunta",
+    "answer": "resposta", "story": "história", "truth": "verdade",
+    "knowledge": "conhecimento", "wisdom": "sabedoria", "understanding": "entendimento",
+    "choice": "escolha", "decision": "decisão", "responsibility": "responsabilidade",
+    "responsibilities": "responsabilidades", "task": "tarefa", "tasks": "tarefas",
+    "goal": "meta / objetivo", "purpose": "propósito", "plan": "plano",
+    "plans": "planos", "process": "processo", "result": "resultado",
+    "results": "resultados", "step": "passo", "steps": "passos",
+    "habit": "hábito", "habits": "hábitos", "routine": "rotina",
+    "boundary": "limite", "boundaries": "limites", "pressure": "pressão",
+    "hurry": "pressa", "fear": "medo", "guilt": "culpa",
+    "pride": "orgulho", "humility": "humildade", "peace": "paz",
+    "joy": "alegria", "love": "amor", "hope": "esperança",
+    "strength": "força", "courage": "coragem", "patience": "paciência",
+    "faith": "fé", "faithfulness": "fidelidade", "obedience": "obediência",
+    "grace": "graça", "goodness": "bondade", "glory": "glória",
+    "praise": "louvor", "worship": "adoração", "prayer": "oração",
+    "promise": "promessa", "presence": "presença", "future": "futuro",
+    "security": "segurança", "freedom": "liberdade", "growth": "crescimento",
+    "legacy": "legado", "service": "serviço", "formation": "formação",
+    "quality": "qualidade", "perfection": "perfeição",
+
+    "god": "Deus", "lord": "Senhor", "jesus": "Jesus", "christ": "Cristo",
+    "spirit": "Espírito", "holy": "santo", "bible": "Bíblia",
+    "scripture": "Escritura", "kingdom": "reino", "cross": "cruz",
+    "gospel": "evangelho", "church": "igreja", "saints": "santos",
+    "shepherd": "pastor", "servant": "servo", "sovereign": "soberano",
+    "sovereignty": "soberania", "eternal": "eterno", "salvation": "salvação",
+    "sin": "pecado", "mercy": "misericórdia", "refuge": "refúgio",
+
+    "topic": "tema", "useful": "úteis", "expressions": "expressões",
+    "example": "exemplo", "quick": "rápida", "practice": "prática",
+    "remembered": "lembrado", "forgot": "esqueceu", "forgotten": "esquecido"
   };
   const CHAVE_ESTADO = "revisao_ingles_v2";
   const seletorData = document.querySelector("#ingles-data");
@@ -57,7 +174,7 @@
 
   const db = window.MMCDSupabase;
   let usuario = null;
-  let estado = { versao: 2, itens: {}, sessoes: {}, atualizadoEm: "" };
+  let estado = { versao: 3, itens: {}, sessoes: {}, atualizadoEm: "" };
   let bancoAtual = [];
   let dataRenderizada = "";
   let tokenRender = 0;
@@ -210,15 +327,39 @@
     return candidatas.sort((a, b) => a.length - b.length)[0] || textoMarcado;
   }
 
+  function resolverTraducao(chave, glossario) {
+    if (glossario[chave]) return glossario[chave];
+
+    const candidatos = [];
+    if (chave.endsWith("'s")) candidatos.push(chave.slice(0, -2));
+    if (chave.endsWith("ies") && chave.length > 4) candidatos.push(`${chave.slice(0, -3)}y`);
+    if (chave.endsWith("ing") && chave.length > 5) {
+      candidatos.push(chave.slice(0, -3));
+      candidatos.push(`${chave.slice(0, -3)}e`);
+    }
+    if (chave.endsWith("ed") && chave.length > 4) {
+      candidatos.push(chave.slice(0, -2));
+      candidatos.push(`${chave.slice(0, -1)}`);
+    }
+    if (chave.endsWith("es") && chave.length > 4) candidatos.push(chave.slice(0, -2));
+    if (chave.endsWith("s") && chave.length > 3) candidatos.push(chave.slice(0, -1));
+
+    for (const candidato of candidatos) {
+      if (glossario[candidato]) return glossario[candidato];
+    }
+    return "";
+  }
+
   function apoioTraducao(frase, glossario) {
     const palavras = frase.match(/[A-Za-z]+(?:['’][A-Za-z]+)?/g) || [];
     const vistos = new Set();
     const apoio = [];
     for (const palavra of palavras) {
       const chave = normalizar(palavra).replace(/^[^a-z]+|[^a-z']+$/g, "");
-      if (!chave || vistos.has(chave) || !glossario[chave]) continue;
+      if (!chave || vistos.has(chave)) continue;
       vistos.add(chave);
-      apoio.push({ palavra, traducao: glossario[chave] });
+      const traducao = resolverTraducao(chave, glossario);
+      if (traducao) apoio.push({ palavra, traducao });
     }
     return apoio;
   }
@@ -246,7 +387,7 @@
     const valor = data?.valor;
     if (valor && typeof valor === "object") {
       estado = {
-        versao: 2,
+        versao: 3,
         itens: valor.itens && typeof valor.itens === "object" ? valor.itens : {},
         sessoes: valor.sessoes && typeof valor.sessoes === "object" ? valor.sessoes : {},
         atualizadoEm: valor.atualizadoEm || ""
@@ -318,11 +459,15 @@
       const identidade = normalizar(textoMarcado);
       if (!identidade) continue;
       const markdown = markdownPorData.get(linha.data_meditacao) || "";
+      const frase = encontrarFrase(markdown, textoMarcado);
+      const chaveEstado = `${linha.data_meditacao}::${normalizar(textoMarcado)}`;
+      const glossarioExtra = estado.itens[chaveEstado]?.glossarioExtra || {};
+      const glossario = { ...localizarGlossario(markdown), ...glossarioExtra };
       const item = {
         textoMarcado,
-        frase: encontrarFrase(markdown, textoMarcado),
+        frase,
         dataOrigem: linha.data_meditacao,
-        apoio: apoioTraducao(encontrarFrase(markdown, textoMarcado), localizarGlossario(markdown))
+        apoio: apoioTraducao(frase, glossario)
       };
       // Mantém a ocorrência mais recente da mesma palavra/expressão.
       unicos.set(identidade, item);
@@ -374,6 +519,135 @@
     return estado.itens[chaveItem(item)]?.respostas?.[dataAtual] || "";
   }
 
+  function producoesDoItem(item) {
+    return estado.itens[chaveItem(item)]?.frasesProducao || {};
+  }
+
+  function producaoDoDia(dataAtual, item) {
+    return producoesDoItem(item)[dataAtual] || null;
+  }
+
+  function correcaoAnterior(dataAtual, item) {
+    const entradas = Object.entries(producoesDoItem(item))
+      .filter(([data, valor]) => data < dataAtual && valor?.fraseUsuario)
+      .sort(([a], [b]) => b.localeCompare(a));
+
+    return entradas[0] ? { data: entradas[0][0], ...entradas[0][1] } : null;
+  }
+
+  function fraseContemAlvo(frase, alvo) {
+    return normalizar(frase).includes(normalizar(alvo));
+  }
+
+  function htmlCorrecao(dataAtual, item) {
+    const anterior = correcaoAnterior(dataAtual, item);
+    if (!anterior) return "";
+
+    if (anterior.status !== "corrigida") {
+      return `
+        <div class="review-correction is-pending">
+          <p class="review-correction__eyebrow">Sua frase de ${esc(formatarData(anterior.data))}</p>
+          <p class="review-correction__original">${esc(anterior.fraseUsuario)}</p>
+          <p class="muted">Aguardando a próxima execução da automação para receber a correção.</p>
+        </div>`;
+    }
+
+    return `
+      <div class="review-correction ${anterior.correta ? "is-correct" : "needs-adjustment"}">
+        <div class="review-correction__head">
+          <div>
+            <p class="review-correction__eyebrow">Correção da frase de ${esc(formatarData(anterior.data))}</p>
+            <strong>${anterior.correta ? "Frase correta" : "Ajuste necessário"}</strong>
+          </div>
+          <span>${anterior.correta ? "✓" : "✎"}</span>
+        </div>
+        <div class="review-correction__line">
+          <span>Sua frase</span>
+          <p>${esc(anterior.fraseUsuario)}</p>
+        </div>
+        <div class="review-correction__line">
+          <span>Forma corrigida</span>
+          <p>${esc(anterior.fraseCorrigida || anterior.fraseUsuario)}</p>
+        </div>
+        ${anterior.explicacao ? `
+          <div class="review-correction__line">
+            <span>Por quê</span>
+            <p>${esc(anterior.explicacao)}</p>
+          </div>` : ""}
+        ${anterior.traducao ? `
+          <div class="review-correction__line">
+            <span>Tradução</span>
+            <p>${esc(anterior.traducao)}</p>
+          </div>` : ""}
+      </div>`;
+  }
+
+  function htmlProducao(dataAtual, item, resposta) {
+    const producao = producaoDoDia(dataAtual, item);
+    const visivel = resposta === "nao_lembrei" || Boolean(producao?.fraseUsuario);
+
+    return `
+      <div class="review-production" ${visivel ? "" : "hidden"}>
+        <label>
+          <strong>Crie uma nova frase com “${esc(item.textoMarcado)}”</strong>
+          <span>Use a palavra ou expressão destacada em uma frase completa em inglês.</span>
+          <textarea rows="2" maxlength="350" data-frase-producao placeholder="Escreva sua frase em inglês...">${esc(producao?.fraseUsuario || "")}</textarea>
+        </label>
+        <div class="review-production__footer">
+          <span data-status-producao>${producao?.fraseUsuario ? (producao.status === "corrigida" ? "Frase já corrigida." : "Frase salva para correção amanhã.") : ""}</span>
+          <button class="btn small primary" type="button" data-salvar-frase>Salvar para corrigir amanhã</button>
+        </div>
+      </div>`;
+  }
+
+  async function salvarFraseProducao(dataAtual, item, artigo) {
+    const campo = artigo.querySelector("[data-frase-producao]");
+    const status = artigo.querySelector("[data-status-producao]");
+    const botao = artigo.querySelector("[data-salvar-frase]");
+    const fraseUsuario = String(campo?.value || "").trim();
+
+    if (fraseUsuario.length < 5) {
+      window.MMCDUI?.toast("Escreva uma frase completa antes de salvar.");
+      campo?.focus();
+      return;
+    }
+
+    if (!fraseContemAlvo(fraseUsuario, item.textoMarcado)) {
+      window.MMCDUI?.toast(`Use “${item.textoMarcado}” na frase.`);
+      campo?.focus();
+      return;
+    }
+
+    const chave = chaveItem(item);
+    estado.itens[chave] ||= {
+      textoMarcado: item.textoMarcado,
+      frase: item.frase,
+      dataOrigem: item.dataOrigem,
+      respostas: {}
+    };
+    estado.itens[chave].frasesProducao ||= {};
+    estado.itens[chave].frasesProducao[dataAtual] = {
+      fraseUsuario,
+      status: "pendente",
+      criadaEm: new Date().toISOString()
+    };
+
+    if (botao) botao.disabled = true;
+    if (status) status.textContent = "Salvando...";
+
+    try {
+      await salvarEstado();
+      if (status) status.textContent = "Frase salva. A automação vai corrigi-la na próxima manhã.";
+      window.MMCDUI?.toast("Frase salva para correção.");
+    } catch (erro) {
+      console.error(erro);
+      if (status) status.textContent = "Não foi possível sincronizar a frase.";
+      window.MMCDUI?.toast("A frase não foi sincronizada.");
+    } finally {
+      if (botao) botao.disabled = false;
+    }
+  }
+
   function atualizarProgresso(dataAtual, itens = bancoAtual) {
     const respondidos = itens.filter(item => respostaDoDia(dataAtual, item)).length;
     progressoEl.textContent = itens.length ? `${respondidos} de ${itens.length}` : "0 de 0";
@@ -402,6 +676,14 @@
     cardItem?.querySelectorAll("[data-resposta]").forEach(btn => {
       btn.classList.toggle("is-active", btn.dataset.resposta === resposta);
     });
+
+    const producao = cardItem?.querySelector(".review-production");
+    if (producao) {
+      producao.hidden = resposta !== "nao_lembrei" && !producaoDoDia(dataAtual, item)?.fraseUsuario;
+      if (resposta === "nao_lembrei") {
+        setTimeout(() => cardItem.querySelector("[data-frase-producao]")?.focus(), 80);
+      }
+    }
 
     try {
       await salvarEstado();
@@ -433,6 +715,7 @@
           <span>${esc(item.textoMarcado)}</span>
         </div>
         <p class="english-review-sentence">${destacarAlvo(item.frase, item.textoMarcado)}</p>
+        ${htmlCorrecao(dataAtual, item)}
         <div class="review-answer-row">
           <button class="btn small remember ${resposta === "lembrei" ? "is-active" : ""}" type="button" data-resposta="lembrei">✓ Lembrei</button>
           <button class="btn small forgot ${resposta === "nao_lembrei" ? "is-active" : ""}" type="button" data-resposta="nao_lembrei">✕ Não lembrei</button>
@@ -440,8 +723,9 @@
         </div>
         <div class="review-help" hidden>
           <strong>Palavra ou expressão marcada:</strong> ${esc(item.textoMarcado)}
-          ${apoio.length ? `<div class="review-help-list">${apoio.map(x => `<span><b>${esc(x.palavra)}</b> — ${esc(x.traducao)}</span>`).join("")}</div>` : `<p class="muted">A tradução contextual aparecerá na leitura ao passar o mouse sobre as palavras.</p>`}
-        </div>`;
+          ${apoio.length ? `<div class="review-help-list">${apoio.map(x => `<span><b>${esc(x.palavra)}</b> — ${esc(x.traducao)}</span>`).join("")}</div>` : `<p class="muted">As traduções que faltarem serão completadas quando sua frase for corrigida.</p>`}
+        </div>
+        ${htmlProducao(dataAtual, item, resposta)}`;
 
       artigo.querySelectorAll("[data-resposta]").forEach(botao => {
         botao.addEventListener("click", () => responder(dataAtual, item, botao.dataset.resposta, botao));
@@ -450,6 +734,9 @@
         const ajuda = artigo.querySelector(".review-help");
         ajuda.hidden = !ajuda.hidden;
         evento.currentTarget.textContent = ajuda.hidden ? "Ver apoio" : "Ocultar apoio";
+      });
+      artigo.querySelector("[data-salvar-frase]")?.addEventListener("click", () => {
+        salvarFraseProducao(dataAtual, item, artigo);
       });
       listaEl.append(artigo);
     });

@@ -122,10 +122,106 @@
 /* MMCD_REVIEW_ANKI_END */
 
 
-/* MMCD_REVIEW_ORDER_20260805-anki-abaixo2 */
-.english-review-card .review-help:not([hidden]) {
-  display: block;
-}
 .english-review-card {
   scroll-margin-top: 24px;
 }
+
+
+/* MMCD_ANKI_PRODUCTION_START */
+.review-production {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 13px;
+  border: 1px solid rgba(200, 79, 79, .26);
+  border-radius: 13px;
+  background: rgba(200, 79, 79, .055);
+}
+.review-production[hidden] { display: none; }
+.review-production label { display: grid; gap: 6px; }
+.review-production label > strong { font-size: .9rem; }
+.review-production label > span {
+  color: var(--muted, #68768a);
+  font-size: .78rem;
+  line-height: 1.45;
+}
+.review-production textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  padding: 10px 11px;
+  border: 1px solid var(--line, #dbe2ea);
+  border-radius: 10px;
+  color: var(--text, #152238);
+  background: var(--surface, #fff);
+  font: inherit;
+  line-height: 1.5;
+}
+.review-production textarea:focus {
+  outline: 2px solid rgba(47, 128, 237, .2);
+  border-color: var(--accent, #2f80ed);
+}
+.review-production__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.review-production__footer > span {
+  color: var(--muted, #68768a);
+  font-size: .75rem;
+  line-height: 1.4;
+}
+.review-correction {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 13px;
+  border: 1px solid var(--line, #dbe2ea);
+  border-radius: 13px;
+  background: var(--surface-2, #f6f8fb);
+}
+.review-correction.is-correct {
+  border-color: rgba(38, 151, 105, .36);
+  background: rgba(38, 151, 105, .07);
+}
+.review-correction.needs-adjustment {
+  border-color: rgba(219, 145, 43, .38);
+  background: rgba(219, 145, 43, .075);
+}
+.review-correction.is-pending { border-style: dashed; }
+.review-correction__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.review-correction__head > span {
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+.review-correction__eyebrow,
+.review-correction__line > span {
+  margin: 0 0 3px;
+  color: var(--muted, #68768a);
+  font-size: .68rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.review-correction__line p,
+.review-correction__original { margin: 0; line-height: 1.55; }
+[data-tema="escuro"] .review-production textarea {
+  color: #edf3fb;
+  background: #101b2b;
+}
+[data-tema="escuro"] .review-correction {
+  background: rgba(18, 30, 47, .88);
+}
+@media(max-width:720px) {
+  .review-production__footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .review-production__footer .btn { width: 100%; }
+}
+/* MMCD_ANKI_PRODUCTION_END */
