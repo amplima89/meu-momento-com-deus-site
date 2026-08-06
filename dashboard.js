@@ -217,6 +217,7 @@
     </div>`).join("");
 
   const canvas = document.querySelector("#mini-weight");
+  const chartStage = canvas.closest(".chart-stage") || canvas;
   const chartCard = canvas.closest(".card");
   const header = chartCard.querySelector(".section-head");
   header.querySelector(".eyebrow").textContent = "Peso e objetivo";
@@ -231,14 +232,14 @@
   const summary = document.createElement("div");
   summary.id = "weight-goal-summary";
   summary.className = "weight-goal-summary";
-  canvas.before(summary);
+  chartStage.before(summary);
 
   const legend = document.createElement("div");
-  legend.className = "weight-chart-legend";
+  legend.className = "weight-chart-legend chart-legend";
   legend.innerHTML = `
     <span><i class="weight-chart-legend__history"></i>Peso registrado</span>
     <span><i class="weight-chart-legend__target"></i>Meta de peso</span>`;
-  canvas.after(legend);
+  chartStage.after(legend);
 
   function renderSummary() {
     const values = metaMetrics();
@@ -294,7 +295,7 @@
     const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
     const ratio = window.devicePixelRatio || 1;
-    const height = 230;
+    const height = 310;
 
     canvas.width = Math.max(1, rect.width * ratio);
     canvas.height = height * ratio;
@@ -320,8 +321,9 @@
 
     // Mantém a leitura do peso em intervalos exatos de 1 kg. O arredondamento
     // para baixo e para cima também cria uma margem visual ao redor dos pontos.
-    let min = Math.floor(Math.min(...values)) - 1;
-    let max = Math.ceil(Math.max(...values)) + 1;
+    const observedMax = Math.max(...values);
+    let min = Math.floor(Math.min(...values)) - 2;
+    let max = Number.isInteger(observedMax) ? observedMax + 1 : Math.ceil(observedMax);
     if (max <= min) max = min + 1;
 
     const left = 52;
@@ -336,7 +338,7 @@
       ? left + chartWidth / 2
       : left + index * chartWidth / (points.length - 1);
 
-    ctx.font = "11px sans-serif";
+    ctx.font = "600 11px sans-serif";
     ctx.textBaseline = "middle";
     ctx.lineWidth = 1;
 

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Análise de atividades — Life Style</title>
   <link rel="stylesheet" href="painel.css?v=20260805-ls-brand2">
-  <link rel="stylesheet" href="relatorios.css?v=20260805-dois-radares3">
+  <link rel="stylesheet" href="relatorios.css?v=20260806-graficos-uniformes1">
 </head>
 <body>
   <div class="app-shell">
@@ -71,7 +71,7 @@
         </article>
 
         <section class="radar-grid" aria-label="Gráficos de execução">
-          <article class="card section radar-card radar-card--goals">
+          <article class="card section chart-card radar-card radar-card--goals">
             <div class="section-head">
               <div>
                 <p class="eyebrow">Metas individuais</p>
@@ -81,11 +81,11 @@
               <span class="radar-scale">Centro 0% · borda 100%</span>
             </div>
             <div id="goal-radar-empty" class="radar-empty" hidden></div>
-            <canvas id="goal-radar" height="310" aria-label="Radar das metas individuais"></canvas>
-            <div id="goal-radar-legend" class="radar-legend"></div>
+            <div class="chart-stage"><canvas id="goal-radar" class="chart-canvas" height="310" aria-label="Radar das metas individuais"></canvas></div>
+            <div id="goal-radar-legend" class="radar-legend chart-legend"></div>
           </article>
 
-          <article class="card section radar-card radar-card--groups">
+          <article class="card section chart-card radar-card radar-card--groups">
             <div class="section-head">
               <div>
                 <p class="eyebrow">Visão agrupada</p>
@@ -95,8 +95,8 @@
               <span class="radar-scale">Centro 0% · borda 100%</span>
             </div>
             <div id="group-radar-empty" class="radar-empty" hidden></div>
-            <canvas id="group-radar" height="310" aria-label="Radar agrupado por categoria"></canvas>
-            <div id="group-radar-legend" class="radar-legend"></div>
+            <div class="chart-stage"><canvas id="group-radar" class="chart-canvas" height="310" aria-label="Radar agrupado por categoria"></canvas></div>
+            <div id="group-radar-legend" class="radar-legend chart-legend"></div>
           </article>
         </section>
 
@@ -154,6 +154,6 @@
   <script src="dados-app.js?v=30"></script>
   <script src="shell.js?v=20260805-anki-biblia1"></script>
   <script>MMCDShell('estatisticas')</script>
-  <script src="relatorios.js?v=20260806-janela-fechada3"></script>
+  <script src="relatorios.js?v=20260806-graficos-uniformes1"></script>
 </body>
 </html>
