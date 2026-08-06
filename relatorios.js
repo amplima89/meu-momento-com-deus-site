@@ -669,9 +669,12 @@
       </div>`;
   }
 
-  const lastCompletedDay = addDays(todayDate, -1);
-  const weeklyDates = lastDays(7, lastCompletedDay);
-  const previousWeeklyDates = dateRange(addDays(parseDate(weeklyDates[0]), -7), addDays(parseDate(weeklyDates[0]), -1));
+  // A janela semanal sempre contém os 7 dias civis completos anteriores.
+  // Exemplo: em 06/08, o período exibido e analisado é 30/07 a 05/08.
+  const weeklyStart = addDays(todayDate, -7);
+  const weeklyEnd = addDays(todayDate, -1);
+  const weeklyDates = dateRange(weeklyStart, weeklyEnd);
+  const previousWeeklyDates = dateRange(addDays(weeklyStart, -7), addDays(weeklyStart, -1));
   const weekly = analyze(weeklyDates);
   const previousWeekly = analyze(previousWeeklyDates);
 

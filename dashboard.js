@@ -350,7 +350,8 @@
 
       ctx.fillStyle = textColor;
       ctx.textAlign = "right";
-      ctx.fillText(`${value.toFixed(1).replace(".", ",")} kg`, left - 8, yPos);
+      // A escala mostra somente números inteiros: 88, 89, 90, 91...
+      ctx.fillText(String(value), left - 8, yPos);
     }
 
     if (metaPeso) {
