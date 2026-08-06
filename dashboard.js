@@ -1,15 +1,532 @@
-"use strict";(async()=>{
- const d=await MMCD.carregar(),today=new Date(),pad=n=>String(n).padStart(2,'0'),isoDate=x=>`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`,iso=isoDate(today),fmt=x=>x.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'}),meta=d.configuracoes.missaoAtual||{};
- document.querySelector('#today-label').textContent=today.toLocaleDateString('pt-BR');
- document.querySelector('#mission-card').innerHTML=`<div><p class="eyebrow">Missão de vida</p><h2>${MMCDUI.esc(meta.titulo||'Defina sua missão de vida')}</h2><span class="muted">Sua direção principal para decisões, hábitos e prioridades.</span></div><div class="mission-date"><span class="eyebrow">Hoje</span><strong>${pad(today.getDate())}</strong><span>${today.toLocaleDateString('pt-BR',{month:'long'})}</span></div>`;
- const due=MMCD.metasNaData(d,iso),done=due.filter(m=>MMCD.registro(d,iso,m.id)?.concluida).length,books=d.livros.concluidos.filter(x=>(x.dataConclusao||'').startsWith(String(d.configuracoes.anoMetaLivros))),weights=Object.entries(d.pesos).sort(),lastW=weights.at(-1)?.[1],medDates=Object.keys(d.meditacoes||{}).sort(),lastMed=medDates.at(-1)||'';
- function streak(){let n=0,c=new Date(today);for(;;){const s=isoDate(c),goals=MMCD.metasNaData(d,s);if(!goals.length){c.setDate(c.getDate()-1);if(c<new Date('2020-01-01'))break;continue}if(!goals.some(m=>MMCD.registro(d,s,m.id)?.concluida))break;n++;c.setDate(c.getDate()-1)}return n}
- const medMeta=d.metas.find(m=>m.nome.toLowerCase().includes('medita')),medDone=!!(d.meditacoes[iso]||medMeta&&MMCD.registro(d,iso,medMeta.id)?.concluida);
- const cards=[['🎯','Missão de vida',meta.titulo||'Não definida','Direção principal'],['📅','Data atual',fmt(today),'Hoje'],['🔥','Sequência de dias',`${streak()} dias`,'Com algum registro'],['📖','Livro em andamento',d.livros.atual.titulo||'Nenhum',d.livros.atual.autor||'Cadastre sua leitura'],['📚','Livros concluídos',String(books.length),`Meta anual: ${d.configuracoes.metaLivrosAno}`],['🙏','Meditação de hoje',medDone?'Concluída':'Pendente',lastMed?`Última: ${MMCDUI.date(lastMed)}`:'Sem registro'],['⚖️','Peso atual',lastW!=null?`${Number(lastW).toFixed(1).replace('.',',')} kg`:'Não informado','Último registro'],['✅','Hábitos concluídos hoje',`${done} de ${due.length}`,'Metas previstas']];
- document.querySelector('#main-cards').innerHTML=cards.map(c=>`<article class="card dash-card"><span class="dash-card__icon">${c[0]}</span><span class="dash-card__label">${c[1]}</span><strong>${MMCDUI.esc(c[2])}</strong><small>${MMCDUI.esc(c[3])}</small></article>`).join('');
- function rate(days){let ok=0,all=0;for(let i=0;i<days;i++){let x=new Date(today);x.setDate(x.getDate()-i);let s=isoDate(x),goals=MMCD.metasNaData(d,s);all+=goals.length;ok+=goals.filter(m=>MMCD.registro(d,s,m.id)?.concluida).length}return all?Math.round(ok/all*100):0}
- let weekly=rate(7),monthly=rate(30),goal=Math.min(100,Math.round(books.length/(+d.configuracoes.metaLivrosAno||30)*100));
- document.querySelector('#consistency-metrics').innerHTML=[['Consistência semanal',weekly],['Consistência mensal',monthly],['Meta anual de livros',goal]].map(x=>`<div class="metric-row"><span>${x[0]}</span><strong>${x[1]}%</strong><div class="progress"><i style="width:${x[1]}%"></i></div></div>`).join('');
- const cv=document.querySelector('#mini-weight'),ctx=cv.getContext('2d'),pts=weights.slice(-30);function draw(){let r=cv.getBoundingClientRect(),q=devicePixelRatio||1;cv.width=r.width*q;cv.height=170*q;ctx.setTransform(q,0,0,q,0,0);ctx.clearRect(0,0,r.width,170);if(pts.length<2){ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted');ctx.fillText('Registre pelo menos dois pesos.',15,35);return}let vals=pts.map(x=>+x[1]),min=Math.min(...vals)-.5,max=Math.max(...vals)+.5;ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent');ctx.lineWidth=3;ctx.beginPath();pts.forEach((p,i)=>{let x=12+i*(r.width-24)/(pts.length-1),y=150-(+p[1]-min)/(max-min)*125;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()}draw();addEventListener('resize',draw);
- document.querySelector('#last-meditation').innerHTML=lastMed?`<p class="meditation-date">${MMCDUI.date(lastMed)}</p><p class="meditation-note">Seu registro espiritual mais recente. Continue transformando constância em profundidade.</p><a class="text-link" href="index.html">Abrir meditação →</a>`:'<div class="empty">Nenhuma meditação registrada.</div>';
-})();
+"use strict";
+
+(async () => {
+  const d = await MMCD.carregar();
+  const db = window.MMCDSupabase;
+  const currentUser = await window.MMCDAuth.user();
+
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+
+  const pad = n => String(n).padStart(2, "0");
+  const isoDate = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const iso = isoDate(today);
+  const fmt = date => date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
+  const meta = d.configuracoes.missaoAtual || {};
+  const number = value => Number(String(value ?? "").replace(",", "."));
+  const kg = value => Number(value).toFixed(1).replace(".", ",") + " kg";
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  const escapeHtml = value => String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+  const parseDate = value => new Date(`${value}T12:00:00`);
+  const shortDate = value => parseDate(value).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+
+  async function carregarMetaPeso() {
+    const { data, error } = await db
+      .from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", currentUser.id)
+      .eq("chave", "meta_peso")
+      .maybeSingle();
+
+    if (error) throw new Error(`Não foi possível carregar a meta de peso: ${error.message}`);
+    const value = data?.valor || null;
+    if (!value || !Number.isFinite(number(value.pesoAlvo))) return null;
+
+    return {
+      pesoAlvo: number(value.pesoAlvo),
+      pesoInicial: Number.isFinite(number(value.pesoInicial)) ? number(value.pesoInicial) : null,
+      dataInicio: value.dataInicio || iso,
+      dataLimite: value.dataLimite || ""
+    };
+  }
+
+  async function salvarMetaPeso(value) {
+    const { error } = await db
+      .from("configuracoes_usuario")
+      .upsert({
+        user_id: currentUser.id,
+        chave: "meta_peso",
+        valor: value
+      }, { onConflict: "user_id,chave" });
+
+    if (error) throw new Error(`Não foi possível salvar a meta de peso: ${error.message}`);
+  }
+
+  async function excluirMetaPeso() {
+    const { error } = await db
+      .from("configuracoes_usuario")
+      .delete()
+      .eq("user_id", currentUser.id)
+      .eq("chave", "meta_peso");
+
+    if (error) throw new Error(`Não foi possível remover a meta de peso: ${error.message}`);
+  }
+
+  let metaPeso = await carregarMetaPeso();
+
+  const weights = Object.entries(d.pesos)
+    .map(([date, value]) => [date, number(value)])
+    .filter(([, value]) => Number.isFinite(value))
+    .sort((a, b) => a[0].localeCompare(b[0]));
+
+  const lastWeightEntry = weights.at(-1);
+  const currentWeight = lastWeightEntry?.[1] ?? null;
+
+  function metaMetrics(goal = metaPeso) {
+    if (!goal || currentWeight == null) return null;
+
+    const start = Number.isFinite(goal.pesoInicial) ? goal.pesoInicial : currentWeight;
+    const target = goal.pesoAlvo;
+    const total = Math.abs(start - target);
+    const remaining = Math.abs(currentWeight - target);
+    const direction = target < start ? "reduzir" : target > start ? "aumentar" : "manter";
+
+    let moved;
+    if (direction === "reduzir") moved = start - currentWeight;
+    else if (direction === "aumentar") moved = currentWeight - start;
+    else moved = remaining === 0 ? 1 : 0;
+
+    const progress = total === 0
+      ? (remaining <= 0.05 ? 100 : 0)
+      : clamp(Math.round((moved / total) * 100), 0, 100);
+
+    const achieved = remaining <= 0.05;
+    const movingCorrectly = moved > 0;
+    const movedAway = moved < 0;
+
+    return { start, target, total, remaining, direction, moved, progress, achieved, movingCorrectly, movedAway };
+  }
+
+  function deadlineText(goal = metaPeso) {
+    if (!goal?.dataLimite) return "Sem data limite";
+    const deadline = parseDate(goal.dataLimite);
+    const days = Math.ceil((deadline - today) / 86400000);
+    if (days === 0) return "Prazo: hoje";
+    if (days > 0) return `Prazo em ${days} dia${days === 1 ? "" : "s"}`;
+    return `Prazo vencido há ${Math.abs(days)} dia${Math.abs(days) === 1 ? "" : "s"}`;
+  }
+
+  document.querySelector("#today-label").textContent = today.toLocaleDateString("pt-BR");
+
+  document.querySelector("#mission-card").innerHTML = `
+    <div>
+      <p class="eyebrow">Missão de vida</p>
+      <h2>${MMCDUI.esc(meta.titulo || "Defina sua missão de vida")}</h2>
+      <span class="muted">Sua direção principal para decisões, hábitos e prioridades.</span>
+    </div>
+    <div class="mission-date">
+      <span class="eyebrow">Hoje</span>
+      <strong>${pad(today.getDate())}</strong>
+      <span>${today.toLocaleDateString("pt-BR", { month: "long" })}</span>
+    </div>`;
+
+  const due = MMCD.metasNaData(d, iso);
+  const done = due.filter(item => MMCD.registro(d, iso, item.id)?.concluida).length;
+  const books = d.livros.concluidos.filter(item => (item.dataConclusao || "").startsWith(String(d.configuracoes.anoMetaLivros)));
+  const medDates = Object.keys(d.meditacoes || {}).sort();
+  const lastMed = medDates.at(-1) || "";
+
+  function streak() {
+    let count = 0;
+    const cursor = new Date(today);
+    for (;;) {
+      const date = isoDate(cursor);
+      const goals = MMCD.metasNaData(d, date);
+      if (!goals.length) {
+        cursor.setDate(cursor.getDate() - 1);
+        if (cursor < new Date("2020-01-01")) break;
+        continue;
+      }
+      if (!goals.some(item => MMCD.registro(d, date, item.id)?.concluida)) break;
+      count += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return count;
+  }
+
+  const medMeta = d.metas.find(item => item.nome.toLowerCase().includes("medita"));
+  const medDone = !!(d.meditacoes[iso] || (medMeta && MMCD.registro(d, iso, medMeta.id)?.concluida));
+
+  const metrics = metaMetrics();
+  let weightDetail = "Último registro";
+  if (currentWeight != null && metrics) {
+    weightDetail = metrics.achieved
+      ? "Meta alcançada"
+      : `Meta: ${kg(metrics.target)} · faltam ${kg(metrics.remaining)}`;
+  } else if (currentWeight != null) {
+    weightDetail = "Defina uma meta";
+  }
+
+  const cards = [
+    ["🎯", "Missão de vida", meta.titulo || "Não definida", "Direção principal"],
+    ["📅", "Data atual", fmt(today), "Hoje"],
+    ["🔥", "Sequência de dias", `${streak()} dias`, "Com algum registro"],
+    ["📖", "Livro em andamento", d.livros.atual.titulo || "Nenhum", d.livros.atual.autor || "Cadastre sua leitura"],
+    ["📚", "Livros concluídos", String(books.length), `Meta anual: ${d.configuracoes.metaLivrosAno}`],
+    ["🙏", "Meditação de hoje", medDone ? "Concluída" : "Pendente", lastMed ? `Última: ${MMCDUI.date(lastMed)}` : "Sem registro"],
+    ["⚖️", "Peso atual", currentWeight != null ? kg(currentWeight) : "Não informado", weightDetail],
+    ["✅", "Hábitos concluídos hoje", `${done} de ${due.length}`, "Metas previstas"]
+  ];
+
+  document.querySelector("#main-cards").innerHTML = cards.map(card => `
+    <article class="card dash-card">
+      <span class="dash-card__icon">${card[0]}</span>
+      <span class="dash-card__label">${card[1]}</span>
+      <strong>${MMCDUI.esc(card[2])}</strong>
+      <small>${MMCDUI.esc(card[3])}</small>
+    </article>`).join("");
+
+  function rate(days) {
+    let completed = 0;
+    let planned = 0;
+    for (let index = 0; index < days; index += 1) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - index);
+      const value = isoDate(date);
+      const goals = MMCD.metasNaData(d, value);
+      planned += goals.length;
+      completed += goals.filter(item => MMCD.registro(d, value, item.id)?.concluida).length;
+    }
+    return planned ? Math.round((completed / planned) * 100) : 0;
+  }
+
+  const weekly = rate(7);
+  const monthly = rate(30);
+  const bookGoal = Math.min(100, Math.round(books.length / (+d.configuracoes.metaLivrosAno || 30) * 100));
+
+  document.querySelector("#consistency-metrics").innerHTML = [
+    ["Consistência semanal", weekly],
+    ["Consistência mensal", monthly],
+    ["Meta anual de livros", bookGoal]
+  ].map(item => `
+    <div class="metric-row">
+      <span>${item[0]}</span>
+      <strong>${item[1]}%</strong>
+      <div class="progress"><i style="width:${item[1]}%"></i></div>
+    </div>`).join("");
+
+  const canvas = document.querySelector("#mini-weight");
+  const chartCard = canvas.closest(".card");
+  const header = chartCard.querySelector(".section-head");
+  header.querySelector(".eyebrow").textContent = "Peso e objetivo";
+  header.querySelector("h2").textContent = "Progresso até a meta";
+  header.querySelector(".text-link")?.remove();
+
+  const actionWrap = document.createElement("div");
+  actionWrap.className = "weight-goal-actions";
+  actionWrap.innerHTML = `<button id="open-weight-goal" class="btn small" type="button">${metaPeso ? "Editar meta" : "Definir meta"}</button>`;
+  header.appendChild(actionWrap);
+
+  const summary = document.createElement("div");
+  summary.id = "weight-goal-summary";
+  summary.className = "weight-goal-summary";
+  canvas.before(summary);
+
+  const legend = document.createElement("div");
+  legend.className = "weight-chart-legend";
+  legend.innerHTML = `
+    <span><i class="weight-chart-legend__history"></i>Peso registrado</span>
+    <span><i class="weight-chart-legend__target"></i>Meta de peso</span>`;
+  canvas.after(legend);
+
+  function renderSummary() {
+    const values = metaMetrics();
+    if (currentWeight == null) {
+      summary.innerHTML = `
+        <div class="weight-goal-empty">
+          <strong>Registre seu peso para começar</strong>
+          <span>O progresso será calculado após o primeiro registro.</span>
+        </div>`;
+      return;
+    }
+
+    if (!metaPeso || !values) {
+      summary.innerHTML = `
+        <div class="weight-goal-empty">
+          <strong>Você está com ${kg(currentWeight)}, mas ainda não existe um objetivo.</strong>
+          <span>Defina peso inicial, peso-alvo e prazo para transformar o gráfico em acompanhamento.</span>
+        </div>`;
+      return;
+    }
+
+    let status;
+    if (values.achieved) status = "Meta alcançada";
+    else if (values.movedAway) status = "Você se afastou da meta";
+    else if (values.movingCorrectly) status = "Você está avançando";
+    else status = "Meta iniciada";
+
+    summary.innerHTML = `
+      <div class="weight-goal-grid">
+        <div><span>Peso atual</span><strong>${kg(currentWeight)}</strong></div>
+        <div><span>Peso-alvo</span><strong>${kg(values.target)}</strong></div>
+        <div><span>Falta percorrer</span><strong>${values.achieved ? "0,0 kg" : kg(values.remaining)}</strong></div>
+        <div><span>Prazo</span><strong>${escapeHtml(deadlineText())}</strong></div>
+      </div>
+      <div class="weight-goal-progress">
+        <div class="weight-goal-progress__copy">
+          <strong>${escapeHtml(status)}</strong>
+          <span>${values.progress}% do caminho concluído desde ${kg(values.start)}</span>
+        </div>
+        <div class="progress"><i style="width:${values.progress}%"></i></div>
+      </div>`;
+  }
+
+  function chartPoints() {
+    const cutoff = new Date(today);
+    cutoff.setDate(cutoff.getDate() - 29);
+    const cutoffIso = isoDate(cutoff);
+    const recent = weights.filter(([date]) => date >= cutoffIso && date <= iso);
+    return recent.length ? recent : weights.slice(-8);
+  }
+
+  function drawChart() {
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    const height = 230;
+
+    canvas.width = Math.max(1, rect.width * ratio);
+    canvas.height = height * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.clearRect(0, 0, rect.width, height);
+
+    const styles = getComputedStyle(document.documentElement);
+    const textColor = styles.getPropertyValue("--muted").trim() || "#6b7280";
+    const lineColor = styles.getPropertyValue("--line").trim() || "#d8dde5";
+    const accent = styles.getPropertyValue("--accent").trim() || "#2563eb";
+    const targetColor = "#dc8a20";
+
+    const points = chartPoints();
+    const values = points.map(([, value]) => value);
+    if (metaPeso) values.push(metaPeso.pesoAlvo);
+
+    if (!points.length) {
+      ctx.fillStyle = textColor;
+      ctx.font = "13px sans-serif";
+      ctx.fillText("Registre seu peso na página Atividades.", 16, 42);
+      return;
+    }
+
+    let min = Math.min(...values);
+    let max = Math.max(...values);
+    const spread = Math.max(1, max - min);
+    min -= Math.max(0.6, spread * 0.16);
+    max += Math.max(0.6, spread * 0.16);
+
+    const left = 52;
+    const right = 18;
+    const top = 18;
+    const bottom = 38;
+    const chartWidth = Math.max(10, rect.width - left - right);
+    const chartHeight = height - top - bottom;
+
+    const y = value => top + (max - value) / (max - min) * chartHeight;
+    const x = index => points.length === 1
+      ? left + chartWidth / 2
+      : left + index * chartWidth / (points.length - 1);
+
+    ctx.font = "11px sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 1;
+
+    for (let tick = 0; tick < 5; tick += 1) {
+      const value = max - tick * (max - min) / 4;
+      const yPos = y(value);
+      ctx.strokeStyle = lineColor;
+      ctx.beginPath();
+      ctx.moveTo(left, yPos);
+      ctx.lineTo(left + chartWidth, yPos);
+      ctx.stroke();
+
+      ctx.fillStyle = textColor;
+      ctx.textAlign = "right";
+      ctx.fillText(`${value.toFixed(1).replace(".", ",")} kg`, left - 8, yPos);
+    }
+
+    if (metaPeso) {
+      const targetY = y(metaPeso.pesoAlvo);
+      ctx.save();
+      ctx.strokeStyle = targetColor;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 5]);
+      ctx.beginPath();
+      ctx.moveTo(left, targetY);
+      ctx.lineTo(left + chartWidth, targetY);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = targetColor;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(`Meta ${kg(metaPeso.pesoAlvo)}`, left + chartWidth, targetY - 5);
+    }
+
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    points.forEach((point, index) => {
+      const px = x(index);
+      const py = y(point[1]);
+      if (index === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+
+    points.forEach((point, index) => {
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      ctx.arc(x(index), y(point[1]), index === points.length - 1 ? 5 : 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    const labelIndexes = [...new Set([0, Math.floor((points.length - 1) / 2), points.length - 1])];
+    ctx.fillStyle = textColor;
+    ctx.textBaseline = "top";
+    labelIndexes.forEach((index, labelPosition) => {
+      if (index < 0) return;
+      ctx.textAlign = labelPosition === 0 ? "left" : labelPosition === labelIndexes.length - 1 ? "right" : "center";
+      ctx.fillText(shortDate(points[index][0]), x(index), top + chartHeight + 12);
+    });
+  }
+
+  function ensureModal() {
+    let overlay = document.querySelector("#weight-goal-modal");
+    if (overlay) return overlay;
+
+    overlay = document.createElement("div");
+    overlay.id = "weight-goal-modal";
+    overlay.className = "weight-goal-modal";
+    overlay.hidden = true;
+    overlay.innerHTML = `
+      <section class="weight-goal-dialog" role="dialog" aria-modal="true" aria-labelledby="weight-goal-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Objetivo de peso</p>
+            <h2 id="weight-goal-title">Definir meta</h2>
+          </div>
+          <button class="icon-btn" type="button" data-close-weight-goal aria-label="Fechar">×</button>
+        </div>
+        <form id="weight-goal-form" class="weight-goal-form">
+          <label class="field">
+            <span>Peso inicial (kg)</span>
+            <input id="weight-goal-start" type="number" min="30" max="300" step="0.1" required>
+          </label>
+          <label class="field">
+            <span>Peso-alvo (kg)</span>
+            <input id="weight-goal-target" type="number" min="30" max="300" step="0.1" required>
+          </label>
+          <label class="field">
+            <span>Data limite</span>
+            <input id="weight-goal-deadline" type="date">
+          </label>
+          <p class="muted weight-goal-help">A meta fica salva no Supabase e aparecerá em qualquer computador.</p>
+          <div class="weight-goal-form__actions">
+            <button id="delete-weight-goal" class="btn danger" type="button">Remover meta</button>
+            <div>
+              <button class="btn" type="button" data-close-weight-goal>Cancelar</button>
+              <button class="btn primary" type="submit">Salvar meta</button>
+            </div>
+          </div>
+        </form>
+      </section>`;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelectorAll("[data-close-weight-goal]").forEach(button => {
+      button.addEventListener("click", () => { overlay.hidden = true; });
+    });
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) overlay.hidden = true;
+    });
+
+    overlay.querySelector("#weight-goal-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const start = number(overlay.querySelector("#weight-goal-start").value);
+      const target = number(overlay.querySelector("#weight-goal-target").value);
+      const deadline = overlay.querySelector("#weight-goal-deadline").value;
+
+      if (!Number.isFinite(start) || !Number.isFinite(target)) {
+        alert("Informe o peso inicial e o peso-alvo.");
+        return;
+      }
+      if (Math.abs(start - target) < 0.05) {
+        alert("O peso-alvo precisa ser diferente do peso inicial.");
+        return;
+      }
+      if (deadline && deadline < iso) {
+        alert("A data limite não pode estar no passado.");
+        return;
+      }
+
+      const submit = event.submitter;
+      if (submit) submit.disabled = true;
+      try {
+        metaPeso = {
+          pesoInicial: start,
+          pesoAlvo: target,
+          dataInicio: metaPeso?.dataInicio || iso,
+          dataLimite: deadline
+        };
+        await salvarMetaPeso(metaPeso);
+        overlay.hidden = true;
+        window.MMCDUI?.toast("Meta de peso salva");
+        setTimeout(() => location.reload(), 300);
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        if (submit) submit.disabled = false;
+      }
+    });
+
+    overlay.querySelector("#delete-weight-goal").addEventListener("click", async () => {
+      if (!metaPeso) {
+        overlay.hidden = true;
+        return;
+      }
+      if (!confirm("Remover a meta de peso? Os registros de peso serão mantidos.")) return;
+
+      try {
+        await excluirMetaPeso();
+        metaPeso = null;
+        overlay.hidden = true;
+        window.MMCDUI?.toast("Meta removida");
+        setTimeout(() => location.reload(), 300);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    return overlay;
+  }
+
+  document.querySelector("#open-weight-goal").addEventListener("click", () => {
+    const overlay = ensureModal();
+    overlay.querySelector("#weight-goal-title").textContent = metaPeso ? "Editar meta de peso" : "Definir meta de peso";
+    overlay.querySelector("#weight-goal-start").value = metaPeso?.pesoInicial ?? currentWeight ?? "";
+    overlay.querySelector("#weight-goal-target").value = metaPeso?.pesoAlvo ?? "";
+    overlay.querySelector("#weight-goal-deadline").value = metaPeso?.dataLimite ?? "";
+    overlay.querySelector("#delete-weight-goal").hidden = !metaPeso;
+    overlay.hidden = false;
+    overlay.querySelector("#weight-goal-target").focus();
+  });
+
+  renderSummary();
+  drawChart();
+  addEventListener("resize", drawChart);
+
+  document.querySelector("#last-meditation").innerHTML = lastMed
+    ? `<p class="meditation-date">${MMCDUI.date(lastMed)}</p>
+       <p class="meditation-note">Seu registro espiritual mais recente. Continue transformando constância em profundidade.</p>
+       <a class="text-link" href="index.html">Abrir meditação →</a>`
+    : '<div class="empty">Nenhuma meditação registrada.</div>';
+})().catch(error => {
+  console.error(error);
+  window.MMCDUI?.toast(error.message || "Não foi possível carregar o painel.", 6000);
+});

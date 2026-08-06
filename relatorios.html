@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Análise de atividades — Life Style</title>
   <link rel="stylesheet" href="painel.css?v=20260805-ls-brand2">
-  <link rel="stylesheet" href="relatorios.css?v=20260805-atividades7d1">
+  <link rel="stylesheet" href="relatorios.css?v=20260805-peso-radar2">
 </head>
 <body>
   <div class="app-shell">
@@ -70,16 +70,23 @@
           <div id="weekly-weaknesses" class="insight-list"></div>
         </article>
 
-        <article class="card section activity-performance-card">
-          <div class="section-head">
+        <details class="card section activity-performance-card evidence-panel">
+          <summary class="evidence-summary">
             <div>
               <p class="eyebrow">Evidências</p>
               <h2>Desempenho por atividade</h2>
-              <p class="muted">Somente oportunidades já encerradas; pendências de hoje não contam como falha.</p>
+              <p class="muted">Abra para conferir os números que sustentam a análise.</p>
             </div>
+            <div class="evidence-summary__action">
+              <span id="evidence-summary-badge" class="analysis-badge">Carregando</span>
+              <span class="evidence-chevron" aria-hidden="true">⌄</span>
+            </div>
+          </summary>
+          <div class="evidence-panel__body">
+            <p class="muted evidence-rule">Somente oportunidades já encerradas; pendências de hoje não contam como falha.</p>
+            <div id="activity-performance" class="activity-performance"></div>
           </div>
-          <div id="activity-performance" class="activity-performance"></div>
-        </article>
+        </details>
 
         <article class="card section next-focus-card">
           <div class="section-head">
@@ -89,6 +96,20 @@
             </div>
           </div>
           <div id="next-focus" class="focus-content"></div>
+        </article>
+
+        <article class="card section radar-card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Equilíbrio da semana</p>
+              <h2>Radar de execução</h2>
+              <p id="radar-subtitle" class="muted">Conclusão por área nos últimos 7 dias.</p>
+            </div>
+            <span class="radar-scale">Centro 0% · borda 100%</span>
+          </div>
+          <div id="activity-radar-empty" class="radar-empty" hidden></div>
+          <canvas id="activity-radar" height="310" aria-label="Radar de conclusão das atividades"></canvas>
+          <div id="radar-legend" class="radar-legend"></div>
         </article>
 
         <article class="card section monthly-analysis-card">
@@ -116,6 +137,6 @@
   <script src="dados-app.js?v=30"></script>
   <script src="shell.js?v=20260805-anki-biblia1"></script>
   <script>MMCDShell('estatisticas')</script>
-  <script src="relatorios.js?v=20260805-atividades7d1"></script>
+  <script src="relatorios.js?v=20260805-peso-radar2"></script>
 </body>
 </html>

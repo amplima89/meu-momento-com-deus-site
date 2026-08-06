@@ -323,6 +323,16 @@
       .filter(item => item.evaluated > 0 || item.pendingToday > 0)
       .sort((a, b) => (b.missed - a.missed) || ((a.rate ?? 101) - (b.rate ?? 101)) || a.name.localeCompare(b.name, "pt-BR"));
 
+    const badge = $("#evidence-summary-badge");
+    if (badge) {
+      badge.textContent = `${rows.length} atividade${rows.length === 1 ? "" : "s"}`;
+      badge.dataset.level = weekly.rate != null && weekly.rate >= 70
+        ? "high"
+        : weekly.rate != null && weekly.rate < 50
+          ? "low"
+          : "medium";
+    }
+
     if (!rows.length) {
       $("#activity-performance").innerHTML = `<div class="activity-performance-empty">Nenhuma atividade programada foi encontrada no período.</div>`;
       return;
@@ -383,6 +393,172 @@
         <li>Reduza a tarefa para uma versão pequena, mas concluível, nos dias de menor energia.</li>
         <li>Marque no Life Style imediatamente após concluir para não perder o registro.</li>
       </ul>`;
+  }
+
+
+  function radarSource(weekly) {
+    const categories = [...weekly.categories]
+      .filter(item => item.evaluated > 0)
+      .sort((a, b) => (b.evaluated - a.evaluated) || a.name.localeCompare(b.name, "pt-BR"))
+      .slice(0, 7)
+      .map(item => ({
+        label: item.name,
+        value: item.rate ?? 0,
+        evidence: item.evaluated,
+        source: "category"
+      }));
+
+    if (categories.length >= 3) {
+      return {
+        title: "Conclusão por área nos últimos 7 dias.",
+        items: categories
+      };
+    }
+
+    const activities = [...weekly.activities]
+      .filter(item => item.evaluated > 0)
+      .sort((a, b) => (b.evaluated - a.evaluated) || a.name.localeCompare(b.name, "pt-BR"))
+      .slice(0, 7)
+      .map(item => ({
+        label: item.name,
+        value: item.rate ?? 0,
+        evidence: item.evaluated,
+        source: "activity"
+      }));
+
+    return {
+      title: "Conclusão por atividade nos últimos 7 dias.",
+      items: activities
+    };
+  }
+
+  function shortenRadarLabel(value, limit = 18) {
+    const text = String(value || "");
+    return text.length <= limit ? text : `${text.slice(0, limit - 1)}…`;
+  }
+
+  function renderRadar(weekly) {
+    const canvas = $("#activity-radar");
+    const empty = $("#activity-radar-empty");
+    const legend = $("#radar-legend");
+    const subtitle = $("#radar-subtitle");
+    if (!canvas || !empty || !legend) return;
+
+    const source = radarSource(weekly);
+    subtitle.textContent = source.title;
+
+    if (source.items.length < 3) {
+      canvas.hidden = true;
+      empty.hidden = false;
+      empty.textContent = "O radar precisa de pelo menos três áreas ou atividades com oportunidades encerradas. Ele aparecerá automaticamente quando houver base suficiente.";
+      legend.innerHTML = "";
+      return;
+    }
+
+    canvas.hidden = false;
+    empty.hidden = true;
+
+    legend.innerHTML = source.items.map(item => `
+      <span class="radar-legend__item">
+        <i class="radar-legend__dot"></i>
+        <span>${escapeHtml(item.label)}</span>
+        <strong>${item.value}%</strong>
+      </span>`).join("");
+
+    const ctx = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    const cssHeight = 310;
+    const cssWidth = Math.max(320, rect.width);
+
+    canvas.width = Math.round(cssWidth * ratio);
+    canvas.height = Math.round(cssHeight * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+    const styles = getComputedStyle(document.documentElement);
+    const accent = styles.getPropertyValue("--accent").trim() || "#2563eb";
+    const line = styles.getPropertyValue("--line").trim() || "#d8dde5";
+    const muted = styles.getPropertyValue("--muted").trim() || "#6b7280";
+    const text = styles.getPropertyValue("--text").trim() || "#111827";
+
+    const centerX = cssWidth / 2;
+    const centerY = cssHeight / 2 + 7;
+    const radius = Math.min(cssWidth * .31, cssHeight * .34);
+    const count = source.items.length;
+    const angleStep = (Math.PI * 2) / count;
+    const startAngle = -Math.PI / 2;
+    const point = (index, scale) => {
+      const angle = startAngle + index * angleStep;
+      return {
+        x: centerX + Math.cos(angle) * radius * scale,
+        y: centerY + Math.sin(angle) * radius * scale,
+        angle
+      };
+    };
+
+    ctx.lineWidth = 1;
+    [0.25, 0.5, 0.75, 1].forEach(scale => {
+      ctx.beginPath();
+      source.items.forEach((_, index) => {
+        const p = point(index, scale);
+        if (index === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.strokeStyle = line;
+      ctx.stroke();
+    });
+
+    source.items.forEach((_, index) => {
+      const p = point(index, 1);
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = line;
+      ctx.stroke();
+    });
+
+    ctx.beginPath();
+    source.items.forEach((item, index) => {
+      const p = point(index, Math.max(0, Math.min(100, item.value)) / 100);
+      if (index === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.save();
+    ctx.globalAlpha = .16;
+    ctx.fillStyle = accent;
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    source.items.forEach((item, index) => {
+      const p = point(index, Math.max(0, Math.min(100, item.value)) / 100);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = accent;
+      ctx.fill();
+    });
+
+    ctx.font = "600 11px sans-serif";
+    ctx.fillStyle = text;
+    ctx.textBaseline = "middle";
+
+    source.items.forEach((item, index) => {
+      const labelPoint = point(index, 1.22);
+      const cosine = Math.cos(labelPoint.angle);
+      ctx.textAlign = cosine > .25 ? "left" : cosine < -.25 ? "right" : "center";
+      ctx.fillText(shortenRadarLabel(item.label), labelPoint.x, labelPoint.y);
+    });
+
+    ctx.font = "10px sans-serif";
+    ctx.fillStyle = muted;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("25% · 50% · 75% · 100%", centerX, cssHeight - 2);
   }
 
   function monthPeriod() {
@@ -479,7 +655,14 @@
   renderWeaknesses(weekly);
   renderActivityPerformance(weekly);
   renderFocus(weekly);
+  renderRadar(weekly);
   renderMonthly();
+
+  let radarResizeTimer = null;
+  addEventListener("resize", () => {
+    clearTimeout(radarResizeTimer);
+    radarResizeTimer = setTimeout(() => renderRadar(weekly), 120);
+  });
 
   $("#analysis-footnote").textContent =
     "A análise considera apenas atividades programadas e registros de conclusão da página Atividades. Livros, peso, meditação, inglês e Bíblia não entram como indicadores independentes.";

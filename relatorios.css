@@ -60,3 +60,133 @@
   .activity-row{grid-template-columns:1fr 1fr}
   .activity-row__name,.activity-row__rate{grid-column:1/-1}
 }
+
+
+/* MMCD_RADAR_EVIDENCE_START */
+.evidence-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.evidence-panel > summary {
+  list-style: none;
+}
+.evidence-panel > summary::-webkit-details-marker {
+  display: none;
+}
+.evidence-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px;
+  cursor: pointer;
+  user-select: none;
+}
+.evidence-summary:hover {
+  background: var(--surface-2);
+}
+.evidence-summary h2,
+.evidence-summary p {
+  margin-bottom: 0;
+}
+.evidence-summary__action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.evidence-chevron {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 1.15rem;
+  transition: transform .18s ease;
+}
+.evidence-panel[open] .evidence-chevron {
+  transform: rotate(180deg);
+}
+.evidence-panel__body {
+  padding: 0 22px 22px;
+  border-top: 1px solid var(--line);
+}
+.evidence-rule {
+  margin: 16px 0;
+}
+.radar-card {
+  min-width: 0;
+  overflow: hidden;
+}
+.radar-card .section-head {
+  align-items: flex-start;
+}
+.radar-scale {
+  color: var(--muted);
+  font-size: .66rem;
+  white-space: nowrap;
+}
+#activity-radar {
+  display: block;
+  width: 100%;
+  height: 310px;
+  margin-top: 6px;
+}
+.radar-empty {
+  min-height: 240px;
+  place-items: center;
+  padding: 28px;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+}
+.radar-empty:not([hidden]) {
+  display: grid;
+}
+.radar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.radar-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: .7rem;
+}
+.radar-legend__item strong {
+  font-size: .73rem;
+}
+.radar-legend__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.next-focus-card,
+.radar-card {
+  align-self: stretch;
+}
+@media(max-width:720px) {
+  .evidence-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .evidence-summary__action {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .radar-scale {
+    white-space: normal;
+  }
+}
+/* MMCD_RADAR_EVIDENCE_END */
