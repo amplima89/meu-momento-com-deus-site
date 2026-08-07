@@ -5,7 +5,7 @@ Aplicação web publicada no GitHub Pages.
 ## Módulos
 
 - `index.html`: meditação diária com player do YouTube.
-- `ingles.html`: prática diária com tradução ao passar o mouse ou tocar.
+- `ingles.html`: aula diária com conceito gramatical, leitura, seleção de palavras, escrita e gravação de fala.
 - `painel.html`: visão geral.
 - `atividades.html`: rotina e registros.
 - `livros.html`: biblioteca.

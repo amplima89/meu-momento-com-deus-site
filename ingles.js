@@ -286,6 +286,115 @@
     return extrairPorEstruturaInterna(markdown);
   }
 
+  const ROTULOS_BLOCOS = {
+    "grammar focus": { tipo: "grammar", titulo: "Conceito do dia", icone: "Aa" },
+    "concept summary": { tipo: "concept", titulo: "Resumo do conceito", icone: "i" },
+    "examples": { tipo: "examples", titulo: "Exemplos", icone: "01" },
+    "today s topic": { tipo: "reading", titulo: "Leitura", icone: "▶" },
+    "useful expressions": { tipo: "expressions", titulo: "Expressões úteis", icone: "+" },
+    "writing practice": { tipo: "writing", titulo: "Prática de escrita", icone: "✎" },
+    "speaking practice": { tipo: "speaking", titulo: "Prática de fala", icone: "●" },
+    "quick practice": { tipo: "quick", titulo: "Prática rápida", icone: "→" }
+  };
+
+  let gravadorAtual = null;
+  let fluxoAudioAtual = null;
+  let intervaloGravacao = null;
+  let descartarGravacaoAtual = false;
+  let urlAudioAtual = "";
+
+  function identificarTituloInterno(linha = "") {
+    const encontrado = String(linha).match(/^\s*\*\*(.+?)\*\*\s*:?[ \t]*(.*?)\s*$/);
+    if (!encontrado) return null;
+
+    const rotulo = normalizarTitulo(encontrado[1]);
+    const configuracao = ROTULOS_BLOCOS[rotulo];
+    if (!configuracao) return null;
+
+    return {
+      ...configuracao,
+      valor: encontrado[2]?.trim() || ""
+    };
+  }
+
+  function extrairBlocosDaAula(texto = "") {
+    const blocos = [];
+    const introducao = [];
+    let atual = null;
+
+    const finalizar = () => {
+      if (!atual) return;
+      atual.conteudo = atual.linhas.join("\n").trim();
+      delete atual.linhas;
+      blocos.push(atual);
+      atual = null;
+    };
+
+    for (const linha of String(texto).replace(/\r\n/g, "\n").split("\n")) {
+      const titulo = identificarTituloInterno(linha);
+      if (titulo) {
+        finalizar();
+        atual = { ...titulo, linhas: [] };
+        continue;
+      }
+
+      if (atual) atual.linhas.push(linha);
+      else introducao.push(linha);
+    }
+
+    finalizar();
+    return { blocos, introducao: introducao.join("\n").trim() };
+  }
+
+  function renderizarFragmento(texto = "") {
+    const partes = String(texto).split(/\n\s*\n/);
+    let html = "";
+
+    for (const parte of partes) {
+      const linhas = parte
+        .split("\n")
+        .map(linha => linha.trim())
+        .filter(Boolean);
+
+      if (!linhas.length) continue;
+
+      if (linhas.every(linha => /^\s*[-*]\s+/.test(linha))) {
+        html += `<ul>${linhas.map(linha => `<li>${renderizarInline(linha.replace(/^\s*[-*]\s+/, ""))}</li>`).join("")}</ul>`;
+        continue;
+      }
+
+      html += `<p>${renderizarInline(linhas.join(" ").replace(/\s{2,}/g, " "))}</p>`;
+    }
+
+    return html;
+  }
+
+  function renderizarBloco(bloco) {
+    const destaque = bloco.tipo === "grammar" || bloco.tipo === "reading";
+    const classe = `english-lesson-block english-lesson-block--${bloco.tipo}${destaque ? " is-featured" : ""}`;
+    const tituloPrincipal = bloco.valor
+      ? `<h2 class="english-block-main-title">${renderizarInline(bloco.valor)}</h2>`
+      : "";
+    const resposta = bloco.tipo === "writing"
+      ? '<div class="english-response-workspace" data-writing-workspace></div>'
+      : bloco.tipo === "speaking"
+        ? '<div class="english-response-workspace" data-speaking-workspace></div>'
+        : "";
+
+    return `
+      <section class="${classe}" data-lesson-kind="${bloco.tipo}">
+        <header class="english-block-head">
+          <span class="english-block-icon" aria-hidden="true">${bloco.icone}</span>
+          <div>
+            <p class="english-block-kicker">${bloco.titulo}</p>
+            ${tituloPrincipal}
+          </div>
+        </header>
+        <div class="english-block-body">${renderizarFragmento(bloco.conteudo)}</div>
+        ${resposta}
+      </section>`;
+  }
+
   function renderizar(markdown = "") {
     if (!String(markdown).trim()) {
       return '<div class="empty">A meditação desta data foi encontrada, mas o conteúdo não foi carregado.</div>';
@@ -296,25 +405,313 @@
       return '<div class="empty">Não consegui identificar a prática de inglês desta meditação.</div>';
     }
 
-    let html = '<div class="practice-note"><strong>Como usar:</strong> passe o mouse ou toque em uma palavra para ver a tradução. Leia em voz alta, responda à prática final e salve em azul as expressões que deseja revisar.</div>';
-    const paragrafos = texto.split(/\n\s*\n/);
+    const aula = extrairBlocosDaAula(texto);
+    const nota = '<div class="practice-note"><strong>Como usar:</strong> leia em voz alta, selecione em azul as palavras que quer estudar, escreva sua resposta e finalize com o áudio sem ler.</div>';
 
-    for (const paragrafo of paragrafos) {
-      const linhas = paragrafo
-        .split("\n")
-        .map(linha => linha.trim())
-        .filter(Boolean);
-
-      if (!linhas.length) continue;
-
-      if (linhas.every(linha => /^[-*]\s+/.test(linha))) {
-        html += `<ul>${linhas.map(linha => `<li>${renderizarInline(linha.replace(/^[-*]\s+/, ""))}</li>`).join("")}</ul>`;
-      } else {
-        html += `<p>${renderizarInline(linhas.join(" ").replace(/\s{2,}/g, " "))}</p>`;
-      }
+    if (!aula.blocos.length) {
+      return nota + renderizarFragmento(texto);
     }
 
-    return html;
+    const introducao = aula.introducao
+      ? `<div class="english-lesson-intro">${renderizarFragmento(aula.introducao)}</div>`
+      : "";
+
+    return `${nota}${introducao}<div class="english-lesson-grid">${aula.blocos.map(renderizarBloco).join("")}</div>`;
+  }
+
+  function chaveEscrita(data = dataAtual()) {
+    return `mmcd_english_writing_v1:${data}`;
+  }
+
+  function lerArmazenamentoLocal(chave) {
+    try {
+      return window.localStorage?.getItem(chave) || "";
+    } catch {
+      return "";
+    }
+  }
+
+  function salvarArmazenamentoLocal(chave, valor) {
+    try {
+      window.localStorage?.setItem(chave, valor);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function contarPalavras(texto = "") {
+    return (String(texto).trim().match(/[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)*/g) || []).length;
+  }
+
+  function copiarTexto(texto) {
+    if (!texto.trim()) {
+      MMCDUI.toast("Escreva sua resposta antes de copiar.");
+      return;
+    }
+
+    const operacao = navigator.clipboard?.writeText?.(texto);
+    if (!operacao) {
+      MMCDUI.toast("A cópia automática não está disponível neste navegador.");
+      return;
+    }
+
+    operacao
+      .then(() => MMCDUI.toast("Resposta copiada."))
+      .catch(() => MMCDUI.toast("Não foi possível copiar automaticamente."));
+  }
+
+  function prepararEscrita() {
+    const area = conteudo.querySelector("[data-writing-workspace]");
+    if (!area) return;
+
+    area.innerHTML = `
+      <label class="english-writing-field">
+        <span>Sua resposta em inglês</span>
+        <textarea rows="7" placeholder="Write your answer here..."></textarea>
+      </label>
+      <div class="english-workspace-footer">
+        <span class="english-word-count">0 palavras</span>
+        <div class="english-workspace-actions">
+          <button class="btn small" type="button" data-copy-writing>Copiar</button>
+          <button class="btn small" type="button" data-clear-writing>Limpar</button>
+        </div>
+      </div>
+      <p class="english-save-note">A resposta é salva automaticamente neste dispositivo.</p>`;
+
+    const campo = area.querySelector("textarea");
+    const contador = area.querySelector(".english-word-count");
+    campo.value = lerArmazenamentoLocal(chaveEscrita());
+
+    const atualizar = () => {
+      const quantidade = contarPalavras(campo.value);
+      contador.textContent = `${quantidade} palavra${quantidade === 1 ? "" : "s"}`;
+      salvarArmazenamentoLocal(chaveEscrita(), campo.value);
+    };
+
+    campo.addEventListener("input", atualizar);
+    area.querySelector("[data-copy-writing]").addEventListener("click", () => copiarTexto(campo.value));
+    area.querySelector("[data-clear-writing]").addEventListener("click", () => {
+      if (!campo.value || confirm("Limpar sua resposta escrita desta data?")) {
+        campo.value = "";
+        atualizar();
+        campo.focus();
+      }
+    });
+
+    atualizar();
+  }
+
+  function abrirBancoAudio() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        reject(new Error("IndexedDB indisponível"));
+        return;
+      }
+
+      const requisicao = indexedDB.open("mmcd_english_audio_v1", 1);
+      requisicao.onupgradeneeded = () => {
+        const banco = requisicao.result;
+        if (!banco.objectStoreNames.contains("recordings")) {
+          banco.createObjectStore("recordings");
+        }
+      };
+      requisicao.onsuccess = () => resolve(requisicao.result);
+      requisicao.onerror = () => reject(requisicao.error);
+    });
+  }
+
+  async function salvarAudio(data, blob) {
+    const banco = await abrirBancoAudio();
+    await new Promise((resolve, reject) => {
+      const transacao = banco.transaction("recordings", "readwrite");
+      transacao.objectStore("recordings").put(blob, data);
+      transacao.oncomplete = resolve;
+      transacao.onerror = () => reject(transacao.error);
+    });
+    banco.close();
+  }
+
+  async function carregarAudio(data) {
+    const banco = await abrirBancoAudio();
+    const resultado = await new Promise((resolve, reject) => {
+      const transacao = banco.transaction("recordings", "readonly");
+      const requisicao = transacao.objectStore("recordings").get(data);
+      requisicao.onsuccess = () => resolve(requisicao.result || null);
+      requisicao.onerror = () => reject(requisicao.error);
+    });
+    banco.close();
+    return resultado;
+  }
+
+  async function excluirAudio(data) {
+    const banco = await abrirBancoAudio();
+    await new Promise((resolve, reject) => {
+      const transacao = banco.transaction("recordings", "readwrite");
+      transacao.objectStore("recordings").delete(data);
+      transacao.oncomplete = resolve;
+      transacao.onerror = () => reject(transacao.error);
+    });
+    banco.close();
+  }
+
+  function liberarUrlAudio() {
+    if (!urlAudioAtual) return;
+    URL.revokeObjectURL(urlAudioAtual);
+    urlAudioAtual = "";
+  }
+
+  function exibirAudio(blob) {
+    const audio = conteudo.querySelector("[data-speaking-audio]");
+    const excluir = conteudo.querySelector("[data-delete-recording]");
+    if (!audio) return;
+
+    liberarUrlAudio();
+    if (!blob) {
+      audio.hidden = true;
+      audio.removeAttribute("src");
+      if (excluir) excluir.hidden = true;
+      return;
+    }
+
+    urlAudioAtual = URL.createObjectURL(blob);
+    audio.src = urlAudioAtual;
+    audio.hidden = false;
+    if (excluir) excluir.hidden = false;
+  }
+
+  function formatarTempo(segundos) {
+    const minutos = Math.floor(segundos / 60).toString().padStart(2, "0");
+    const resto = (segundos % 60).toString().padStart(2, "0");
+    return `${minutos}:${resto}`;
+  }
+
+  function encerrarFluxoAudio() {
+    if (intervaloGravacao) clearInterval(intervaloGravacao);
+    intervaloGravacao = null;
+    fluxoAudioAtual?.getTracks?.().forEach(trilha => trilha.stop());
+    fluxoAudioAtual = null;
+  }
+
+  function cancelarGravacaoAoTrocarData() {
+    if (gravadorAtual?.state === "recording") {
+      descartarGravacaoAtual = true;
+      gravadorAtual.stop();
+    }
+    encerrarFluxoAudio();
+    gravadorAtual = null;
+  }
+
+  async function prepararFala() {
+    const area = conteudo.querySelector("[data-speaking-workspace]");
+    if (!area) return;
+
+    const suportaGravacao = Boolean(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
+    area.innerHTML = `
+      <div class="english-recorder">
+        <div class="english-recorder-status">
+          <span class="english-recorder-dot" aria-hidden="true"></span>
+          <strong data-recording-status>${suportaGravacao ? "Pronto para gravar" : "Gravação não suportada neste navegador"}</strong>
+          <span data-recording-time>00:00</span>
+        </div>
+        <div class="english-workspace-actions">
+          <button class="btn" type="button" data-start-recording ${suportaGravacao ? "" : "disabled"}>Gravar resposta</button>
+          <button class="btn" type="button" data-stop-recording disabled>Parar</button>
+          <button class="btn" type="button" data-delete-recording hidden>Excluir áudio</button>
+        </div>
+        <audio controls data-speaking-audio hidden></audio>
+        <p class="english-save-note">O áudio fica salvo somente neste dispositivo.</p>
+      </div>`;
+
+    const iniciar = area.querySelector("[data-start-recording]");
+    const parar = area.querySelector("[data-stop-recording]");
+    const excluir = area.querySelector("[data-delete-recording]");
+    const status = area.querySelector("[data-recording-status]");
+    const tempo = area.querySelector("[data-recording-time]");
+    const dataDaGravacao = dataAtual();
+
+    try {
+      exibirAudio(await carregarAudio(dataDaGravacao));
+    } catch (erro) {
+      console.warn("Não foi possível recuperar o áudio salvo.", erro);
+    }
+
+    iniciar.addEventListener("click", async () => {
+      try {
+        descartarGravacaoAtual = false;
+        fluxoAudioAtual = await navigator.mediaDevices.getUserMedia({ audio: true });
+        gravadorAtual = new MediaRecorder(fluxoAudioAtual);
+        const partes = [];
+        const inicioEm = Date.now();
+
+        gravadorAtual.addEventListener("dataavailable", evento => {
+          if (evento.data?.size) partes.push(evento.data);
+        });
+
+        gravadorAtual.addEventListener("stop", async () => {
+          encerrarFluxoAudio();
+          iniciar.disabled = false;
+          parar.disabled = true;
+          area.classList.remove("is-recording");
+
+          if (descartarGravacaoAtual || !partes.length) {
+            descartarGravacaoAtual = false;
+            status.textContent = "Pronto para gravar";
+            tempo.textContent = "00:00";
+            return;
+          }
+
+          const blob = new Blob(partes, { type: gravadorAtual.mimeType || "audio/webm" });
+          try {
+            await salvarAudio(dataDaGravacao, blob);
+            if (dataAtual() === dataDaGravacao) exibirAudio(blob);
+            status.textContent = "Resposta gravada";
+            MMCDUI.toast("Áudio salvo neste dispositivo.");
+          } catch (erro) {
+            console.error(erro);
+            status.textContent = "Áudio gravado, mas não salvo";
+          }
+        });
+
+        gravadorAtual.start();
+        area.classList.add("is-recording");
+        iniciar.disabled = true;
+        parar.disabled = false;
+        status.textContent = "Gravando...";
+        tempo.textContent = "00:00";
+        intervaloGravacao = setInterval(() => {
+          tempo.textContent = formatarTempo(Math.floor((Date.now() - inicioEm) / 1000));
+        }, 500);
+      } catch (erro) {
+        console.error(erro);
+        encerrarFluxoAudio();
+        status.textContent = "Não foi possível acessar o microfone";
+        MMCDUI.toast("Autorize o uso do microfone para gravar sua resposta.");
+      }
+    });
+
+    parar.addEventListener("click", () => {
+      if (gravadorAtual?.state === "recording") gravadorAtual.stop();
+    });
+
+    excluir.addEventListener("click", async () => {
+      if (!confirm("Excluir o áudio desta data?")) return;
+      try {
+        await excluirAudio(dataDaGravacao);
+        exibirAudio(null);
+        status.textContent = "Pronto para gravar";
+        tempo.textContent = "00:00";
+        MMCDUI.toast("Áudio excluído.");
+      } catch (erro) {
+        console.error(erro);
+        MMCDUI.toast("Não foi possível excluir o áudio.");
+      }
+    });
+  }
+
+  async function prepararEspacosResposta() {
+    prepararEscrita();
+    await prepararFala();
   }
 
   function aplicarTraducoes(glossario) {
@@ -325,7 +722,7 @@
         acceptNode(no) {
           if (!no.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
           const pai = no.parentElement;
-          if (!pai || pai.closest(".practice-note") || pai.closest(".english-word")) {
+          if (!pai || pai.closest(".practice-note") || pai.closest(".english-word") || pai.closest(".english-response-workspace")) {
             return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
@@ -491,7 +888,7 @@
       ? range.commonAncestorContainer
       : range.commonAncestorContainer.parentElement;
 
-    if (!ancestral || !conteudo.contains(ancestral)) {
+    if (!ancestral || !conteudo.contains(ancestral) || ancestral.closest?.(".english-response-workspace")) {
       if (!silencioso) MMCDUI.toast("Selecione um trecho do inglês diário.");
       return false;
     }
@@ -572,11 +969,14 @@
   }
 
   async function abrir() {
+    cancelarGravacaoAoTrocarData();
+    liberarUrlAudio();
     const markdown = lista[Number(seletor.value)]?.markdown || "";
     conteudo.innerHTML = renderizar(markdown);
     await carregarNivel();
     await carregarMarcacoes();
     aplicarTraducoes(extrairGlossario(markdown));
+    await prepararEspacosResposta();
   }
 
   function fecharTooltips(excecao = null) {
