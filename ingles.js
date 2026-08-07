@@ -346,6 +346,38 @@
     return { blocos, introducao: introducao.join("\n").trim() };
   }
 
+  function completarAulaLegada(aula) {
+    const tipos = new Set(aula.blocos.map(bloco => bloco.tipo));
+    const praticaRapida = aula.blocos.find(bloco => bloco.tipo === "quick");
+    const pergunta = praticaRapida?.conteudo || praticaRapida?.valor || "Answer the question from today's lesson.";
+
+    if (!tipos.has("writing")) {
+      aula.blocos.push({
+        tipo: "writing",
+        titulo: "Prática de escrita",
+        icone: "✎",
+        valor: "",
+        conteudo: `Write 4 to 6 sentences in English answering this question: ${pergunta} Use at least one useful expression from the lesson.`
+      });
+    }
+
+    if (!tipos.has("speaking")) {
+      aula.blocos.push({
+        tipo: "speaking",
+        titulo: "Prática de fala",
+        icone: "●",
+        valor: "",
+        conteudo: `Answer the same question without reading. Speak for 45 to 60 seconds and use at least one useful expression from the lesson.`
+      });
+    }
+
+    if (praticaRapida) {
+      aula.blocos = aula.blocos.filter(bloco => bloco !== praticaRapida);
+    }
+
+    return aula;
+  }
+
   function renderizarFragmento(texto = "") {
     const partes = String(texto).split(/\n\s*\n/);
     let html = "";
@@ -405,7 +437,7 @@
       return '<div class="empty">Não consegui identificar a prática de inglês desta meditação.</div>';
     }
 
-    const aula = extrairBlocosDaAula(texto);
+    const aula = completarAulaLegada(extrairBlocosDaAula(texto));
     const nota = '<div class="practice-note"><strong>Como usar:</strong> leia em voz alta, selecione em azul as palavras que quer estudar, escreva sua resposta e finalize com o áudio sem ler.</div>';
 
     if (!aula.blocos.length) {
