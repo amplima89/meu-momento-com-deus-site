@@ -14,8 +14,8 @@
   <title>Inglês diário — Life Style</title>
   <link rel="stylesheet" href="painel.css?v=20260804-ls-brand2">
   <link rel="stylesheet" href="style.css?v=20260803-50">
-  <link rel="stylesheet" href="ingles.css?v=20260806-english-course2">
-  <link rel="stylesheet" href="revisao-ingles.css?v=20260805-anki-producao5">
+  <link rel="stylesheet" href="ingles.css?v=20260806-english-analysis1">
+  <link rel="stylesheet" href="revisao-ingles.css?v=20260806-review-deck1">
 </head>
 <body>
   <div class="app-shell">
@@ -66,11 +66,34 @@
       <!-- MMCD_REVIEW_ANKI_START -->
       <section id="revisao-ingles-card" class="card section english-review-card" hidden>
         <div class="english-review-head">
-          <div><p class="eyebrow">Revisão espaçada</p><h2>10 frases para lembrar</h2><p id="revisao-ingles-resumo" class="muted">Preparando sua revisão...</p></div>
-          <div class="english-review-progress"><span class="muted">Respondidas</span><strong id="revisao-ingles-progresso">0 de 0</strong></div>
+          <div>
+            <p class="eyebrow">Revisão espaçada</p>
+            <h2>Revisão de hoje</h2>
+            <p id="revisao-ingles-resumo" class="muted">Preparando sua revisão...</p>
+          </div>
+          <div class="english-review-progress">
+            <span class="muted">Respondidas</span>
+            <strong id="revisao-ingles-progresso">0 de 0</strong>
+          </div>
         </div>
         <div id="revisao-ingles-vazio" class="english-review-empty" hidden>Marque palavras ou expressões no inglês de um dia anterior. Na meditação seguinte elas aparecerão aqui dentro de frases completas.</div>
         <div id="revisao-ingles-lista" class="english-review-list"></div>
+        <nav id="revisao-ingles-navegacao" class="english-review-navigation" aria-label="Navegação da revisão" hidden>
+          <button class="btn small" type="button" data-review-prev>← Anterior</button>
+          <span data-review-position>1 de 1</span>
+          <button class="btn small" type="button" data-review-next>Próxima →</button>
+        </nav>
+        <section id="revisao-producao-card" class="review-production-stage" hidden>
+          <div class="review-production-stage__head">
+            <div>
+              <p class="eyebrow">Produção ativa</p>
+              <h3>Use somente o que precisa reforçar</h3>
+              <p class="muted">No máximo duas frases, escolhidas entre as palavras que você não lembrou hoje.</p>
+            </div>
+            <span id="revisao-producao-contador" class="review-production-stage__count"></span>
+          </div>
+          <div id="revisao-producao-lista" class="review-production-stage__list"></div>
+        </section>
       </section>
 <!-- MMCD_REVIEW_ANKI_END -->
 </main>
@@ -83,7 +106,7 @@
   <script src="dados-app.js?v=20260806-abono1"></script>
   <script src="shell.js?v=20260805-anki-biblia1"></script>
   <script>MMCDShell("ingles")</script>
-  <script src="ingles.js?v=20260806-english-course2"></script>
-  <script src="revisao-ingles.js?v=20260805-anki-producao5"></script>
+  <script src="ingles.js?v=20260806-english-analysis1"></script>
+  <script src="revisao-ingles.js?v=20260806-review-deck1"></script>
 </body>
 </html>

@@ -2,6 +2,11 @@
 
 (async () => {
   const lista = await MMCD.listarMeditacoes();
+  const session = await window.MMCDAuth.requireSession();
+  const usuario = session.user;
+  const db = window.MMCDSupabase;
+  const CHAVE_PRODUCOES = "ingles_producoes_v1";
+  const PREFIXO_AUDIO_REMOTO = "ingles_audio_v1";
   const seletor = document.querySelector("#ingles-data");
   const conteudo = document.querySelector("#ingles-conteudo");
   const nivelBox = document.querySelector("#ingles-nivel");
@@ -301,7 +306,10 @@
   let fluxoAudioAtual = null;
   let intervaloGravacao = null;
   let descartarGravacaoAtual = false;
-  let urlAudioAtual = "";
+  const urlsAudio = new Map();
+  let estadoProducoes = { versao: 1, dias: {}, atualizadoEm: "" };
+  let filaSalvarProducoes = Promise.resolve();
+  let temporizadorSalvarEscrita = null;
 
   function identificarTituloInterno(linha = "") {
     const encontrado = String(linha).match(/^\s*\*\*(.+?)\*\*\s*:?[ \t]*(.*?)\s*$/);
@@ -409,9 +417,11 @@
       : "";
     const resposta = bloco.tipo === "writing"
       ? '<div class="english-response-workspace" data-writing-workspace></div>'
-      : bloco.tipo === "speaking"
-        ? '<div class="english-response-workspace" data-speaking-workspace></div>'
-        : "";
+      : bloco.tipo === "reading"
+        ? '<div class="english-response-workspace english-reading-recorder" data-reading-workspace></div>'
+        : bloco.tipo === "speaking"
+          ? '<div class="english-response-workspace" data-speaking-workspace></div>'
+          : "";
 
     return `
       <section class="${classe}" data-lesson-kind="${bloco.tipo}">
@@ -472,6 +482,48 @@
     }
   }
 
+  function estadoDoDia(data = dataAtual(), criar = true) {
+    if (!data) return null;
+    if (!estadoProducoes.dias[data] && criar) {
+      estadoProducoes.dias[data] = { audios: {} };
+    }
+    const dia = estadoProducoes.dias[data] || null;
+    if (dia && criar) dia.audios ||= {};
+    return dia;
+  }
+
+  async function carregarEstadoProducoes() {
+    const { data, error } = await db.from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", usuario.id)
+      .eq("chave", CHAVE_PRODUCOES)
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    const valor = data?.valor;
+    estadoProducoes = {
+      versao: 1,
+      dias: valor?.dias && typeof valor.dias === "object" ? valor.dias : {},
+      atualizadoEm: valor?.atualizadoEm || ""
+    };
+  }
+
+  function salvarEstadoProducoes() {
+    estadoProducoes.versao = 1;
+    estadoProducoes.atualizadoEm = new Date().toISOString();
+    const valor = JSON.parse(JSON.stringify(estadoProducoes));
+    filaSalvarProducoes = filaSalvarProducoes.catch(() => undefined).then(async () => {
+      const { error } = await db.from("configuracoes_usuario").upsert({
+        user_id: usuario.id,
+        chave: CHAVE_PRODUCOES,
+        valor
+      }, { onConflict: "user_id,chave" });
+      if (error) throw error;
+    });
+    return filaSalvarProducoes;
+  }
+
   function contarPalavras(texto = "") {
     return (String(texto).trim().match(/[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)*/g) || []).length;
   }
@@ -493,9 +545,105 @@
       .catch(() => MMCDUI.toast("Não foi possível copiar automaticamente."));
   }
 
+  function conceitoDaAula() {
+    const bloco = conteudo.querySelector('[data-lesson-kind="grammar"]');
+    if (!bloco) return "";
+    return [
+      bloco.querySelector(".english-block-main-title")?.textContent || "",
+      bloco.querySelector(".english-block-body")?.textContent || ""
+    ].filter(Boolean).join(" — ").trim();
+  }
+
+  function listaFeedback(itens = []) {
+    if (!Array.isArray(itens) || !itens.length) return "";
+    return `<ul>${itens.map(item => {
+      if (typeof item === "string") return `<li>${escaparHtml(item)}</li>`;
+      const palavra = escaparHtml(item?.palavra || item?.word || "");
+      const dica = escaparHtml(item?.dica || item?.hint || item?.explicacao || "");
+      return `<li>${palavra ? `<strong>${palavra}</strong>${dica ? " — " : ""}` : ""}${dica}</li>`;
+    }).join("")}</ul>`;
+  }
+
+  function htmlAnaliseEscrita(registro) {
+    if (!registro) return "";
+    if (registro.status === "pendente") {
+      return '<div class="english-analysis is-pending"><strong>Resposta enviada</strong><p>A correção será feita na próxima execução da automação.</p></div>';
+    }
+    if (registro.status === "erro") {
+      return `<div class="english-analysis is-error"><strong>Não foi possível analisar</strong><p>${escaparHtml(registro.erro || "Tente enviar novamente.")}</p></div>`;
+    }
+    if (registro.status !== "corrigida" || !registro.analise) return "";
+
+    const a = registro.analise;
+    return `
+      <section class="english-analysis ${a.correta ? "is-good" : "needs-work"}">
+        <div class="english-analysis__head">
+          <div><span>Correção da escrita</span><strong>${a.correta ? "Boa construção" : "Há ajustes importantes"}</strong></div>
+          <b>${a.correta ? "✓" : "✎"}</b>
+        </div>
+        <div class="english-analysis__row"><span>Sua resposta</span><p>${escaparHtml(registro.texto || "")}</p></div>
+        <div class="english-analysis__row"><span>Forma corrigida</span><p>${escaparHtml(a.textoCorrigido || registro.texto || "")}</p></div>
+        ${a.versaoNatural ? `<div class="english-analysis__row"><span>Forma mais natural</span><p>${escaparHtml(a.versaoNatural)}</p></div>` : ""}
+        ${a.explicacao ? `<div class="english-analysis__row"><span>Principal ajuste</span><p>${escaparHtml(a.explicacao)}</p></div>` : ""}
+        ${a.pontoForte ? `<div class="english-analysis__row"><span>Ponto forte</span><p>${escaparHtml(a.pontoForte)}</p></div>` : ""}
+        ${a.proximoPasso ? `<div class="english-analysis__row"><span>Próximo passo</span><p>${escaparHtml(a.proximoPasso)}</p></div>` : ""}
+      </section>`;
+  }
+
+  function htmlAnaliseAudio(registro, tipo) {
+    if (!registro) return "";
+    if (registro.status === "pendente") {
+      return '<div class="english-analysis is-pending"><strong>Áudio sincronizado</strong><p>A transcrição e a correção serão feitas na próxima execução da automação.</p></div>';
+    }
+    if (registro.status === "erro") {
+      return `<div class="english-analysis is-error"><strong>Não foi possível analisar</strong><p>${escaparHtml(registro.erro || "Grave novamente ou execute a automação outra vez.")}</p></div>`;
+    }
+    if (registro.status !== "corrigida" || !registro.analise) return "";
+
+    const a = registro.analise;
+    if (tipo === "leitura") {
+      const clareza = Number(a.clarezaReconhecimento);
+      return `
+        <section class="english-analysis ${clareza >= 85 ? "is-good" : "needs-work"}">
+          <div class="english-analysis__head">
+            <div><span>Análise da leitura</span><strong>${Number.isFinite(clareza) ? `${clareza}% de clareza de reconhecimento` : "Leitura analisada"}</strong></div>
+            <b>▶</b>
+          </div>
+          <p class="english-analysis__disclaimer">Esse indicador compara o texto reconhecido com o texto original; não é uma nota de sotaque.</p>
+          ${registro.transcricao ? `<div class="english-analysis__row"><span>O que foi reconhecido</span><p>${escaparHtml(registro.transcricao)}</p></div>` : ""}
+          ${a.pontoForte ? `<div class="english-analysis__row"><span>Ponto forte</span><p>${escaparHtml(a.pontoForte)}</p></div>` : ""}
+          ${a.resumo ? `<div class="english-analysis__row"><span>O que melhorar</span><p>${escaparHtml(a.resumo)}</p></div>` : ""}
+          ${a.palavrasPraticar?.length ? `<div class="english-analysis__row"><span>Palavras para repetir</span>${listaFeedback(a.palavrasPraticar)}</div>` : ""}
+          ${a.proximoPasso ? `<div class="english-analysis__row"><span>Próxima tentativa</span><p>${escaparHtml(a.proximoPasso)}</p></div>` : ""}
+        </section>`;
+    }
+
+    return `
+      <section class="english-analysis needs-work">
+        <div class="english-analysis__head">
+          <div><span>Análise da fala</span><strong>Transcrição, correção e naturalidade</strong></div>
+          <b>●</b>
+        </div>
+        ${registro.transcricao ? `<div class="english-analysis__row"><span>Você disse</span><p>${escaparHtml(registro.transcricao)}</p></div>` : ""}
+        ${a.textoCorrigido ? `<div class="english-analysis__row"><span>Forma corrigida</span><p>${escaparHtml(a.textoCorrigido)}</p></div>` : ""}
+        ${a.versaoNatural ? `<div class="english-analysis__row"><span>Forma mais natural</span><p>${escaparHtml(a.versaoNatural)}</p></div>` : ""}
+        ${a.gramatica ? `<div class="english-analysis__row"><span>Gramática</span><p>${escaparHtml(a.gramatica)}</p></div>` : ""}
+        ${a.vocabulario ? `<div class="english-analysis__row"><span>Vocabulário</span><p>${escaparHtml(a.vocabulario)}</p></div>` : ""}
+        ${a.fluencia ? `<div class="english-analysis__row"><span>Fluidez estimada</span><p>${escaparHtml(a.fluencia)}</p></div>` : ""}
+        ${a.usoConceito ? `<div class="english-analysis__row"><span>Conceito do dia</span><p>${escaparHtml(a.usoConceito)}</p></div>` : ""}
+        ${a.palavrasPraticar?.length ? `<div class="english-analysis__row"><span>Palavras para praticar</span>${listaFeedback(a.palavrasPraticar)}</div>` : ""}
+        <p class="english-analysis__disclaimer">A fluidez é estimada pela transcrição e pela duração. A análise não mede sotaque ou fonemas com precisão clínica.</p>
+      </section>`;
+  }
+
   function prepararEscrita() {
     const area = conteudo.querySelector("[data-writing-workspace]");
     if (!area) return;
+
+    const data = dataAtual();
+    const dia = estadoDoDia(data);
+    const registro = dia.escrita || null;
+    const valorInicial = registro?.rascunho ?? registro?.texto ?? lerArmazenamentoLocal(chaveEscrita(data));
 
     area.innerHTML = `
       <label class="english-writing-field">
@@ -505,33 +653,100 @@
       <div class="english-workspace-footer">
         <span class="english-word-count">0 palavras</span>
         <div class="english-workspace-actions">
+          <button class="btn small primary" type="button" data-submit-writing>Enviar para correção</button>
           <button class="btn small" type="button" data-copy-writing>Copiar</button>
           <button class="btn small" type="button" data-clear-writing>Limpar</button>
         </div>
       </div>
-      <p class="english-save-note">A resposta é salva automaticamente neste dispositivo.</p>`;
+      <p class="english-save-note" data-writing-status>O rascunho é salvo automaticamente e sincronizado na sua conta.</p>
+      <div data-writing-analysis>${htmlAnaliseEscrita(registro)}</div>`;
 
     const campo = area.querySelector("textarea");
     const contador = area.querySelector(".english-word-count");
-    campo.value = lerArmazenamentoLocal(chaveEscrita());
+    const status = area.querySelector("[data-writing-status]");
+    const analise = area.querySelector("[data-writing-analysis]");
+    campo.value = valorInicial || "";
 
-    const atualizar = () => {
+    const atualizarContador = () => {
       const quantidade = contarPalavras(campo.value);
       contador.textContent = `${quantidade} palavra${quantidade === 1 ? "" : "s"}`;
-      salvarArmazenamentoLocal(chaveEscrita(), campo.value);
+      salvarArmazenamentoLocal(chaveEscrita(data), campo.value);
     };
 
-    campo.addEventListener("input", atualizar);
+    const sincronizarRascunho = () => {
+      clearTimeout(temporizadorSalvarEscrita);
+      temporizadorSalvarEscrita = setTimeout(async () => {
+        const atual = estadoDoDia(data).escrita || {};
+        const alterouEnviado = String(atual.texto || "") !== campo.value;
+        estadoDoDia(data).escrita = {
+          ...atual,
+          rascunho: campo.value,
+          status: alterouEnviado ? "rascunho" : atual.status || "rascunho",
+          atualizadoEm: new Date().toISOString()
+        };
+        try {
+          await salvarEstadoProducoes();
+          if (dataAtual() === data && alterouEnviado) status.textContent = "Rascunho sincronizado. Envie quando terminar.";
+        } catch (erro) {
+          console.warn("Não foi possível sincronizar o rascunho.", erro);
+          if (dataAtual() === data) status.textContent = "Rascunho salvo apenas neste dispositivo.";
+        }
+      }, 850);
+    };
+
+    campo.addEventListener("input", () => {
+      atualizarContador();
+      if (String(estadoDoDia(data)?.escrita?.texto || "") !== campo.value) {
+        analise.innerHTML = "";
+      }
+      sincronizarRascunho();
+    });
     area.querySelector("[data-copy-writing]").addEventListener("click", () => copiarTexto(campo.value));
-    area.querySelector("[data-clear-writing]").addEventListener("click", () => {
-      if (!campo.value || confirm("Limpar sua resposta escrita desta data?")) {
-        campo.value = "";
-        atualizar();
+    area.querySelector("[data-submit-writing]").addEventListener("click", async evento => {
+      const texto = campo.value.trim();
+      if (contarPalavras(texto) < 4) {
+        MMCDUI.toast("Escreva pelo menos quatro palavras antes de enviar.");
         campo.focus();
+        return;
+      }
+
+      const botao = evento.currentTarget;
+      botao.disabled = true;
+      status.textContent = "Enviando para correção...";
+      estadoDoDia(data).escrita = {
+        texto,
+        rascunho: campo.value,
+        prompt: area.closest(".english-lesson-block")?.querySelector(".english-block-body")?.textContent?.trim() || "",
+        conceito: conceitoDaAula(),
+        status: "pendente",
+        criadaEm: new Date().toISOString()
+      };
+      try {
+        await salvarEstadoProducoes();
+        status.textContent = "Resposta enviada. A correção aparecerá na próxima execução da automação.";
+        analise.innerHTML = htmlAnaliseEscrita(estadoDoDia(data).escrita);
+        MMCDUI.toast("Resposta enviada para correção.");
+      } catch (erro) {
+        console.error(erro);
+        status.textContent = "Não foi possível sincronizar a resposta.";
+        MMCDUI.toast("A resposta não foi enviada.");
+      } finally {
+        botao.disabled = false;
       }
     });
+    area.querySelector("[data-clear-writing]").addEventListener("click", async () => {
+      if (campo.value && !confirm("Limpar sua resposta escrita desta data?")) return;
+      campo.value = "";
+      salvarArmazenamentoLocal(chaveEscrita(data), "");
+      delete estadoDoDia(data).escrita;
+      atualizarContador();
+      analise.innerHTML = "";
+      status.textContent = "Resposta limpa.";
+      try { await salvarEstadoProducoes(); } catch (erro) { console.warn(erro); }
+      campo.focus();
+    });
 
-    atualizar();
+    atualizarContador();
   }
 
   function abrirBancoAudio() {
@@ -541,7 +756,7 @@
         return;
       }
 
-      const requisicao = indexedDB.open("mmcd_english_audio_v1", 1);
+      const requisicao = indexedDB.open("mmcd_english_audio_v2", 1);
       requisicao.onupgradeneeded = () => {
         const banco = requisicao.result;
         if (!banco.objectStoreNames.contains("recordings")) {
@@ -553,22 +768,26 @@
     });
   }
 
-  async function salvarAudio(data, blob) {
+  function chaveAudioLocal(data, tipo) {
+    return `${data}:${tipo}`;
+  }
+
+  async function salvarAudioLocal(data, tipo, blob) {
     const banco = await abrirBancoAudio();
     await new Promise((resolve, reject) => {
       const transacao = banco.transaction("recordings", "readwrite");
-      transacao.objectStore("recordings").put(blob, data);
+      transacao.objectStore("recordings").put(blob, chaveAudioLocal(data, tipo));
       transacao.oncomplete = resolve;
       transacao.onerror = () => reject(transacao.error);
     });
     banco.close();
   }
 
-  async function carregarAudio(data) {
+  async function carregarAudioLocal(data, tipo) {
     const banco = await abrirBancoAudio();
     const resultado = await new Promise((resolve, reject) => {
       const transacao = banco.transaction("recordings", "readonly");
-      const requisicao = transacao.objectStore("recordings").get(data);
+      const requisicao = transacao.objectStore("recordings").get(chaveAudioLocal(data, tipo));
       requisicao.onsuccess = () => resolve(requisicao.result || null);
       requisicao.onerror = () => reject(requisicao.error);
     });
@@ -576,29 +795,129 @@
     return resultado;
   }
 
-  async function excluirAudio(data) {
+  async function excluirAudioLocal(data, tipo) {
     const banco = await abrirBancoAudio();
     await new Promise((resolve, reject) => {
       const transacao = banco.transaction("recordings", "readwrite");
-      transacao.objectStore("recordings").delete(data);
+      transacao.objectStore("recordings").delete(chaveAudioLocal(data, tipo));
       transacao.oncomplete = resolve;
       transacao.onerror = () => reject(transacao.error);
     });
     banco.close();
   }
 
-  function liberarUrlAudio() {
-    if (!urlAudioAtual) return;
-    URL.revokeObjectURL(urlAudioAtual);
-    urlAudioAtual = "";
+  function extensaoAudio(mime = "") {
+    const valor = mime.toLowerCase();
+    if (valor.includes("ogg")) return "ogg";
+    if (valor.includes("mp4") || valor.includes("m4a")) return "mp4";
+    if (valor.includes("mpeg") || valor.includes("mp3")) return "mp3";
+    if (valor.includes("wav")) return "wav";
+    return "webm";
   }
 
-  function exibirAudio(blob) {
-    const audio = conteudo.querySelector("[data-speaking-audio]");
-    const excluir = conteudo.querySelector("[data-delete-recording]");
+  function chaveAudioRemoto(data, tipo) {
+    return `${PREFIXO_AUDIO_REMOTO}:${data}:${tipo}`;
+  }
+
+  function blobParaBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const leitor = new FileReader();
+      leitor.onload = () => {
+        const resultado = String(leitor.result || "");
+        resolve(resultado.includes(",") ? resultado.split(",", 2)[1] : resultado);
+      };
+      leitor.onerror = () => reject(leitor.error || new Error("Falha ao ler o áudio"));
+      leitor.readAsDataURL(blob);
+    });
+  }
+
+  function base64ParaBlob(base64, mimeType = "audio/webm") {
+    const binario = atob(String(base64 || ""));
+    const bytes = new Uint8Array(binario.length);
+    for (let indice = 0; indice < binario.length; indice += 1) {
+      bytes[indice] = binario.charCodeAt(indice);
+    }
+    return new Blob([bytes], { type: mimeType });
+  }
+
+  async function excluirAudioRemoto(configKey) {
+    if (!configKey) return;
+    const { error } = await db.from("configuracoes_usuario")
+      .delete()
+      .eq("user_id", usuario.id)
+      .eq("chave", configKey);
+    if (error) throw error;
+  }
+
+  async function enviarAudioParaNuvem({ data, tipo, blob, duracao, referencia, pergunta }) {
+    const dia = estadoDoDia(data);
+    const anterior = dia.audios?.[tipo] || null;
+    const configKey = chaveAudioRemoto(data, tipo);
+    const contentType = (blob.type || "audio/webm").split(";")[0];
+    const arquivoBase64 = await blobParaBase64(blob);
+
+    const { error } = await db.from("configuracoes_usuario").upsert({
+      user_id: usuario.id,
+      chave: configKey,
+      valor: {
+        versao: 1,
+        mimeType: contentType,
+        arquivoBase64,
+        duracaoSegundos: Math.max(1, Math.round(duracao || 0)),
+        criadaEm: new Date().toISOString()
+      }
+    }, { onConflict: "user_id,chave" });
+    if (error) throw error;
+
+    if (anterior?.configKey && anterior.configKey !== configKey) {
+      excluirAudioRemoto(anterior.configKey).catch(() => undefined);
+    }
+
+    dia.audios[tipo] = {
+      configKey,
+      mimeType: contentType,
+      duracaoSegundos: Math.max(1, Math.round(duracao || 0)),
+      referencia: referencia || "",
+      pergunta: pergunta || "",
+      conceito: conceitoDaAula(),
+      status: "pendente",
+      criadaEm: new Date().toISOString()
+    };
+    await salvarEstadoProducoes();
+    return dia.audios[tipo];
+  }
+
+  async function carregarAudioRemoto(registro) {
+    if (!registro?.configKey) return null;
+    const { data, error } = await db.from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", usuario.id)
+      .eq("chave", registro.configKey)
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    const valor = data?.valor;
+    if (!valor?.arquivoBase64) return null;
+    return base64ParaBlob(valor.arquivoBase64, valor.mimeType || registro.mimeType || "audio/webm");
+  }
+
+  function liberarUrlAudio(chave = "") {
+    if (chave) {
+      const url = urlsAudio.get(chave);
+      if (url) URL.revokeObjectURL(url);
+      urlsAudio.delete(chave);
+      return;
+    }
+    for (const url of urlsAudio.values()) URL.revokeObjectURL(url);
+    urlsAudio.clear();
+  }
+
+  function exibirAudio(area, chave, blob) {
+    const audio = area.querySelector("[data-speaking-audio]");
+    const excluir = area.querySelector("[data-delete-recording]");
     if (!audio) return;
 
-    liberarUrlAudio();
+    liberarUrlAudio(chave);
     if (!blob) {
       audio.hidden = true;
       audio.removeAttribute("src");
@@ -606,8 +925,9 @@
       return;
     }
 
-    urlAudioAtual = URL.createObjectURL(blob);
-    audio.src = urlAudioAtual;
+    const url = URL.createObjectURL(blob);
+    urlsAudio.set(chave, url);
+    audio.src = url;
     audio.hidden = false;
     if (excluir) excluir.hidden = false;
   }
@@ -634,25 +954,39 @@
     gravadorAtual = null;
   }
 
-  async function prepararFala() {
-    const area = conteudo.querySelector("[data-speaking-workspace]");
+  function mimePreferido() {
+    const opcoes = ["audio/webm;codecs=opus", "audio/ogg;codecs=opus", "audio/webm", "audio/mp4"];
+    return opcoes.find(tipo => window.MediaRecorder?.isTypeSupported?.(tipo)) || "";
+  }
+
+  async function prepararGravador({ area, tipo, referencia = "", pergunta = "" }) {
     if (!area) return;
 
     const suportaGravacao = Boolean(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
+    const dataDaGravacao = dataAtual();
+    const chaveUrl = chaveAudioLocal(dataDaGravacao, tipo);
+    const registroInicial = estadoDoDia(dataDaGravacao)?.audios?.[tipo] || null;
+    const leitura = tipo === "leitura";
+
     area.innerHTML = `
       <div class="english-recorder">
+        <div class="english-recorder-intro">
+          <strong>${leitura ? "Grave a leitura do texto" : "Responda sem ler"}</strong>
+          <span>${leitura ? "A automação comparará a transcrição com o texto original." : "A automação transcreverá, corrigirá e mostrará uma forma mais natural."}</span>
+        </div>
         <div class="english-recorder-status">
           <span class="english-recorder-dot" aria-hidden="true"></span>
-          <strong data-recording-status>${suportaGravacao ? "Pronto para gravar" : "Gravação não suportada neste navegador"}</strong>
+          <strong data-recording-status>${suportaGravacao ? (registroInicial?.status === "corrigida" ? "Análise disponível" : registroInicial?.status === "pendente" ? "Aguardando análise" : "Pronto para gravar") : "Gravação não suportada neste navegador"}</strong>
           <span data-recording-time>00:00</span>
         </div>
         <div class="english-workspace-actions">
-          <button class="btn" type="button" data-start-recording ${suportaGravacao ? "" : "disabled"}>Gravar resposta</button>
+          <button class="btn" type="button" data-start-recording ${suportaGravacao ? "" : "disabled"}>${leitura ? "Gravar leitura" : "Gravar resposta"}</button>
           <button class="btn" type="button" data-stop-recording disabled>Parar</button>
           <button class="btn" type="button" data-delete-recording hidden>Excluir áudio</button>
         </div>
         <audio controls data-speaking-audio hidden></audio>
-        <p class="english-save-note">O áudio fica salvo somente neste dispositivo.</p>
+        <p class="english-save-note">Uma cópia temporária fica privada na sua conta e é apagada da nuvem após a análise. Limite de 3 minutos.</p>
+        <div data-audio-analysis>${htmlAnaliseAudio(registroInicial, tipo)}</div>
       </div>`;
 
     const iniciar = area.querySelector("[data-start-recording]");
@@ -660,31 +994,48 @@
     const excluir = area.querySelector("[data-delete-recording]");
     const status = area.querySelector("[data-recording-status]");
     const tempo = area.querySelector("[data-recording-time]");
-    const dataDaGravacao = dataAtual();
+    const analise = area.querySelector("[data-audio-analysis]");
 
     try {
-      exibirAudio(await carregarAudio(dataDaGravacao));
+      let blob = await carregarAudioLocal(dataDaGravacao, tipo);
+      if (!blob && registroInicial?.configKey) {
+        blob = await carregarAudioRemoto(registroInicial);
+        if (blob) await salvarAudioLocal(dataDaGravacao, tipo, blob).catch(() => undefined);
+      }
+      exibirAudio(area, chaveUrl, blob);
+      if (registroInicial?.configKey || registroInicial?.status === "corrigida") excluir.hidden = false;
     } catch (erro) {
       console.warn("Não foi possível recuperar o áudio salvo.", erro);
     }
 
     iniciar.addEventListener("click", async () => {
+      if (gravadorAtual?.state === "recording") {
+        MMCDUI.toast("Finalize a gravação que já está em andamento.");
+        return;
+      }
       try {
         descartarGravacaoAtual = false;
         fluxoAudioAtual = await navigator.mediaDevices.getUserMedia({ audio: true });
-        gravadorAtual = new MediaRecorder(fluxoAudioAtual);
+        const mime = mimePreferido();
+        const opcoesGravador = { audioBitsPerSecond: 32000 };
+        if (mime) opcoesGravador.mimeType = mime;
+        const gravador = new MediaRecorder(fluxoAudioAtual, opcoesGravador);
+        gravadorAtual = gravador;
         const partes = [];
         const inicioEm = Date.now();
+        let duracaoFinal = 0;
 
-        gravadorAtual.addEventListener("dataavailable", evento => {
+        gravador.addEventListener("dataavailable", evento => {
           if (evento.data?.size) partes.push(evento.data);
         });
 
-        gravadorAtual.addEventListener("stop", async () => {
+        gravador.addEventListener("stop", async () => {
+          duracaoFinal = Math.max(1, Math.round((Date.now() - inicioEm) / 1000));
           encerrarFluxoAudio();
           iniciar.disabled = false;
           parar.disabled = true;
           area.classList.remove("is-recording");
+          gravadorAtual = null;
 
           if (descartarGravacaoAtual || !partes.length) {
             descartarGravacaoAtual = false;
@@ -693,30 +1044,48 @@
             return;
           }
 
-          const blob = new Blob(partes, { type: gravadorAtual.mimeType || "audio/webm" });
+          const blob = new Blob(partes, { type: gravador.mimeType || "audio/webm" });
           try {
-            await salvarAudio(dataDaGravacao, blob);
-            if (dataAtual() === dataDaGravacao) exibirAudio(blob);
-            status.textContent = "Resposta gravada";
-            MMCDUI.toast("Áudio salvo neste dispositivo.");
+            await salvarAudioLocal(dataDaGravacao, tipo, blob);
+            if (dataAtual() === dataDaGravacao) exibirAudio(area, chaveUrl, blob);
+            status.textContent = "Sincronizando áudio...";
+            const registro = await enviarAudioParaNuvem({
+              data: dataDaGravacao,
+              tipo,
+              blob,
+              duracao: duracaoFinal,
+              referencia,
+              pergunta
+            });
+            status.textContent = "Aguardando análise";
+            analise.innerHTML = htmlAnaliseAudio(registro, tipo);
+            MMCDUI.toast("Áudio sincronizado para análise.");
           } catch (erro) {
             console.error(erro);
-            status.textContent = "Áudio gravado, mas não salvo";
+            status.textContent = "Áudio salvo apenas neste dispositivo";
+            analise.innerHTML = '<div class="english-analysis is-error"><strong>O áudio não foi sincronizado</strong><p>Verifique a conexão e grave novamente.</p></div>';
+            MMCDUI.toast("O áudio foi gravado, mas não chegou à sua conta.");
           }
         });
 
-        gravadorAtual.start();
+        gravador.start();
         area.classList.add("is-recording");
         iniciar.disabled = true;
         parar.disabled = false;
         status.textContent = "Gravando...";
         tempo.textContent = "00:00";
         intervaloGravacao = setInterval(() => {
-          tempo.textContent = formatarTempo(Math.floor((Date.now() - inicioEm) / 1000));
+          const segundos = Math.floor((Date.now() - inicioEm) / 1000);
+          tempo.textContent = formatarTempo(segundos);
+          if (segundos >= 180 && gravador.state === "recording") {
+            gravador.stop();
+            MMCDUI.toast("A gravação foi encerrada no limite de 3 minutos.");
+          }
         }, 500);
       } catch (erro) {
         console.error(erro);
         encerrarFluxoAudio();
+        gravadorAtual = null;
         status.textContent = "Não foi possível acessar o microfone";
         MMCDUI.toast("Autorize o uso do microfone para gravar sua resposta.");
       }
@@ -727,10 +1096,17 @@
     });
 
     excluir.addEventListener("click", async () => {
-      if (!confirm("Excluir o áudio desta data?")) return;
+      if (!confirm("Excluir este áudio e a análise correspondente?")) return;
+      const registro = estadoDoDia(dataDaGravacao)?.audios?.[tipo] || null;
       try {
-        await excluirAudio(dataDaGravacao);
-        exibirAudio(null);
+        if (registro?.configKey) {
+          await excluirAudioRemoto(registro.configKey);
+        }
+        await excluirAudioLocal(dataDaGravacao, tipo).catch(() => undefined);
+        delete estadoDoDia(dataDaGravacao).audios[tipo];
+        await salvarEstadoProducoes();
+        exibirAudio(area, chaveUrl, null);
+        analise.innerHTML = "";
         status.textContent = "Pronto para gravar";
         tempo.textContent = "00:00";
         MMCDUI.toast("Áudio excluído.");
@@ -741,10 +1117,26 @@
     });
   }
 
+  async function prepararLeitura() {
+    const area = conteudo.querySelector("[data-reading-workspace]");
+    const bloco = area?.closest(".english-lesson-block");
+    const referencia = bloco?.querySelector(".english-block-body")?.textContent?.replace(/\s+/g, " ").trim() || "";
+    await prepararGravador({ area, tipo: "leitura", referencia });
+  }
+
+  async function prepararFala() {
+    const area = conteudo.querySelector("[data-speaking-workspace]");
+    const bloco = area?.closest(".english-lesson-block");
+    const pergunta = bloco?.querySelector(".english-block-body")?.textContent?.replace(/\s+/g, " ").trim() || "";
+    await prepararGravador({ area, tipo: "fala", pergunta });
+  }
+
   async function prepararEspacosResposta() {
     prepararEscrita();
+    await prepararLeitura();
     await prepararFala();
   }
+
 
   function aplicarTraducoes(glossario) {
     const walker = document.createTreeWalker(
@@ -1070,6 +1462,12 @@
       MMCDUI.toast("As marcações saíram da tela, mas não sincronizaram.");
     }
   });
+
+  try {
+    await carregarEstadoProducoes();
+  } catch (erro) {
+    console.warn("Não foi possível carregar as produções de inglês.", erro);
+  }
 
   await abrir();
 })();

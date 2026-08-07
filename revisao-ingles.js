@@ -2,6 +2,7 @@
 
 (() => {
   const LIMITE = 10;
+  const LIMITE_PRODUCAO = 2;
 
   const GLOSSARIO_BASE = {
     "a": "um / uma", "an": "um / uma", "the": "o / a",
@@ -169,6 +170,10 @@
   const progressoEl = document.querySelector("#revisao-ingles-progresso");
   const resumoEl = document.querySelector("#revisao-ingles-resumo");
   const vazioEl = document.querySelector("#revisao-ingles-vazio");
+  const navegacaoEl = document.querySelector("#revisao-ingles-navegacao");
+  const producaoCardEl = document.querySelector("#revisao-producao-card");
+  const producaoListaEl = document.querySelector("#revisao-producao-lista");
+  const producaoContadorEl = document.querySelector("#revisao-producao-contador");
 
   if (!seletorData || !card || !listaEl || !window.MMCDSupabase || !window.MMCDAuth) return;
 
@@ -179,6 +184,7 @@
   let dataRenderizada = "";
   let tokenRender = 0;
   let filaSalvar = Promise.resolve();
+  let indiceAtual = 0;
 
   const esc = valor => String(valor ?? "").replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -582,22 +588,26 @@
       </div>`;
   }
 
-  function htmlProducao(dataAtual, item, resposta) {
+  function htmlProducao(dataAtual, item) {
     const producao = producaoDoDia(dataAtual, item);
-    const visivel = resposta === "nao_lembrei" || Boolean(producao?.fraseUsuario);
 
     return `
-      <div class="review-production" ${visivel ? "" : "hidden"}>
+      <article class="review-production" data-production-item="${esc(chaveItem(item))}">
+        <div class="review-production__context">
+          <span class="review-production__word">${esc(item.textoMarcado)}</span>
+          <p>${destacarAlvo(item.frase, item.textoMarcado)}</p>
+        </div>
+        ${htmlCorrecao(dataAtual, item)}
         <label>
-          <strong>Crie uma nova frase com “${esc(item.textoMarcado)}”</strong>
-          <span>Use a palavra ou expressão destacada em uma frase completa em inglês.</span>
+          <strong>Crie uma frase nova com “${esc(item.textoMarcado)}”</strong>
+          <span>Uma frase completa é suficiente. A correção aparecerá na próxima execução da automação.</span>
           <textarea rows="2" maxlength="350" data-frase-producao placeholder="Escreva sua frase em inglês...">${esc(producao?.fraseUsuario || "")}</textarea>
         </label>
         <div class="review-production__footer">
-          <span data-status-producao>${producao?.fraseUsuario ? (producao.status === "corrigida" ? "Frase já corrigida." : "Frase salva para correção amanhã.") : ""}</span>
-          <button class="btn small primary" type="button" data-salvar-frase>Salvar para corrigir amanhã</button>
+          <span data-status-producao>${producao?.fraseUsuario ? (producao.status === "corrigida" ? "Frase corrigida." : "Frase enviada para correção.") : ""}</span>
+          <button class="btn small primary" type="button" data-salvar-frase>Enviar frase</button>
         </div>
-      </div>`;
+      </article>`;
   }
 
   async function salvarFraseProducao(dataAtual, item, artigo) {
@@ -607,7 +617,7 @@
     const fraseUsuario = String(campo?.value || "").trim();
 
     if (fraseUsuario.length < 5) {
-      window.MMCDUI?.toast("Escreva uma frase completa antes de salvar.");
+      window.MMCDUI?.toast("Escreva uma frase completa antes de enviar.");
       campo?.focus();
       return;
     }
@@ -633,12 +643,12 @@
     };
 
     if (botao) botao.disabled = true;
-    if (status) status.textContent = "Salvando...";
+    if (status) status.textContent = "Enviando...";
 
     try {
       await salvarEstado();
-      if (status) status.textContent = "Frase salva. A automação vai corrigi-la na próxima manhã.";
-      window.MMCDUI?.toast("Frase salva para correção.");
+      if (status) status.textContent = "Frase enviada para correção.";
+      window.MMCDUI?.toast("Frase enviada.");
     } catch (erro) {
       console.error(erro);
       if (status) status.textContent = "Não foi possível sincronizar a frase.";
@@ -652,8 +662,69 @@
     const respondidos = itens.filter(item => respostaDoDia(dataAtual, item)).length;
     progressoEl.textContent = itens.length ? `${respondidos} de ${itens.length}` : "0 de 0";
     resumoEl.textContent = itens.length
-      ? `${itens.length} frase${itens.length === 1 ? "" : "s"} selecionada${itens.length === 1 ? "" : "s"} para hoje.`
+      ? `${itens.length} revisões curtas. A escrita aparece somente no final e para, no máximo, duas palavras esquecidas.`
       : "Marque palavras ou expressões no inglês para criar sua revisão.";
+  }
+
+  function mostrarItem(indice) {
+    const artigos = [...listaEl.querySelectorAll(".english-review-item")];
+    if (!artigos.length) {
+      navegacaoEl.hidden = true;
+      return;
+    }
+
+    indiceAtual = Math.max(0, Math.min(Number(indice) || 0, artigos.length - 1));
+    artigos.forEach((artigo, posicao) => {
+      const ativo = posicao === indiceAtual;
+      artigo.hidden = !ativo;
+      artigo.classList.toggle("is-current", ativo);
+    });
+
+    navegacaoEl.hidden = false;
+    const anterior = navegacaoEl.querySelector("[data-review-prev]");
+    const proxima = navegacaoEl.querySelector("[data-review-next]");
+    const posicao = navegacaoEl.querySelector("[data-review-position]");
+    anterior.disabled = indiceAtual === 0;
+    proxima.disabled = indiceAtual === artigos.length - 1;
+    posicao.textContent = `${indiceAtual + 1} de ${artigos.length}`;
+  }
+
+  function itensDeProducao(dataAtual, itens) {
+    const existentes = itens.filter(item => Boolean(producaoDoDia(dataAtual, item)?.fraseUsuario));
+    const chavesExistentes = new Set(existentes.map(chaveItem));
+    const esquecidos = itens.filter(item =>
+      respostaDoDia(dataAtual, item) === "nao_lembrei" && !chavesExistentes.has(chaveItem(item))
+    );
+    return [...existentes, ...esquecidos].slice(0, LIMITE_PRODUCAO);
+  }
+
+  function renderizarProducaoAtiva(dataAtual, itens = bancoAtual) {
+    if (!producaoCardEl || !producaoListaEl) return;
+    const respondidos = itens.filter(item => respostaDoDia(dataAtual, item)).length;
+
+    if (!itens.length || respondidos < itens.length) {
+      producaoCardEl.hidden = true;
+      producaoListaEl.innerHTML = "";
+      return;
+    }
+
+    const candidatos = itensDeProducao(dataAtual, itens);
+    producaoCardEl.hidden = false;
+
+    if (!candidatos.length) {
+      producaoContadorEl.textContent = "0 frases extras";
+      producaoListaEl.innerHTML = '<div class="review-production-stage__success"><strong>Você lembrou todas.</strong><span>A escrita principal da aula já é suficiente por hoje.</span></div>';
+      return;
+    }
+
+    producaoContadorEl.textContent = `${candidatos.length} de ${LIMITE_PRODUCAO}`;
+    producaoListaEl.innerHTML = candidatos.map(item => htmlProducao(dataAtual, item)).join("");
+    candidatos.forEach((item, indice) => {
+      const artigo = producaoListaEl.children[indice];
+      artigo?.querySelector("[data-salvar-frase]")?.addEventListener("click", () => {
+        salvarFraseProducao(dataAtual, item, artigo);
+      });
+    });
   }
 
   async function responder(dataAtual, item, resposta, botao) {
@@ -677,18 +748,12 @@
       btn.classList.toggle("is-active", btn.dataset.resposta === resposta);
     });
 
-    const producao = cardItem?.querySelector(".review-production");
-    if (producao) {
-      producao.hidden = resposta !== "nao_lembrei" && !producaoDoDia(dataAtual, item)?.fraseUsuario;
-      if (resposta === "nao_lembrei") {
-        setTimeout(() => cardItem.querySelector("[data-frase-producao]")?.focus(), 80);
-      }
-    }
-
     try {
       await salvarEstado();
       atualizarProgresso(dataAtual);
-      window.MMCDUI?.toast(resposta === "lembrei" ? "Boa. A frase voltará em um intervalo maior." : "Tudo bem. A frase volta amanhã.");
+      renderizarProducaoAtiva(dataAtual);
+      window.MMCDUI?.toast(resposta === "lembrei" ? "Boa. Esta frase voltará em um intervalo maior." : "Marcada para reforço. Ela volta amanhã.");
+      if (indiceAtual < bancoAtual.length - 1) mostrarItem(indiceAtual + 1);
     } catch (erro) {
       console.error(erro);
       window.MMCDUI?.toast("A resposta não foi sincronizada.");
@@ -700,6 +765,8 @@
     vazioEl.hidden = Boolean(itens.length);
     if (!itens.length) {
       card.hidden = false;
+      navegacaoEl.hidden = true;
+      producaoCardEl.hidden = true;
       atualizarProgresso(dataAtual, itens);
       return;
     }
@@ -707,25 +774,24 @@
     itens.forEach((item, indice) => {
       const resposta = respostaDoDia(dataAtual, item);
       const artigo = document.createElement("article");
+      artigo.dataset.reviewIndex = String(indice);
       artigo.className = `english-review-item ${resposta === "lembrei" ? "is-remembered" : resposta === "nao_lembrei" ? "is-forgotten" : ""}`;
       const apoio = item.apoio || [];
       artigo.innerHTML = `
         <div class="english-review-meta">
-          <span>Frase ${indice + 1} · marcada em ${esc(formatarData(item.dataOrigem))}</span>
-          <span>${esc(item.textoMarcado)}</span>
+          <span>Marcada em ${esc(formatarData(item.dataOrigem))}</span>
+          <span class="english-review-word">${esc(item.textoMarcado)}</span>
         </div>
         <p class="english-review-sentence">${destacarAlvo(item.frase, item.textoMarcado)}</p>
-        ${htmlCorrecao(dataAtual, item)}
         <div class="review-answer-row">
           <button class="btn small remember ${resposta === "lembrei" ? "is-active" : ""}" type="button" data-resposta="lembrei">✓ Lembrei</button>
           <button class="btn small forgot ${resposta === "nao_lembrei" ? "is-active" : ""}" type="button" data-resposta="nao_lembrei">✕ Não lembrei</button>
           <button class="btn small" type="button" data-ajuda>Ver apoio</button>
         </div>
         <div class="review-help" hidden>
-          <strong>Palavra ou expressão marcada:</strong> ${esc(item.textoMarcado)}
+          <strong>Palavra ou expressão:</strong> ${esc(item.textoMarcado)}
           ${apoio.length ? `<div class="review-help-list">${apoio.map(x => `<span><b>${esc(x.palavra)}</b> — ${esc(x.traducao)}</span>`).join("")}</div>` : `<p class="muted">As traduções que faltarem serão completadas quando sua frase for corrigida.</p>`}
-        </div>
-        ${htmlProducao(dataAtual, item, resposta)}`;
+        </div>`;
 
       artigo.querySelectorAll("[data-resposta]").forEach(botao => {
         botao.addEventListener("click", () => responder(dataAtual, item, botao.dataset.resposta, botao));
@@ -735,12 +801,12 @@
         ajuda.hidden = !ajuda.hidden;
         evento.currentTarget.textContent = ajuda.hidden ? "Ver apoio" : "Ocultar apoio";
       });
-      artigo.querySelector("[data-salvar-frase]")?.addEventListener("click", () => {
-        salvarFraseProducao(dataAtual, item, artigo);
-      });
       listaEl.append(artigo);
     });
 
+    const primeiraPendente = itens.findIndex(item => !respostaDoDia(dataAtual, item));
+    mostrarItem(primeiraPendente >= 0 ? primeiraPendente : 0);
+    renderizarProducaoAtiva(dataAtual, itens);
     card.hidden = false;
     atualizarProgresso(dataAtual, itens);
   }
@@ -754,6 +820,8 @@
     card.hidden = false;
     listaEl.innerHTML = '<p class="muted">Preparando sua revisão...</p>';
     vazioEl.hidden = true;
+    if (navegacaoEl) navegacaoEl.hidden = true;
+    if (producaoCardEl) producaoCardEl.hidden = true;
 
     try {
       const banco = await carregarBanco(dataAtual);
@@ -784,8 +852,11 @@
       seletorData.addEventListener("change", () => {
         dataRenderizada = "";
         bancoAtual = [];
+        indiceAtual = 0;
         renderizar();
       });
+      navegacaoEl?.querySelector("[data-review-prev]")?.addEventListener("click", () => mostrarItem(indiceAtual - 1));
+      navegacaoEl?.querySelector("[data-review-next]")?.addEventListener("click", () => mostrarItem(indiceAtual + 1));
       await renderizar();
     } catch (erro) {
       console.error(erro);
