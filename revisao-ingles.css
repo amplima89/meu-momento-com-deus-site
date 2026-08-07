@@ -348,3 +348,103 @@
   .review-production-stage__success { align-items: flex-start; flex-direction: column; }
 }
 /* MMCD_REVIEW_DECK_20260806_END */
+
+/* MMCD_REVIEW_FLOW_20260806_START */
+.review-completion {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 16px 17px;
+  border: 1px solid rgba(38, 151, 105, .28);
+  border-radius: 15px;
+  background: rgba(38, 151, 105, .07);
+}
+.review-completion[hidden] { display: none; }
+.review-completion__icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #21875f;
+  font-weight: 900;
+}
+.review-completion__body {
+  display: grid;
+  gap: 3px;
+}
+.review-completion__body strong {
+  color: var(--text, #152238);
+  font-size: 1rem;
+}
+.review-completion__body span {
+  color: var(--muted, #68768a);
+  font-size: .86rem;
+}
+.review-production__focus {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 13px;
+}
+.review-production__step {
+  width: fit-content;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: var(--accent, #2f80ed);
+  background: var(--accent-soft, rgba(47, 128, 237, .1));
+  font-size: .72rem;
+  font-weight: 850;
+}
+.review-production__instruction {
+  margin: 0;
+  color: var(--text, #152238);
+  font-size: 1.03rem;
+  line-height: 1.55;
+}
+.review-production__selection {
+  margin: 0;
+  font-size: .8rem;
+}
+.review-production__details {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line, #dbe2ea);
+  border-radius: 11px;
+  background: var(--surface, #fff);
+}
+.review-production__details summary {
+  cursor: pointer;
+  color: var(--muted, #68768a);
+  font-size: .8rem;
+  font-weight: 750;
+}
+.review-production__details p {
+  margin: 10px 0 0;
+  line-height: 1.55;
+}
+.review-production label {
+  display: grid;
+  gap: 7px;
+}
+.review-production label > span {
+  color: var(--muted, #68768a);
+  font-size: .78rem;
+  line-height: 1.45;
+}
+[data-tema="escuro"] .review-completion__body strong,
+[data-tema="escuro"] .review-production__instruction { color: #edf3fb; }
+[data-tema="escuro"] .review-production__details { background: #101b2b; }
+@media (max-width: 720px) {
+  .review-completion {
+    grid-template-columns: auto 1fr;
+  }
+  .review-completion .btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+/* MMCD_REVIEW_FLOW_20260806_END */
+.english-review-list[hidden] { display: none; }

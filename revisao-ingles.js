@@ -168,8 +168,10 @@
   const card = document.querySelector("#revisao-ingles-card");
   const listaEl = document.querySelector("#revisao-ingles-lista");
   const progressoEl = document.querySelector("#revisao-ingles-progresso");
+  const progressoRotuloEl = document.querySelector("#revisao-ingles-progresso-rotulo");
   const resumoEl = document.querySelector("#revisao-ingles-resumo");
   const vazioEl = document.querySelector("#revisao-ingles-vazio");
+  const conclusaoEl = document.querySelector("#revisao-ingles-concluida");
   const navegacaoEl = document.querySelector("#revisao-ingles-navegacao");
   const producaoCardEl = document.querySelector("#revisao-producao-card");
   const producaoListaEl = document.querySelector("#revisao-producao-lista");
@@ -185,6 +187,7 @@
   let tokenRender = 0;
   let filaSalvar = Promise.resolve();
   let indiceAtual = 0;
+  let revisaoReaberta = false;
 
   const esc = valor => String(valor ?? "").replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -588,24 +591,41 @@
       </div>`;
   }
 
-  function htmlProducao(dataAtual, item) {
+  function alvoParaProducao(item) {
+    const original = String(item?.textoMarcado || "").trim();
+    const palavras = original.match(/[A-Za-z]+(?:['’][A-Za-z]+)?/g) || [];
+    const auxiliares = new Set([
+      "a", "an", "the", "with", "without", "to", "in", "on", "at", "of", "for", "from", "by",
+      "and", "or", "but", "as", "my", "your", "his", "her", "our", "their", "this", "that"
+    ]);
+    const principais = palavras.filter(palavra => !auxiliares.has(normalizar(palavra)));
+    return principais.length === 1 ? principais[0] : original;
+  }
+
+  function htmlProducao(dataAtual, item, posicao, total) {
     const producao = producaoDoDia(dataAtual, item);
+    const alvo = alvoParaProducao(item);
+    const alvoFoiSimplificado = normalizar(alvo) !== normalizar(item.textoMarcado);
 
     return `
       <article class="review-production" data-production-item="${esc(chaveItem(item))}">
-        <div class="review-production__context">
-          <span class="review-production__word">${esc(item.textoMarcado)}</span>
-          <p>${destacarAlvo(item.frase, item.textoMarcado)}</p>
+        <div class="review-production__focus">
+          <span class="review-production__step">Frase ${posicao} de ${total}</span>
+          <p class="review-production__instruction">Use <strong>“${esc(alvo)}”</strong> em uma frase sobre a sua vida.</p>
+          ${alvoFoiSimplificado ? `<p class="muted review-production__selection">Você marcou “${esc(item.textoMarcado)}”; para praticar, vamos usar a palavra principal.</p>` : ""}
         </div>
+        <details class="review-production__details">
+          <summary>Ver a frase original</summary>
+          <p>${destacarAlvo(item.frase, item.textoMarcado)}</p>
+        </details>
         ${htmlCorrecao(dataAtual, item)}
         <label>
-          <strong>Crie uma frase nova com “${esc(item.textoMarcado)}”</strong>
           <span>Uma frase completa é suficiente. A correção aparecerá na próxima execução da automação.</span>
-          <textarea rows="2" maxlength="350" data-frase-producao placeholder="Escreva sua frase em inglês...">${esc(producao?.fraseUsuario || "")}</textarea>
+          <textarea rows="3" maxlength="350" data-frase-producao data-alvo-producao="${esc(alvo)}" placeholder="Escreva sua frase em inglês...">${esc(producao?.fraseUsuario || "")}</textarea>
         </label>
         <div class="review-production__footer">
           <span data-status-producao>${producao?.fraseUsuario ? (producao.status === "corrigida" ? "Frase corrigida." : "Frase enviada para correção.") : ""}</span>
-          <button class="btn small primary" type="button" data-salvar-frase>Enviar frase</button>
+          <button class="btn small primary" type="button" data-salvar-frase>${posicao < total ? "Enviar e continuar" : "Enviar frase"}</button>
         </div>
       </article>`;
   }
@@ -622,8 +642,9 @@
       return;
     }
 
-    if (!fraseContemAlvo(fraseUsuario, item.textoMarcado)) {
-      window.MMCDUI?.toast(`Use “${item.textoMarcado}” na frase.`);
+    const alvo = String(campo?.dataset.alvoProducao || alvoParaProducao(item));
+    if (!fraseContemAlvo(fraseUsuario, alvo)) {
+      window.MMCDUI?.toast(`Use “${alvo}” na frase.`);
       campo?.focus();
       return;
     }
@@ -649,6 +670,7 @@
       await salvarEstado();
       if (status) status.textContent = "Frase enviada para correção.";
       window.MMCDUI?.toast("Frase enviada.");
+      renderizarProducaoAtiva(dataAtual, bancoAtual);
     } catch (erro) {
       console.error(erro);
       if (status) status.textContent = "Não foi possível sincronizar a frase.";
@@ -660,10 +682,52 @@
 
   function atualizarProgresso(dataAtual, itens = bancoAtual) {
     const respondidos = itens.filter(item => respostaDoDia(dataAtual, item)).length;
-    progressoEl.textContent = itens.length ? `${respondidos} de ${itens.length}` : "0 de 0";
-    resumoEl.textContent = itens.length
-      ? `${itens.length} revisões curtas. A escrita aparece somente no final e para, no máximo, duas palavras esquecidas.`
-      : "Marque palavras ou expressões no inglês para criar sua revisão.";
+    const concluida = Boolean(itens.length) && respondidos === itens.length;
+
+    if (!itens.length) {
+      progressoEl.textContent = "0 de 0";
+      if (progressoRotuloEl) progressoRotuloEl.textContent = "Palavra atual";
+      resumoEl.textContent = "Marque palavras ou expressões no inglês para criar sua revisão.";
+      return;
+    }
+
+    if (concluida) {
+      progressoEl.textContent = `${itens.length} de ${itens.length}`;
+      if (progressoRotuloEl) progressoRotuloEl.textContent = "Revisão concluída";
+      resumoEl.textContent = "A revisão terminou. Agora pratique somente o que você esqueceu.";
+      return;
+    }
+
+    progressoEl.textContent = `${Math.min(respondidos + 1, itens.length)} de ${itens.length}`;
+    if (progressoRotuloEl) progressoRotuloEl.textContent = "Palavra atual";
+    resumoEl.textContent = "Leia a frase e escolha apenas uma resposta: lembrei ou não lembrei.";
+  }
+
+  function renderizarConclusao(dataAtual, itens = bancoAtual) {
+    if (!conclusaoEl) return;
+    const lembradas = itens.filter(item => respostaDoDia(dataAtual, item) === "lembrei").length;
+    const esquecidas = itens.filter(item => respostaDoDia(dataAtual, item) === "nao_lembrei").length;
+    const concluida = Boolean(itens.length) && lembradas + esquecidas === itens.length;
+
+    if (!concluida) {
+      conclusaoEl.hidden = true;
+      conclusaoEl.innerHTML = "";
+      return;
+    }
+
+    conclusaoEl.hidden = false;
+    conclusaoEl.innerHTML = `
+      <div class="review-completion__icon">✓</div>
+      <div class="review-completion__body">
+        <strong>Revisão concluída</strong>
+        <span>${lembradas} ${lembradas === 1 ? "lembrada" : "lembradas"} · ${esquecidas} ${esquecidas === 1 ? "para reforçar" : "para reforçar"}</span>
+      </div>
+      <button class="btn small" type="button" data-review-reopen>${revisaoReaberta ? "Ocultar respostas" : "Rever respostas"}</button>`;
+
+    conclusaoEl.querySelector("[data-review-reopen]")?.addEventListener("click", () => {
+      revisaoReaberta = !revisaoReaberta;
+      renderizarItens(dataAtual, itens);
+    });
   }
 
   function mostrarItem(indice) {
@@ -712,18 +776,27 @@
     producaoCardEl.hidden = false;
 
     if (!candidatos.length) {
-      producaoContadorEl.textContent = "0 frases extras";
+      producaoContadorEl.textContent = "Nenhuma frase extra";
       producaoListaEl.innerHTML = '<div class="review-production-stage__success"><strong>Você lembrou todas.</strong><span>A escrita principal da aula já é suficiente por hoje.</span></div>';
       return;
     }
 
-    producaoContadorEl.textContent = `${candidatos.length} de ${LIMITE_PRODUCAO}`;
-    producaoListaEl.innerHTML = candidatos.map(item => htmlProducao(dataAtual, item)).join("");
-    candidatos.forEach((item, indice) => {
-      const artigo = producaoListaEl.children[indice];
-      artigo?.querySelector("[data-salvar-frase]")?.addEventListener("click", () => {
-        salvarFraseProducao(dataAtual, item, artigo);
-      });
+    const pendentes = candidatos.filter(item => !producaoDoDia(dataAtual, item)?.fraseUsuario);
+    const concluidas = candidatos.length - pendentes.length;
+
+    if (!pendentes.length) {
+      producaoContadorEl.textContent = `${candidatos.length} de ${candidatos.length} enviadas`;
+      producaoListaEl.innerHTML = '<div class="review-production-stage__success"><strong>Prática concluída.</strong><span>Suas frases foram enviadas e aparecerão corrigidas após a próxima análise.</span></div>';
+      return;
+    }
+
+    const itemAtual = pendentes[0];
+    const posicao = concluidas + 1;
+    producaoContadorEl.textContent = `${posicao} de ${candidatos.length}`;
+    producaoListaEl.innerHTML = htmlProducao(dataAtual, itemAtual, posicao, candidatos.length);
+    const artigo = producaoListaEl.firstElementChild;
+    artigo?.querySelector("[data-salvar-frase]")?.addEventListener("click", () => {
+      salvarFraseProducao(dataAtual, itemAtual, artigo);
     });
   }
 
@@ -750,10 +823,9 @@
 
     try {
       await salvarEstado();
-      atualizarProgresso(dataAtual);
-      renderizarProducaoAtiva(dataAtual);
+      revisaoReaberta = false;
       window.MMCDUI?.toast(resposta === "lembrei" ? "Boa. Esta frase voltará em um intervalo maior." : "Marcada para reforço. Ela volta amanhã.");
-      if (indiceAtual < bancoAtual.length - 1) mostrarItem(indiceAtual + 1);
+      renderizarItens(dataAtual, bancoAtual);
     } catch (erro) {
       console.error(erro);
       window.MMCDUI?.toast("A resposta não foi sincronizada.");
@@ -767,6 +839,8 @@
       card.hidden = false;
       navegacaoEl.hidden = true;
       producaoCardEl.hidden = true;
+      if (conclusaoEl) conclusaoEl.hidden = true;
+      listaEl.hidden = false;
       atualizarProgresso(dataAtual, itens);
       return;
     }
@@ -804,8 +878,19 @@
       listaEl.append(artigo);
     });
 
-    const primeiraPendente = itens.findIndex(item => !respostaDoDia(dataAtual, item));
-    mostrarItem(primeiraPendente >= 0 ? primeiraPendente : 0);
+    const respondidos = itens.filter(item => respostaDoDia(dataAtual, item)).length;
+    const concluida = respondidos === itens.length;
+    renderizarConclusao(dataAtual, itens);
+
+    if (concluida && !revisaoReaberta) {
+      listaEl.hidden = true;
+      navegacaoEl.hidden = true;
+    } else {
+      listaEl.hidden = false;
+      const primeiraPendente = itens.findIndex(item => !respostaDoDia(dataAtual, item));
+      mostrarItem(primeiraPendente >= 0 ? primeiraPendente : 0);
+    }
+
     renderizarProducaoAtiva(dataAtual, itens);
     card.hidden = false;
     atualizarProgresso(dataAtual, itens);
@@ -853,6 +938,7 @@
         dataRenderizada = "";
         bancoAtual = [];
         indiceAtual = 0;
+        revisaoReaberta = false;
         renderizar();
       });
       navegacaoEl?.querySelector("[data-review-prev]")?.addEventListener("click", () => mostrarItem(indiceAtual - 1));
