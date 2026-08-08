@@ -62,3 +62,13 @@ html[data-tema="escuro"]{--bg:#0b0c0f;--surface:#13151a;--surface-2:#1a1d23;--te
     }
 }
 /* LS_BRAND_SIDEBAR_END */
+
+/* MMCD_SERIES_NAV_MOBILE_START */
+@media(max-width:760px){
+  .sidebar{height:70px;overflow:hidden}
+  .sidebar-nav{display:flex!important;grid-template-columns:none!important;overflow-x:auto;overflow-y:hidden;gap:4px;scrollbar-width:none;padding-bottom:2px}
+  .sidebar-nav::-webkit-scrollbar{display:none}
+  .sidebar-link{flex:0 0 54px;min-width:54px}
+  .sidebar-link__icon{width:36px;height:36px}
+}
+/* MMCD_SERIES_NAV_MOBILE_END */

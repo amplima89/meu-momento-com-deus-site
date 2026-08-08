@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <!-- LS_FAVICON_START -->
+  <link rel="icon" href="favicon.ico?v=20260804-ls2" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=20260804-ls2">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=20260804-ls2">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260804-ls2">
+  <link rel="manifest" href="site.webmanifest?v=20260804-ls2">
+  <meta name="theme-color" content="#0b1628">
+  <!-- LS_FAVICON_END -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Séries & filmes — Life Style</title>
+  <link rel="stylesheet" href="painel.css?v=20260808-series1">
+  <link rel="stylesheet" href="series.css?v=20260808-series1">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div>
+          <span class="app-topbar__title">LIFE STYLE</span>
+          <span class="app-topbar__subtitle">Séries & filmes</span>
+        </div>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+      </div>
+    </header>
+
+    <main class="app-main series-page">
+      <section class="page-header">
+        <div>
+          <p class="eyebrow">Inglês com contexto real</p>
+          <h1>Séries & filmes</h1>
+          <p class="muted series-intro">Cadastre as produções que quer usar no estudo e organize cenas com personagem, temporada, episódio, timestamp e pontos importantes.</p>
+        </div>
+        <div class="page-header__actions">
+          <button id="open-production-form" class="btn primary" type="button">+ Adicionar produção</button>
+          <button id="open-scene-form" class="btn" type="button">+ Adicionar cena</button>
+        </div>
+      </section>
+
+      <section class="series-stats" aria-label="Resumo do catálogo">
+        <article class="card series-stat"><span>Produções ativas</span><strong id="stat-active">0</strong></article>
+        <article class="card series-stat"><span>Séries</span><strong id="stat-series">0</strong></article>
+        <article class="card series-stat"><span>Filmes</span><strong id="stat-films">0</strong></article>
+        <article class="card series-stat"><span>Cenas cadastradas</span><strong id="stat-scenes">0</strong></article>
+      </section>
+
+      <section id="production-form-card" class="card section series-form-card" hidden>
+        <div class="section-head">
+          <div><p class="eyebrow">Catálogo</p><h2 id="production-form-title">Adicionar produção</h2></div>
+          <button id="close-production-form" class="icon-btn" type="button" aria-label="Fechar">×</button>
+        </div>
+        <form id="production-form">
+          <input id="production-id" type="hidden">
+          <div class="grid grid-2">
+            <label class="field"><span>Título</span><input id="production-title" required placeholder="Ex.: Suits"></label>
+            <label class="field"><span>Tipo</span><select id="production-type"><option value="serie">Série</option><option value="filme">Filme</option></select></label>
+            <label class="field"><span>Plataforma (opcional)</span><input id="production-platform" placeholder="Ex.: Netflix"></label>
+            <label class="field"><span>Prioridade de estudo</span><select id="production-priority"><option value="alta">Alta</option><option value="normal" selected>Normal</option><option value="baixa">Baixa</option></select></label>
+          </div>
+          <label class="field"><span>Por que usar no inglês? (opcional)</span><textarea id="production-notes" placeholder="Ex.: inglês corporativo, conversas naturais, vocabulário policial..."></textarea></label>
+          <label class="series-toggle"><input id="production-active" type="checkbox" checked><span>Ativa no catálogo de estudos</span></label>
+          <p id="production-form-message" class="form-message" hidden aria-live="polite"></p>
+          <div class="form-actions"><button id="cancel-production" class="btn" type="button">Cancelar</button><button class="btn primary" type="submit">Salvar produção</button></div>
+        </form>
+      </section>
+
+      <section id="scene-form-card" class="card section series-form-card" hidden>
+        <div class="section-head">
+          <div><p class="eyebrow">Cena de estudo</p><h2 id="scene-form-title">Adicionar cena</h2></div>
+          <button id="close-scene-form" class="icon-btn" type="button" aria-label="Fechar">×</button>
+        </div>
+        <form id="scene-form">
+          <input id="scene-id" type="hidden">
+          <div class="grid grid-2">
+            <label class="field"><span>Produção</span><select id="scene-production" required></select></label>
+            <label class="field"><span>Tema do estudo</span><input id="scene-topic" placeholder="Ex.: Simple Present, expressões de negociação"></label>
+            <label class="field"><span>Temporada</span><input id="scene-season" inputmode="numeric" placeholder="Ex.: 1"></label>
+            <label class="field"><span>Episódio</span><input id="scene-episode" inputmode="numeric" placeholder="Ex.: 2"></label>
+            <label class="field"><span>Início da cena</span><input id="scene-start" placeholder="Ex.: 12:40"></label>
+            <label class="field"><span>Fim da cena</span><input id="scene-end" placeholder="Ex.: 16:05"></label>
+          </div>
+          <label class="field"><span>Identificação da cena</span><input id="scene-label" placeholder="Ex.: Mike conversa com Harvey no escritório"></label>
+          <label class="field"><span>Transcrição</span><textarea id="scene-transcript" class="scene-transcript-input" placeholder="MIKE: ...
+HARVEY: ...
+MIKE: ..."></textarea></label>
+          <p class="field-help">Use uma linha por fala no formato <strong>PERSONAGEM: fala</strong>. Não é necessário áudio original.</p>
+          <label class="field"><span>Pontos importantes</span><textarea id="scene-points" placeholder="Um ponto por linha: gramática, vocabulário, pronúncia, uso natural..."></textarea></label>
+          <div class="grid grid-2">
+            <label class="field"><span>Status</span><select id="scene-status"><option value="para-estudar">Para estudar</option><option value="estudando">Estudando</option><option value="revisada">Revisada</option></select></label>
+            <label class="field"><span>Observações pessoais</span><input id="scene-notes" placeholder="Ex.: quero repetir a fala do Harvey"></label>
+          </div>
+          <p id="scene-form-message" class="form-message" hidden aria-live="polite"></p>
+          <div class="form-actions"><button id="cancel-scene" class="btn" type="button">Cancelar</button><button class="btn primary" type="submit">Salvar cena</button></div>
+        </form>
+      </section>
+
+      <section class="card section series-library">
+        <div class="series-toolbar">
+          <div>
+            <p class="eyebrow">Seu catálogo</p>
+            <h2>Produções para estudar</h2>
+          </div>
+          <div class="series-filters">
+            <input id="series-search" type="search" placeholder="Buscar produção ou tema..." aria-label="Buscar produção ou tema">
+            <select id="series-filter" aria-label="Filtrar catálogo"><option value="todas">Todas</option><option value="ativas">Ativas</option><option value="serie">Séries</option><option value="filme">Filmes</option></select>
+          </div>
+        </div>
+        <div id="series-list" class="series-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=20260803-50"></script>
+  <script src="supabase-client.js?v=20260803-50"></script>
+  <script src="auth.js?v=20260803-50"></script>
+  <script src="shell.js?v=20260808-series1"></script>
+  <script>MMCDShell("series")</script>
+  <script src="series.js?v=20260808-series1"></script>
+</body>
+</html>
