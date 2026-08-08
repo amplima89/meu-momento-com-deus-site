@@ -70,7 +70,251 @@
     if (error) throw new Error(`Não foi possível remover a meta de peso: ${error.message}`);
   }
 
+  const CHAVE_DIARIO_RAPIDO = "diario_rapido_v1";
+  const CATEGORIAS_DIARIO_RAPIDO = [
+    ["Fé", "🙏"],
+    ["Família", "❤️"],
+    ["Trabalho", "💼"],
+    ["Pessoal", "🧠"],
+    ["Saúde", "🏃"],
+    ["Desenvolvimento", "📚"]
+  ];
+
+  async function carregarDiarioRapido() {
+    const { data, error } = await db
+      .from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", currentUser.id)
+      .eq("chave", CHAVE_DIARIO_RAPIDO)
+      .maybeSingle();
+
+    if (error) throw new Error(`Não foi possível carregar o registro rápido: ${error.message}`);
+
+    const value = data?.valor;
+    return {
+      versao: 1,
+      registros: Array.isArray(value?.registros) ? value.registros : [],
+      atualizadoEm: value?.atualizadoEm || ""
+    };
+  }
+
+  async function salvarDiarioRapido() {
+    diarioRapido.atualizadoEm = new Date().toISOString();
+    // Mantém uma memória ampla sem deixar uma única configuração crescer indefinidamente.
+    diarioRapido.registros = [...diarioRapido.registros]
+      .sort((a, b) => String(b.criadoEm || b.data || "").localeCompare(String(a.criadoEm || a.data || "")))
+      .slice(0, 180);
+
+    const { error } = await db
+      .from("configuracoes_usuario")
+      .upsert({
+        user_id: currentUser.id,
+        chave: CHAVE_DIARIO_RAPIDO,
+        valor: diarioRapido
+      }, { onConflict: "user_id,chave" });
+
+    if (error) throw new Error(`Não foi possível salvar o registro rápido: ${error.message}`);
+  }
+
+  function inicioJanelaDiarioRapido() {
+    const date = new Date(today);
+    date.setDate(date.getDate() - 6);
+    return isoDate(date);
+  }
+
+  function formatarDataCurta(value) {
+    if (!value) return "";
+    const date = parseDate(value);
+    if (value === iso) return "Hoje";
+    const ontem = new Date(today);
+    ontem.setDate(ontem.getDate() - 1);
+    if (value === isoDate(ontem)) return "Ontem";
+    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  }
+
+  function registrosRecentesDiarioRapido() {
+    const inicio = inicioJanelaDiarioRapido();
+    return [...diarioRapido.registros]
+      .filter(item => item?.texto && item?.data >= inicio && item?.data <= iso)
+      .sort((a, b) => String(b.criadoEm || b.data || "").localeCompare(String(a.criadoEm || a.data || "")));
+  }
+
+  function criarPainelDiarioRapido() {
+    const missionCard = document.querySelector("#mission-card");
+    if (!missionCard || document.querySelector("#quick-journal-card")) return;
+
+    const section = document.createElement("section");
+    section.id = "quick-journal-card";
+    section.className = "card quick-journal-card";
+    section.innerHTML = `
+      <div class="section-head quick-journal-head">
+        <div>
+          <p class="eyebrow">Memória de curto prazo</p>
+          <h2>Registro rápido do dia</h2>
+          <p class="muted">Guarde em poucas linhas algo que vale lembrar. A próxima meditação poderá usar isso quando houver conexão real.</p>
+        </div>
+        <span class="quick-journal-sync">Supabase</span>
+      </div>
+
+      <div class="quick-journal-compose">
+        <textarea id="quick-journal-text" maxlength="900" rows="3" placeholder="Ex.: Adiei o estudo mesmo sabendo que precisava começar. / Tivemos uma conversa muito boa no jantar. / Treinei sem vontade e fiquei feliz por ter ido."></textarea>
+        <div class="quick-journal-categories" role="group" aria-label="Categoria do registro">
+          ${CATEGORIAS_DIARIO_RAPIDO.map(([nome, icone]) => `
+            <button class="quick-category ${nome === categoriaDiarioRapido ? "is-active" : ""}" type="button" data-quick-category="${escapeHtml(nome)}">
+              <span>${icone}</span>${escapeHtml(nome)}
+            </button>`).join("")}
+        </div>
+        <div class="quick-journal-actions">
+          <span id="quick-journal-status" class="muted">Pode registrar mais de uma coisa no mesmo dia.</span>
+          <button id="quick-journal-save" class="btn primary" type="button">Salvar registro</button>
+        </div>
+      </div>
+
+      <details class="quick-journal-history">
+        <summary>
+          <span>Últimos registros</span>
+          <span id="quick-journal-count" class="quick-journal-count">0</span>
+          <span class="quick-journal-chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <div id="quick-journal-list" class="quick-journal-list"></div>
+      </details>`;
+
+    missionCard.insertAdjacentElement("afterend", section);
+
+    section.querySelectorAll("[data-quick-category]").forEach(button => {
+      button.addEventListener("click", () => {
+        categoriaDiarioRapido = button.dataset.quickCategory || "Pessoal";
+        section.querySelectorAll("[data-quick-category]").forEach(item => {
+          item.classList.toggle("is-active", item === button);
+        });
+      });
+    });
+
+    section.querySelector("#quick-journal-save")?.addEventListener("click", salvarNovoRegistroRapido);
+    renderizarDiarioRapido();
+  }
+
+  function renderizarDiarioRapido() {
+    const list = document.querySelector("#quick-journal-list");
+    const count = document.querySelector("#quick-journal-count");
+    if (!list || !count) return;
+
+    const recentes = registrosRecentesDiarioRapido();
+    count.textContent = String(recentes.length);
+
+    if (!recentes.length) {
+      list.innerHTML = `<div class="quick-journal-empty">Nenhum registro nos últimos 7 dias. Quando algo importante acontecer, guarde em uma ou duas linhas.</div>`;
+      return;
+    }
+
+    list.innerHTML = recentes.map(item => `
+      <article class="quick-journal-entry" data-quick-id="${escapeHtml(item.id)}">
+        <div class="quick-journal-entry__meta">
+          <span>${escapeHtml(formatarDataCurta(item.data))}</span>
+          <span>${escapeHtml(item.categoria || "Pessoal")}</span>
+        </div>
+        <p>${escapeHtml(item.texto)}</p>
+        <div class="quick-journal-entry__actions">
+          <button class="text-link" type="button" data-quick-edit="${escapeHtml(item.id)}">Editar</button>
+          <button class="text-link quick-delete" type="button" data-quick-delete="${escapeHtml(item.id)}">Excluir</button>
+        </div>
+      </article>`).join("");
+
+    list.querySelectorAll("[data-quick-edit]").forEach(button => {
+      button.addEventListener("click", () => editarRegistroRapido(button.dataset.quickEdit));
+    });
+    list.querySelectorAll("[data-quick-delete]").forEach(button => {
+      button.addEventListener("click", () => excluirRegistroRapido(button.dataset.quickDelete));
+    });
+  }
+
+  async function salvarNovoRegistroRapido() {
+    const textarea = document.querySelector("#quick-journal-text");
+    const button = document.querySelector("#quick-journal-save");
+    const status = document.querySelector("#quick-journal-status");
+    const texto = String(textarea?.value || "").trim();
+
+    if (texto.length < 3) {
+      window.MMCDUI?.toast("Escreva algo antes de salvar.");
+      textarea?.focus();
+      return;
+    }
+
+    const agora = new Date().toISOString();
+    diarioRapido.registros.unshift({
+      id: crypto.randomUUID(),
+      data: iso,
+      categoria: categoriaDiarioRapido,
+      texto,
+      criadoEm: agora,
+      atualizadoEm: agora
+    });
+
+    if (button) button.disabled = true;
+    if (status) status.textContent = "Salvando no Supabase...";
+
+    try {
+      await salvarDiarioRapido();
+      if (textarea) textarea.value = "";
+      if (status) status.textContent = "Salvo. A automação poderá considerar este registro na próxima meditação.";
+      renderizarDiarioRapido();
+      window.MMCDUI?.toast("Registro salvo");
+    } catch (error) {
+      diarioRapido.registros = diarioRapido.registros.filter(item => item.criadoEm !== agora);
+      if (status) status.textContent = "Não foi possível salvar.";
+      alert(error.message);
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  async function editarRegistroRapido(id) {
+    const item = diarioRapido.registros.find(entry => entry.id === id);
+    if (!item) return;
+
+    const novoTexto = prompt("Edite o registro:", item.texto);
+    if (novoTexto === null) return;
+    const texto = novoTexto.trim();
+    if (texto.length < 3) {
+      window.MMCDUI?.toast("O registro ficou vazio e não foi alterado.");
+      return;
+    }
+
+    const anterior = item.texto;
+    item.texto = texto;
+    item.atualizadoEm = new Date().toISOString();
+
+    try {
+      await salvarDiarioRapido();
+      renderizarDiarioRapido();
+      window.MMCDUI?.toast("Registro atualizado");
+    } catch (error) {
+      item.texto = anterior;
+      alert(error.message);
+    }
+  }
+
+  async function excluirRegistroRapido(id) {
+    const item = diarioRapido.registros.find(entry => entry.id === id);
+    if (!item) return;
+    if (!confirm("Excluir este registro rápido?")) return;
+
+    const anterior = [...diarioRapido.registros];
+    diarioRapido.registros = diarioRapido.registros.filter(entry => entry.id !== id);
+
+    try {
+      await salvarDiarioRapido();
+      renderizarDiarioRapido();
+      window.MMCDUI?.toast("Registro excluído");
+    } catch (error) {
+      diarioRapido.registros = anterior;
+      alert(error.message);
+    }
+  }
+
   let metaPeso = await carregarMetaPeso();
+  let diarioRapido = await carregarDiarioRapido();
+  let categoriaDiarioRapido = "Pessoal";
 
   const weights = Object.entries(d.pesos)
     .map(([date, value]) => [date, number(value)])
@@ -127,6 +371,8 @@
       <strong>${pad(today.getDate())}</strong>
       <span>${today.toLocaleDateString("pt-BR", { month: "long" })}</span>
     </div>`;
+
+  criarPainelDiarioRapido();
 
   const due = MMCD.metasNaData(d, iso);
   const excusedToday = due.filter(item => MMCD.estaAbonada(MMCD.registro(d, iso, item.id))).length;
