@@ -1,6 +1,7 @@
 "use strict";
 
 (() => {
+  const CHAVE_CENAS_DIARIAS = "cenas_series_ingles_v1";
   const CHAVE_HISTORICO = "historico_series_ingles_v1";
 
   const esc = valor => window.MMCDUI?.esc
@@ -38,14 +39,34 @@
     return [episodio || "Episódio", trecho].filter(Boolean).join(" · ");
   }
 
-  async function lerHistorico(db, usuario) {
+  async function lerItensConfig(db, usuario, chave) {
     const { data, error } = await db.from("configuracoes_usuario")
       .select("valor")
       .eq("user_id", usuario.id)
-      .eq("chave", CHAVE_HISTORICO)
+      .eq("chave", chave)
       .maybeSingle();
     if (error) throw error;
     return Array.isArray(data?.valor?.itens) ? data.valor.itens : [];
+  }
+
+  async function carregarCenasDisponiveis(db, usuario) {
+    const [diarias, historico] = await Promise.all([
+      lerItensConfig(db, usuario, CHAVE_CENAS_DIARIAS),
+      lerItensConfig(db, usuario, CHAVE_HISTORICO)
+    ]);
+
+    const mapa = new Map();
+
+    historico.forEach(item => {
+      if (texto(item?.data)) mapa.set(texto(item.data), item);
+    });
+
+    // A sugestão diária tem prioridade sobre o histórico confirmado.
+    diarias.forEach(item => {
+      if (texto(item?.data)) mapa.set(texto(item.data), item);
+    });
+
+    return [...mapa.values()];
   }
 
   function cenaDaData(itens, data) {
@@ -59,8 +80,7 @@
       understand: document.querySelector('[data-english-step="understand"]'),
       read: document.querySelector('[data-english-step="read"]'),
       scene: document.querySelector('[data-english-step="scene"]'),
-      produce: document.querySelector('[data-english-step="produce"]'),
-      review: document.querySelector('[data-english-step="review"]')
+      produce: document.querySelector('[data-english-step="produce"]')
     };
     Object.values(mapa).forEach(item => item?.classList.remove("is-muted"));
     mapa.scene?.classList.toggle("is-muted", !cena);
@@ -253,8 +273,7 @@
           understand: '[data-lesson-kind="grammar"]',
           read: '[data-lesson-kind="reading"]',
           scene: '[data-lesson-kind="scene"]',
-          produce: '[data-lesson-kind="writing"]',
-          review: '#revisao-ingles-card'
+          produce: '[data-lesson-kind="writing"]'
         };
         document.querySelector(mapa[botao.dataset.englishStep])
           ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -274,7 +293,7 @@
 
     let cena = null;
     try {
-      const itens = await lerHistorico(db, usuario);
+      const itens = await carregarCenasDisponiveis(db, usuario);
       cena = cenaDaData(itens, data);
     } catch (erro) {
       console.warn("Não foi possível carregar a cena automática do inglês.", erro);
