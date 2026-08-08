@@ -20,12 +20,16 @@
       .toLocaleLowerCase("en-US");
 
     if (normal.includes("simple present")) return "Simple Present";
-    if (normal.includes("present perfect")) return "Present Perfect";
+    if (normal.includes("verb to be")) return "Verb to be";
+    if (normal.includes("adverbs of frequency")) return "Adverbs of frequency";
     if (normal.includes("present continuous") || normal.includes("present progressive")) return "Present Continuous";
     if (normal.includes("simple past")) return "Simple Past";
-    if (normal.includes("verb to be")) return "Verb to be";
-    if (/^\s*can\b/.test(normal) || normal.includes("modal can")) return "Can";
-    if (normal.includes("adverbs of frequency") || normal.includes("adverb of frequency")) return "Adverbs of frequency";
+    if (normal.includes("going to") || /\bwill\b/.test(normal)) return "Future — going to / will";
+    if (normal.includes("present perfect")) return "Present Perfect";
+    if (normal.includes("modal") || /\b(can|could|should|must|might)\b/.test(normal)) return "Modal verbs";
+    if (normal.includes("comparative") || normal.includes("superlative")) return "Comparatives and superlatives";
+    if (normal.includes("question") || normal.includes("auxiliar")) return "Questions and auxiliaries";
+
     return original.replace(/\s+[—–-]\s+.+$/, "").trim() || "Estrutura do dia";
   }
 
@@ -56,38 +60,38 @@
     ]);
 
     const mapa = new Map();
-
     historico.forEach(item => {
       if (texto(item?.data)) mapa.set(texto(item.data), item);
     });
-
-    // A sugestão diária tem prioridade sobre o histórico confirmado.
     diarias.forEach(item => {
       if (texto(item?.data)) mapa.set(texto(item.data), item);
     });
-
     return [...mapa.values()];
   }
 
   function cenaDaData(itens, data) {
     return itens
       .filter(item => texto(item?.data) === data)
-      .sort((a, b) => texto(b?.confirmadoEm || b?.criadoEm).localeCompare(texto(a?.confirmadoEm || a?.criadoEm)))[0] || null;
+      .sort((a, b) =>
+        texto(b?.disponibilizadaEm || b?.confirmadoEm || b?.criadoEm)
+          .localeCompare(texto(a?.disponibilizadaEm || a?.confirmadoEm || a?.criadoEm))
+      )[0] || null;
   }
 
   function sinalizarPassos(cena) {
     const mapa = {
       understand: document.querySelector('[data-english-step="understand"]'),
       read: document.querySelector('[data-english-step="read"]'),
-      scene: document.querySelector('[data-english-step="scene"]'),
-      produce: document.querySelector('[data-english-step="produce"]')
+      produce: document.querySelector('[data-english-step="produce"]'),
+      scene: document.querySelector('[data-english-step="scene"]')
     };
     Object.values(mapa).forEach(item => item?.classList.remove("is-muted"));
     mapa.scene?.classList.toggle("is-muted", !cena);
   }
 
   function atualizarResumo(container, cena) {
-    const grammarBruto = container.querySelector('[data-lesson-kind="grammar"] .english-block-main-title')?.textContent?.trim()
+    const grammarBruto =
+      container.querySelector('[data-lesson-kind="grammar"] .english-block-main-title')?.textContent?.trim()
       || container.querySelector('[data-lesson-kind="grammar"] .english-block-body')?.textContent?.trim()
       || "Estrutura do dia";
 
@@ -119,143 +123,159 @@
     const expressions = grid.querySelector('[data-lesson-kind="expressions"]');
     const writing = grid.querySelector('[data-lesson-kind="writing"]');
 
+    if (grammar) grammar.querySelector(".english-block-kicker").textContent = "1 · Entenda";
+    if (concept) concept.querySelector(".english-block-kicker").textContent = "Como funciona";
+    if (examples) examples.querySelector(".english-block-kicker").textContent = "Exemplos do foco";
+    if (reading) reading.querySelector(".english-block-kicker").textContent = "2 · Leia e pratique";
+    if (expressions) expressions.querySelector(".english-block-kicker").textContent = "Expressões úteis da leitura";
+    if (writing) writing.querySelector(".english-block-kicker").textContent = "3 · Produza";
+
     if (grammar) {
-      const kicker = grammar.querySelector(".english-block-kicker");
-      if (kicker) kicker.textContent = "1 · Entenda";
       const titulo = grammar.querySelector(".english-block-main-title");
       if (titulo) titulo.textContent = familiaGramatical(titulo.textContent);
     }
-
-    if (concept) {
-      const kicker = concept.querySelector(".english-block-kicker");
-      if (kicker) kicker.textContent = "Como funciona";
-    }
-
-    if (examples) {
-      const kicker = examples.querySelector(".english-block-kicker");
-      if (kicker) kicker.textContent = "Exemplos do foco";
-    }
-
-    if (reading) {
-      const kicker = reading.querySelector(".english-block-kicker");
-      if (kicker) kicker.textContent = "2 · Leia e pratique";
-    }
-
-    if (expressions) {
-      const kicker = expressions.querySelector(".english-block-kicker");
-      if (kicker) kicker.textContent = "Expressões úteis da leitura";
-    }
-
-    if (writing) {
-      const kicker = writing.querySelector(".english-block-kicker");
-      if (kicker) kicker.textContent = "4 · Produza";
-    }
   }
 
-  function htmlExpressoes(expressoes = []) {
-    const itens = (Array.isArray(expressoes) ? expressoes : [])
-      .filter(item => typeof item === "string" ? texto(item) : texto(item?.english))
-      .slice(0, 3);
+  function transcricaoHtml(item) {
+    const transcricao = Array.isArray(item?.transcricaoOriginal)
+      ? item.transcricaoOriginal
+      : [];
 
-    if (!itens.length) {
-      return '<p class="english-scene-empty-note">Observe o tempo verbal e a construção das frases durante a cena.</p>';
+    if (!transcricao.length) {
+      return `
+        <div class="series-study-missing">
+          <strong>Essa cena foi criada numa versão anterior.</strong>
+          <span>Rode TESTAR_LEGENDA_LOCAL.bat para selecionar o texto original do seu arquivo .srt.</span>
+        </div>`;
     }
 
-    return `<div class="english-scene-expressions">${itens.map((item, indice) => {
-      const english = typeof item === "string" ? texto(item) : texto(item.english);
-      const meaning = typeof item === "string" ? "" : texto(item.meaningPt || item.meaning_pt);
-      return `<div class="english-scene-expression">
-        <div><span>Pista ${indice + 1}</span><strong>${esc(english)}</strong></div>
-        ${meaning ? `<button class="btn small" type="button" data-scene-translation>Ver tradução</button><em data-scene-meaning hidden>${esc(meaning)}</em>` : ""}
-      </div>`;
-    }).join("")}</div>`;
+    return `<div class="series-original-transcript">${transcricao.map((fala, indice) => `
+      <article class="series-original-turn${fala?.focus ? " is-focus" : ""}">
+        <div class="series-original-speaker">
+          <span>${esc(fala?.speaker || `Speaker ${indice + 1}`)}</span>
+          ${fala?.focus ? "<b>Foco</b>" : ""}
+        </div>
+        <div class="series-original-text">
+          <p>${esc(fala?.english || "")}</p>
+          ${fala?.meaningPt ? `
+            <button type="button" class="series-translation-button" data-series-translation>Ver tradução</button>
+            <p class="series-study-translation" data-series-meaning hidden>${esc(fala.meaningPt)}</p>
+          ` : ""}
+        </div>
+      </article>
+    `).join("")}</div>`;
+  }
+
+  function expressoesHtml(item) {
+    const itens = (Array.isArray(item?.expressoes) ? item.expressoes : [])
+      .filter(x => texto(typeof x === "string" ? x : x?.english))
+      .slice(0, 3);
+
+    if (!itens.length) return "";
+
+    return `<div class="series-study-expressions">
+      ${itens.map(x => {
+        const english = texto(typeof x === "string" ? x : x.english);
+        const meaning = texto(typeof x === "string" ? "" : (x.meaningPt || x.meaning_pt));
+        return `<span><strong>${esc(english)}</strong>${meaning ? ` · ${esc(meaning)}` : ""}</span>`;
+      }).join("")}
+    </div>`;
   }
 
   function criarCena(item) {
-    const sinais = (Array.isArray(item?.sinais) ? item.sinais : []).filter(Boolean).slice(0, 3);
-    const score = Number(item?.score || 0);
-    const scoreHtml = score
-      ? `<span class="english-scene-score" title="Aderência pedagógica">${Math.max(0, Math.min(100, score))}/100</span>`
-      : "";
-
     const section = document.createElement("section");
-    section.className = "english-lesson-block english-course-block english-scene-lesson is-featured";
+    section.className = "english-lesson-block english-course-block english-scene-lesson series-reading-final";
     section.dataset.lessonKind = "scene";
+
+    const foco = familiaGramatical(item?.grammarFocus || "");
+    const contexto = texto(item?.contexto || item?.resumo);
+    const dica = texto(item?.dicaEstudo);
+    const score = Number(item?.score || 0);
+
     section.innerHTML = `
-      <header class="english-scene-head">
-        <div class="english-scene-icon" aria-hidden="true">▶</div>
-        <div class="english-scene-title">
-          <p class="english-block-kicker">3 · Assista e reconheça</p>
-          <h2>${esc(item?.titulo || "Cena sugerida")}</h2>
-          <div class="english-scene-meta">
-            <span>${esc(localizacao(item))}</span>
-            ${item?.grammarFocus ? `<span>${esc(familiaGramatical(item.grammarFocus))}</span>` : ""}
-            ${scoreHtml}
-          </div>
+      <header class="series-final-head">
+        <div>
+          <p class="english-block-kicker">4 · Série — texto original</p>
+          <h2>${esc(item?.titulo || "Série ou filme")}</h2>
+          <p class="series-final-subtitle">
+            Trecho original do arquivo de legenda que você salvou no Life Style. Leia tudo aqui; não é necessário abrir o episódio.
+          </p>
+        </div>
+        <div class="series-final-meta">
+          <span>${esc(foco)}</span>
+          ${score ? `<span>${Math.max(0, Math.min(100, score))}/100</span>` : ""}
+          ${item?.palavrasOriginal ? `<span>${esc(item.palavrasOriginal)} palavras</span>` : ""}
         </div>
       </header>
 
-      <div class="english-block-body english-scene-body">
-        ${item?.motivo ? `<div class="english-scene-why"><span>Por que esta cena</span><p>${esc(item.motivo)}</p></div>` : ""}
-        ${item?.resumo ? `<p class="english-scene-summary">${esc(item.resumo)}</p>` : ""}
+      ${contexto ? `<div class="series-context"><span>Contexto</span><p>${esc(contexto)}</p></div>` : ""}
 
-        <div class="english-scene-study-grid">
-          <section>
-            <span class="english-scene-mini-title">O que reconhecer</span>
-            ${sinais.length
-              ? `<ul>${sinais.map(sinal => `<li>${esc(sinal)}</li>`).join("")}</ul>`
-              : `<p>Procure ${esc(familiaGramatical(item?.grammarFocus || "a estrutura de hoje"))} em uso natural, sem tentar traduzir cada frase.</p>`}
-          </section>
-          <section>
-            <span class="english-scene-mini-title">Pistas curtas da cena</span>
-            ${htmlExpressoes(item?.expressoes)}
-          </section>
+      <section class="series-dialogue-section">
+        <div class="series-section-heading">
+          <div>
+            <span>Texto original da legenda</span>
+            <strong>Leia a cena em inglês</strong>
+          </div>
+          <small>O inglês abaixo vem do seu arquivo .srt. As traduções ficam escondidas.</small>
         </div>
+        ${transcricaoHtml(item)}
+      </section>
 
-        <div class="english-scene-method">
-          <span class="english-scene-mini-title">Como estudar este trecho</span>
-          <ol>
-            <li><b>Assista uma vez.</b> Entenda o contexto sem interromper.</li>
-            <li><b>Assista de novo.</b> Procure o tempo verbal trabalhado hoje.</li>
-            <li><b>Faça sua versão.</b> Explique com suas palavras o que entendeu.</li>
-          </ol>
+      <section class="series-after-reading">
+        <div>
+          <span class="series-mini-label">O foco hoje</span>
+          <strong>${esc(foco)}</strong>
+          <p>As falas marcadas com <b>Foco</b> foram identificadas dentro do texto original como bons exemplos da estrutura estudada.</p>
         </div>
-
-        <p class="english-scene-source">Timestamp aproximado; pode variar entre versões da plataforma. A IA escolheu a cena a partir de legenda inglesa real.</p>
-      </div>
-
-      <div class="english-response-workspace english-scene-speaking" data-speaking-workspace>
-        <div class="english-scene-speaking-intro">
-          <strong>Speaking da cena</strong>
-          <span>Depois de assistir, grave de 30 a 90 segundos. Não repita o diálogo: conte o que entendeu com o inglês que você já consegue usar.</span>
+        <div>
+          <span class="series-mini-label">Expressões para guardar</span>
+          ${expressoesHtml(item) || "<p>Nenhuma expressão extra necessária.</p>"}
         </div>
-      </div>`;
+      </section>
+
+      <section class="series-read-aloud">
+        <div>
+          <span class="series-mini-label">Leitura em voz alta</span>
+          <strong>Agora releia a cena em voz alta, seguindo os falantes.</strong>
+          <p>${esc(dica || "Primeiro leia o texto inteiro sem tradução; depois abra apenas as falas que você não entendeu e releia em voz alta.")}</p>
+        </div>
+      </section>
+
+      <details class="series-origin">
+        <summary>Referência da cena original</summary>
+        <div>
+          <strong>${esc(item?.titulo || "")}</strong>
+          <span>${esc(localizacao(item))}</span>
+          ${item?.arquivoLegenda ? `<span>${esc(item.arquivoLegenda)}</span>` : ""}
+          <p>O texto acima já é o conteúdo do seu arquivo local. Use episódio/timestamp apenas se depois quiser assistir à cena.</p>
+        </div>
+      </details>
+    `;
 
     return section;
   }
 
   function criarCenaVazia() {
     const section = document.createElement("section");
-    section.className = "english-lesson-block english-course-block english-scene-lesson is-empty";
+    section.className = "english-lesson-block english-course-block english-scene-lesson series-reading-final is-empty";
     section.dataset.lessonKind = "scene";
     section.innerHTML = `
-      <header class="english-scene-head">
-        <div class="english-scene-icon" aria-hidden="true">▶</div>
-        <div class="english-scene-title">
-          <p class="english-block-kicker">3 · Assista e reconheça</p>
-          <h2>Sem cena selecionada para esta data</h2>
+      <header class="series-final-head">
+        <div>
+          <p class="english-block-kicker">4 · Série — leitura final</p>
+          <h2>Sem roteiro de série para esta data</h2>
+          <p class="series-final-subtitle">
+            O restante da aula continua normalmente. Quando uma cena for aprovada, o roteiro de leitura aparecerá aqui.
+          </p>
         </div>
-      </header>
-      <div class="english-block-body english-scene-body">
-        <p class="english-scene-summary">A aula continua completa. A série só aparece quando a rotina encontra uma legenda e a IA aprova um trecho para a família gramatical do dia.</p>
-      </div>`;
+      </header>`;
     return section;
   }
 
-  function ligarTraducoesCena(section) {
-    section.querySelectorAll("[data-scene-translation]").forEach(botao => {
+  function ligarTraducoes(section) {
+    section.querySelectorAll("[data-series-translation]").forEach(botao => {
       botao.addEventListener("click", () => {
-        const significado = botao.parentElement?.querySelector("[data-scene-meaning]");
+        const significado = botao.parentElement?.querySelector("[data-series-meaning]");
         if (!significado) return;
         const abrir = significado.hidden;
         significado.hidden = !abrir;
@@ -272,8 +292,8 @@
         const mapa = {
           understand: '[data-lesson-kind="grammar"]',
           read: '[data-lesson-kind="reading"]',
-          scene: '[data-lesson-kind="scene"]',
-          produce: '[data-lesson-kind="writing"]'
+          produce: '[data-lesson-kind="writing"]',
+          scene: '[data-lesson-kind="scene"]'
         };
         document.querySelector(mapa[botao.dataset.englishStep])
           ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -284,8 +304,8 @@
   async function render({ container, data, db, usuario }) {
     if (!container || !data || !db || !usuario) return null;
 
-    document.body.classList.remove("english-v6");
-    document.body.classList.add("english-v7");
+    document.body.classList.remove("english-v6", "english-v7");
+    document.body.classList.add("english-v10");
     ligarRota();
 
     container.querySelector('[data-lesson-kind="scene"]')?.remove();
@@ -303,7 +323,7 @@
     if (grid) {
       const section = cena ? criarCena(cena) : criarCenaVazia();
       grid.append(section);
-      ligarTraducoesCena(section);
+      ligarTraducoes(section);
     }
 
     atualizarResumo(container, cena);
