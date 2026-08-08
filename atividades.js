@@ -225,6 +225,13 @@
     }
   }
 
+  function definirTodosOsGrupos(abertos) {
+    document.querySelectorAll("[data-daily-group]").forEach(painel => {
+      painel.open = abertos;
+      salvarEstadoGrupo(painel.dataset.dailyGroup, abertos);
+    });
+  }
+
   function renderGoal(meta) {
     const row = MMCD.registro(d, selected, meta.id);
     const excused = MMCD.estaAbonada(row);
@@ -284,10 +291,15 @@
         return !MMCD.estaAbonada(row) && !!row?.concluida;
       }).length;
       const abonadas = metasOrdenadas.filter(meta => MMCD.estaAbonada(MMCD.registro(d, selected, meta.id))).length;
+      const validas = metasOrdenadas.length - abonadas;
+      const percentual = validas > 0 ? Math.round((concluidas / validas) * 100) : null;
       const abertas = grupoAberto(grupo);
       const status = abonadas
-        ? `${concluidas} concluída${concluidas === 1 ? "" : "s"} · ${abonadas} abonada${abonadas === 1 ? "" : "s"}`
+        ? (validas > 0
+            ? `${concluidas} de ${validas} válidas · ${abonadas} abonada${abonadas === 1 ? "" : "s"}`
+            : `Tudo abonado · ${abonadas} atividade${abonadas === 1 ? "" : "s"}`)
         : `${concluidas} de ${metasOrdenadas.length}`;
+      const percentualLabel = percentual === null ? "—" : `${percentual}%`;
 
       return `
         <details class="daily-group" data-daily-group="${MMCDUI.esc(grupo)}" ${abertas ? "open" : ""}>
@@ -296,7 +308,10 @@
               <strong>${MMCDUI.esc(grupo)}</strong>
               <small>${MMCDUI.esc(status)}</small>
             </span>
-            <span class="daily-group-chevron" aria-hidden="true">⌄</span>
+            <span class="daily-group-summary-right">
+              <span class="daily-group-percent ${percentual === 100 ? "is-complete" : ""}" title="Atingimento do grupo">${MMCDUI.esc(percentualLabel)}</span>
+              <span class="daily-group-chevron" aria-hidden="true">⌄</span>
+            </span>
           </summary>
           <div class="daily-group-items">${metasOrdenadas.map(renderGoal).join("")}</div>
         </details>`;
@@ -339,6 +354,8 @@
   };
   $("#go-today").onclick = gotoToday;
   $("#panel-today").onclick = gotoToday;
+  $("#expand-all-groups").onclick = () => definirTodosOsGrupos(true);
+  $("#collapse-all-groups").onclick = () => definirTodosOsGrupos(false);
 
   $("#day-weight").onchange = async event => {
     const previous = d.pesos[selected];
