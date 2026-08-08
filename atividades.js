@@ -199,6 +199,58 @@
     await saveGoalChange(goalId, previousState, "Atividade abonada");
   }
 
+  const compararTexto = (a, b) => String(a || "").localeCompare(String(b || ""), "pt-BR", { sensitivity: "base", numeric: true });
+
+  function nomeGrupo(meta) {
+    return String(meta?.categoria || "").trim() || "Sem grupo";
+  }
+
+  function chaveGrupo(nome) {
+    return `mmcd_activity_group:${String(nome || "").toLocaleLowerCase("pt-BR")}`;
+  }
+
+  function grupoAberto(nome) {
+    try {
+      return window.localStorage?.getItem(chaveGrupo(nome)) !== "closed";
+    } catch {
+      return true;
+    }
+  }
+
+  function salvarEstadoGrupo(nome, aberto) {
+    try {
+      window.localStorage?.setItem(chaveGrupo(nome), aberto ? "open" : "closed");
+    } catch {
+      // O painel continua funcionando mesmo sem armazenamento local.
+    }
+  }
+
+  function renderGoal(meta) {
+    const row = MMCD.registro(d, selected, meta.id);
+    const excused = MMCD.estaAbonada(row);
+    const done = !excused && !!row?.concluida;
+    const reason = excused ? MMCD.motivoAbono(row) : "";
+    const color = meta.cor || "#2563eb";
+    return `
+      <article class="daily-goal ${done ? "is-done" : ""} ${excused ? "is-excused" : ""}">
+        <span class="daily-goal-icon" style="color:${color};background:${color}14">${MMCDUI.esc(meta.icone || "✓")}</span>
+        <div class="daily-goal-copy">
+          <div class="daily-goal-title">
+            <strong>${MMCDUI.esc(meta.nome || "Atividade")}</strong>
+            ${excused ? '<span class="excuse-badge">Abonada</span>' : ""}
+          </div>
+          <small>${MMCDUI.esc(meta.descricao || "Marque somente quando realmente cumprir.")}</small>
+          ${reason ? `<small class="excuse-reason">Motivo: ${MMCDUI.esc(reason)}</small>` : ""}
+        </div>
+        <div class="daily-goal-actions">
+          <button class="daily-excuse ${excused ? "active" : ""}" data-action="excuse" data-goal="${meta.id}" aria-label="${excused ? "Remover abono" : "Abonar"} ${MMCDUI.esc(meta.nome || "atividade")}" title="${excused ? "Remover abono" : "Registrar abono"}">
+            <span aria-hidden="true">A</span><span>${excused ? "Abonado" : "Abonar"}</span>
+          </button>
+          <button class="daily-check ${done ? "done" : ""}" data-action="check" data-goal="${meta.id}" aria-label="${done ? "Desmarcar" : "Marcar"} atividade" ${excused ? "disabled" : ""}>${done ? "✓" : ""}</button>
+        </div>
+      </article>`;
+  }
+
   function renderDay() {
     const date = parseDate(selected);
     const dayStats = stats(selected);
@@ -215,31 +267,44 @@
     $("#day-progress-label").textContent = progressLabel;
     $("#day-progress-bar").style.width = `${dayStats.pct ?? 0}%`;
 
-    $("#daily-goals").innerHTML = dayStats.goals.map(meta => {
-      const row = MMCD.registro(d, selected, meta.id);
-      const excused = MMCD.estaAbonada(row);
-      const done = !excused && !!row?.concluida;
-      const reason = excused ? MMCD.motivoAbono(row) : "";
-      const color = meta.cor || "#2563eb";
+    const grupos = new Map();
+    for (const meta of dayStats.goals) {
+      const grupo = nomeGrupo(meta);
+      if (!grupos.has(grupo)) grupos.set(grupo, []);
+      grupos.get(grupo).push(meta);
+    }
+
+    const gruposOrdenados = [...grupos.entries()]
+      .sort(([grupoA], [grupoB]) => compararTexto(grupoA, grupoB));
+
+    $("#daily-goals").innerHTML = gruposOrdenados.map(([grupo, metas]) => {
+      const metasOrdenadas = [...metas].sort((a, b) => compararTexto(a.nome, b.nome));
+      const concluidas = metasOrdenadas.filter(meta => {
+        const row = MMCD.registro(d, selected, meta.id);
+        return !MMCD.estaAbonada(row) && !!row?.concluida;
+      }).length;
+      const abonadas = metasOrdenadas.filter(meta => MMCD.estaAbonada(MMCD.registro(d, selected, meta.id))).length;
+      const abertas = grupoAberto(grupo);
+      const status = abonadas
+        ? `${concluidas} concluída${concluidas === 1 ? "" : "s"} · ${abonadas} abonada${abonadas === 1 ? "" : "s"}`
+        : `${concluidas} de ${metasOrdenadas.length}`;
+
       return `
-        <article class="daily-goal ${done ? "is-done" : ""} ${excused ? "is-excused" : ""}">
-          <span class="daily-goal-icon" style="color:${color};background:${color}14">${MMCDUI.esc(meta.icone || "✓")}</span>
-          <div class="daily-goal-copy">
-            <div class="daily-goal-title">
-              <strong>${MMCDUI.esc(meta.nome || "Atividade")}</strong>
-              ${excused ? '<span class="excuse-badge">Abonada</span>' : ""}
-            </div>
-            <small>${MMCDUI.esc(meta.descricao || "Marque somente quando realmente cumprir.")}</small>
-            ${reason ? `<small class="excuse-reason">Motivo: ${MMCDUI.esc(reason)}</small>` : ""}
-          </div>
-          <div class="daily-goal-actions">
-            <button class="daily-excuse ${excused ? "active" : ""}" data-action="excuse" data-goal="${meta.id}" aria-label="${excused ? "Remover abono" : "Abonar"} ${MMCDUI.esc(meta.nome || "atividade")}" title="${excused ? "Remover abono" : "Registrar abono"}">
-              <span aria-hidden="true">A</span><span>${excused ? "Abonado" : "Abonar"}</span>
-            </button>
-            <button class="daily-check ${done ? "done" : ""}" data-action="check" data-goal="${meta.id}" aria-label="${done ? "Desmarcar" : "Marcar"} atividade" ${excused ? "disabled" : ""}>${done ? "✓" : ""}</button>
-          </div>
-        </article>`;
+        <details class="daily-group" data-daily-group="${MMCDUI.esc(grupo)}" ${abertas ? "open" : ""}>
+          <summary class="daily-group-summary">
+            <span class="daily-group-heading">
+              <strong>${MMCDUI.esc(grupo)}</strong>
+              <small>${MMCDUI.esc(status)}</small>
+            </span>
+            <span class="daily-group-chevron" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="daily-group-items">${metasOrdenadas.map(renderGoal).join("")}</div>
+        </details>`;
     }).join("") || '<div class="empty-day">Nenhuma meta programada para este dia.</div>';
+
+    document.querySelectorAll("[data-daily-group]").forEach(painel => {
+      painel.addEventListener("toggle", () => salvarEstadoGrupo(painel.dataset.dailyGroup, painel.open));
+    });
 
     document.querySelectorAll('[data-action="check"]').forEach(button => {
       button.onclick = () => toggleGoal(button);

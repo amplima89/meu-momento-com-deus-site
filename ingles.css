@@ -130,6 +130,7 @@ html[data-tema="escuro"] .english-lesson-block{box-shadow:0 10px 28px rgba(0,0,0
 }
 .english-analysis__row p,
 .english-analysis__row ul { margin: 0; line-height: 1.55; }
+.english-analysis__row p { white-space: pre-line; }
 .english-analysis__row ul { padding-left: 19px; }
 .english-analysis__disclaimer {
   margin: 0;
@@ -146,3 +147,23 @@ html[data-tema="escuro"] .english-lesson-block{box-shadow:0 10px 28px rgba(0,0,0
   .english-analysis__head { gap: 9px; }
 }
 /* MMCD_ENGLISH_ANALYSIS_20260806_END */
+
+/* Fase 1 — vocabulario + estruturas fundamentais — 2026-08-07 */
+.english-pattern-guide{display:grid;gap:9px}
+.english-phase-badge{justify-self:start;display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:800 .68rem/1 Inter,"Segoe UI",sans-serif;text-transform:uppercase;letter-spacing:.06em}
+.english-pattern-row{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.english-pattern-row>span,.english-pattern-model>span{color:var(--muted);font:800 .73rem/1.2 Inter,"Segoe UI",sans-serif;text-transform:uppercase;letter-spacing:.045em}
+.english-pattern-row strong{font-size:1.02rem}
+.english-pattern-model{padding:10px 12px;border-radius:12px;background:var(--surface-2)}
+.english-pattern-model p{margin:5px 0 0!important;font-size:1.06rem;font-weight:800}
+.english-pattern-help{margin:2px 0 0!important;color:var(--muted);font:600 .8rem/1.45 Inter,"Segoe UI",sans-serif}
+.english-drill-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.english-drill-head strong{font-size:.9rem}
+.english-drill-head span{color:var(--muted);font-size:.75rem}
+.english-drill-list{display:grid;gap:9px}
+.english-drill-item{display:grid;grid-template-columns:minmax(90px,.34fr) minmax(0,1fr);align-items:center;gap:10px}
+.english-drill-item>span{display:flex;align-items:center;gap:8px;color:var(--text);font-size:.8rem;font-weight:800}
+.english-drill-item>span b{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:.7rem}
+.english-drill-item input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.english-drill-item input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+@media(max-width:680px){.english-pattern-row{grid-template-columns:1fr;gap:4px}.english-drill-head{align-items:flex-start;flex-direction:column;gap:4px}.english-drill-item{grid-template-columns:1fr}.english-workspace-footer{align-items:flex-start;flex-direction:column}}

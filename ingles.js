@@ -6,6 +6,7 @@
   const usuario = session.user;
   const db = window.MMCDSupabase;
   const CHAVE_PRODUCOES = "ingles_producoes_v1";
+  const CHAVE_ESTRUTURAS = "ingles_estruturas_v1";
   const PREFIXO_AUDIO_REMOTO = "ingles_audio_v1";
   const seletor = document.querySelector("#ingles-data");
   const conteudo = document.querySelector("#ingles-conteudo");
@@ -310,6 +311,8 @@
   let estadoProducoes = { versao: 1, dias: {}, atualizadoEm: "" };
   let filaSalvarProducoes = Promise.resolve();
   let temporizadorSalvarEscrita = null;
+  let estadoEstruturas = null;
+  let filaSalvarEstruturas = Promise.resolve();
 
   function identificarTituloInterno(linha = "") {
     const encontrado = String(linha).match(/^\s*\*\*(.+?)\*\*\s*:?[ \t]*(.*?)\s*$/);
@@ -354,35 +357,57 @@
     return { blocos, introducao: introducao.join("\n").trim() };
   }
 
+  function extrairPraticaEstruturada(texto = "") {
+    const original = String(texto).replace(/\r\n/g, "\n");
+    const obter = rotulo => {
+      const match = original.match(new RegExp(`^\\s*\\*\\*${rotulo}:\\*\\*\\s*(.+?)\\s*$`, "im"));
+      return match?.[1]?.trim() || "";
+    };
+    const pattern = obter("Pattern");
+    const meaning = obter("Meaning");
+    const model = obter("Model");
+    const linhas = original.split("\n");
+    const inicioPrompts = linhas.findIndex(linha => /^\s*\*\*Prompts:\*\*\s*$/i.test(linha));
+    const prompts = [];
+    if (inicioPrompts >= 0) {
+      for (const linha of linhas.slice(inicioPrompts + 1)) {
+        const item = linha.match(/^\s*[-*]\s+(.+?)\s*$/);
+        if (!item) {
+          if (linha.trim()) break;
+          continue;
+        }
+        prompts.push(item[1].replace(/[*_`]/g, "").trim());
+        if (prompts.length >= 5) break;
+      }
+    }
+    if (!pattern || !meaning || !model || prompts.length < 5) return null;
+    return { pattern, meaning, model, prompts: prompts.slice(0, 5), origem: "gerada" };
+  }
+
+  function praticaFundamentalFallback() {
+    return {
+      pattern: "I like to eat ___.",
+      meaning: "Eu gosto de comer ___.",
+      model: "I like to eat fruit.",
+      prompts: ["fruta", "carne", "queijo", "arroz", "ovos"],
+      origem: "fundacao"
+    };
+  }
+
   function completarAulaLegada(aula) {
     const tipos = new Set(aula.blocos.map(bloco => bloco.tipo));
-    const praticaRapida = aula.blocos.find(bloco => bloco.tipo === "quick");
-    const pergunta = praticaRapida?.conteudo || praticaRapida?.valor || "Answer the question from today's lesson.";
+    let escrita = aula.blocos.find(bloco => bloco.tipo === "writing");
 
-    if (!tipos.has("writing")) {
-      aula.blocos.push({
-        tipo: "writing",
-        titulo: "Prática de escrita",
-        icone: "✎",
-        valor: "",
-        conteudo: `Write 4 to 6 sentences in English answering this question: ${pergunta} Use at least one useful expression from the lesson.`
-      });
+    if (!escrita) {
+      escrita = { tipo: "writing", titulo: "Prática de escrita", icone: "✎", valor: "", conteudo: "" };
+      aula.blocos.push(escrita);
     }
 
-    if (!tipos.has("speaking")) {
-      aula.blocos.push({
-        tipo: "speaking",
-        titulo: "Prática de fala",
-        icone: "●",
-        valor: "",
-        conteudo: `Answer the same question without reading. Speak for 45 to 60 seconds and use at least one useful expression from the lesson.`
-      });
-    }
+    escrita.pratica = extrairPraticaEstruturada(escrita.conteudo) || praticaFundamentalFallback();
+    escrita.legada = !extrairPraticaEstruturada(escrita.conteudo);
 
-    if (praticaRapida) {
-      aula.blocos = aula.blocos.filter(bloco => bloco !== praticaRapida);
-    }
-
+    // Fase 1: leitura, vocabulário e escrita estruturada. A fala volta em uma etapa futura.
+    aula.blocos = aula.blocos.filter(bloco => bloco.tipo !== "speaking" && bloco.tipo !== "quick");
     return aula;
   }
 
@@ -415,13 +440,24 @@
     const tituloPrincipal = bloco.valor
       ? `<h2 class="english-block-main-title">${renderizarInline(bloco.valor)}</h2>`
       : "";
-    const resposta = bloco.tipo === "writing"
-      ? '<div class="english-response-workspace" data-writing-workspace></div>'
-      : bloco.tipo === "reading"
-        ? '<div class="english-response-workspace english-reading-recorder" data-reading-workspace></div>'
-        : bloco.tipo === "speaking"
-          ? '<div class="english-response-workspace" data-speaking-workspace></div>'
-          : "";
+
+    let corpo = renderizarFragmento(bloco.conteudo);
+    let resposta = "";
+
+    if (bloco.tipo === "writing") {
+      const pratica = bloco.pratica || praticaFundamentalFallback();
+      corpo = `
+        <div class="english-pattern-guide">
+          ${bloco.legada ? '<span class="english-phase-badge">Reforço de base</span>' : '<span class="english-phase-badge">Estrutura do dia</span>'}
+          <div class="english-pattern-row"><span>Estrutura</span><strong>${renderizarInline(pratica.pattern)}</strong></div>
+          <div class="english-pattern-row"><span>Significado</span><strong>${escaparHtml(pratica.meaning)}</strong></div>
+          <div class="english-pattern-model"><span>Modelo</span><p>${renderizarInline(pratica.model)}</p></div>
+          <p class="english-pattern-help">Escreva a frase completa 5 vezes. Mude somente a palavra indicada.</p>
+        </div>`;
+      resposta = `<div class="english-response-workspace" data-writing-workspace data-pattern="${escaparHtml(pratica.pattern)}" data-meaning="${escaparHtml(pratica.meaning)}" data-model="${escaparHtml(pratica.model)}" data-prompts="${escaparHtml(JSON.stringify(pratica.prompts))}" data-origin="${escaparHtml(pratica.origem || "gerada")}"></div>`;
+    } else if (bloco.tipo === "reading") {
+      resposta = '<div class="english-response-workspace english-reading-recorder" data-reading-workspace></div>';
+    }
 
     return `
       <section class="${classe}" data-lesson-kind="${bloco.tipo}">
@@ -432,7 +468,7 @@
             ${tituloPrincipal}
           </div>
         </header>
-        <div class="english-block-body">${renderizarFragmento(bloco.conteudo)}</div>
+        <div class="english-block-body">${corpo}</div>
         ${resposta}
       </section>`;
   }
@@ -448,7 +484,7 @@
     }
 
     const aula = completarAulaLegada(extrairBlocosDaAula(texto));
-    const nota = '<div class="practice-note"><strong>Como usar:</strong> leia em voz alta, selecione em azul as palavras que quer estudar, escreva sua resposta e finalize com o áudio sem ler.</div>';
+    const nota = '<div class="practice-note"><strong>Fase 1:</strong> leia, grave a leitura, selecione em azul as palavras que quer guardar e pratique uma estrutura simples em 5 frases curtas.</div>';
 
     if (!aula.blocos.length) {
       return nota + renderizarFragmento(texto);
@@ -524,6 +560,88 @@
     return filaSalvarProducoes;
   }
 
+  async function carregarBancoEstruturas() {
+    if (estadoEstruturas) return estadoEstruturas;
+    const { data, error } = await db.from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", usuario.id)
+      .eq("chave", CHAVE_ESTRUTURAS)
+      .maybeSingle();
+    if (error) throw error;
+    const valor = data?.valor;
+    estadoEstruturas = {
+      versao: 1,
+      itens: valor?.itens && typeof valor.itens === "object" ? valor.itens : {},
+      atualizadoEm: valor?.atualizadoEm || ""
+    };
+    return estadoEstruturas;
+  }
+
+  function valorDoPromptEmPortugues(prompt = "") {
+    const texto = String(prompt).trim();
+    if (!texto) return "";
+    const partes = texto.split(/\s*(?:→|=>|=|\|)\s*/).filter(Boolean);
+    return (partes[0] || texto).trim();
+  }
+
+  function preencherModelo(modelo = "", valor = "") {
+    const base = String(modelo).trim();
+    const complemento = String(valor).trim();
+    if (!base) return complemento;
+    if (/_{2,}/.test(base)) return base.replace(/_{2,}/, complemento);
+    if (/\.{3,}/.test(base)) return base.replace(/\.{3,}/, complemento);
+    return base;
+  }
+
+  function criarCartoesEstrutura(pratica, linhas = []) {
+    if (!pratica?.meaning || !Array.isArray(linhas)) return [];
+    const prompts = Array.isArray(pratica.prompts) ? pratica.prompts : [];
+    return linhas.slice(0, 5).map((linha, indice) => {
+      const resposta = String(linha || "").trim();
+      const promptPt = valorDoPromptEmPortugues(prompts[indice] || "");
+      const frente = preencherModelo(pratica.meaning, promptPt);
+      if (!resposta || !frente || /_{2,}/.test(frente)) return null;
+      return {
+        indice: indice + 1,
+        frente,
+        resposta,
+        dica: promptPt
+      };
+    }).filter(Boolean);
+  }
+
+  async function registrarEstruturaDaAula(data, pratica, cartoes = null) {
+    if (!data || !pratica?.pattern || !pratica?.meaning || !pratica?.model) return;
+    await carregarBancoEstruturas();
+    const grammar = pratica.origem === "fundacao"
+      ? "Reforço de base — like + food"
+      : conteudo.querySelector('[data-lesson-kind="grammar"] .english-block-main-title')?.textContent?.trim() || "Estrutura fundamental";
+    const anterior = estadoEstruturas.itens[data];
+    const proximo = {
+      dataOrigem: data,
+      grammar,
+      pattern: pratica.pattern,
+      meaning: pratica.meaning,
+      model: pratica.model,
+      prompts: Array.isArray(pratica.prompts) ? pratica.prompts.slice(0, 5) : [],
+      cartoes: Array.isArray(cartoes) && cartoes.length ? cartoes.slice(0, 5) : (Array.isArray(anterior?.cartoes) ? anterior.cartoes : [])
+    };
+    if (anterior && JSON.stringify(anterior) === JSON.stringify(proximo)) return;
+    estadoEstruturas.itens[data] = proximo;
+    estadoEstruturas.atualizadoEm = new Date().toISOString();
+    const valor = JSON.parse(JSON.stringify(estadoEstruturas));
+    filaSalvarEstruturas = filaSalvarEstruturas.catch(() => undefined).then(async () => {
+      const { error } = await db.from("configuracoes_usuario").upsert({
+        user_id: usuario.id,
+        chave: CHAVE_ESTRUTURAS,
+        valor
+      }, { onConflict: "user_id,chave" });
+      if (error) throw error;
+      window.dispatchEvent(new CustomEvent("mmcd:english-structure-saved", { detail: { data } }));
+    });
+    return filaSalvarEstruturas;
+  }
+
   function contarPalavras(texto = "") {
     return (String(texto).trim().match(/[A-Za-zÀ-ÿ]+(?:['’][A-Za-zÀ-ÿ]+)*/g) || []).length;
   }
@@ -583,10 +701,7 @@
         </div>
         <div class="english-analysis__row"><span>Sua resposta</span><p>${escaparHtml(registro.texto || "")}</p></div>
         <div class="english-analysis__row"><span>Forma corrigida</span><p>${escaparHtml(a.textoCorrigido || registro.texto || "")}</p></div>
-        ${a.versaoNatural ? `<div class="english-analysis__row"><span>Forma mais natural</span><p>${escaparHtml(a.versaoNatural)}</p></div>` : ""}
-        ${a.explicacao ? `<div class="english-analysis__row"><span>Principal ajuste</span><p>${escaparHtml(a.explicacao)}</p></div>` : ""}
-        ${a.pontoForte ? `<div class="english-analysis__row"><span>Ponto forte</span><p>${escaparHtml(a.pontoForte)}</p></div>` : ""}
-        ${a.proximoPasso ? `<div class="english-analysis__row"><span>Próximo passo</span><p>${escaparHtml(a.proximoPasso)}</p></div>` : ""}
+        ${a.explicacao ? `<div class="english-analysis__row"><span>O que ajustar</span><p>${escaparHtml(a.explicacao)}</p></div>` : ""}
       </section>`;
   }
 
@@ -643,70 +758,105 @@
     const data = dataAtual();
     const dia = estadoDoDia(data);
     const registro = dia.escrita || null;
-    const valorInicial = registro?.rascunho ?? registro?.texto ?? lerArmazenamentoLocal(chaveEscrita(data));
+    let prompts = [];
+    try { prompts = JSON.parse(area.dataset.prompts || "[]"); } catch { prompts = []; }
+    prompts = Array.isArray(prompts) ? prompts.slice(0, 5) : [];
+    while (prompts.length < 5) prompts.push(`frase ${prompts.length + 1}`);
+
+    const pratica = {
+      pattern: area.dataset.pattern || "I like to eat ___.",
+      meaning: area.dataset.meaning || "Eu gosto de comer ___.",
+      model: area.dataset.model || "I like to eat fruit.",
+      origem: area.dataset.origin || "gerada",
+      prompts
+    };
+
+    const linhasJaEnviadas = String(registro?.texto || "")
+      .split(/\n+/)
+      .map(linha => linha.replace(/^\s*\d+[.)]\s*/, "").trim())
+      .filter(Boolean)
+      .slice(0, 5);
+    const cartoesJaEnviados = linhasJaEnviadas.length === 5 ? criarCartoesEstrutura(pratica, linhasJaEnviadas) : null;
+    registrarEstruturaDaAula(data, pratica, cartoesJaEnviados).catch(erro => console.warn("Não foi possível salvar a estrutura para revisão.", erro));
+
+    const brutoInicial = registro?.rascunho ?? registro?.texto ?? lerArmazenamentoLocal(chaveEscrita(data));
+    const valoresIniciais = String(brutoInicial || "")
+      .split(/\n+/)
+      .map(linha => linha.replace(/^\s*\d+[.)]\s*/, "").trim())
+      .filter(Boolean)
+      .slice(0, 5);
 
     area.innerHTML = `
-      <label class="english-writing-field">
-        <span>Sua resposta em inglês</span>
-        <textarea rows="7" placeholder="Write your answer here..."></textarea>
-      </label>
+      <div class="english-drill-head">
+        <strong>Agora faça 5 frases</strong>
+        <span>Repita a mesma estrutura. Troque somente o vocabulário.</span>
+      </div>
+      <div class="english-drill-list">
+        ${prompts.map((prompt, indice) => `
+          <label class="english-drill-item">
+            <span><b>${indice + 1}</b>${escaparHtml(prompt)}</span>
+            <input type="text" autocomplete="off" data-writing-line="${indice}" placeholder="Escreva a frase completa em inglês">
+          </label>`).join("")}
+      </div>
       <div class="english-workspace-footer">
-        <span class="english-word-count">0 palavras</span>
+        <span class="english-word-count" data-writing-progress>0 de 5 frases</span>
         <div class="english-workspace-actions">
-          <button class="btn small primary" type="button" data-submit-writing>Enviar para correção</button>
-          <button class="btn small" type="button" data-copy-writing>Copiar</button>
+          <button class="btn small primary" type="button" data-submit-writing>Enviar 5 frases</button>
           <button class="btn small" type="button" data-clear-writing>Limpar</button>
         </div>
       </div>
-      <p class="english-save-note" data-writing-status>O rascunho é salvo automaticamente e sincronizado na sua conta.</p>
+      <p class="english-save-note" data-writing-status>As frases são salvas automaticamente.</p>
       <div data-writing-analysis>${htmlAnaliseEscrita(registro)}</div>`;
 
-    const campo = area.querySelector("textarea");
-    const contador = area.querySelector(".english-word-count");
+    const campos = [...area.querySelectorAll("[data-writing-line]")];
+    const progresso = area.querySelector("[data-writing-progress]");
     const status = area.querySelector("[data-writing-status]");
     const analise = area.querySelector("[data-writing-analysis]");
-    campo.value = valorInicial || "";
+    campos.forEach((campo, indice) => { campo.value = valoresIniciais[indice] || ""; });
 
-    const atualizarContador = () => {
-      const quantidade = contarPalavras(campo.value);
-      contador.textContent = `${quantidade} palavra${quantidade === 1 ? "" : "s"}`;
-      salvarArmazenamentoLocal(chaveEscrita(data), campo.value);
+    const linhasAtuais = () => campos.map(campo => campo.value.trim());
+    const textoRascunho = () => linhasAtuais().filter(Boolean).join("\n");
+    const textoEnvio = () => linhasAtuais().map((linha, indice) => `${indice + 1}. ${linha}`).join("\n");
+
+    const atualizar = () => {
+      const completas = linhasAtuais().filter(Boolean).length;
+      progresso.textContent = `${completas} de 5 frases`;
+      salvarArmazenamentoLocal(chaveEscrita(data), textoRascunho());
     };
 
     const sincronizarRascunho = () => {
       clearTimeout(temporizadorSalvarEscrita);
       temporizadorSalvarEscrita = setTimeout(async () => {
         const atual = estadoDoDia(data).escrita || {};
-        const alterouEnviado = String(atual.texto || "") !== campo.value;
+        const rascunho = textoRascunho();
+        const alterouEnviado = String(atual.rascunho || "") !== rascunho;
         estadoDoDia(data).escrita = {
           ...atual,
-          rascunho: campo.value,
+          rascunho,
           status: alterouEnviado ? "rascunho" : atual.status || "rascunho",
           atualizadoEm: new Date().toISOString()
         };
         try {
           await salvarEstadoProducoes();
-          if (dataAtual() === data && alterouEnviado) status.textContent = "Rascunho sincronizado. Envie quando terminar.";
-        } catch (erro) {
-          console.warn("Não foi possível sincronizar o rascunho.", erro);
+          if (dataAtual() === data && alterouEnviado) status.textContent = "Rascunho sincronizado.";
+        } catch {
           if (dataAtual() === data) status.textContent = "Rascunho salvo apenas neste dispositivo.";
         }
-      }, 850);
+      }, 700);
     };
 
-    campo.addEventListener("input", () => {
-      atualizarContador();
-      if (String(estadoDoDia(data)?.escrita?.texto || "") !== campo.value) {
-        analise.innerHTML = "";
-      }
+    campos.forEach(campo => campo.addEventListener("input", () => {
+      atualizar();
+      analise.innerHTML = "";
       sincronizarRascunho();
-    });
-    area.querySelector("[data-copy-writing]").addEventListener("click", () => copiarTexto(campo.value));
+    }));
+
     area.querySelector("[data-submit-writing]").addEventListener("click", async evento => {
-      const texto = campo.value.trim();
-      if (contarPalavras(texto) < 4) {
-        MMCDUI.toast("Escreva pelo menos quatro palavras antes de enviar.");
-        campo.focus();
+      const linhas = linhasAtuais();
+      const faltantes = linhas.map((linha, indice) => linha ? null : indice + 1).filter(Boolean);
+      if (faltantes.length) {
+        MMCDUI.toast(`Complete as 5 frases. Faltam: ${faltantes.join(", ")}.`);
+        campos[faltantes[0] - 1]?.focus();
         return;
       }
 
@@ -714,39 +864,42 @@
       botao.disabled = true;
       status.textContent = "Enviando para correção...";
       estadoDoDia(data).escrita = {
-        texto,
-        rascunho: campo.value,
-        prompt: area.closest(".english-lesson-block")?.querySelector(".english-block-body")?.textContent?.trim() || "",
+        texto: textoEnvio(),
+        rascunho: textoRascunho(),
+        prompt: `Pattern: ${pratica.pattern} | Meaning: ${pratica.meaning} | Model: ${pratica.model} | Prompts: ${prompts.join(", ")}`,
         conceito: conceitoDaAula(),
+        estrutura: pratica,
         status: "pendente",
         criadaEm: new Date().toISOString()
       };
       try {
         await salvarEstadoProducoes();
-        status.textContent = "Resposta enviada. A correção aparecerá na próxima execução da automação.";
+        await registrarEstruturaDaAula(data, pratica, criarCartoesEstrutura(pratica, linhas));
+        status.textContent = "5 frases enviadas para correção e revisão futura.";
         analise.innerHTML = htmlAnaliseEscrita(estadoDoDia(data).escrita);
-        MMCDUI.toast("Resposta enviada para correção.");
+        MMCDUI.toast("As 5 frases foram enviadas.");
       } catch (erro) {
         console.error(erro);
-        status.textContent = "Não foi possível sincronizar a resposta.";
-        MMCDUI.toast("A resposta não foi enviada.");
+        status.textContent = "Não foi possível sincronizar as frases.";
+        MMCDUI.toast("As frases não foram enviadas.");
       } finally {
         botao.disabled = false;
       }
     });
+
     area.querySelector("[data-clear-writing]").addEventListener("click", async () => {
-      if (campo.value && !confirm("Limpar sua resposta escrita desta data?")) return;
-      campo.value = "";
+      if (linhasAtuais().some(Boolean) && !confirm("Limpar as cinco frases desta data?")) return;
+      campos.forEach(campo => { campo.value = ""; });
       salvarArmazenamentoLocal(chaveEscrita(data), "");
       delete estadoDoDia(data).escrita;
-      atualizarContador();
+      atualizar();
       analise.innerHTML = "";
-      status.textContent = "Resposta limpa.";
+      status.textContent = "Frases limpas.";
       try { await salvarEstadoProducoes(); } catch (erro) { console.warn(erro); }
-      campo.focus();
+      campos[0]?.focus();
     });
 
-    atualizarContador();
+    atualizar();
   }
 
   function abrirBancoAudio() {
@@ -1134,7 +1287,6 @@
   async function prepararEspacosResposta() {
     prepararEscrita();
     await prepararLeitura();
-    await prepararFala();
   }
 
 

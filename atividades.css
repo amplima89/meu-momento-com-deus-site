@@ -24,3 +24,17 @@
   .daily-goal-actions{gap:5px}
   .daily-excuse{padding:4px 6px}
 }
+
+/* Grupos alfabeticos e retrateis — 2026-08-07 */
+.daily-goals{gap:10px}
+.daily-group{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.daily-group-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;cursor:pointer;list-style:none;background:color-mix(in srgb,var(--surface) 90%,var(--surface-2));user-select:none}
+.daily-group-summary::-webkit-details-marker{display:none}
+.daily-group-heading{display:flex;align-items:baseline;gap:8px;min-width:0}
+.daily-group-heading strong{font-size:.76rem;letter-spacing:.035em;text-transform:uppercase}
+.daily-group-heading small{font-size:.62rem;color:var(--muted);font-weight:700}
+.daily-group-chevron{font-size:1rem;color:var(--muted);transition:transform .16s ease}
+.daily-group[open] .daily-group-chevron{transform:rotate(180deg)}
+.daily-group-items{display:grid;gap:7px;padding:8px;border-top:1px solid var(--line)}
+.daily-group .daily-goal{border-radius:10px}
+@media(max-width:430px){.daily-group-heading{align-items:flex-start;flex-direction:column;gap:2px}.daily-group-summary{padding:10px}}

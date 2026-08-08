@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Metas — Life Style</title>
   <link rel="stylesheet" href="painel.css?v=20260804-ls-brand2">
-  <link rel="stylesheet" href="metas.css?v=20260803-50">
+  <link rel="stylesheet" href="metas.css?v=20260807-final1">
 </head>
 <body>
   <div class="app-shell">
@@ -53,7 +53,7 @@
           <input id="goal-id" type="hidden">
           <div class="grid grid-3">
             <label class="field"><span>Nome</span><input id="goal-name" required></label>
-            <label class="field"><span>Categoria</span><input id="goal-category" placeholder="Saúde, espiritual..."></label>
+            <label class="field"><span>Grupo</span><input id="goal-category" placeholder="Saúde, Estudos, Espiritual..."></label>
             <label class="field"><span>Ícone</span><input id="goal-icon" value="✓"></label>
             <label class="field"><span>Cor</span><input id="goal-color" type="color" value="#2563eb"></label>
             <label class="field"><span>Tipo</span><select id="goal-type"><option value="check">Concluir</option><option value="valor">Registrar valor</option></select></label>
@@ -103,9 +103,9 @@
           <div class="goal-toolbar" aria-label="Filtros da lista de metas">
             <span id="goal-count" class="muted goal-count"></span>
             <label class="compact-filter">
-              <span>Categoria</span>
+              <span>Grupo</span>
               <select id="goal-category-filter" class="compact-select">
-                <option value="todas">Todas as categorias</option>
+                <option value="todas">Todos os grupos</option>
               </select>
             </label>
             <label class="compact-filter">
@@ -121,7 +121,7 @@
 
         <div class="goals-report-head" aria-hidden="true">
           <span>Meta</span>
-          <span>Categoria</span>
+          <span>Grupo</span>
           <span>Programação</span>
           <span>Vigência</span>
           <span>Status</span>
@@ -139,6 +139,6 @@
   <script src="dados-app.js?v=20260806-abono1"></script>
   <script src="shell.js?v=20260805-anki-biblia1"></script>
   <script>MMCDShell('metas')</script>
-  <script src="metas.js?v=20260803-50"></script>
+  <script src="metas.js?v=20260807-final1"></script>
 </body>
 </html>

@@ -77,12 +77,12 @@
   }
 
   function categoryLabel(value){
-    return String(value||'').trim()||'Sem categoria';
+    return String(value||'').trim()||'Sem grupo';
   }
 
   function categoryKey(value){
     const normalized=categoryLabel(value).toLocaleLowerCase('pt-BR');
-    return normalized==='sem categoria'?'__sem_categoria__':normalized;
+    return normalized==='sem grupo'?'__sem_grupo__':normalized;
   }
 
   function refreshCategoryFilter(){
@@ -96,7 +96,7 @@
     }
 
     const ordered=[...categories.entries()].sort((a,b)=>a[1].localeCompare(b[1],'pt-BR',{sensitivity:'base'}));
-    select.innerHTML='<option value="todas">Todas as categorias</option>'+ordered.map(([key,label])=>`<option value="${MMCDUI.esc(key)}">${MMCDUI.esc(label)}</option>`).join('');
+    select.innerHTML='<option value="todas">Todos os grupos</option>'+ordered.map(([key,label])=>`<option value="${MMCDUI.esc(key)}">${MMCDUI.esc(label)}</option>`).join('');
     select.value=[...select.options].some(option=>option.value===previous)?previous:'todas';
   }
 
@@ -113,6 +113,10 @@
       const statusOk=statusFilter==='todas'||(statusFilter==='ativas'&&m.ativa)||(statusFilter==='inativas'&&!m.ativa);
       const categoryOk=categoryFilter==='todas'||categoryKey(m.categoria)===categoryFilter;
       return statusOk&&categoryOk;
+    }).sort((a,b)=>{
+      const grupo=categoryLabel(a.categoria).localeCompare(categoryLabel(b.categoria),'pt-BR',{sensitivity:'base',numeric:true});
+      if(grupo!==0)return grupo;
+      return String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR',{sensitivity:'base',numeric:true});
     });
 
     const activeCount=d.metas.filter(x=>x.ativa).length;
@@ -128,7 +132,7 @@
             ${m.descricao?`<p>${MMCDUI.esc(m.descricao)}</p>`:'<p class="goal-empty-description">Sem descrição</p>'}
           </div>
         </div>
-        <div class="goal-report-cell goal-category-cell" data-label="Categoria">
+        <div class="goal-report-cell goal-category-cell" data-label="Grupo">
           <span class="category-pill">${MMCDUI.esc(categoryLabel(m.categoria))}</span>
         </div>
         <div class="goal-report-cell goal-schedule-cell" data-label="Programação">
