@@ -368,7 +368,7 @@
             <p>${esc(fala?.english || "")}</p>
 
             <div class="series-line-actions">
-              <button type="button" class="series-translation-button" data-series-translation>
+              <button type="button" class="series-translation-button" data-series-translation aria-expanded="false">
                 Ver tradução
               </button>
 
@@ -514,11 +514,20 @@
   function ligarTraducoes(section) {
     section.querySelectorAll("[data-series-translation]").forEach(botao => {
       botao.addEventListener("click", () => {
-        const significado = botao.parentElement?.querySelector("[data-series-meaning]");
-        if (!significado) return;
+        // V15: o botão fica dentro de .series-line-actions e a tradução
+        // é irmã desse bloco, dentro de .series-original-text.
+        const blocoFala = botao.closest(".series-original-text");
+        const significado = blocoFala?.querySelector("[data-series-meaning]");
+
+        if (!significado) {
+          console.warn("Tradução não encontrada para esta fala.");
+          return;
+        }
+
         const abrir = significado.hidden;
         significado.hidden = !abrir;
         botao.textContent = abrir ? "Ocultar tradução" : "Ver tradução";
+        botao.setAttribute("aria-expanded", abrir ? "true" : "false");
       });
     });
   }

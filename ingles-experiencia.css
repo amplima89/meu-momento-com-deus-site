@@ -407,3 +407,52 @@
   .series-line-answer{flex-wrap:wrap}
 }
 /* MMCD_EXPLICIT_YES_NO_V14_END */
+
+
+/* MMCD_TRANSLATION_AND_YES_NO_COLORS_V15_START */
+
+/* O estado selecionado genérico da V14 é neutralizado aqui. */
+.series-answer-button.is-selected{
+  color:var(--text);
+  box-shadow:none;
+}
+
+/* SIM = verde suave */
+.series-answer-yes.is-selected{
+  border-color:rgba(47, 133, 90, .38);
+  background:rgba(47, 133, 90, .12);
+  color:#287a50;
+}
+
+/* NÃO = vermelho suave */
+.series-answer-no.is-selected{
+  border-color:rgba(190, 70, 70, .34);
+  background:rgba(190, 70, 70, .10);
+  color:#a34141;
+}
+
+/* Hover também leve, sem parecer botão de alerta. */
+.series-answer-yes:hover{
+  border-color:rgba(47, 133, 90, .35);
+  background:rgba(47, 133, 90, .07);
+}
+.series-answer-no:hover{
+  border-color:rgba(190, 70, 70, .30);
+  background:rgba(190, 70, 70, .06);
+}
+
+/* A fala difícil recebe apenas uma indicação discreta. */
+.series-original-turn.has-difficulty{
+  border-color:rgba(47, 133, 90, .28);
+}
+.series-original-turn.has-difficulty:not(.is-focus){
+  background:rgba(47, 133, 90, .035);
+}
+
+/* Tradução aberta fica visualmente ligada à fala. */
+.series-study-translation:not([hidden]){
+  display:block;
+  margin-top:10px!important;
+}
+
+/* MMCD_TRANSLATION_AND_YES_NO_COLORS_V15_END */
