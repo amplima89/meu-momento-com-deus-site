@@ -700,6 +700,12 @@
     vazioEl.hidden = Boolean(itens.length);
     if (!itens.length) {
       card.hidden = false;
+      vazioEl.hidden = false;
+      vazioEl.innerHTML = `
+        <div class="english-review-empty-state">
+          <strong>Nenhuma revisão disponível para esta data.</strong>
+          <span>Marque palavras ou expressões na leitura. Quando houver material para revisar, ele aparecerá aqui com “Lembrei”, “Não lembrei” e a criação de uma frase própria.</span>
+        </div>`;
       atualizarProgresso(dataAtual, itens);
       return;
     }
@@ -762,7 +768,14 @@
       renderizarItens(dataAtual, bancoAtual);
     } catch (erro) {
       console.error(erro);
-      listaEl.innerHTML = '<div class="english-review-empty">Não foi possível carregar a revisão agora. A prática de hoje continua disponível abaixo.</div>';
+      card.hidden = false;
+      listaEl.innerHTML = "";
+      vazioEl.hidden = false;
+      vazioEl.innerHTML = `
+        <div class="english-review-empty-state">
+          <strong>A revisão não conseguiu carregar agora.</strong>
+          <span>A aula continua disponível. Atualize a página para tentar novamente; seus cards e respostas salvos não são apagados.</span>
+        </div>`;
       atualizarProgresso(dataAtual, []);
     }
   }
@@ -789,7 +802,14 @@
       await renderizar();
     } catch (erro) {
       console.error(erro);
-      card.hidden = true;
+      card.hidden = false;
+      listaEl.innerHTML = "";
+      vazioEl.hidden = false;
+      vazioEl.innerHTML = `
+        <div class="english-review-empty-state">
+          <strong>Revisão temporariamente indisponível.</strong>
+          <span>O restante da aula continua funcionando. Nenhuma revisão foi apagada.</span>
+        </div>`;
     }
   })();
 })();

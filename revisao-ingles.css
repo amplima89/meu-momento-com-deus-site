@@ -225,3 +225,20 @@
   .review-production__footer .btn { width: 100%; }
 }
 /* MMCD_ANKI_PRODUCTION_END */
+
+
+/* MMCD_REVIEW_V7_EMPTY_START */
+.english-review-empty-state{
+  display:grid;
+  place-items:center;
+  gap:6px;
+  min-height:118px;
+  padding:20px;
+  border:1px dashed var(--line,#dbe2ea);
+  border-radius:14px;
+  background:var(--surface-2,#f6f8fb);
+  text-align:center;
+}
+.english-review-empty-state strong{font-size:.9rem;color:var(--text,#152238)}
+.english-review-empty-state span{max-width:560px;color:var(--muted,#68768a);font-size:.76rem;line-height:1.5}
+/* MMCD_REVIEW_V7_EMPTY_END */

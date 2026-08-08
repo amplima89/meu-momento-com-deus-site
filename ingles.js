@@ -1563,7 +1563,7 @@
       });
     }
     // MMCD_ENGLISH_EXPERIENCE_RENDER_END
-    await prepararEspacosResposta();
+await prepararEspacosResposta();
   }
 
   function fecharTooltips(excecao = null) {

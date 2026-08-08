@@ -11,10 +11,21 @@
 
   const texto = valor => String(valor ?? "").trim();
 
-  function formatarData(iso = "") {
-    const data = texto(iso).slice(0, 10);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return data || "—";
-    return data.split("-").reverse().join("/");
+  function familiaGramatical(valor = "") {
+    const original = texto(valor);
+    const normal = original
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("en-US");
+
+    if (normal.includes("simple present")) return "Simple Present";
+    if (normal.includes("present perfect")) return "Present Perfect";
+    if (normal.includes("present continuous") || normal.includes("present progressive")) return "Present Continuous";
+    if (normal.includes("simple past")) return "Simple Past";
+    if (normal.includes("verb to be")) return "Verb to be";
+    if (/^\s*can\b/.test(normal) || normal.includes("modal can")) return "Can";
+    if (normal.includes("adverbs of frequency") || normal.includes("adverb of frequency")) return "Adverbs of frequency";
+    return original.replace(/\s+[—–-]\s+.+$/, "").trim() || "Estrutura do dia";
   }
 
   function localizacao(item) {
@@ -56,40 +67,85 @@
   }
 
   function atualizarResumo(container, cena) {
-    const grammar = container.querySelector('[data-lesson-kind="grammar"] .english-block-main-title')?.textContent?.trim()
+    const grammarBruto = container.querySelector('[data-lesson-kind="grammar"] .english-block-main-title')?.textContent?.trim()
       || container.querySelector('[data-lesson-kind="grammar"] .english-block-body')?.textContent?.trim()
       || "Estrutura do dia";
-    const nivel = document.querySelector("#ingles-nivel")?.textContent?.replace(/^Nível de hoje:\s*/i, "").trim() || "—";
+
+    const nivel = document.querySelector("#ingles-nivel")?.textContent
+      ?.replace(/^Nível de hoje:\s*/i, "")
+      .trim() || "—";
 
     const foco = document.querySelector("#english-summary-focus");
     const nivelEl = document.querySelector("#english-summary-level");
     const cenaEl = document.querySelector("#english-summary-scene");
-    if (foco) foco.textContent = grammar;
+
+    if (foco) foco.textContent = familiaGramatical(grammarBruto);
     if (nivelEl) nivelEl.textContent = nivel;
     if (cenaEl) cenaEl.textContent = cena ? cena.titulo || "Cena escolhida" : "Sem cena hoje";
   }
 
-  function classificarBlocos(container) {
+  function organizarBlocos(container) {
     const grid = container.querySelector(".english-lesson-grid");
     if (!grid) return;
+
     grid.querySelectorAll("[data-lesson-kind]").forEach(bloco => {
       bloco.classList.add("english-course-block");
     });
+
+    const grammar = grid.querySelector('[data-lesson-kind="grammar"]');
+    const concept = grid.querySelector('[data-lesson-kind="concept"]');
+    const examples = grid.querySelector('[data-lesson-kind="examples"]');
+    const reading = grid.querySelector('[data-lesson-kind="reading"]');
+    const expressions = grid.querySelector('[data-lesson-kind="expressions"]');
+    const writing = grid.querySelector('[data-lesson-kind="writing"]');
+
+    if (grammar) {
+      const kicker = grammar.querySelector(".english-block-kicker");
+      if (kicker) kicker.textContent = "1 · Entenda";
+      const titulo = grammar.querySelector(".english-block-main-title");
+      if (titulo) titulo.textContent = familiaGramatical(titulo.textContent);
+    }
+
+    if (concept) {
+      const kicker = concept.querySelector(".english-block-kicker");
+      if (kicker) kicker.textContent = "Como funciona";
+    }
+
+    if (examples) {
+      const kicker = examples.querySelector(".english-block-kicker");
+      if (kicker) kicker.textContent = "Exemplos do foco";
+    }
+
+    if (reading) {
+      const kicker = reading.querySelector(".english-block-kicker");
+      if (kicker) kicker.textContent = "2 · Leia e pratique";
+    }
+
+    if (expressions) {
+      const kicker = expressions.querySelector(".english-block-kicker");
+      if (kicker) kicker.textContent = "Expressões úteis da leitura";
+    }
+
+    if (writing) {
+      const kicker = writing.querySelector(".english-block-kicker");
+      if (kicker) kicker.textContent = "4 · Produza";
+    }
   }
 
   function htmlExpressoes(expressoes = []) {
     const itens = (Array.isArray(expressoes) ? expressoes : [])
       .filter(item => typeof item === "string" ? texto(item) : texto(item?.english))
       .slice(0, 3);
+
     if (!itens.length) {
-      return '<p class="english-scene-empty-note">A cena foi validada pelo uso gramatical, sem expressão curta separada.</p>';
+      return '<p class="english-scene-empty-note">Observe o tempo verbal e a construção das frases durante a cena.</p>';
     }
 
     return `<div class="english-scene-expressions">${itens.map((item, indice) => {
       const english = typeof item === "string" ? texto(item) : texto(item.english);
       const meaning = typeof item === "string" ? "" : texto(item.meaningPt || item.meaning_pt);
       return `<div class="english-scene-expression">
-        <div><span>Expressão ${indice + 1}</span><strong>${esc(english)}</strong></div>
+        <div><span>Pista ${indice + 1}</span><strong>${esc(english)}</strong></div>
         ${meaning ? `<button class="btn small" type="button" data-scene-translation>Ver tradução</button><em data-scene-meaning hidden>${esc(meaning)}</em>` : ""}
       </div>`;
     }).join("")}</div>`;
@@ -113,7 +169,7 @@
           <h2>${esc(item?.titulo || "Cena sugerida")}</h2>
           <div class="english-scene-meta">
             <span>${esc(localizacao(item))}</span>
-            ${item?.grammarFocus ? `<span>${esc(item.grammarFocus)}</span>` : ""}
+            ${item?.grammarFocus ? `<span>${esc(familiaGramatical(item.grammarFocus))}</span>` : ""}
             ${scoreHtml}
           </div>
         </div>
@@ -125,13 +181,13 @@
 
         <div class="english-scene-study-grid">
           <section>
-            <span class="english-scene-mini-title">O que observar</span>
+            <span class="english-scene-mini-title">O que reconhecer</span>
             ${sinais.length
               ? `<ul>${sinais.map(sinal => `<li>${esc(sinal)}</li>`).join("")}</ul>`
-              : `<p>Acompanhe principalmente a estrutura gramatical do dia em uso natural.</p>`}
+              : `<p>Procure ${esc(familiaGramatical(item?.grammarFocus || "a estrutura de hoje"))} em uso natural, sem tentar traduzir cada frase.</p>`}
           </section>
           <section>
-            <span class="english-scene-mini-title">Expressões da cena</span>
+            <span class="english-scene-mini-title">Pistas curtas da cena</span>
             ${htmlExpressoes(item?.expressoes)}
           </section>
         </div>
@@ -139,19 +195,19 @@
         <div class="english-scene-method">
           <span class="english-scene-mini-title">Como estudar este trecho</span>
           <ol>
-            <li><b>Assista uma vez.</b> Só acompanhe a conversa e o contexto.</li>
-            <li><b>Volte ao início.</b> Procure o Grammar focus e as expressões acima.</li>
-            <li><b>Faça sua versão.</b> Diga em inglês o que entendeu ou represente a conversa com suas próprias palavras.</li>
+            <li><b>Assista uma vez.</b> Entenda o contexto sem interromper.</li>
+            <li><b>Assista de novo.</b> Procure o tempo verbal trabalhado hoje.</li>
+            <li><b>Faça sua versão.</b> Explique com suas palavras o que entendeu.</li>
           </ol>
         </div>
 
-        <p class="english-scene-source">Timestamp aproximado. Ele pode variar um pouco entre versões da plataforma. A seleção foi feita a partir de legenda inglesa usada como evidência de estudo.</p>
+        <p class="english-scene-source">Timestamp aproximado; pode variar entre versões da plataforma. A IA escolheu a cena a partir de legenda inglesa real.</p>
       </div>
 
       <div class="english-response-workspace english-scene-speaking" data-speaking-workspace>
         <div class="english-scene-speaking-intro">
           <strong>Speaking da cena</strong>
-          <span>Depois de assistir, grave de 30 a 90 segundos sem ler. Não precisa repetir o diálogo original: use o inglês que você conseguiu absorver.</span>
+          <span>Depois de assistir, grave de 30 a 90 segundos. Não repita o diálogo: conte o que entendeu com o inglês que você já consegue usar.</span>
         </div>
       </div>`;
 
@@ -167,11 +223,11 @@
         <div class="english-scene-icon" aria-hidden="true">▶</div>
         <div class="english-scene-title">
           <p class="english-block-kicker">3 · Assista e reconheça</p>
-          <h2>Hoje sem cena automática</h2>
+          <h2>Sem cena selecionada para esta data</h2>
         </div>
       </header>
       <div class="english-block-body english-scene-body">
-        <p class="english-scene-summary">Nenhuma cena atingiu o critério mínimo ou não havia uma fonte disponível para esta data. A aula continua normalmente sem forçar uma série.</p>
+        <p class="english-scene-summary">A aula continua completa. A série só aparece quando a rotina encontra uma legenda e a IA aprova um trecho para a família gramatical do dia.</p>
       </div>`;
     return section;
   }
@@ -200,18 +256,21 @@
           produce: '[data-lesson-kind="writing"]',
           review: '#revisao-ingles-card'
         };
-        document.querySelector(mapa[botao.dataset.englishStep])?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelector(mapa[botao.dataset.englishStep])
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
   }
 
   async function render({ container, data, db, usuario }) {
     if (!container || !data || !db || !usuario) return null;
-    document.body.classList.add("english-v6");
+
+    document.body.classList.remove("english-v6");
+    document.body.classList.add("english-v7");
     ligarRota();
 
     container.querySelector('[data-lesson-kind="scene"]')?.remove();
-    classificarBlocos(container);
+    organizarBlocos(container);
 
     let cena = null;
     try {
@@ -233,5 +292,5 @@
     return cena;
   }
 
-  window.MMCDEnglishExperience = { render };
+  window.MMCDEnglishExperience = { render, familiaGramatical };
 })();
