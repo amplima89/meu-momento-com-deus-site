@@ -84,26 +84,36 @@
       : [];
     return new Map(
       lista
-        .filter(registro => texto(registro?.chave))
+        .filter(registro =>
+          texto(registro?.chave)
+          && ["sim", "nao"].includes(texto(registro?.resposta).toLocaleLowerCase("pt-BR"))
+        )
         .map(registro => [texto(registro.chave), registro])
     );
   }
+
 
   function resumoDificuldadeHtml(item) {
     const total = Array.isArray(item?.transcricaoOriginal)
       ? item.transcricaoOriginal.length
       : 0;
-    const marcadas = Array.isArray(item?.dificuldadeFalas)
-      ? item.dificuldadeFalas.length
-      : 0;
+    const respostas = Array.isArray(item?.dificuldadeFalas)
+      ? item.dificuldadeFalas.filter(registro =>
+          ["sim", "nao"].includes(texto(registro?.resposta).toLocaleLowerCase("pt-BR"))
+        )
+      : [];
+    const dificeis = respostas.filter(registro =>
+      texto(registro?.resposta).toLocaleLowerCase("pt-BR") === "sim"
+    ).length;
 
     return `
       <div class="series-line-difficulty-summary" data-series-difficulty-summary>
         <span>Dificuldade percebida</span>
-        <strong data-series-difficulty-count>${marcadas} de ${total} falas</strong>
-        <small>Marque somente as falas que realmente exigiram tradução ou releitura.</small>
+        <strong data-series-difficulty-count>${respostas.length}/${total} respondidas · ${dificeis} difíceis</strong>
+        <small>Responda Sim ou Não em cada fala. Em branco significa apenas “ainda não respondi”.</small>
       </div>`;
   }
+
 
   async function salvarDificuldadesDaCena(item, dificuldades) {
     if (!contextoAtual?.db || !contextoAtual?.usuario || !item?.data) return false;
@@ -165,18 +175,26 @@
     const total = Array.isArray(item?.transcricaoOriginal)
       ? item.transcricaoOriginal.length
       : 0;
-    const marcadas = Array.isArray(item?.dificuldadeFalas)
-      ? item.dificuldadeFalas.length
-      : 0;
+    const respostas = Array.isArray(item?.dificuldadeFalas)
+      ? item.dificuldadeFalas.filter(registro =>
+          ["sim", "nao"].includes(texto(registro?.resposta).toLocaleLowerCase("pt-BR"))
+        )
+      : [];
+    const dificeis = respostas.filter(registro =>
+      texto(registro?.resposta).toLocaleLowerCase("pt-BR") === "sim"
+    ).length;
+
     const count = section.querySelector("[data-series-difficulty-count]");
-    if (count) count.textContent = `${marcadas} de ${total} falas`;
+    if (count) count.textContent = `${respostas.length}/${total} respondidas · ${dificeis} difíceis`;
   }
 
+
   function ligarDificuldadePorFala(section, item) {
-    section.querySelectorAll("[data-series-line-difficulty]").forEach(input => {
-      input.addEventListener("change", async () => {
-        const linha = input.closest("[data-series-line]");
-        const chave = input.dataset.seriesLineDifficulty;
+    section.querySelectorAll("[data-series-line-answer]").forEach(botao => {
+      botao.addEventListener("click", async () => {
+        const linha = botao.closest("[data-series-line]");
+        const chave = botao.dataset.seriesLineKey;
+        const resposta = botao.dataset.seriesLineAnswer;
         const speaker = texto(linha?.dataset.seriesSpeaker);
         const english = texto(linha?.dataset.seriesEnglish);
         const focus = linha?.dataset.seriesFocus === "true";
@@ -189,45 +207,52 @@
           ? [...item.dificuldadeFalas]
           : [];
 
-        const semEsta = atuais.filter(registro => texto(registro?.chave) !== chave);
+        const novas = atuais.filter(registro => texto(registro?.chave) !== chave);
+        novas.push({
+          chave,
+          resposta,
+          speaker,
+          english,
+          focus,
+          cueIds,
+          respondidoEm: new Date().toISOString()
+        });
 
-        if (input.checked) {
-          semEsta.push({
-            chave,
-            speaker,
-            english,
-            focus,
-            cueIds,
-            marcadoEm: new Date().toISOString()
-          });
-        }
+        const botoesLinha = [
+          ...linha.querySelectorAll("[data-series-line-answer]")
+        ];
+        botoesLinha.forEach(outro => { outro.disabled = true; });
 
-        const novas = semEsta;
-        input.disabled = true;
+        const status = linha.querySelector("[data-line-difficulty-status]");
+        if (status) status.textContent = "Salvando...";
 
         try {
           const salvo = await salvarDificuldadesDaCena(item, novas);
           if (!salvo) throw new Error("Cena não encontrada na configuração diária.");
 
-          linha?.classList.toggle("has-difficulty", input.checked);
+          botoesLinha.forEach(outro => {
+            const selecionado = outro.dataset.seriesLineAnswer === resposta;
+            outro.classList.toggle("is-selected", selecionado);
+            outro.setAttribute("aria-pressed", selecionado ? "true" : "false");
+          });
+
+          linha.classList.toggle("has-difficulty", resposta === "sim");
+          linha.classList.toggle("has-answer", true);
           atualizarResumoDificuldade(section, item);
 
-          const status = linha?.querySelector("[data-line-difficulty-status]");
           if (status) {
-            status.textContent = input.checked
-              ? "Marcada como difícil"
-              : "Dificuldade removida";
+            status.textContent = resposta === "sim"
+              ? "Sim — dificuldade registrada"
+              : "Não — compreensão registrada";
             window.setTimeout(() => {
               status.textContent = "";
             }, 1800);
           }
         } catch (erro) {
           console.error(erro);
-          input.checked = !input.checked;
-          const status = linha?.querySelector("[data-line-difficulty-status]");
           if (status) status.textContent = "Não consegui salvar.";
         } finally {
-          input.disabled = false;
+          botoesLinha.forEach(outro => { outro.disabled = false; });
         }
       });
     });
@@ -310,7 +335,7 @@
       return `
         <div class="series-study-missing">
           <strong>Essa cena foi criada numa versão anterior.</strong>
-          <span>Rode TESTAR_LEGENDA_LOCAL.bat para selecionar o texto original do seu arquivo .srt.</span>
+          <span>Rode TESTAR_LEGENDA_LOCAL.bat para selecionar novamente a cena.</span>
         </div>`;
     }
 
@@ -318,12 +343,16 @@
 
     return `<div class="series-original-transcript">${transcricao.map((fala, indice) => {
       const chave = chaveFala(fala, indice);
-      const dificil = dificuldades.has(chave);
+      const registro = dificuldades.get(chave);
+      const resposta = texto(registro?.resposta).toLocaleLowerCase("pt-BR");
+      const dificil = resposta === "sim";
+      const respondida = resposta === "sim" || resposta === "nao";
       const cueIds = Array.isArray(fala?.cueIds) ? fala.cueIds.join("|") : "";
+      const traducao = texto(fala?.meaningPt) || "Tradução temporariamente indisponível.";
 
       return `
         <article
-          class="series-original-turn${fala?.focus ? " is-focus" : ""}${dificil ? " has-difficulty" : ""}"
+          class="series-original-turn${fala?.focus ? " is-focus" : ""}${dificil ? " has-difficulty" : ""}${respondida ? " has-answer" : ""}"
           data-series-line
           data-series-speaker="${esc(fala?.speaker || `Speaker ${indice + 1}`)}"
           data-series-english="${esc(fala?.english || "")}"
@@ -339,29 +368,39 @@
             <p>${esc(fala?.english || "")}</p>
 
             <div class="series-line-actions">
-              ${fala?.meaningPt ? `
-                <button type="button" class="series-translation-button" data-series-translation>Ver tradução</button>
-              ` : ""}
+              <button type="button" class="series-translation-button" data-series-translation>
+                Ver tradução
+              </button>
 
-              <label class="series-line-difficulty-check">
-                <input
-                  type="checkbox"
-                  data-series-line-difficulty="${esc(chave)}"
-                  ${dificil ? "checked" : ""}
-                >
-                <span>Tive dificuldade</span>
-              </label>
+              <div class="series-line-answer">
+                <span>Tive dificuldade?</span>
+                <div role="group" aria-label="Tive dificuldade nesta fala?">
+                  <button
+                    type="button"
+                    class="series-answer-button series-answer-yes${resposta === "sim" ? " is-selected" : ""}"
+                    data-series-line-answer="sim"
+                    data-series-line-key="${esc(chave)}"
+                    aria-pressed="${resposta === "sim" ? "true" : "false"}"
+                  >Sim</button>
+                  <button
+                    type="button"
+                    class="series-answer-button series-answer-no${resposta === "nao" ? " is-selected" : ""}"
+                    data-series-line-answer="nao"
+                    data-series-line-key="${esc(chave)}"
+                    aria-pressed="${resposta === "nao" ? "true" : "false"}"
+                  >Não</button>
+                </div>
+              </div>
 
               <small data-line-difficulty-status></small>
             </div>
 
-            ${fala?.meaningPt ? `
-              <p class="series-study-translation" data-series-meaning hidden>${esc(fala.meaningPt)}</p>
-            ` : ""}
+            <p class="series-study-translation" data-series-meaning hidden>${esc(traducao)}</p>
           </div>
         </article>`;
     }).join("")}</div>`;
   }
+
 
   function expressoesHtml(item) {
     const itens = (Array.isArray(item?.expressoes) ? item.expressoes : [])
@@ -505,8 +544,8 @@
     if (!container || !data || !db || !usuario) return null;
 
     contextoAtual = { db, usuario };
-    document.body.classList.remove("english-v6", "english-v7", "english-v10", "english-v12");
-    document.body.classList.add("english-v13");
+    document.body.classList.remove("english-v6", "english-v7", "english-v10", "english-v12", "english-v13");
+    document.body.classList.add("english-v14");
     ligarRota();
 
     container.querySelector('[data-lesson-kind="scene"]')?.remove();
