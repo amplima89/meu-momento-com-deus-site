@@ -14,9 +14,9 @@
   <title>Inglês diário — Life Style</title>
   <link rel="stylesheet" href="painel.css?v=20260804-ls-brand2">
   <link rel="stylesheet" href="style.css?v=20260803-50">
-  <link rel="stylesheet" href="ingles.css?v=20260807-final1">
-  <link rel="stylesheet" href="revisao-ingles.css?v=20260807-final1">
-  <link rel="stylesheet" href="ingles-series-auto.css?v=20260808-series-auto1">
+  <link rel="stylesheet" href="ingles.css?v=20260808-ingles-aula6">
+  <link rel="stylesheet" href="revisao-ingles.css?v=20260808-ingles-aula6">
+  <link rel="stylesheet" href="ingles-experiencia.css?v=20260808-ingles-aula6">
 </head>
 <body>
   <div class="app-shell">
@@ -35,10 +35,7 @@
         <div>
           <p class="eyebrow">Prática diária</p>
           <h1>Inglês diário</h1>
-          <p class="muted">
-            Leitura, gravação, vocabulário e estruturas simples em uma prática curta.
-            As marcações azuis continuam sincronizadas na sua conta.
-          </p>
+          <p class="muted">Uma aula por dia: entenda a estrutura, leia, encontre o inglês em uma cena real, produza e revise.</p>
           <div id="ingles-nivel" class="english-level" hidden></div>
         </div>
         <label class="date-select">
@@ -46,6 +43,22 @@
           <select id="ingles-data"></select>
         </label>
       </section>
+<!-- MMCD_ENGLISH_STUDY_MAP_START -->
+      <section class="card english-study-map" aria-label="Roteiro da aula de hoje">
+        <div class="english-study-map__summary">
+          <div><span>Nível</span><strong id="english-summary-level">—</strong></div>
+          <div><span>Foco de hoje</span><strong id="english-summary-focus">Carregando...</strong></div>
+          <div><span>Cena</span><strong id="english-summary-scene">Carregando...</strong></div>
+        </div>
+        <nav class="english-study-map__route" aria-label="Etapas do estudo">
+          <button class="english-study-step" type="button" data-english-step="understand"><b>1</b>Entenda</button>
+          <button class="english-study-step" type="button" data-english-step="read"><b>2</b>Leia</button>
+          <button class="english-study-step" type="button" data-english-step="scene"><b>3</b>Assista</button>
+          <button class="english-study-step" type="button" data-english-step="produce"><b>4</b>Produza</button>
+          <button class="english-study-step" type="button" data-english-step="review"><b>5</b>Revise</button>
+        </nav>
+      </section>
+<!-- MMCD_ENGLISH_STUDY_MAP_END -->
 <article class="card english-card">
         <div class="highlight-tools english-highlight-toolbar">
           <button id="ingles-marcar" class="btn english-highlight-btn" type="button">
@@ -54,10 +67,7 @@
           <button id="ingles-limpar" class="btn" type="button">
             Limpar todas
           </button>
-          <p class="muted">
-            Passe o mouse ou toque em uma palavra para traduzir. Selecione uma
-            palavra ou frase para marcar automaticamente; use duplo clique para marcar ou desmarcar.
-          </p>
+          <p class="muted">Selecione palavras ou expressões para levar ao seu Anki.</p>
         </div>
         <div id="ingles-conteudo" class="meditacao english-reading">
           <p class="muted">Carregando...</p>
@@ -92,8 +102,8 @@
   <script src="dados-app.js?v=20260806-abono1"></script>
   <script src="shell.js?v=20260808-series-auto1"></script>
   <script>MMCDShell("ingles")</script>
-  <script src="ingles.js?v=20260807-final1"></script>
-  <script src="revisao-ingles.js?v=20260807-final1"></script>
-  <script src="ingles-series-auto.js?v=20260808-series-auto1"></script>
+  <script src="ingles-experiencia.js?v=20260808-ingles-aula6"></script>
+  <script src="ingles.js?v=20260808-ingles-aula6"></script>
+  <script src="revisao-ingles.js?v=20260808-ingles-aula6"></script>
 </body>
 </html>

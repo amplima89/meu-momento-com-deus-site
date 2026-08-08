@@ -1287,6 +1287,7 @@
   async function prepararEspacosResposta() {
     prepararEscrita();
     await prepararLeitura();
+    await prepararFala();
   }
 
 
@@ -1552,6 +1553,16 @@
     await carregarNivel();
     await carregarMarcacoes();
     aplicarTraducoes(extrairGlossario(markdown));
+    // MMCD_ENGLISH_EXPERIENCE_RENDER_START
+    if (window.MMCDEnglishExperience?.render) {
+      await window.MMCDEnglishExperience.render({
+        container: conteudo,
+        data: dataAtual(),
+        db,
+        usuario
+      });
+    }
+    // MMCD_ENGLISH_EXPERIENCE_RENDER_END
     await prepararEspacosResposta();
   }
 
