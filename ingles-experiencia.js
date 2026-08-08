@@ -3,6 +3,7 @@
 (() => {
   const CHAVE_CENAS_DIARIAS = "cenas_series_ingles_v1";
   const CHAVE_HISTORICO = "historico_series_ingles_v1";
+  let contextoAtual = null;
 
   const esc = valor => window.MMCDUI?.esc
     ? window.MMCDUI.esc(valor)
@@ -68,6 +69,170 @@
     });
     return [...mapa.values()];
   }
+
+  function chaveFala(fala, indice) {
+    const cueIds = Array.isArray(fala?.cueIds)
+      ? fala.cueIds.map(texto).filter(Boolean)
+      : [];
+    if (cueIds.length) return cueIds.join("|");
+    return `${indice}|${texto(fala?.speaker)}|${texto(fala?.english).slice(0, 80)}`;
+  }
+
+  function mapaDificuldades(item) {
+    const lista = Array.isArray(item?.dificuldadeFalas)
+      ? item.dificuldadeFalas
+      : [];
+    return new Map(
+      lista
+        .filter(registro => texto(registro?.chave))
+        .map(registro => [texto(registro.chave), registro])
+    );
+  }
+
+  function resumoDificuldadeHtml(item) {
+    const total = Array.isArray(item?.transcricaoOriginal)
+      ? item.transcricaoOriginal.length
+      : 0;
+    const marcadas = Array.isArray(item?.dificuldadeFalas)
+      ? item.dificuldadeFalas.length
+      : 0;
+
+    return `
+      <div class="series-line-difficulty-summary" data-series-difficulty-summary>
+        <span>Dificuldade percebida</span>
+        <strong data-series-difficulty-count>${marcadas} de ${total} falas</strong>
+        <small>Marque somente as falas que realmente exigiram tradução ou releitura.</small>
+      </div>`;
+  }
+
+  async function salvarDificuldadesDaCena(item, dificuldades) {
+    if (!contextoAtual?.db || !contextoAtual?.usuario || !item?.data) return false;
+
+    const { db, usuario } = contextoAtual;
+    const { data, error } = await db.from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", usuario.id)
+      .eq("chave", CHAVE_CENAS_DIARIAS)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    const armazenamento = data?.valor && typeof data.valor === "object"
+      ? structuredClone(data.valor)
+      : { versao: 1, itens: [] };
+
+    if (!Array.isArray(armazenamento.itens)) armazenamento.itens = [];
+
+    let encontrou = false;
+    armazenamento.itens = armazenamento.itens.map(cena => {
+      if (
+        texto(cena?.data) === texto(item.data)
+        && texto(cena?.titulo) === texto(item.titulo)
+        && texto(cena?.inicio) === texto(item.inicio)
+      ) {
+        encontrou = true;
+        return {
+          ...cena,
+          dificuldadeFalas: dificuldades,
+          dificuldadePercebida: null,
+          avaliadoEm: new Date().toISOString()
+        };
+      }
+      return cena;
+    });
+
+    if (!encontrou) return false;
+
+    armazenamento.atualizadoEm = new Date().toISOString();
+
+    const payload = {
+      user_id: usuario.id,
+      chave: CHAVE_CENAS_DIARIAS,
+      valor: armazenamento
+    };
+
+    const { error: saveError } = await db.from("configuracoes_usuario")
+      .upsert(payload, { onConflict: "user_id,chave" });
+
+    if (saveError) throw saveError;
+
+    item.dificuldadeFalas = dificuldades;
+    item.dificuldadePercebida = null;
+    return true;
+  }
+
+  function atualizarResumoDificuldade(section, item) {
+    const total = Array.isArray(item?.transcricaoOriginal)
+      ? item.transcricaoOriginal.length
+      : 0;
+    const marcadas = Array.isArray(item?.dificuldadeFalas)
+      ? item.dificuldadeFalas.length
+      : 0;
+    const count = section.querySelector("[data-series-difficulty-count]");
+    if (count) count.textContent = `${marcadas} de ${total} falas`;
+  }
+
+  function ligarDificuldadePorFala(section, item) {
+    section.querySelectorAll("[data-series-line-difficulty]").forEach(input => {
+      input.addEventListener("change", async () => {
+        const linha = input.closest("[data-series-line]");
+        const chave = input.dataset.seriesLineDifficulty;
+        const speaker = texto(linha?.dataset.seriesSpeaker);
+        const english = texto(linha?.dataset.seriesEnglish);
+        const focus = linha?.dataset.seriesFocus === "true";
+        const cueIds = texto(linha?.dataset.seriesCueIds)
+          .split("|")
+          .map(texto)
+          .filter(Boolean);
+
+        const atuais = Array.isArray(item.dificuldadeFalas)
+          ? [...item.dificuldadeFalas]
+          : [];
+
+        const semEsta = atuais.filter(registro => texto(registro?.chave) !== chave);
+
+        if (input.checked) {
+          semEsta.push({
+            chave,
+            speaker,
+            english,
+            focus,
+            cueIds,
+            marcadoEm: new Date().toISOString()
+          });
+        }
+
+        const novas = semEsta;
+        input.disabled = true;
+
+        try {
+          const salvo = await salvarDificuldadesDaCena(item, novas);
+          if (!salvo) throw new Error("Cena não encontrada na configuração diária.");
+
+          linha?.classList.toggle("has-difficulty", input.checked);
+          atualizarResumoDificuldade(section, item);
+
+          const status = linha?.querySelector("[data-line-difficulty-status]");
+          if (status) {
+            status.textContent = input.checked
+              ? "Marcada como difícil"
+              : "Dificuldade removida";
+            window.setTimeout(() => {
+              status.textContent = "";
+            }, 1800);
+          }
+        } catch (erro) {
+          console.error(erro);
+          input.checked = !input.checked;
+          const status = linha?.querySelector("[data-line-difficulty-status]");
+          if (status) status.textContent = "Não consegui salvar.";
+        } finally {
+          input.disabled = false;
+        }
+      });
+    });
+  }
+
 
   function cenaDaData(itens, data) {
     return itens
@@ -149,21 +314,53 @@
         </div>`;
     }
 
-    return `<div class="series-original-transcript">${transcricao.map((fala, indice) => `
-      <article class="series-original-turn${fala?.focus ? " is-focus" : ""}">
-        <div class="series-original-speaker">
-          <span>${esc(fala?.speaker || `Speaker ${indice + 1}`)}</span>
-          ${fala?.focus ? "<b>Foco</b>" : ""}
-        </div>
-        <div class="series-original-text">
-          <p>${esc(fala?.english || "")}</p>
-          ${fala?.meaningPt ? `
-            <button type="button" class="series-translation-button" data-series-translation>Ver tradução</button>
-            <p class="series-study-translation" data-series-meaning hidden>${esc(fala.meaningPt)}</p>
-          ` : ""}
-        </div>
-      </article>
-    `).join("")}</div>`;
+    const dificuldades = mapaDificuldades(item);
+
+    return `<div class="series-original-transcript">${transcricao.map((fala, indice) => {
+      const chave = chaveFala(fala, indice);
+      const dificil = dificuldades.has(chave);
+      const cueIds = Array.isArray(fala?.cueIds) ? fala.cueIds.join("|") : "";
+
+      return `
+        <article
+          class="series-original-turn${fala?.focus ? " is-focus" : ""}${dificil ? " has-difficulty" : ""}"
+          data-series-line
+          data-series-speaker="${esc(fala?.speaker || `Speaker ${indice + 1}`)}"
+          data-series-english="${esc(fala?.english || "")}"
+          data-series-focus="${fala?.focus ? "true" : "false"}"
+          data-series-cue-ids="${esc(cueIds)}"
+        >
+          <div class="series-original-speaker">
+            <span>${esc(fala?.speaker || `Speaker ${indice + 1}`)}</span>
+            ${fala?.focus ? "<b>Foco</b>" : ""}
+          </div>
+
+          <div class="series-original-text">
+            <p>${esc(fala?.english || "")}</p>
+
+            <div class="series-line-actions">
+              ${fala?.meaningPt ? `
+                <button type="button" class="series-translation-button" data-series-translation>Ver tradução</button>
+              ` : ""}
+
+              <label class="series-line-difficulty-check">
+                <input
+                  type="checkbox"
+                  data-series-line-difficulty="${esc(chave)}"
+                  ${dificil ? "checked" : ""}
+                >
+                <span>Tive dificuldade</span>
+              </label>
+
+              <small data-line-difficulty-status></small>
+            </div>
+
+            ${fala?.meaningPt ? `
+              <p class="series-study-translation" data-series-meaning hidden>${esc(fala.meaningPt)}</p>
+            ` : ""}
+          </div>
+        </article>`;
+    }).join("")}</div>`;
   }
 
   function expressoesHtml(item) {
@@ -201,10 +398,13 @@
             Trecho original do arquivo de legenda que você salvou no Life Style. Leia tudo aqui; não é necessário abrir o episódio.
           </p>
         </div>
-        <div class="series-final-meta">
-          <span>${esc(foco)}</span>
-          ${score ? `<span>${Math.max(0, Math.min(100, score))}/100</span>` : ""}
-          ${item?.palavrasOriginal ? `<span>${esc(item.palavrasOriginal)} palavras</span>` : ""}
+        <div class="series-final-side">
+          <div class="series-final-meta">
+            <span>${esc(foco)}</span>
+            ${score ? `<span>${Math.max(0, Math.min(100, score))}/100</span>` : ""}
+            ${item?.palavrasOriginal ? `<span>${esc(item.palavrasOriginal)} palavras</span>` : ""}
+          </div>
+          ${resumoDificuldadeHtml(item)}
         </div>
       </header>
 
@@ -304,8 +504,9 @@
   async function render({ container, data, db, usuario }) {
     if (!container || !data || !db || !usuario) return null;
 
-    document.body.classList.remove("english-v6", "english-v7");
-    document.body.classList.add("english-v10");
+    contextoAtual = { db, usuario };
+    document.body.classList.remove("english-v6", "english-v7", "english-v10", "english-v12");
+    document.body.classList.add("english-v13");
     ligarRota();
 
     container.querySelector('[data-lesson-kind="scene"]')?.remove();
@@ -324,6 +525,7 @@
       const section = cena ? criarCena(cena) : criarCenaVazia();
       grid.append(section);
       ligarTraducoes(section);
+      if (cena) ligarDificuldadePorFala(section, cena);
     }
 
     atualizarResumo(container, cena);
