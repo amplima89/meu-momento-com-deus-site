@@ -59,3 +59,120 @@
   .production-summary{grid-template-columns:1fr}.production-stat{border-right:0;border-bottom:1px solid var(--line)}.production-stat:last-child{border-bottom:0}
   .history-item{grid-template-columns:1fr}.history-focus{text-align:left}
 }
+
+/* MMCD_SERIES_BREATHING_V20_START */
+
+/*
+  V20 — apenas respiro visual.
+  Não altera catálogo, dados, JavaScript ou comportamento.
+*/
+
+/* Caixa "Seleção automática": afasta o conteúdo da moldura. */
+.series-auto-strip{
+  padding:20px 22px !important;
+  column-gap:16px !important;
+}
+
+/*
+  Área do catálogo.
+  Em versões em que .catalog-section recebeu borda/card,
+  este padding impede título, filtros e lista de encostarem nela.
+*/
+.catalog-section{
+  padding:20px !important;
+}
+
+/* Caso o título/filtros estejam em uma área própria. */
+.catalog-toolbar,
+.series-catalog-toolbar,
+.catalog-section__header,
+.series-catalog-header{
+  padding-left:2px !important;
+  padding-right:2px !important;
+  margin-bottom:2px !important;
+}
+
+/* Lista de produções ganha espaço em relação ao cabeçalho e às bordas. */
+#production-list,
+.production-grid,
+.production-list,
+.series-production-list{
+  margin-top:14px !important;
+}
+
+/* Nas versões em lista, evita cards grudados uns nos outros. */
+#production-list,
+.production-list,
+.series-production-list{
+  display:grid;
+  gap:12px;
+}
+
+/* Mantém um bom respiro dentro dos cards nas duas versões da interface. */
+.production-card{
+  padding:18px 20px !important;
+}
+
+/*
+  Se a versão atual divide o card em cabeçalho e métricas,
+  aplica padding nesses blocos sem criar um segundo contorno.
+*/
+.production-card__header,
+.production-card__top,
+.production-item__header,
+.series-production-header{
+  padding-left:0 !important;
+  padding-right:0 !important;
+}
+
+.production-card__metrics,
+.production-card__stats,
+.production-item__metrics,
+.series-production-metrics{
+  margin-left:-20px;
+  margin-right:-20px;
+  margin-bottom:-18px;
+  padding-left:20px;
+  padding-right:20px;
+}
+
+/* Cabeçalho principal da página continua alinhado, mas sem ficar espremido. */
+.series-page{
+  gap:24px !important;
+}
+
+/* Histórico também recebe respiro coerente. */
+.history-details summary{
+  padding:18px 20px !important;
+}
+
+.history-item{
+  padding:14px 20px !important;
+}
+
+@media(max-width:760px){
+  .series-auto-strip{
+    padding:16px !important;
+  }
+
+  .catalog-section{
+    padding:14px !important;
+  }
+
+  .production-card{
+    padding:16px !important;
+  }
+
+  .production-card__metrics,
+  .production-card__stats,
+  .production-item__metrics,
+  .series-production-metrics{
+    margin-left:-16px;
+    margin-right:-16px;
+    margin-bottom:-16px;
+    padding-left:16px;
+    padding-right:16px;
+  }
+}
+
+/* MMCD_SERIES_BREATHING_V20_END */
