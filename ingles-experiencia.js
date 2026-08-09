@@ -426,7 +426,6 @@
     const foco = familiaGramatical(item?.grammarFocus || "");
     const contexto = texto(item?.contexto || item?.resumo);
     const dica = texto(item?.dicaEstudo);
-    const score = Number(item?.score || 0);
 
     section.innerHTML = `
       <header class="series-final-head">
@@ -440,7 +439,6 @@
         <div class="series-final-side">
           <div class="series-final-meta">
             <span>${esc(foco)}</span>
-            ${score ? `<span>${Math.max(0, Math.min(100, score))}/100</span>` : ""}
             ${item?.palavrasOriginal ? `<span>${esc(item.palavrasOriginal)} palavras</span>` : ""}
           </div>
           ${resumoDificuldadeHtml(item)}

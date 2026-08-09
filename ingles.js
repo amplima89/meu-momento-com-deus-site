@@ -682,6 +682,14 @@
     }).join("")}</ul>`;
   }
 
+  function normalizarCorrecaoEstruturada(valor = "") {
+    return String(valor || "")
+      .replace(/[.!?]+$/gm, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLocaleLowerCase("en-US");
+  }
+
   function htmlAnaliseEscrita(registro) {
     if (!registro) return "";
     if (registro.status === "pendente") {
@@ -693,15 +701,23 @@
     if (registro.status !== "corrigida" || !registro.analise) return "";
 
     const a = registro.analise;
+    const original = String(registro.texto || "").trim();
+    const corrigido = String(a.textoCorrigido || "").trim();
+    const mostrarCorrecao = Boolean(
+      corrigido
+      && normalizarCorrecaoEstruturada(corrigido)
+        !== normalizarCorrecaoEstruturada(original)
+    );
+
     return `
       <section class="english-analysis ${a.correta ? "is-good" : "needs-work"}">
         <div class="english-analysis__head">
-          <div><span>Correção da escrita</span><strong>${a.correta ? "Boa construção" : "Há ajustes importantes"}</strong></div>
+          <div><span>Correção da escrita</span><strong>${a.correta ? "Estrutura correta" : "Há ajustes importantes"}</strong></div>
           <b>${a.correta ? "✓" : "✎"}</b>
         </div>
-        <div class="english-analysis__row"><span>Sua resposta</span><p>${escaparHtml(registro.texto || "")}</p></div>
-        <div class="english-analysis__row"><span>Forma corrigida</span><p>${escaparHtml(a.textoCorrigido || registro.texto || "")}</p></div>
-        ${a.explicacao ? `<div class="english-analysis__row"><span>O que ajustar</span><p>${escaparHtml(a.explicacao)}</p></div>` : ""}
+        <div class="english-analysis__row"><span>Sua resposta</span><p>${escaparHtml(original)}</p></div>
+        ${mostrarCorrecao ? `<div class="english-analysis__row"><span>Forma corrigida</span><p>${escaparHtml(corrigido)}</p></div>` : ""}
+        ${a.explicacao ? `<div class="english-analysis__row"><span>${a.correta ? "Resultado" : "O que ajustar"}</span><p>${escaparHtml(a.explicacao)}</p></div>` : ""}
       </section>`;
   }
 
