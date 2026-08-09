@@ -176,3 +176,149 @@
 }
 
 /* MMCD_SERIES_BREATHING_V20_END */
+
+/* MMCD_SERIES_BREATHING_REAL_V20_1_START */
+
+/*
+  V20.1
+  Correção feita para a estrutura REAL atualmente renderizada:
+  .auto-flow-card
+  .catalog-card
+  .catalog-head
+  .production-list
+  .production-card
+*/
+
+/* BLOCO DA IA — mais ar em volta do conteúdo */
+.auto-flow-card{
+  padding:22px 26px 20px !important;
+  gap:16px 20px !important;
+}
+
+.auto-flow-steps{
+  margin-top:8px !important;
+  padding-bottom:1px;
+}
+
+/* CATÁLOGO — este é o ponto principal da correção */
+.catalog-card{
+  padding:24px !important;
+}
+
+/* Cabeçalho do catálogo deixa de encostar na moldura */
+.catalog-head{
+  padding:0 2px !important;
+  margin-bottom:18px !important;
+  align-items:center !important;
+}
+
+/* Pequeno respiro entre eyebrow e título */
+.catalog-head .eyebrow{
+  margin-bottom:7px !important;
+}
+
+.catalog-head h2{
+  margin-top:0 !important;
+}
+
+/* Filtros também ficam visualmente afastados */
+.catalog-filters{
+  padding-left:12px;
+}
+
+/* Lista passa a existir claramente DENTRO do catálogo */
+.production-list{
+  margin-top:0 !important;
+  display:grid !important;
+  gap:14px !important;
+}
+
+/*
+  Cards internos.
+  Mantemos a borda própria, mas agora eles ficam afastados
+  da borda externa do catálogo.
+*/
+.production-card{
+  border-radius:16px !important;
+}
+
+/* Mais conforto dentro de cada produção */
+.production-head{
+  padding:20px 22px !important;
+}
+
+.production-summary{
+  margin:0 !important;
+}
+
+.production-stat{
+  padding:15px 22px !important;
+}
+
+.production-note{
+  padding:0 22px 18px !important;
+}
+
+/* Cadastro e histórico seguem o mesmo padrão de respiro */
+.form-card,
+.history-card{
+  padding:24px !important;
+}
+
+.history-card .series-history-list{
+  margin-top:16px !important;
+}
+
+/* Espaço entre os grandes blocos da página */
+.series-page{
+  gap:24px !important;
+}
+
+/*
+  Em telas largas, o catálogo ganha uma leve percepção de área interna
+  sem aumentar desnecessariamente a largura total.
+*/
+@media(min-width:781px){
+  .catalog-card{
+    padding:24px 26px 26px !important;
+  }
+
+  .auto-flow-card{
+    padding-left:26px !important;
+    padding-right:26px !important;
+  }
+}
+
+@media(max-width:780px){
+  .auto-flow-card{
+    padding:17px !important;
+  }
+
+  .catalog-card,
+  .form-card,
+  .history-card{
+    padding:16px !important;
+  }
+
+  .catalog-head{
+    margin-bottom:14px !important;
+  }
+
+  .catalog-filters{
+    padding-left:0;
+  }
+
+  .production-head{
+    padding:17px !important;
+  }
+
+  .production-stat{
+    padding:14px 17px !important;
+  }
+
+  .production-note{
+    padding:0 17px 16px !important;
+  }
+}
+
+/* MMCD_SERIES_BREATHING_REAL_V20_1_END */
