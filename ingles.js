@@ -690,6 +690,14 @@
       .toLocaleLowerCase("en-US");
   }
 
+  function normalizarCorrecaoEstruturada(valor = "") {
+    return String(valor || "")
+      .replace(/[.!?]+$/gm, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLocaleLowerCase("en-US");
+  }
+
   function htmlAnaliseEscrita(registro) {
     if (!registro) return "";
     if (registro.status === "pendente") {
