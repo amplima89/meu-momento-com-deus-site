@@ -456,3 +456,38 @@
 }
 
 /* MMCD_TRANSLATION_AND_YES_NO_COLORS_V15_END */
+
+
+/* MMCD_YES_NO_COLOR_FIX_V16_START */
+
+/* SIM = teve dificuldade = vermelho suave */
+.series-answer-yes.is-selected{
+  border-color:rgba(190, 70, 70, .34);
+  background:rgba(190, 70, 70, .10);
+  color:#a34141;
+}
+.series-answer-yes:hover{
+  border-color:rgba(190, 70, 70, .30);
+  background:rgba(190, 70, 70, .06);
+}
+
+/* NÃO = não teve dificuldade = verde suave */
+.series-answer-no.is-selected{
+  border-color:rgba(47, 133, 90, .38);
+  background:rgba(47, 133, 90, .12);
+  color:#287a50;
+}
+.series-answer-no:hover{
+  border-color:rgba(47, 133, 90, .35);
+  background:rgba(47, 133, 90, .07);
+}
+
+/* Falas difíceis seguem com indicação vermelha discreta */
+.series-original-turn.has-difficulty{
+  border-color:rgba(190, 70, 70, .24);
+}
+.series-original-turn.has-difficulty:not(.is-focus){
+  background:rgba(190, 70, 70, .025);
+}
+
+/* MMCD_YES_NO_COLOR_FIX_V16_END */
