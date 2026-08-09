@@ -716,7 +716,7 @@
     if (registro.status !== "corrigida" || !registro.analise) return "";
 
     const a = registro.analise;
-    if (tipo === "leitura") {
+    if (tipo === "leitura" || tipo === "cena") {
       const clareza = Number(a.clarezaReconhecimento);
       return `
         <section class="english-analysis ${clareza >= 85 ? "is-good" : "needs-work"}">
@@ -1119,7 +1119,7 @@
     const dataDaGravacao = dataAtual();
     const chaveUrl = chaveAudioLocal(dataDaGravacao, tipo);
     const registroInicial = estadoDoDia(dataDaGravacao)?.audios?.[tipo] || null;
-    const leitura = tipo === "leitura";
+    const leitura = tipo === "leitura" || tipo === "cena";
 
     area.innerHTML = `
       <div class="english-recorder">
@@ -1279,7 +1279,19 @@
 
   async function prepararFala() {
     const area = conteudo.querySelector("[data-speaking-workspace]");
-    const bloco = area?.closest(".english-lesson-block");
+    if (!area) return;
+
+    const bloco = area.closest(".english-lesson-block");
+
+    if (area.dataset.sceneReading === "true" || bloco?.dataset?.lessonKind === "scene") {
+      const falas = [...bloco.querySelectorAll(".series-original-text > p:first-child")]
+        .map(item => item.textContent?.replace(/\s+/g, " ").trim() || "")
+        .filter(Boolean);
+      const referencia = falas.join(" ");
+      await prepararGravador({ area, tipo: "cena", referencia });
+      return;
+    }
+
     const pergunta = bloco?.querySelector(".english-block-body")?.textContent?.replace(/\s+/g, " ").trim() || "";
     await prepararGravador({ area, tipo: "fala", pergunta });
   }

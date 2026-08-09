@@ -480,6 +480,17 @@
         </div>
       </section>
 
+      <section class="series-scene-recorder">
+        <div class="series-scene-recorder__head">
+          <div>
+            <span class="series-mini-label">Speaking · IA</span>
+            <strong>Grave sua leitura da cena</strong>
+            <p>A IA vai comparar o que foi reconhecido no seu áudio com o texto original acima e apontar o que merece prática.</p>
+          </div>
+        </div>
+        <div class="english-response-workspace" data-speaking-workspace data-scene-reading="true"></div>
+      </section>
+
       <details class="series-origin">
         <summary>Referência da cena original</summary>
         <div>
@@ -553,8 +564,8 @@
     if (!container || !data || !db || !usuario) return null;
 
     contextoAtual = { db, usuario };
-    document.body.classList.remove("english-v6", "english-v7", "english-v10", "english-v12", "english-v13");
-    document.body.classList.add("english-v14");
+    document.body.classList.remove("english-v6", "english-v7", "english-v10", "english-v12", "english-v13", "english-v14");
+    document.body.classList.add("english-v17");
     ligarRota();
 
     container.querySelector('[data-lesson-kind="scene"]')?.remove();

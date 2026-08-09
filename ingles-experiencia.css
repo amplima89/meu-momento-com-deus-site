@@ -491,3 +491,39 @@
 }
 
 /* MMCD_YES_NO_COLOR_FIX_V16_END */
+
+
+/* MMCD_SCENE_AUDIO_AI_V17_START */
+.series-scene-recorder{
+  margin:0 24px 20px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+}
+.series-scene-recorder__head{
+  margin-bottom:12px;
+}
+.series-scene-recorder__head strong{
+  display:block;
+  margin-top:4px;
+  font-size:.9rem;
+}
+.series-scene-recorder__head p{
+  margin:5px 0 0;
+  max-width:760px;
+  color:var(--muted);
+  font-size:.72rem;
+  line-height:1.5;
+}
+.series-scene-recorder .english-recorder{
+  padding-top:12px;
+  border-top:1px solid var(--line);
+}
+@media(max-width:760px){
+  .series-scene-recorder{
+    margin-left:16px;
+    margin-right:16px;
+  }
+}
+/* MMCD_SCENE_AUDIO_AI_V17_END */
