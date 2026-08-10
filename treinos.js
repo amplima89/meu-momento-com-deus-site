@@ -259,297 +259,72 @@
     return `<span class="treino-flames" aria-label="intensidade ${n} de 5">${"🔥".repeat(clamp(Number(n||0),0,5))}</span>`;
   }
 
-  const exerciseMediaCache=new Map();
-  const exerciseMediaOwners=new Map();
-
   function guideFor(exerciseId) {
-    return window.MMCD_TREINO_GUIAS?.[exerciseId] || window.MMCD_TREINO_GUIA_PADRAO || null;
+    return window.MMCD_TREINO_GUIAS?.[exerciseId] || null;
   }
 
   function visualButton(exerciseId,label="Ver execução") {
+    if(!guideFor(exerciseId)) return "";
     return `<button type="button" class="exercise-visual-btn" data-action="show-exercise-guide" data-guide-id="${esc(exerciseId)}">
       <span class="exercise-visual-btn__icon">▶</span>${esc(label)}
     </button>`;
   }
 
-  function normalizeGuideText(value) {
-    return String(value||"")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g,"")
-      .toLowerCase()
-      .replace(/\b(machine|cable|smith|barbell|dumbbell)\b/g," ")
-      .replace(/[^a-z0-9]+/g," ")
-      .replace(/\s+/g," ")
-      .trim();
-  }
-
-  function absoluteWgerUrl(url) {
-    if(!url) return "";
-    if(/^https?:\/\//i.test(url)) return url;
-    return `https://wger.de${String(url).startsWith("/")?"":"/"}${url}`;
-  }
-
-  function extractExerciseNames(item) {
-    const names=[];
-    if(item?.name) names.push(item.name);
-    if(item?.exercise_name) names.push(item.exercise_name);
-    if(Array.isArray(item?.translations)) {
-      item.translations.forEach(t=>{if(t?.name) names.push(t.name)});
-    }
-    return [...new Set(names.filter(Boolean))];
-  }
-
-  function mediaUrl(image) {
-    return absoluteWgerUrl(
-      image?.thumbnails?.medium ||
-      image?.thumbnails?.small ||
-      image?.image ||
-      image?.url ||
-      image?.path ||
-      ""
-    );
-  }
-
-  function tokenScore(a,b) {
-    const A=new Set(normalizeGuideText(a).split(" ").filter(x=>x.length>2));
-    const B=new Set(normalizeGuideText(b).split(" ").filter(x=>x.length>2));
-    if(!A.size || !B.size) return 0;
-
-    const common=[...A].filter(x=>B.has(x)).length;
-    const precision=common/A.size;
-    const recall=common/B.size;
-
-    if(common===0) return 0;
-    return Math.round((precision*.6 + recall*.4)*100);
-  }
-
-  function scoreWgerResult(item,aliases) {
-    const names=extractExerciseNames(item);
-    let best=0;
-
-    aliases.forEach(alias=>{
-      const q=normalizeGuideText(alias);
-      names.forEach(raw=>{
-        const name=normalizeGuideText(raw);
-
-        if(name===q) {
-          best=Math.max(best,100);
-          return;
-        }
-
-        // A containment match is allowed only when the smaller phrase
-        // still contains at least two meaningful words.
-        const qTokens=q.split(" ").filter(x=>x.length>2);
-        const nTokens=name.split(" ").filter(x=>x.length>2);
-        if((name.includes(q) || q.includes(name)) && Math.min(qTokens.length,nTokens.length)>=2) {
-          best=Math.max(best,88);
-          return;
-        }
-
-        best=Math.max(best,tokenScore(alias,raw));
-      });
-    });
-
-    return best;
-  }
-
-  function extractWgerImages(item) {
-    const raw=[];
-    if(Array.isArray(item?.images)) raw.push(...item.images);
-    if(Array.isArray(item?.exercise_images)) raw.push(...item.exercise_images);
-    if(item?.image && typeof item.image==="object") raw.push(item.image);
-
-    const seen=new Set();
-    return raw.map(img=>({
-      url:mediaUrl(img),
-      style:String(img?.style||img?.image_style||"").toLowerCase(),
-      author:img?.license_author || img?.author || item?.license_author || "",
-      license:img?.license?.short_name || img?.license?.full_name || img?.license_name || item?.license?.short_name || item?.license?.full_name || ""
-    }))
-    .filter(x=>{
-      if(!x.url || seen.has(x.url)) return false;
-      seen.add(x.url);
-      return true;
-    })
-    .sort((a,b)=>{
-      const rank=x=>{
-        if(x.style.includes("photo")||x.style.includes("foto")) return 4;
-        if(x.style.includes("3d")) return 3;
-        if(x.style.includes("drawing")||x.style.includes("illustration")) return 2;
-        return 1;
-      };
-      return rank(b)-rank(a);
-    });
-  }
-
-  function canUseMedia(images,visualKey) {
-    if(!images?.length) return false;
-
-    // A visual can be reused only by aliases of the SAME movement
-    // (e.g. the Tuesday and Saturday version of the same pulldown).
-    for(const image of images) {
-      const owner=exerciseMediaOwners.get(image.url);
-      if(owner && owner!==visualKey) return false;
-    }
-    return true;
-  }
-
-  function reserveMedia(images,visualKey) {
-    images.forEach(image=>exerciseMediaOwners.set(image.url,visualKey));
-  }
-
-  async function searchWger(query) {
-    const url=`https://wger.de/api/v2/exerciseinfo/?limit=40&language=2&status=2&search=${encodeURIComponent(query)}`;
-    const response=await fetch(url,{headers:{Accept:"application/json"}});
-    if(!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload=await response.json();
-    return Array.isArray(payload)?payload:(payload?.results||[]);
-  }
-
-  async function fetchWgerGuide(exerciseId) {
-    if(exerciseMediaCache.has(exerciseId)) return exerciseMediaCache.get(exerciseId);
-
-    const guide=guideFor(exerciseId);
-    const aliases=(guide?.consultas?.length ? guide.consultas : [guide?.consulta]).filter(Boolean);
-    const visualKey=guide?.visualKey || exerciseId;
-
-    if(!aliases.length) {
-      const empty={images:[],source:"",sourceLabel:"",error:"Sem busca visual mapeada."};
-      exerciseMediaCache.set(exerciseId,empty);
-      return empty;
-    }
-
-    let lastError="";
-    let bestRejectedScore=0;
-
-    // IMPORTANT: every request remains query-specific.
-    // There is deliberately NO "load all exercises and pick something" fallback.
-    for(const query of aliases) {
-      try {
-        const rows=await searchWger(query);
-        if(!rows.length) continue;
-
-        const ranked=rows
-          .map(item=>({item,score:scoreWgerResult(item,aliases)}))
-          .sort((a,b)=>b.score-a.score);
-
-        for(const candidate of ranked) {
-          bestRejectedScore=Math.max(bestRejectedScore,candidate.score);
-
-          // Strong semantic match only.
-          if(candidate.score<72) continue;
-
-          const images=extractWgerImages(candidate.item);
-          if(!images.length) continue;
-
-          // Prevent "the same guy/image for everything".
-          if(!canUseMedia(images,visualKey)) continue;
-
-          reserveMedia(images,visualKey);
-
-          const id=candidate.item?.id || candidate.item?.uuid || "";
-          const result={
-            images:images.slice(0,3),
-            source:id?`https://wger.de/exercise/${id}/view`:"https://wger.de",
-            sourceLabel:extractExerciseNames(candidate.item)[0] || query,
-            matchedQuery:query,
-            matchScore:candidate.score,
-            visualKey,
-            error:""
-          };
-
-          exerciseMediaCache.set(exerciseId,result);
-          return result;
-        }
-      } catch(error) {
-        lastError=error?.message||String(error);
-      }
-    }
-
-    const empty={
-      images:[],
-      source:"https://wger.de",
-      sourceLabel:"wger",
-      matchedQuery:"",
-      matchScore:bestRejectedScore,
-      visualKey,
-      error:lastError || `Nenhuma referência atingiu a qualidade mínima (${bestRejectedScore}/100).`
-    };
-    exerciseMediaCache.set(exerciseId,empty);
-    return empty;
-  }
-
   function guideTextHtml(exerciseId) {
     const guide=guideFor(exerciseId);
     if(!guide) return "";
+
     return `<div class="exercise-guide__content">
       <span class="treino-kicker">COMO EXECUTAR</span>
       <ol>${(guide.passos||[]).map(item=>`<li>${esc(item)}</li>`).join("")}</ol>
+      ${guide.observacaoVisual?`<div class="exercise-guide__specific"><strong>Importante</strong><p>${esc(guide.observacaoVisual)}</p></div>`:""}
       ${guide.dica?`<div class="exercise-guide__tip"><span>💡</span><p><strong>Dica:</strong> ${esc(guide.dica)}</p></div>`:""}
     </div>`;
+  }
+
+  function guideImagePanel(url,label,title) {
+    return `<figure class="exercise-pose">
+      <div class="exercise-pose__label">${esc(label)}</div>
+      <img src="${esc(url)}" alt="${esc(title)} — ${esc(label)}" loading="lazy" referrerpolicy="no-referrer">
+    </figure>`;
   }
 
   function guideHtml(exerciseId,compact=false) {
     const guide=guideFor(exerciseId);
     if(!guide) return "";
-    return `<div class="exercise-guide exercise-guide--real ${compact?"compact":""}" data-live-guide="${esc(exerciseId)}">
-      <div class="exercise-guide__visual exercise-guide__visual--loading">
-        <div class="exercise-media-loading"><span></span><strong>Buscando referência visual real…</strong><small>Foto ou ilustração 3D, quando disponível.</small></div>
+
+    const firstLabel=guide.estatico?"POSIÇÃO":"INÍCIO";
+    const secondLabel=guide.estatico?"MANTER":"FIM";
+
+    return `<div class="exercise-guide exercise-guide--curated ${compact?"compact":""}">
+      <div class="exercise-guide__visual exercise-guide__visual--pair">
+        <div class="exercise-pose-grid">
+          ${guideImagePanel(guide.inicio,firstLabel,guide.titulo)}
+          ${guideImagePanel(guide.fim,secondLabel,guide.titulo)}
+        </div>
+        <div class="exercise-media-source">
+          <span>Referência: ${esc(guide.fonte||"Free Exercise DB")}</span>
+          ${guide.fonteUrl?`<a href="${esc(guide.fonteUrl)}" target="_blank" rel="noopener noreferrer">Ver fonte</a>`:""}
+        </div>
       </div>
       ${guideTextHtml(exerciseId)}
     </div>`;
   }
 
-  function attributionHtml(media) {
-    const authors=[...new Set((media.images||[]).map(x=>x.author).filter(Boolean))];
-    const licenses=[...new Set((media.images||[]).map(x=>x.license).filter(Boolean))];
-    return `<div class="exercise-media-source">
-      <span>Fonte visual: wger</span>
-      ${media.sourceLabel?`<span>Correspondência: ${esc(media.sourceLabel)}</span>`:""}
-      ${media.matchScore?`<span>Confiança: ${esc(media.matchScore)}/100</span>`:""}
-      ${authors.length?`<span>Autor: ${esc(authors.join(", "))}</span>`:""}
-      ${licenses.length?`<span>Licença: ${esc(licenses.join(", "))}</span>`:""}
-      ${media.source?`<a href="${esc(media.source)}" target="_blank" rel="noopener noreferrer">Ver fonte</a>`:""}
-    </div>`;
+  function hydrateVisibleGuides() {
+    // V26 uses explicit start/end URLs; there is no search or hydration step.
   }
 
-  async function hydrateGuide(container,exerciseId) {
-    if(!container) return;
-    const visual=container.querySelector(".exercise-guide__visual");
-    if(!visual) return;
-
-    const media=await fetchWgerGuide(exerciseId);
-    if(!document.documentElement.contains(container)) return;
-
-    if(media.images?.length){
-      visual.classList.remove("exercise-guide__visual--loading");
-      visual.innerHTML=`<div class="exercise-real-media ${media.images.length>1?"multiple":""}">
-        ${media.images.map((img,i)=>`<figure><img src="${esc(img.url)}" alt="${esc(guideFor(exerciseId)?.titulo||"Exercício")} — referência ${i+1}" loading="lazy" referrerpolicy="no-referrer">${media.images.length>1?`<figcaption>Referência ${i+1}</figcaption>`:""}</figure>`).join("")}
-      </div>${attributionHtml(media)}`;
-    }else{
-      visual.classList.remove("exercise-guide__visual--loading");
-      visual.innerHTML=`<div class="exercise-media-unavailable"><span>📷</span><strong>Referência visual indisponível</strong><p>Não encontrei uma foto ou ilustração que corresponda com segurança a este exercício. Prefiro deixar sem imagem do que repetir uma referência errada.</p></div>`;
-    }
-  }
-
-  function hydrateVisibleGuides(root=document) {
-    root.querySelectorAll("[data-live-guide]").forEach(container=>{
-      if(container.dataset.hydrating==="1") return;
-      container.dataset.hydrating="1";
-      hydrateGuide(container,container.dataset.liveGuide);
-    });
-  }
-
-  async function showExerciseGuide(exerciseId) {
+  function showExerciseGuide(exerciseId) {
     const guide=guideFor(exerciseId);
     if(!guide) return;
     const modal=$("#exercise-guide-modal");
     if(!modal) return;
+
     $("#exercise-guide-modal-title").textContent=guide.titulo || "Execução do exercício";
     $("#exercise-guide-modal-body").innerHTML=guideHtml(exerciseId,false);
     modal.hidden=false;
     document.body.classList.add("guide-modal-open");
-    hydrateVisibleGuides(modal);
   }
 
   function closeExerciseGuide() {
@@ -661,7 +436,7 @@
               <div class="preview-exercise-row">
                 <span>${String(i+1).padStart(2,"0")}</span>
                 <div><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>
-                ${visualButton(x.id,"Ver execução")}
+                ${x.registro==="protocolo"?"":visualButton(x.id,"Ver execução")}
               </div>`).join("")}
           </div>`:""}`;
     }
@@ -670,7 +445,7 @@
       <div class="preview-exercise-row">
         <span>${String(i+1).padStart(2,"0")}</span>
         <div><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>
-        ${visualButton(x.id,"Ver execução")}
+        ${x.registro==="protocolo"?"":visualButton(x.id,"Ver execução")}
       </div>`).join("")}</div>`;
   }
 
@@ -1384,8 +1159,11 @@
             <span>Guia visual</span>
             <div class="exercise-guide-admin__row">
               <div class="exercise-guide-admin__icon">📷</div>
-              <div><strong>Referência real</strong><small>${esc(guideFor(ex.id)?.consulta||"Sem busca mapeada")}</small></div>
-              ${visualButton(ex.id,"Pré-visualizar")}
+              <div>
+                <strong>${guideFor(ex.id)?"Início + fim cadastrados":"Sem referência cadastrada"}</strong>
+                <small>${guideFor(ex.id)?.datasetId||"—"}</small>
+              </div>
+              ${guideFor(ex.id)?visualButton(ex.id,"Pré-visualizar"):""}
             </div>
           </div>
         </div>
@@ -1514,7 +1292,7 @@
     if(state.tab==="historico") renderHistory();
     if(state.tab==="evolucao") renderEvolution();
     if(state.tab==="configuracoes") renderSettings();
-    requestAnimationFrame(()=>hydrateVisibleGuides(document));
+    
   }
 
   function bindEvents() {
@@ -1654,11 +1432,7 @@
       bindEvents();
       setTab(state.tab,false);
       renderAll();
-
-      const guideObserver=new MutationObserver(()=>hydrateVisibleGuides(document));
-      guideObserver.observe(document.body,{childList:true,subtree:true});
-
-      if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
+if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
         requestAnimationFrame(() => document.querySelector("#medidas")?.scrollIntoView({behavior:"smooth",block:"start"}));
       }
       status("Dados online · Supabase","saved");

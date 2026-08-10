@@ -1,42 +1,502 @@
 "use strict";
 
 window.MMCD_TREINO_GUIAS = {
-  "remada-baixa-crossover": {titulo:"Remada baixa no crossover",consulta:"Seated cable row",consultas:["Seated cable row","Cable seated row","Seated row"],visualKey:"seated-cable-row",passos:["Peito aberto e coluna neutra.","Puxe em direção ao abdômen aproximando as escápulas.","Retorne controlando sem arredondar a lombar."],dica:"Evite transformar a remada em balanço do tronco."},
-  "remada-crossover-b": {titulo:"Remada no crossover",consulta:"Seated cable row",consultas:["Seated cable row","Cable seated row","Seated row"],visualKey:"seated-cable-row",passos:["Peito aberto e coluna neutra.","Puxe os cotovelos para trás.","Retorne controlando a carga."],dica:"O tronco deve permanecer estável."},
-  "puxada-alta-crossover": {titulo:"Puxada alta no crossover",consulta:"Lat pulldown",consultas:["Lat pulldown","Cable lat pulldown","Pulldown"],visualKey:"lat-pulldown",passos:["Comece com braços altos e peito aberto.","Puxe os cotovelos para baixo.","Leve a barra ou cabo ao alto do peito e suba controlando."],dica:"Evite jogar o tronco para trás."},
-  "puxada-alta-crossover-b": {titulo:"Puxada alta no crossover",consulta:"Lat pulldown",consultas:["Lat pulldown","Cable lat pulldown","Pulldown"],visualKey:"lat-pulldown",passos:["Comece com braços altos.","Puxe os cotovelos para baixo.","Retorne até alongar as costas."],dica:"Pense em levar os cotovelos para os bolsos."},
-  "remada-unilateral-crossover": {titulo:"Remada unilateral no crossover",consulta:"One arm cable row",consultas:["One arm cable row","Single arm cable row","One arm row"],visualKey:"one-arm-cable-row",passos:["Mantenha o tronco neutro.","Puxe o cotovelo para trás sem girar o quadril.","Retorne até alongar a escápula."],dica:"O movimento vem do ombro e da escápula."},
-  "remada-unilateral-crossover-b": {titulo:"Remada unilateral no crossover",consulta:"One arm cable row",consultas:["One arm cable row","Single arm cable row","One arm row"],visualKey:"one-arm-cable-row",passos:["Fique estável.","Puxe o cotovelo para trás.","Retorne controlando."],dica:"Evite girar o tronco."},
-  "rosca-biceps-crossover-a": {titulo:"Rosca de bíceps no crossover",consulta:"Cable biceps curl",consultas:["Cable biceps curl","Cable curl","Biceps curl"],visualKey:"cable-biceps-curl",passos:["Cotovelos próximos ao corpo.","Flexione sem levar o ombro para frente.","Desça lentamente."],dica:"Se o corpo balançar, reduza a carga."},
-  "rosca-biceps-crossover-b": {titulo:"Rosca de bíceps no crossover",consulta:"Cable biceps curl",consultas:["Cable biceps curl","Cable curl","Biceps curl"],visualKey:"cable-biceps-curl",passos:["Cotovelos estáveis.","Flexione até contrair o bíceps.","Retorne controlando."],dica:"Não use impulso do tronco."},
-  "triceps-polia-a": {titulo:"Tríceps na polia",consulta:"Triceps pushdown",consultas:["Triceps pushdown","Cable triceps pushdown","Triceps extension"],visualKey:"triceps-pushdown",passos:["Cotovelos junto ao corpo.","Estenda os braços para baixo.","Volte sem movimentar o ombro."],dica:"Evite inclinar o corpo para empurrar a carga."},
-  "triceps-polia-b": {titulo:"Tríceps na polia",consulta:"Triceps pushdown",consultas:["Triceps pushdown","Cable triceps pushdown","Triceps extension"],visualKey:"triceps-pushdown",passos:["Fixe os cotovelos.","Estenda os braços.","Retorne lentamente."],dica:"O cotovelo é o eixo do movimento."},
-  "face-pull": {titulo:"Face Pull",consulta:"Face pull",consultas:["Face pull","Cable face pull"],visualKey:"face-pull",passos:["Cabo aproximadamente na altura do rosto.","Puxe em direção ao rosto com cotovelos abertos.","Retorne mantendo tensão."],dica:"Execute leve e controlado; interrompa se houver desconforto no ombro."},
-  "pallof-press-a": {titulo:"Pallof Press",consulta:"Pallof press",consultas:["Pallof press","Cable Pallof press"],visualKey:"pallof-press",passos:["Fique de lado para o cabo.","Contraia abdômen e glúteos.","Estenda os braços sem deixar o tronco girar."],dica:"Quadril e ombros continuam apontados para frente."},
-  "pallof-press-hiit": {titulo:"Pallof Press",consulta:"Pallof press",consultas:["Pallof press","Cable Pallof press"],visualKey:"pallof-press",passos:["Fique de lado para o cabo.","Estenda os braços à frente.","Resista à rotação."],dica:"Não permita que o cabo gire o tronco."},
-  "prancha-a": {titulo:"Prancha",consulta:"Plank",consultas:["Plank","Front plank"],visualKey:"front-plank",passos:["Cotovelos abaixo dos ombros.","Contraia abdômen e glúteos.","Mantenha o corpo alinhado."],dica:"Encerre a série se a lombar começar a afundar."},
-  "prancha-hiit": {titulo:"Prancha",consulta:"Plank",consultas:["Plank","Front plank"],visualKey:"front-plank",passos:["Cotovelos abaixo dos ombros.","Mantenha o quadril alinhado.","Respire sem perder tensão."],dica:"Qualidade da posição vale mais que tempo."},
-  "prancha-lateral-hiit": {titulo:"Prancha lateral",consulta:"Side plank",consultas:["Side plank","Lateral plank"],visualKey:"side-plank",passos:["Antebraço abaixo do ombro.","Eleve o quadril.","Mantenha o corpo alinhado lateralmente."],dica:"Evite deixar o quadril cair."},
-  "leg-press-forca": {titulo:"Leg Press",consulta:"Leg press",consultas:["Leg press","45 degree leg press"],visualKey:"leg-press",passos:["Lombar e quadril apoiados.","Desça com os joelhos alinhados aos pés.","Empurre sem travar totalmente os joelhos."],dica:"Use a amplitude que mantém o quadril apoiado."},
-  "leg-press-unilateral": {titulo:"Leg Press unilateral",consulta:"Single leg press",consultas:["Single leg press","One leg leg press","Single leg leg press"],visualKey:"single-leg-press",passos:["Um pé estável na plataforma.","Quadril apoiado.","Desça e empurre mantendo o joelho alinhado."],dica:"Busque simetria antes de aumentar a carga."},
-  "afundo-bulgaro-smith": {titulo:"Afundo Búlgaro no Smith",consulta:"Bulgarian split squat",consultas:["Bulgarian split squat","Rear foot elevated split squat"],visualKey:"bulgarian-split-squat",passos:["Pé de trás apoiado e pé da frente estável.","Desça o quadril com controle.","Suba pela perna da frente."],dica:"O joelho deve acompanhar a direção do pé."},
-  "avanco-reverso-smith": {titulo:"Avanço Reverso no Smith",consulta:"Reverse lunge",consultas:["Reverse lunge","Backward lunge"],visualKey:"reverse-lunge",passos:["Comece estável.","Dê um passo para trás e desça.","Retorne pela perna da frente."],dica:"Mantenha o tronco firme."},
-  "cadeira-flexora-forca": {titulo:"Cadeira Flexora",consulta:"Seated leg curl",consultas:["Seated leg curl","Leg curl"],visualKey:"seated-leg-curl",passos:["Ajuste o eixo da máquina ao joelho.","Flexione os joelhos.","Retorne lentamente."],dica:"Mantenha o quadril apoiado."},
-  "cadeira-flexora-resistencia": {titulo:"Cadeira Flexora",consulta:"Seated leg curl",consultas:["Seated leg curl","Leg curl"],visualKey:"seated-leg-curl",passos:["Flexione com controle.","Contraia o posterior.","Retorne lentamente."],dica:"Priorize os 3 segundos de retorno previstos."},
-  "cadeira-extensora-forca": {titulo:"Cadeira Extensora",consulta:"Leg extension",consultas:["Leg extension","Seated leg extension"],visualKey:"leg-extension",passos:["Alinhe o eixo da máquina ao joelho.","Estenda os joelhos.","Retorne controlando."],dica:"Evite usar impulso."},
-  "cadeira-extensora-resistencia": {titulo:"Cadeira Extensora",consulta:"Leg extension",consultas:["Leg extension","Seated leg extension"],visualKey:"leg-extension",passos:["Mantenha costas e quadril apoiados.","Estenda os joelhos.","Desça lentamente."],dica:"Não deixe as placas baterem."},
-  "cadeira-adutora-forca": {titulo:"Cadeira Adutora",consulta:"Hip adduction machine",consultas:["Hip adduction","Hip adduction machine","Adductor machine"],visualKey:"hip-adduction",passos:["Escolha uma abertura confortável.","Feche as pernas contra a resistência.","Abra novamente com controle."],dica:"Não force amplitude desconfortável."},
-  "cadeira-adutora-resistencia": {titulo:"Cadeira Adutora",consulta:"Hip adduction machine",consultas:["Hip adduction","Hip adduction machine","Adductor machine"],visualKey:"hip-adduction",passos:["Lombar apoiada.","Feche as pernas.","Retorne devagar."],dica:"Controle os dois sentidos."},
-  "cadeira-abdutora-forca": {titulo:"Cadeira Abdutora",consulta:"Hip abduction machine",consultas:["Hip abduction","Hip abduction machine","Abductor machine"],visualKey:"hip-abduction",passos:["Quadril e lombar estáveis.","Abra os joelhos.","Feche lentamente."],dica:"Evite inclinar o tronco."},
-  "cadeira-abdutora-resistencia": {titulo:"Cadeira Abdutora",consulta:"Hip abduction machine",consultas:["Hip abduction","Hip abduction machine","Abductor machine"],visualKey:"hip-abduction",passos:["Abra os joelhos mantendo o quadril firme.","Segure brevemente.","Retorne controlando."],dica:"Não bata as placas."},
-  "panturrilha-leg-press": {titulo:"Panturrilha no Leg Press",consulta:"Calf press leg press",consultas:["Calf press on leg press","Leg press calf raise","Calf press"],visualKey:"leg-press-calf",passos:["Ponta dos pés apoiada.","Calcanhar desce com controle.","Empurre pela ponta dos pés."],dica:"Não force se a canela estiver dolorida."},
-  "supino-inclinado-smith": {titulo:"Supino inclinado no Smith",consulta:"Incline bench press",consultas:["Incline bench press","Incline chest press"],visualKey:"incline-bench-press",passos:["Escápulas presas ao banco.","Desça a barra ao alto do peito.","Empurre mantendo os ombros estáveis."],dica:"Interrompa se houver dor no ombro."},
-  "supino-reto-smith": {titulo:"Supino reto no Smith",consulta:"Bench press",consultas:["Bench press","Flat bench press","Chest press"],visualKey:"bench-press",passos:["Pés firmes e escápulas apoiadas.","Desça a barra com controle.","Empurre sem perder a posição do ombro."],dica:"Dor no ombro não faz parte da execução."}
+  "remada-baixa-crossover": {
+    "titulo": "Remada baixa no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Peito aberto e coluna neutra.",
+      "Puxe o cabo em direção ao abdômen.",
+      "Aproxime as escápulas e retorne de forma controlada."
+    ],
+    "dica": "Não use balanço do tronco para completar a repetição.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Seated_Cable_Rows"
+  },
+  "puxada-alta-crossover": {
+    "titulo": "Puxada alta no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Comece com os braços estendidos e peito aberto.",
+      "Leve os cotovelos para baixo.",
+      "Puxe até a parte alta do peito e retorne devagar."
+    ],
+    "dica": "O tronco permanece estável; evite jogar o corpo para trás.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Wide-Grip_Lat_Pulldown"
+  },
+  "remada-unilateral-crossover": {
+    "titulo": "Remada unilateral no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_One-arm_Cable_Pulley_Rows/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_One-arm_Cable_Pulley_Rows/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Mantenha o tronco firme.",
+      "Puxe o cotovelo para trás sem girar o quadril.",
+      "Retorne até alongar a escápula."
+    ],
+    "dica": "A mão acompanha o movimento; o tronco não precisa rodar.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Seated_One-arm_Cable_Pulley_Rows"
+  },
+  "rosca-biceps-crossover-a": {
+    "titulo": "Rosca de bíceps no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Cable_Curl/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Cable_Curl/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Cotovelos próximos ao corpo.",
+      "Flexione o cotovelo levando a barra em direção ao peito.",
+      "Desça controlando e mantendo o braço superior parado."
+    ],
+    "dica": "Se o ombro ou tronco começar a balançar, reduza a carga.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Standing_Biceps_Cable_Curl"
+  },
+  "triceps-polia-a": {
+    "titulo": "Tríceps na polia",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown_-_Rope_Attachment/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown_-_Rope_Attachment/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Mantenha os cotovelos junto ao corpo.",
+      "Estenda os antebraços para baixo.",
+      "Abra levemente a corda no final e volte controlando."
+    ],
+    "dica": "O braço superior fica parado; o movimento acontece no cotovelo.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Triceps_Pushdown_-_Rope_Attachment"
+  },
+  "face-pull": {
+    "titulo": "Face Pull",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Cabo aproximadamente na altura do rosto.",
+      "Puxe em direção ao rosto com os cotovelos abertos.",
+      "Separe as mãos no final e retorne controlando."
+    ],
+    "dica": "Faça leve e controlado; interrompa se houver desconforto no ombro.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Face_Pull"
+  },
+  "pallof-press-a": {
+    "titulo": "Pallof Press",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pallof_Press/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pallof_Press/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Fique de lado para o cabo.",
+      "Segure junto ao peito e contraia o core.",
+      "Estenda os braços sem deixar o tronco girar."
+    ],
+    "dica": "Quadril e ombros continuam apontados para a frente.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Pallof_Press"
+  },
+  "prancha-a": {
+    "titulo": "Prancha",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/1.jpg",
+    "estatico": true,
+    "passos": [
+      "Cotovelos abaixo dos ombros.",
+      "Contraia abdômen e glúteos.",
+      "Mantenha cabeça, tronco e pernas alinhados."
+    ],
+    "dica": "Se a lombar começar a afundar, encerre a série.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Plank"
+  },
+  "leg-press-forca": {
+    "titulo": "Leg Press",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Lombar e quadril apoiados.",
+      "Desça até manter o quadril estável.",
+      "Empurre pela plataforma sem travar completamente os joelhos."
+    ],
+    "dica": "A amplitude termina antes de a lombar ou o quadril perderem contato com o banco.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Leg_Press"
+  },
+  "afundo-bulgaro-smith": {
+    "titulo": "Afundo Búlgaro no Smith",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Single-Leg_Split_Squat/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Single-Leg_Split_Squat/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Pé de trás apoiado no banco.",
+      "Desça mantendo tronco e joelho alinhados.",
+      "Suba empurrando o chão com a perna da frente."
+    ],
+    "dica": "A referência é do próprio movimento no Smith.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Smith_Single-Leg_Split_Squat"
+  },
+  "cadeira-flexora-forca": {
+    "titulo": "Cadeira Flexora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Ajuste o eixo da máquina à linha do joelho.",
+      "Flexione os joelhos contra a resistência.",
+      "Retorne devagar mantendo o quadril apoiado."
+    ],
+    "dica": "Não deixe a carga puxar sua perna de volta.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Seated_Leg_Curl"
+  },
+  "cadeira-extensora-forca": {
+    "titulo": "Cadeira Extensora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Quadril e costas apoiados.",
+      "Estenda os joelhos até a contração do quadríceps.",
+      "Retorne controlando."
+    ],
+    "dica": "Evite impulso para sair da posição inicial.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Leg_Extensions"
+  },
+  "cadeira-adutora-forca": {
+    "titulo": "Cadeira Adutora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Adductor/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Adductor/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Comece com abertura confortável.",
+      "Feche as pernas contra a resistência.",
+      "Retorne sem deixar as placas baterem."
+    ],
+    "dica": "Não force uma abertura desconfortável para o quadril.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Thigh_Adductor"
+  },
+  "cadeira-abdutora-forca": {
+    "titulo": "Cadeira Abdutora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Abductor/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Abductor/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Quadril e lombar estáveis.",
+      "Abra os joelhos contra a resistência.",
+      "Retorne de forma controlada."
+    ],
+    "dica": "Evite inclinar o tronco para gerar impulso.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Thigh_Abductor"
+  },
+  "panturrilha-leg-press": {
+    "titulo": "Panturrilha no Leg Press",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Press_On_The_Leg_Press_Machine/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Press_On_The_Leg_Press_Machine/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Apoie a parte da frente dos pés na plataforma.",
+      "Desça os calcanhares com controle.",
+      "Eleve os calcanhares e contraia a panturrilha."
+    ],
+    "dica": "Não force se houver desconforto na canela.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Calf_Press_On_The_Leg_Press_Machine"
+  },
+  "pallof-press-hiit": {
+    "titulo": "Pallof Press",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pallof_Press/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pallof_Press/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Fique de lado para o cabo.",
+      "Trave o core.",
+      "Estenda os braços resistindo à rotação."
+    ],
+    "dica": "O tronco não deve acompanhar o cabo.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Pallof_Press"
+  },
+  "prancha-hiit": {
+    "titulo": "Prancha",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/1.jpg",
+    "estatico": true,
+    "passos": [
+      "Cotovelos abaixo dos ombros.",
+      "Mantenha o quadril alinhado.",
+      "Respire sem perder a tensão abdominal."
+    ],
+    "dica": "Qualidade da posição vale mais que tempo.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Plank"
+  },
+  "prancha-lateral-hiit": {
+    "titulo": "Prancha lateral",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/1.jpg",
+    "estatico": true,
+    "passos": [
+      "Antebraço abaixo do ombro.",
+      "Eleve o quadril.",
+      "Mantenha o corpo alinhado lateralmente."
+    ],
+    "dica": "Evite deixar o quadril cair ou girar para a frente.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Side_Bridge"
+  },
+  "leg-press-unilateral": {
+    "titulo": "Leg Press unilateral",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Use a mesma posição segura do Leg Press.",
+      "Trabalhe com uma perna por vez mantendo o quadril apoiado.",
+      "Desça e empurre sem deixar o joelho cair para dentro."
+    ],
+    "dica": "A referência visual mostra a mecânica do Leg Press; no seu treino, execute unilateralmente.",
+    "observacaoVisual": "A foto demonstra a mecânica e amplitude do Leg Press. No seu plano, a execução é com uma perna por vez.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Leg_Press"
+  },
+  "avanco-reverso-smith": {
+    "titulo": "Avanço Reverso no Smith",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Rear_Lunge/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Rear_Lunge/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Comece em pé e estável.",
+      "Leve uma perna para trás e desça o joelho.",
+      "Retorne empurrando o chão com a perna da frente."
+    ],
+    "dica": "No seu plano, a barra fica guiada pelo Smith.",
+    "observacaoVisual": "A referência mostra o padrão exato do avanço reverso. No seu treino, o mesmo movimento é feito sob a barra do Smith.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Dumbbell_Rear_Lunge"
+  },
+  "cadeira-flexora-resistencia": {
+    "titulo": "Cadeira Flexora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Flexione os joelhos contra a resistência.",
+      "Contraia o posterior no final.",
+      "Faça o retorno lentamente."
+    ],
+    "dica": "Nesta sessão, respeite os 3 segundos na fase de retorno.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Seated_Leg_Curl"
+  },
+  "cadeira-extensora-resistencia": {
+    "titulo": "Cadeira Extensora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Mantenha costas e quadril apoiados.",
+      "Estenda os joelhos.",
+      "Desça lentamente sem bater as placas."
+    ],
+    "dica": "Controle a fase de retorno.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Leg_Extensions"
+  },
+  "cadeira-adutora-resistencia": {
+    "titulo": "Cadeira Adutora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Adductor/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Adductor/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Mantenha o tronco estável.",
+      "Feche as pernas.",
+      "Abra novamente com controle."
+    ],
+    "dica": "Não use impulso.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Thigh_Adductor"
+  },
+  "cadeira-abdutora-resistencia": {
+    "titulo": "Cadeira Abdutora",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Abductor/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Abductor/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Quadril estável.",
+      "Abra os joelhos.",
+      "Retorne controlando."
+    ],
+    "dica": "Mantenha a lombar apoiada.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Thigh_Abductor"
+  },
+  "supino-inclinado-smith": {
+    "titulo": "Supino Inclinado no Smith",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Incline_Bench_Press/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Incline_Bench_Press/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Escápulas firmes no banco.",
+      "Desça a barra em direção à parte alta do peito.",
+      "Empurre mantendo os ombros estáveis."
+    ],
+    "dica": "Interrompa se houver dor no ombro.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Smith_Machine_Incline_Bench_Press"
+  },
+  "remada-crossover-b": {
+    "titulo": "Remada no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Peito aberto.",
+      "Puxe em direção ao abdômen.",
+      "Retorne controlando."
+    ],
+    "dica": "Evite usar balanço.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Seated_Cable_Rows"
+  },
+  "puxada-alta-crossover-b": {
+    "titulo": "Puxada alta no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Braços estendidos.",
+      "Puxe os cotovelos para baixo.",
+      "Retorne devagar."
+    ],
+    "dica": "O tronco permanece estável.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Wide-Grip_Lat_Pulldown"
+  },
+  "supino-reto-smith": {
+    "titulo": "Supino reto no Smith",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Bench_Press/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Bench_Press/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Pés firmes e escápulas apoiadas.",
+      "Desça a barra até a região média do peito.",
+      "Empurre sem perder a posição dos ombros."
+    ],
+    "dica": "Interrompa se houver dor no ombro.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Smith_Machine_Bench_Press"
+  },
+  "rosca-biceps-crossover-b": {
+    "titulo": "Rosca de bíceps no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Cable_Curl/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Cable_Curl/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Cotovelos próximos ao corpo.",
+      "Flexione o cotovelo.",
+      "Desça controlando."
+    ],
+    "dica": "Não use o tronco para ajudar.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Standing_Biceps_Cable_Curl"
+  },
+  "triceps-polia-b": {
+    "titulo": "Tríceps na polia",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown_-_Rope_Attachment/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown_-_Rope_Attachment/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Cotovelos fixos.",
+      "Estenda os braços para baixo.",
+      "Retorne lentamente."
+    ],
+    "dica": "Mantenha o braço superior parado.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Triceps_Pushdown_-_Rope_Attachment"
+  },
+  "remada-unilateral-crossover-b": {
+    "titulo": "Remada unilateral no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_One-arm_Cable_Pulley_Rows/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_One-arm_Cable_Pulley_Rows/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Mantenha o tronco firme.",
+      "Puxe o cotovelo para trás.",
+      "Retorne controlando."
+    ],
+    "dica": "Não gire o quadril.",
+    "observacaoVisual": "",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Seated_One-arm_Cable_Pulley_Rows"
+  }
 };
 
-window.MMCD_TREINO_GUIA_PADRAO = {
-  titulo:"Guia visual",
-  consulta:"",
-  passos:["Mantenha uma posição estável.","Execute de forma controlada.","Interrompa se houver dor."],
-  dica:"Ainda não há uma referência visual mapeada para este exercício."
-};
+window.MMCD_TREINO_GUIA_PADRAO = null;
