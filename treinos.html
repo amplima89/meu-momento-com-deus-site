@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1628">
+  <title>Treinos — Life Style</title>
+  <link rel="icon" href="favicon.ico?v=20260810-treino24" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260810-treino24">
+  <link rel="stylesheet" href="painel.css?v=20260810-treino-v24">
+  <link rel="stylesheet" href="treinos.css?v=20260810-treino24">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div>
+          <span class="app-topbar__title">LIFE STYLE</span>
+          <span class="app-topbar__subtitle">Plano de treino</span>
+        </div>
+        <div class="topbar-actions">
+          <span id="treino-save-status">Carregando…</span>
+          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main treino-page">
+      <section class="treino-hero">
+        <div>
+          <p class="eyebrow">Treinos</p>
+          <h1 id="treino-program-name">Plano de treino</h1>
+          <p id="treino-program-objective" class="muted">Carregando seu programa…</p>
+        </div>
+        <div class="treino-hero-side">
+          <strong id="treino-today-label">Hoje</strong>
+          <span>Abrir → treinar → registrar → fechar.</span>
+        </div>
+      </section>
+
+      <nav class="treino-tabs" aria-label="Áreas do plano de treino">
+        <button class="treino-tab active" data-tab="hoje">🏋️ Hoje</button>
+        <button class="treino-tab" data-tab="historico">📅 Histórico</button>
+        <button class="treino-tab" data-tab="evolucao">📈 Evolução</button>
+        <button class="treino-tab" data-tab="configuracoes">⚙️ Configurações</button>
+      </nav>
+
+      <section class="treino-panel" data-panel="hoje">
+        <div id="treino-today-root"></div>
+      </section>
+
+      <section class="treino-panel" data-panel="historico" hidden>
+        <div class="history-toolbar">
+          <div><p class="eyebrow">Histórico</p><h2 id="history-month-label">Mês</h2></div>
+        </div>
+        <div id="treino-history-root"></div>
+      </section>
+
+      <section class="treino-panel" data-panel="evolucao" hidden>
+        <div class="page-header">
+          <div><p class="eyebrow">Evolução</p><h1>Seu progresso</h1><p class="muted">Frequência, cargas e medidas sem poluir a tela de treino.</p></div>
+        </div>
+        <div id="treino-evolution-root"></div>
+      </section>
+
+      <section class="treino-panel" data-panel="configuracoes" hidden>
+        <div class="page-header">
+          <div><p class="eyebrow">Configurações › Plano de treino</p><h1>Cadastros</h1><p class="muted">Programa, composição dos treinos e medidas corporais.</p></div>
+        </div>
+        <div id="treino-settings-root"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="finish-modal" class="finish-modal" hidden>
+    <div class="finish-modal-card">
+      <button id="finish-modal-close" class="finish-modal-close" aria-label="Fechar">×</button>
+      <div id="finish-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=20260810-treino24"></script>
+  <script src="supabase-client.js?v=20260810-treino24"></script>
+  <script src="auth.js?v=20260810-treino24"></script>
+  <script src="shell.js?v=20260810-treino-v24"></script>
+  <script>MMCDShell('treinos')</script>
+  <script src="treinos-data.js?v=20260810-treino24"></script>
+  <script src="treinos.js?v=20260810-treino24"></script>
+</body>
+</html>
