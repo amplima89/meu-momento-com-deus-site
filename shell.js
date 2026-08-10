@@ -5,7 +5,7 @@ window.MMCDShell=async function(active){
   ['meditacao','index.html','02','Meditação','Momento com Deus'],
   ['biblia','biblia.html','03','Bíblia','Leitura e marcações'],
   ['ingles','ingles.html','04','Inglês diário','Prática e revisão'],
-  ['treinos','treinos.html','05','Treinos','Plano de treino'],
+  ['treinos','treinos.html#hoje','05','Treinos','Plano de treino'],
   ['atividades','atividades.html','06','Atividades','Rotina diária'],
   ['livros','livros.html','07','Livros','Biblioteca'],
   ['estatisticas','relatorios.html','08','Estatísticas','Evolução']

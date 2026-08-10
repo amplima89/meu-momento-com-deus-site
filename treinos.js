@@ -14,6 +14,7 @@
     sessoes: [],
     medidas: [],
     tab: "hoje",
+    selectedDate: null,
     loading: true,
     saving: false,
     saveQueue: Promise.resolve()
@@ -272,66 +273,195 @@
     });
   }
 
-  function weekStatusHtml() {
+  function dateLabel(iso) {
+    return new Date(`${iso}T12:00:00`).toLocaleDateString("pt-BR", {
+      weekday:"long",
+      day:"2-digit",
+      month:"2-digit"
+    });
+  }
+
+  function weekStatusHtml(referenceIso=state.selectedDate || todayIso()) {
     const today=todayIso();
-    return weekDates().map(iso=>{
+    const reference=new Date(`${referenceIso}T12:00:00`);
+
+    return weekDates(reference).map(iso=>{
       const work=workoutForDate(iso);
       if (!work) return "";
+
       const ses=sessionForDate(iso);
+      const day=new Date(`${iso}T12:00:00`);
+      const short=day.toLocaleDateString("pt-BR",{weekday:"short"}).replace(".","");
+      const number=day.getDate();
+
       let cls="future", symbol="○";
       if (work.tipo==="descanso") { cls="rest";symbol="—"; }
       else if (ses?.status==="concluido") { cls="done";symbol="✓"; }
       else if (ses?.status==="parcial" || ses?.status==="em_andamento") { cls="partial";symbol=iso===today?"▶":"◐"; }
       else if (iso<today) { cls="missed";symbol="×"; }
       else if (iso===today) { cls="today";symbol="▶"; }
-      return `<div class="week-day ${cls}">
-        <span>${esc(work.diaNome.replace("-feira","").slice(0,3))}</span>
+
+      if (iso===referenceIso) cls += " selected";
+
+      return `<button class="week-day ${cls}" type="button" data-plan-date="${iso}" aria-label="${esc(dateLabel(iso))}: ${esc(work.nome)}">
+        <span>${esc(short)}</span>
+        <b>${number}</b>
         <strong>${symbol}</strong>
-      </div>`;
+      </button>`;
     }).join("");
+  }
+
+  function weekLabel(referenceIso=state.selectedDate || todayIso()) {
+    const dates=weekDates(new Date(`${referenceIso}T12:00:00`));
+    const first=new Date(`${dates[0]}T12:00:00`);
+    const last=new Date(`${dates[6]}T12:00:00`);
+    const a=first.toLocaleDateString("pt-BR",{day:"2-digit",month:"short"}).replace(".","");
+    const b=last.toLocaleDateString("pt-BR",{day:"2-digit",month:"short"}).replace(".","");
+    return `${a} — ${b}`;
+  }
+
+  function calendarNavigatorHtml() {
+    const selected=state.selectedDate || todayIso();
+    return `
+      <section class="card treino-calendar-nav">
+        <div class="treino-calendar-nav__head">
+          <div>
+            <span class="treino-kicker">PLANO SEMANAL</span>
+            <h2>Escolha o dia</h2>
+            <p>Veja o treino de qualquer data sem sair desta tela.</p>
+          </div>
+          <label class="treino-date-picker">
+            <span>📅 Calendário</span>
+            <input id="treino-date-picker" type="date" value="${selected}" aria-label="Escolher data do plano de treino">
+          </label>
+        </div>
+
+        <div class="week-strip week-strip--interactive">${weekStatusHtml(selected)}</div>
+
+        <div class="treino-week-nav">
+          <button type="button" class="mini-action treino-week-arrow" data-action="week-prev">← Semana anterior</button>
+          <strong>${esc(weekLabel(selected))}</strong>
+          <button type="button" class="mini-action treino-week-arrow" data-action="week-next">Próxima semana →</button>
+        </div>
+
+        ${selected!==todayIso()?`<button type="button" class="btn treino-back-today" data-action="back-today">Voltar para hoje</button>`:""}
+      </section>`;
+  }
+
+  function plannedPreviewHtml(workout) {
+    if (workout.tipo==="futebol") {
+      return `<div class="preview-list">${(workout.aquecimento||[]).map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>`;
+    }
+
+    if (workout.tipo==="cardio") {
+      return `
+        <div class="preview-list">${(workout.protocolo||[]).map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>
+        ${(workout.exercicios||[]).length?`
+          <div class="preview-exercises preview-exercises--calendar">
+            ${(workout.exercicios||[]).map((x,i)=>`<div><span>${String(i+1).padStart(2,"0")}</span><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>`).join("")}
+          </div>`:""}`;
+    }
+
+    return `<div class="preview-exercises preview-exercises--calendar">${(workout.exercicios||[]).map((x,i)=>`
+      <div>
+        <span>${String(i+1).padStart(2,"0")}</span>
+        <strong>${esc(x.nome)}</strong>
+        <small>${esc(x.series)} × ${esc(x.reps)}</small>
+      </div>`).join("")}</div>`;
+  }
+
+  function historicalPlanHtml(workout,session,iso) {
+    const exercises=(session.exercicios||[]).map((ex,i)=>`
+      <div class="selected-history-exercise">
+        <span>${String(i+1).padStart(2,"0")}</span>
+        <div><strong>${esc(ex.nome)}</strong><small>${lastExerciseSummary(ex)}</small></div>
+        <b>${exerciseDone(ex)?"✓":"—"}</b>
+      </div>`).join("");
+
+    return `
+      <article class="card selected-plan-card selected-plan-card--history">
+        <div class="selected-plan-card__head">
+          <div>
+            <span class="treino-kicker">REGISTRO DE ${esc(datePt(iso))}</span>
+            <h2>${esc(workout?.tituloCurto || session.treinoSnapshot?.nome || "Treino")}</h2>
+            <p>${esc(workout?.objetivo || session.treinoSnapshot?.objetivo || "")}</p>
+          </div>
+          <span class="selected-plan-status ${session.status}">${session.status==="concluido"?"Concluído":session.status==="parcial"?"Parcial":"Em andamento"}</span>
+        </div>
+        ${exercises || `<div class="selected-history-meta">${session.duracaoMinutos?`${fmt(session.duracaoMinutos)} min`:"Registro disponível"}</div>`}
+      </article>`;
   }
 
   function renderToday() {
     const root=$("#treino-today-root");
     if (!root) return;
-    const iso=todayIso();
+
+    if (!state.selectedDate) state.selectedDate=todayIso();
+
+    const iso=state.selectedDate;
+    const isToday=iso===todayIso();
     const workout=workoutForDate(iso);
     const session=sessionForDate(iso);
     const program=state.plano.programa;
+    const navigator=calendarNavigatorHtml();
 
     $("#treino-program-name").textContent=program.nome || "Plano de treino";
     $("#treino-program-objective").textContent=program.objetivo || "";
-    $("#treino-today-label").textContent=new Date(`${iso}T12:00:00`).toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"2-digit"});
+    $("#treino-today-label").textContent=dateLabel(iso);
 
     if (!workout) {
-      root.innerHTML=`<article class="card treino-empty"><h2>Sem treino programado</h2><p class="muted">Configure o plano em Configurações.</p></article>`;
+      root.innerHTML=`
+        ${navigator}
+        <article class="card treino-empty">
+          <span class="treino-kicker">${isToday?"HOJE":"PLANO DO DIA"}</span>
+          <h2>Sem treino programado</h2>
+          <p class="muted">Não há treino cadastrado para ${esc(datePt(iso))}.</p>
+        </article>`;
+      return;
+    }
+
+    if (!isToday && session) {
+      root.innerHTML=navigator+historicalPlanHtml(workout,session,iso);
       return;
     }
 
     if (workout.tipo==="descanso") {
       root.innerHTML=`
+        ${navigator}
         <article class="card treino-rest-card">
-          <span class="treino-kicker">HOJE</span>
+          <span class="treino-kicker">${isToday?"HOJE":"PLANO DO DIA"}</span>
           <h2>${esc(workout.tituloCurto)}</h2>
           <p>${esc(workout.objetivo)}</p>
           <div class="rest-orb">RECUPERAÇÃO</div>
-          <small>Domingo não conta como treino perdido.</small>
-        </article>
-        <section class="card treino-week-card">
-          <div class="section-head"><div><p class="eyebrow">Semana</p><h2>Visão rápida</h2></div></div>
-          <div class="week-strip">${weekStatusHtml()}</div>
-        </section>`;
+          <small>Descanso programado não conta como treino perdido.</small>
+        </article>`;
+      return;
+    }
+
+    if (!isToday) {
+      root.innerHTML=`
+        ${navigator}
+        <article class="card selected-plan-card">
+          <div class="selected-plan-card__head">
+            <div>
+              <span class="treino-kicker">PLANO DO DIA · ${esc(datePt(iso))}</span>
+              <h2>${esc(workout.tituloCurto)}</h2>
+              <p>${esc(workout.objetivo)}</p>
+            </div>
+            ${intensityFlames(workout.intensidade)}
+          </div>
+          <div class="selected-plan-count">${workout.tipo==="futebol"?"Jogo + aquecimento":workout.tipo==="cardio"?"Protocolo + core":`${(workout.exercicios||[]).length} exercícios`}</div>
+          ${plannedPreviewHtml(workout)}
+          <div class="selected-plan-note">Visualização do plano. Para registrar a execução, abra o treino na data correspondente.</div>
+        </article>`;
       return;
     }
 
     if (!session) {
-      const exercises = workout.tipo==="futebol"
-        ? `<div class="preview-list">${workout.aquecimento.map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>`
-        : workout.tipo==="cardio"
-          ? `<div class="preview-list">${workout.protocolo.map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>`
-          : `<div class="preview-exercises">${(workout.exercicios||[]).map((x,i)=>`<div><span>${String(i+1).padStart(2,"0")}</span><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>`).join("")}</div>`;
+      const exercises=plannedPreviewHtml(workout);
 
       root.innerHTML=`
+        ${navigator}
         <article class="card today-start-card">
           <div class="today-start-card__top">
             <div>
@@ -347,23 +477,23 @@
             <summary>Ver estrutura de hoje</summary>
             ${exercises}
           </details>
-        </article>
-        <section class="card treino-week-card">
-          <div class="section-head"><div><p class="eyebrow">Semana</p><h2>Ritmo da semana</h2></div><strong>${state.sessoes.filter(s=>weekDates().includes(s.data)&&s.status==="concluido").length}/6</strong></div>
-          <div class="week-strip">${weekStatusHtml()}</div>
-        </section>`;
+        </article>`;
       return;
     }
 
     if (workout.tipo==="futebol") {
       renderFootball(root,workout,session);
+      root.insertAdjacentHTML("afterbegin",navigator);
       return;
     }
     if (workout.tipo==="cardio") {
       renderCardio(root,workout,session);
+      root.insertAdjacentHTML("afterbegin",navigator);
       return;
     }
+
     renderStrength(root,workout,session);
+    root.insertAdjacentHTML("afterbegin",navigator);
   }
 
   function renderSessionHeader(workout,session) {
@@ -1066,7 +1196,18 @@
   function bindEvents() {
     document.addEventListener("click",event=>{
       const tab=event.target.closest("[data-tab]");
-      if(tab){setTab(tab.dataset.tab);return;}
+      if(tab){
+        if(tab.dataset.tab==="hoje") state.selectedDate=todayIso();
+        setTab(tab.dataset.tab);
+        return;
+      }
+
+      const planDate=event.target.closest("[data-plan-date]");
+      if(planDate){
+        state.selectedDate=planDate.dataset.planDate;
+        renderToday();
+        return;
+      }
 
       const go=event.target.closest("[data-go-tab]");
       if(go){setTab(go.dataset.goTab);return;}
@@ -1085,6 +1226,22 @@
         else if(a==="add-exercise") addExercise(action.dataset.workoutIndex);
         else if(a==="remove-exercise") removeExercise(action.dataset.workoutIndex,action.dataset.exerciseIndex);
         else if(a==="delete-measure") deleteMeasurement(action.dataset.measureId);
+        else if(a==="back-today"){
+          state.selectedDate=todayIso();
+          renderToday();
+        }
+        else if(a==="week-prev"){
+          const d=new Date(`${state.selectedDate||todayIso()}T12:00:00`);
+          d.setDate(d.getDate()-7);
+          state.selectedDate=isoFromDate(d);
+          renderToday();
+        }
+        else if(a==="week-next"){
+          const d=new Date(`${state.selectedDate||todayIso()}T12:00:00`);
+          d.setDate(d.getDate()+7);
+          state.selectedDate=isoFromDate(d);
+          renderToday();
+        }
         return;
       }
 
@@ -1099,6 +1256,12 @@
     });
 
     document.addEventListener("change",event=>{
+      if(event.target.id==="treino-date-picker"){
+        state.selectedDate=event.target.value || todayIso();
+        renderToday();
+        return;
+      }
+
       const series=event.target.closest("[data-exercise-id][data-series][data-field]");
       if(series){
         updateSeries(series.dataset.exerciseId,series.dataset.series,series.dataset.field,series.value);
@@ -1141,6 +1304,7 @@
       status("Carregando…");
       await loadAll();
       state.loading=false;
+      state.selectedDate=todayIso();
       state.tab=tabFromHash();
       bindEvents();
       setTab(state.tab,false);

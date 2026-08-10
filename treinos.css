@@ -284,3 +284,275 @@
   .measure-history-row .mini-action{justify-self:end}
   .finish-stats{grid-template-columns:1fr}
 }
+
+/* MMCD_TREINO_CALENDAR_V24_1_START */
+
+.treino-calendar-nav{
+  padding:18px 20px;
+  margin-bottom:14px;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+}
+
+.treino-calendar-nav__head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:14px;
+}
+
+.treino-calendar-nav__head h2{
+  margin:4px 0 2px;
+  font-size:1.05rem;
+}
+
+.treino-calendar-nav__head p{
+  margin:0;
+  color:var(--muted);
+  font-size:.7rem;
+}
+
+.treino-date-picker{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:42px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--surface);
+  color:var(--text);
+  cursor:pointer;
+}
+
+.treino-date-picker>span{
+  font-size:.7rem;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.treino-date-picker input{
+  width:34px;
+  min-width:34px;
+  height:34px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:transparent;
+  cursor:pointer;
+}
+
+.treino-date-picker input::-webkit-calendar-picker-indicator{
+  width:28px;
+  height:28px;
+  cursor:pointer;
+  opacity:.78;
+}
+
+.week-strip--interactive .week-day{
+  appearance:none;
+  border:1px solid transparent;
+  cursor:pointer;
+  min-height:68px;
+}
+
+.week-strip--interactive .week-day b{
+  font-size:.82rem;
+  color:var(--text);
+}
+
+.week-strip--interactive .week-day:hover{
+  border-color:var(--line);
+}
+
+.week-strip--interactive .week-day.selected{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-soft);
+}
+
+.week-strip--interactive .week-day.selected b{
+  color:var(--accent);
+}
+
+.treino-week-nav{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:12px;
+  margin-top:10px;
+}
+
+.treino-week-nav strong{
+  color:var(--muted);
+  font-size:.66rem;
+  font-weight:800;
+}
+
+.treino-week-nav .treino-week-arrow:last-child{
+  justify-self:end;
+}
+
+.treino-back-today{
+  width:100%;
+  margin-top:10px;
+  min-height:40px!important;
+}
+
+.selected-plan-card{
+  padding:22px;
+}
+
+.selected-plan-card__head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+}
+
+.selected-plan-card h2{
+  margin:6px 0 4px;
+  font-size:clamp(1.6rem,3vw,2.25rem);
+  letter-spacing:-.035em;
+}
+
+.selected-plan-card p{
+  margin:0;
+  color:var(--muted);
+}
+
+.selected-plan-count{
+  margin:18px 0 12px;
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:800;
+}
+
+.selected-plan-note{
+  margin-top:14px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:.66rem;
+}
+
+.preview-exercises--calendar{
+  margin-top:12px;
+}
+
+.selected-plan-status{
+  padding:6px 9px;
+  border-radius:999px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:.62rem;
+  font-weight:850;
+}
+
+.selected-plan-status.concluido{
+  background:var(--train-green-soft);
+  color:var(--train-green);
+}
+
+.selected-plan-status.parcial,
+.selected-plan-status.em_andamento{
+  background:var(--train-yellow-soft);
+  color:#9b650d;
+}
+
+.selected-history-exercise{
+  display:grid;
+  grid-template-columns:32px 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:11px 0;
+  border-top:1px solid var(--line);
+}
+
+.selected-history-exercise:first-of-type{
+  margin-top:16px;
+}
+
+.selected-history-exercise>span{
+  color:var(--accent);
+  font-size:.62rem;
+  font-weight:850;
+}
+
+.selected-history-exercise>div{
+  display:grid;
+  gap:3px;
+}
+
+.selected-history-exercise>div strong{
+  font-size:.78rem;
+}
+
+.selected-history-exercise>div small{
+  color:var(--muted);
+  font-size:.64rem;
+}
+
+.selected-history-exercise>b{
+  color:var(--train-green);
+}
+
+@media(max-width:760px){
+  .treino-calendar-nav{
+    padding:14px 12px;
+  }
+
+  .treino-calendar-nav__head{
+    align-items:flex-start;
+  }
+
+  .treino-date-picker{
+    min-width:46px;
+    width:46px;
+    padding:0 6px;
+    justify-content:center;
+  }
+
+  .treino-date-picker>span{
+    display:none;
+  }
+
+  .week-strip--interactive{
+    gap:4px;
+  }
+
+  .week-strip--interactive .week-day{
+    min-height:62px;
+    padding:7px 2px;
+  }
+
+  .week-strip--interactive .week-day span{
+    font-size:.45rem;
+  }
+
+  .treino-week-nav{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .treino-week-nav strong{
+    grid-column:1/-1;
+    grid-row:1;
+    text-align:center;
+  }
+
+  .treino-week-nav .treino-week-arrow{
+    grid-row:2;
+  }
+
+  .selected-plan-card{
+    padding:17px 14px;
+  }
+
+  .selected-plan-card__head{
+    display:grid;
+  }
+}
+
+/* MMCD_TREINO_CALENDAR_V24_1_END */
