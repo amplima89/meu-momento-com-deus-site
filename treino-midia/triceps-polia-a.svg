@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#f7f9fc"/>
+      <stop offset="1" stop-color="#eef3fb"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#2563eb"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b1220" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="680" fill="url(#bg)"/>
+  <text x="55" y="62" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="#111827">Tríceps na polia</text>
+  <text x="55" y="98" font-family="Arial, sans-serif" font-size="19" fill="#667085">Tríceps · extensão do cotovelo</text>
+  <rect x="45" y="130" width="530" height="470" rx="28" fill="#fff" stroke="#dbe3ee" filter="url(#shadow)"/>
+  <rect x="625" y="130" width="530" height="470" rx="28" fill="#fff" stroke="#dbe3ee" filter="url(#shadow)"/>
+  <rect x="70" y="156" width="95" height="34" rx="17" fill="#eaf1ff"/>
+  <text x="118" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#2563eb">INÍCIO</text>
+  <rect x="650" y="156" width="88" height="34" rx="17" fill="#e9f8f1"/>
+  <text x="694" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#138a62">FINAL</text>
+  
+        <rect x="405" y="190" width="105" height="260" rx="16" fill="#202733"/>
+        <rect x="425" y="215" width="65" height="175" rx="9" fill="#394454"/>
+        <line x1="457" y1="202" x2="457" y2="425" stroke="#8f9bad" stroke-width="6"/>
+        <circle cx="457" cy="218" r="13" fill="#bdc6d4"/>
+        
+        <circle cx="275" cy="270" r="29" fill="#d6a77a"/>
+        <line x1="275" y1="302" x2="275" y2="405" stroke="#171b22" stroke-width="25" stroke-linecap="round"/>
+        <line x1="263" y1="328" x2="233" y2="365" stroke="#171b22" stroke-width="18" stroke-linecap="round"/>
+        <line x1="287" y1="328" x2="317" y2="365" stroke="#171b22" stroke-width="18" stroke-linecap="round"/>
+        <line x1="233" y1="365" x2="240" y2="407" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+        <line x1="317" y1="365" x2="310" y2="407" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+        <line x1="275" y1="405" x2="240" y2="490" stroke="#171b22" stroke-width="22" stroke-linecap="round"/>
+        <line x1="275" y1="405" x2="310" y2="490" stroke="#171b22" stroke-width="22" stroke-linecap="round"/>
+        
+  
+        <rect x="985" y="190" width="105" height="260" rx="16" fill="#202733"/>
+        <rect x="1005" y="215" width="65" height="175" rx="9" fill="#394454"/>
+        <line x1="1037" y1="202" x2="1037" y2="425" stroke="#8f9bad" stroke-width="6"/>
+        <circle cx="1037" cy="218" r="13" fill="#bdc6d4"/>
+        
+        <circle cx="855" cy="270" r="29" fill="#d6a77a"/>
+        <line x1="855" y1="302" x2="855" y2="405" stroke="#171b22" stroke-width="25" stroke-linecap="round"/>
+        <line x1="843" y1="328" x2="831" y2="418" stroke="#171b22" stroke-width="18" stroke-linecap="round"/>
+        <line x1="867" y1="328" x2="879" y2="418" stroke="#171b22" stroke-width="18" stroke-linecap="round"/>
+        <line x1="831" y1="418" x2="830" y2="450" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+        <line x1="879" y1="418" x2="880" y2="450" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+        <line x1="855" y1="405" x2="820" y2="490" stroke="#171b22" stroke-width="22" stroke-linecap="round"/>
+        <line x1="855" y1="405" x2="890" y2="490" stroke="#171b22" stroke-width="22" stroke-linecap="round"/>
+        
+  <line x1="575" y1="365" x2="620" y2="365" stroke="#2563eb" stroke-width="8" stroke-linecap="round" marker-end="url(#arrow)"/>
+  <text x="310" y="565" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#344054">Cotovelos fixos e antebraços dobrados</text>
+  <text x="890" y="565" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#344054">Estenda até quase travar o cotovelo</text>
+  <rect x="45" y="620" width="1110" height="1" fill="#dfe5ed"/>
+  <text x="55" y="652" font-family="Arial, sans-serif" font-size="15" fill="#7a8494">Guia visual original do Life Style · use como referência de posição e direção do movimento.</text>
+</svg>

@@ -14,8 +14,8 @@
       history.replaceState(null, "", location.pathname + location.search + "#hoje");
     }
   </script>
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260810-treino-v24-3" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?retry='+Date.now()">
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260810-treino-v24-3" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260810-treino-v25" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260810-treino-v25" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
 </head>
 <body>
   <div class="app-shell">
@@ -81,7 +81,7 @@
   <script>
   (async function(){
     const BASE='/meu-momento-com-deus-site/';
-    const VERSION='20260810-treino-v24-3';
+    const VERSION='20260810-treino-v25';
 
     function loadScript(file){
       return new Promise((resolve,reject)=>{
@@ -107,6 +107,7 @@
       await loadScript("shell.js");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
       await loadScript("treinos-data.js");
+      await loadScript("treinos-visuais.js");
       await loadScript("treinos.js");
     }catch(error){
       console.error("Falha ao iniciar Treinos:",error);
@@ -114,10 +115,20 @@
       if(status) status.textContent="Falha ao carregar — atualize a página";
       const root=document.querySelector("#treino-today-root") || document.querySelector("#treino-settings-root");
       if(root && !root.innerHTML.trim()){
-        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>Não foi possível carregar os arquivos do módulo Treinos.</strong><p>Atualize a página. Se persistir, execute novamente o instalador V24.3.</p></article>';
+        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>Não foi possível carregar os arquivos do módulo Treinos.</strong><p>Atualize a página. Se persistir, execute novamente o instalador V25.</p></article>';
       }
     }
   })();
   </script>
+<div id="exercise-guide-modal" class="exercise-guide-modal" hidden>
+    <div class="exercise-guide-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="exercise-guide-modal-title">
+      <button class="exercise-guide-modal__close" type="button" data-action="close-exercise-guide" aria-label="Fechar">×</button>
+      <div class="exercise-guide-modal__head">
+        <span class="treino-kicker">GUIA VISUAL</span>
+        <h2 id="exercise-guide-modal-title">Execução do exercício</h2>
+      </div>
+      <div id="exercise-guide-modal-body"></div>
+    </div>
+  </div>
 </body>
 </html>

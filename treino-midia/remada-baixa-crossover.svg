@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0" stop-color="#f7f9fc"/>
+      <stop offset="1" stop-color="#eef3fb"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#2563eb"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b1220" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="680" fill="url(#bg)"/>
+  <text x="55" y="62" font-family="Arial, sans-serif" font-size="36" font-weight="800" fill="#111827">Remada baixa no crossover</text>
+  <text x="55" y="98" font-family="Arial, sans-serif" font-size="19" fill="#667085">Costas · puxada horizontal</text>
+  <rect x="45" y="130" width="530" height="470" rx="28" fill="#fff" stroke="#dbe3ee" filter="url(#shadow)"/>
+  <rect x="625" y="130" width="530" height="470" rx="28" fill="#fff" stroke="#dbe3ee" filter="url(#shadow)"/>
+  <rect x="70" y="156" width="95" height="34" rx="17" fill="#eaf1ff"/>
+  <text x="118" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#2563eb">INÍCIO</text>
+  <rect x="650" y="156" width="88" height="34" rx="17" fill="#e9f8f1"/>
+  <text x="694" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#138a62">FINAL</text>
+  
+        <rect x="395" y="220" width="105" height="260" rx="16" fill="#202733"/>
+        <rect x="415" y="245" width="65" height="175" rx="9" fill="#394454"/>
+        <line x1="447" y1="232" x2="447" y2="455" stroke="#8f9bad" stroke-width="6"/>
+        <circle cx="447" cy="248" r="13" fill="#bdc6d4"/>
+        
+        <circle cx="260" cy="255" r="29" fill="#d6a77a"/>
+        <line x1="260" y1="286" x2="265" y2="390" stroke="#171b22" stroke-width="25" stroke-linecap="round"/>
+        <line x1="262" y1="315" x2="355" y2="340" stroke="#171b22" stroke-width="18" stroke-linecap="round"/>
+        <line x1="354" y1="340" x2="405" y2="350" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+        <line x1="264" y1="388" x2="332" y2="432" stroke="#171b22" stroke-width="23" stroke-linecap="round"/>
+        <line x1="332" y1="432" x2="395" y2="432" stroke="#171b22" stroke-width="21" stroke-linecap="round"/>
+        
+  
+        <rect x="975" y="220" width="105" height="260" rx="16" fill="#202733"/>
+        <rect x="995" y="245" width="65" height="175" rx="9" fill="#394454"/>
+        <line x1="1027" y1="232" x2="1027" y2="455" stroke="#8f9bad" stroke-width="6"/>
+        <circle cx="1027" cy="248" r="13" fill="#bdc6d4"/>
+        
+        <circle cx="840" cy="255" r="29" fill="#d6a77a"/>
+        <line x1="840" y1="286" x2="845" y2="390" stroke="#171b22" stroke-width="25" stroke-linecap="round"/>
+        <line x1="842" y1="315" x2="888" y2="335" stroke="#171b22" stroke-width="18" stroke-linecap="round"/>
+        <line x1="888" y1="335" x2="918" y2="345" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+        <line x1="844" y1="388" x2="912" y2="432" stroke="#171b22" stroke-width="23" stroke-linecap="round"/>
+        <line x1="912" y1="432" x2="975" y2="432" stroke="#171b22" stroke-width="21" stroke-linecap="round"/>
+        
+  <line x1="575" y1="365" x2="620" y2="365" stroke="#2563eb" stroke-width="8" stroke-linecap="round" marker-end="url(#arrow)"/>
+  <text x="310" y="565" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#344054">Braços estendidos e tronco firme</text>
+  <text x="890" y="565" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#344054">Puxe em direção ao abdômen</text>
+  <rect x="45" y="620" width="1110" height="1" fill="#dfe5ed"/>
+  <text x="55" y="652" font-family="Arial, sans-serif" font-size="15" fill="#7a8494">Guia visual original do Life Style · use como referência de posição e direção do movimento.</text>
+</svg>

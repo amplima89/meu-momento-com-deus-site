@@ -259,6 +259,54 @@
     return `<span class="treino-flames" aria-label="intensidade ${n} de 5">${"🔥".repeat(clamp(Number(n||0),0,5))}</span>`;
   }
 
+  function guideFor(exerciseId) {
+    return window.MMCD_TREINO_GUIAS?.[exerciseId] || window.MMCD_TREINO_GUIA_PADRAO || null;
+  }
+
+  function guideImage(exerciseId) {
+    const guide=guideFor(exerciseId);
+    return guide?.imagem || "treino-midia/guia-padrao.svg";
+  }
+
+  function visualButton(exerciseId,label="Ver execução") {
+    return `<button type="button" class="exercise-visual-btn" data-action="show-exercise-guide" data-guide-id="${esc(exerciseId)}">
+      <span class="exercise-visual-btn__icon">▶</span>${esc(label)}
+    </button>`;
+  }
+
+  function guideHtml(exerciseId,compact=false) {
+    const guide=guideFor(exerciseId);
+    if(!guide) return "";
+    return `<div class="exercise-guide ${compact?"compact":""}">
+      <div class="exercise-guide__visual">
+        <img src="${esc(guide.imagem)}" alt="Guia visual de ${esc(guide.titulo)}" loading="lazy">
+      </div>
+      <div class="exercise-guide__content">
+        <span class="treino-kicker">COMO EXECUTAR</span>
+        <ol>${(guide.passos||[]).map(item=>`<li>${esc(item)}</li>`).join("")}</ol>
+        ${guide.dica?`<div class="exercise-guide__tip"><span>💡</span><p><strong>Dica:</strong> ${esc(guide.dica)}</p></div>`:""}
+      </div>
+    </div>`;
+  }
+
+  function showExerciseGuide(exerciseId) {
+    const guide=guideFor(exerciseId);
+    if(!guide) return;
+    let modal=$("#exercise-guide-modal");
+    if(!modal) return;
+
+    $("#exercise-guide-modal-title").textContent=guide.titulo || "Execução do exercício";
+    $("#exercise-guide-modal-body").innerHTML=guideHtml(exerciseId,false);
+    modal.hidden=false;
+    document.body.classList.add("guide-modal-open");
+  }
+
+  function closeExerciseGuide() {
+    const modal=$("#exercise-guide-modal");
+    if(modal) modal.hidden=true;
+    document.body.classList.remove("guide-modal-open");
+  }
+
   function weekDates(reference=new Date()) {
     const d = new Date(reference);
     d.setHours(12,0,0,0);
@@ -358,15 +406,20 @@
         <div class="preview-list">${(workout.protocolo||[]).map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>
         ${(workout.exercicios||[]).length?`
           <div class="preview-exercises preview-exercises--calendar">
-            ${(workout.exercicios||[]).map((x,i)=>`<div><span>${String(i+1).padStart(2,"0")}</span><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>`).join("")}
+            ${(workout.exercicios||[]).map((x,i)=>`
+              <div class="preview-exercise-row">
+                <span>${String(i+1).padStart(2,"0")}</span>
+                <div><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>
+                ${visualButton(x.id,"Ver execução")}
+              </div>`).join("")}
           </div>`:""}`;
     }
 
     return `<div class="preview-exercises preview-exercises--calendar">${(workout.exercicios||[]).map((x,i)=>`
-      <div>
+      <div class="preview-exercise-row">
         <span>${String(i+1).padStart(2,"0")}</span>
-        <strong>${esc(x.nome)}</strong>
-        <small>${esc(x.series)} × ${esc(x.reps)}</small>
+        <div><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>
+        ${visualButton(x.id,"Ver execução")}
       </div>`).join("")}</div>`;
   }
 
@@ -531,8 +584,12 @@
                 <p>${esc(ex.planejado?.series||ex.series.length)} × ${esc(ex.planejado?.reps||"")} ${ex.planejado?.descanso?`· descanso ${esc(ex.planejado.descanso)}`:""}</p>
               </div>
             </div>
-            <span class="exercise-state">${done?"Concluído":isCurrent?"Agora":"Depois"}</span>
+            <div class="exercise-head-actions">
+              <span class="exercise-state">${done?"Concluído":isCurrent?"Agora":"Depois"}</span>
+              ${visualButton(ex.exercicioId,isCurrent?"Execução":"Ver execução")}
+            </div>
           </div>
+          ${isCurrent ? guideHtml(ex.exercicioId,true) : ""}
           ${ex.planejado?.observacao?`<div class="exercise-note">${esc(ex.planejado.observacao)}</div>`:""}
           <div class="last-time-box">
             <span>ÚLTIMA VEZ</span>
@@ -623,7 +680,11 @@
   function renderCardio(root,workout,session) {
     const exerciseCards=(session.exercicios||[]).map((ex,idx)=>`
       <article class="exercise-card ${exerciseDone(ex)?"done":""}">
-        <div class="exercise-card__head"><div><span class="exercise-order">${String(idx+1).padStart(2,"0")}</span><div><h3>${esc(ex.nome)}</h3><p>${esc(ex.planejado?.series)} × ${esc(ex.planejado?.reps)}</p></div></div></div>
+        <div class="exercise-card__head">
+          <div><span class="exercise-order">${String(idx+1).padStart(2,"0")}</span><div><h3>${esc(ex.nome)}</h3><p>${esc(ex.planejado?.series)} × ${esc(ex.planejado?.reps)}</p></div></div>
+          ${visualButton(ex.exercicioId)}
+        </div>
+        ${guideHtml(ex.exercicioId,true)}
         <div class="series-stack">${(ex.series||[]).map(s=>seriesRow(ex,s,false)).join("")}</div>
       </article>`).join("");
 
@@ -1068,6 +1129,13 @@
           <label class="field"><span>Repetições / duração</span><input data-workout-index="${wi}" data-exercise-index="${ei}" data-exercise-field="reps" value="${esc(ex.reps||"")}"></label>
           <label class="field"><span>Descanso</span><input data-workout-index="${wi}" data-exercise-index="${ei}" data-exercise-field="descanso" value="${esc(ex.descanso||"")}"></label>
           <label class="field full"><span>Observação</span><input data-workout-index="${wi}" data-exercise-index="${ei}" data-exercise-field="observacao" value="${esc(ex.observacao||"")}"></label>
+          <div class="field full exercise-guide-admin">
+            <span>Guia visual</span>
+            <div class="exercise-guide-admin__row">
+              <img src="${esc(guideImage(ex.id))}" alt="" loading="lazy">
+              ${visualButton(ex.id,"Pré-visualizar")}
+            </div>
+          </div>
         </div>
       </div>`).join("");
 
@@ -1252,6 +1320,12 @@
           state.selectedDate=isoFromDate(d);
           renderToday();
         }
+        else if(a==="show-exercise-guide"){
+          showExerciseGuide(action.dataset.guideId);
+        }
+        else if(a==="close-exercise-guide"){
+          closeExerciseGuide();
+        }
         return;
       }
 
@@ -1304,6 +1378,14 @@
     $("#finish-modal-close")?.addEventListener("click",()=>$("#finish-modal").hidden=true);
     $("#finish-modal")?.addEventListener("click",event=>{
       if(event.target.id==="finish-modal") event.currentTarget.hidden=true;
+    });
+
+    $("#exercise-guide-modal")?.addEventListener("click",event=>{
+      if(event.target.id==="exercise-guide-modal") closeExerciseGuide();
+    });
+
+    document.addEventListener("keydown",event=>{
+      if(event.key==="Escape") closeExerciseGuide();
     });
 
     window.addEventListener("hashchange",()=>setTab(tabFromHash(),false));
