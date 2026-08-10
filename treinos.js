@@ -259,13 +259,10 @@
     return `<span class="treino-flames" aria-label="intensidade ${n} de 5">${"🔥".repeat(clamp(Number(n||0),0,5))}</span>`;
   }
 
+  const exerciseMediaCache=new Map();
+
   function guideFor(exerciseId) {
     return window.MMCD_TREINO_GUIAS?.[exerciseId] || window.MMCD_TREINO_GUIA_PADRAO || null;
-  }
-
-  function guideImage(exerciseId) {
-    const guide=guideFor(exerciseId);
-    return guide?.imagem || "treino-midia/guia-padrao.svg";
   }
 
   function visualButton(exerciseId,label="Ver execução") {
@@ -274,31 +271,181 @@
     </button>`;
   }
 
-  function guideHtml(exerciseId,compact=false) {
+  function normalizeGuideText(value) {
+    return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  }
+
+  function absoluteWgerUrl(url) {
+    if(!url) return "";
+    if(/^https?:\/\//i.test(url)) return url;
+    return `https://wger.de${String(url).startsWith("/")?"":"/"}${url}`;
+  }
+
+  function extractExerciseNames(item) {
+    const names=[];
+    if(item?.name) names.push(item.name);
+    if(item?.exercise_name) names.push(item.exercise_name);
+    if(Array.isArray(item?.translations)) item.translations.forEach(t=>{if(t?.name) names.push(t.name)});
+    return names.filter(Boolean);
+  }
+
+  function mediaUrl(image) {
+    return absoluteWgerUrl(image?.thumbnails?.medium || image?.thumbnails?.small || image?.image || image?.url || image?.path || "");
+  }
+
+  function scoreWgerResult(item,query) {
+    const q=normalizeGuideText(query);
+    if(!q) return 0;
+    let best=0;
+    extractExerciseNames(item).map(normalizeGuideText).forEach(name=>{
+      if(name===q) best=Math.max(best,100);
+      else if(name.includes(q)||q.includes(name)) best=Math.max(best,82);
+      else{
+        const qa=new Set(q.split(" ").filter(x=>x.length>2));
+        const na=new Set(name.split(" ").filter(x=>x.length>2));
+        const common=[...qa].filter(x=>na.has(x)).length;
+        best=Math.max(best,Math.round(common/Math.max(1,Math.max(qa.size,na.size))*70));
+      }
+    });
+    return best;
+  }
+
+  function extractWgerImages(item) {
+    const raw=[];
+    if(Array.isArray(item?.images)) raw.push(...item.images);
+    if(Array.isArray(item?.exercise_images)) raw.push(...item.exercise_images);
+    if(item?.image && typeof item.image==="object") raw.push(item.image);
+
+    return raw.map(img=>({
+      url:mediaUrl(img),
+      style:String(img?.style||img?.image_style||"").toLowerCase(),
+      author:img?.license_author || img?.author || item?.license_author || "",
+      license:img?.license?.short_name || img?.license?.full_name || img?.license_name || item?.license?.short_name || item?.license?.full_name || ""
+    })).filter(x=>x.url).sort((a,b)=>{
+      const rank=x=>x.style.includes("photo")||x.style.includes("foto")?3:x.style.includes("3d")?2:1;
+      return rank(b)-rank(a);
+    });
+  }
+
+  async function fetchWgerGuide(exerciseId) {
+    if(exerciseMediaCache.has(exerciseId)) return exerciseMediaCache.get(exerciseId);
+
+    const guide=guideFor(exerciseId);
+    const query=guide?.consulta||"";
+    if(!query){
+      const empty={images:[],source:"",sourceLabel:"",error:"Sem busca visual mapeada."};
+      exerciseMediaCache.set(exerciseId,empty);
+      return empty;
+    }
+
+    const attempts=[
+      `https://wger.de/api/v2/exerciseinfo/?limit=30&language=2&status=2&search=${encodeURIComponent(query)}`,
+      `https://wger.de/api/v2/exerciseinfo/?limit=30&search=${encodeURIComponent(query)}`,
+      `https://wger.de/api/v2/exerciseinfo/?limit=100&language=2&status=2`
+    ];
+
+    let lastError="";
+    for(const url of attempts){
+      try{
+        const response=await fetch(url,{headers:{Accept:"application/json"}});
+        if(!response.ok){lastError=`HTTP ${response.status}`;continue}
+        const payload=await response.json();
+        const rows=Array.isArray(payload)?payload:(payload?.results||[]);
+        const ranked=rows.map(item=>({item,score:scoreWgerResult(item,query)})).sort((a,b)=>b.score-a.score);
+
+        for(const candidate of ranked){
+          if(candidate.score<18) continue;
+          const images=extractWgerImages(candidate.item);
+          if(!images.length) continue;
+          const id=candidate.item?.id || candidate.item?.uuid || "";
+          const result={
+            images:images.slice(0,3),
+            source:id?`https://wger.de/exercise/${id}/view`:"https://wger.de",
+            sourceLabel:extractExerciseNames(candidate.item)[0] || query,
+            error:""
+          };
+          exerciseMediaCache.set(exerciseId,result);
+          return result;
+        }
+      }catch(error){
+        lastError=error?.message||String(error);
+      }
+    }
+
+    const empty={images:[],source:"https://wger.de",sourceLabel:"wger",error:lastError||"Nenhuma imagem adequada encontrada."};
+    exerciseMediaCache.set(exerciseId,empty);
+    return empty;
+  }
+
+  function guideTextHtml(exerciseId) {
     const guide=guideFor(exerciseId);
     if(!guide) return "";
-    return `<div class="exercise-guide ${compact?"compact":""}">
-      <div class="exercise-guide__visual">
-        <img src="${esc(guide.imagem)}" alt="Guia visual de ${esc(guide.titulo)}" loading="lazy">
-      </div>
-      <div class="exercise-guide__content">
-        <span class="treino-kicker">COMO EXECUTAR</span>
-        <ol>${(guide.passos||[]).map(item=>`<li>${esc(item)}</li>`).join("")}</ol>
-        ${guide.dica?`<div class="exercise-guide__tip"><span>💡</span><p><strong>Dica:</strong> ${esc(guide.dica)}</p></div>`:""}
-      </div>
+    return `<div class="exercise-guide__content">
+      <span class="treino-kicker">COMO EXECUTAR</span>
+      <ol>${(guide.passos||[]).map(item=>`<li>${esc(item)}</li>`).join("")}</ol>
+      ${guide.dica?`<div class="exercise-guide__tip"><span>💡</span><p><strong>Dica:</strong> ${esc(guide.dica)}</p></div>`:""}
     </div>`;
   }
 
-  function showExerciseGuide(exerciseId) {
+  function guideHtml(exerciseId,compact=false) {
+    const guide=guideFor(exerciseId);
+    if(!guide) return "";
+    return `<div class="exercise-guide exercise-guide--real ${compact?"compact":""}" data-live-guide="${esc(exerciseId)}">
+      <div class="exercise-guide__visual exercise-guide__visual--loading">
+        <div class="exercise-media-loading"><span></span><strong>Buscando referência visual real…</strong><small>Foto ou ilustração 3D, quando disponível.</small></div>
+      </div>
+      ${guideTextHtml(exerciseId)}
+    </div>`;
+  }
+
+  function attributionHtml(media) {
+    const authors=[...new Set((media.images||[]).map(x=>x.author).filter(Boolean))];
+    const licenses=[...new Set((media.images||[]).map(x=>x.license).filter(Boolean))];
+    return `<div class="exercise-media-source">
+      <span>Fonte visual: wger</span>
+      ${authors.length?`<span>Autor: ${esc(authors.join(", "))}</span>`:""}
+      ${licenses.length?`<span>Licença: ${esc(licenses.join(", "))}</span>`:""}
+      ${media.source?`<a href="${esc(media.source)}" target="_blank" rel="noopener noreferrer">Ver fonte</a>`:""}
+    </div>`;
+  }
+
+  async function hydrateGuide(container,exerciseId) {
+    if(!container) return;
+    const visual=container.querySelector(".exercise-guide__visual");
+    if(!visual) return;
+
+    const media=await fetchWgerGuide(exerciseId);
+    if(!document.documentElement.contains(container)) return;
+
+    if(media.images?.length){
+      visual.classList.remove("exercise-guide__visual--loading");
+      visual.innerHTML=`<div class="exercise-real-media ${media.images.length>1?"multiple":""}">
+        ${media.images.map((img,i)=>`<figure><img src="${esc(img.url)}" alt="${esc(guideFor(exerciseId)?.titulo||"Exercício")} — referência ${i+1}" loading="lazy" referrerpolicy="no-referrer">${media.images.length>1?`<figcaption>Referência ${i+1}</figcaption>`:""}</figure>`).join("")}
+      </div>${attributionHtml(media)}`;
+    }else{
+      visual.classList.remove("exercise-guide__visual--loading");
+      visual.innerHTML=`<div class="exercise-media-unavailable"><span>📷</span><strong>Referência visual indisponível</strong><p>Não encontrei uma foto ou ilustração confiável para este exercício. O sistema não vai substituir por um desenho genérico.</p></div>`;
+    }
+  }
+
+  function hydrateVisibleGuides(root=document) {
+    root.querySelectorAll("[data-live-guide]").forEach(container=>{
+      if(container.dataset.hydrating==="1") return;
+      container.dataset.hydrating="1";
+      hydrateGuide(container,container.dataset.liveGuide);
+    });
+  }
+
+  async function showExerciseGuide(exerciseId) {
     const guide=guideFor(exerciseId);
     if(!guide) return;
-    let modal=$("#exercise-guide-modal");
+    const modal=$("#exercise-guide-modal");
     if(!modal) return;
-
     $("#exercise-guide-modal-title").textContent=guide.titulo || "Execução do exercício";
     $("#exercise-guide-modal-body").innerHTML=guideHtml(exerciseId,false);
     modal.hidden=false;
     document.body.classList.add("guide-modal-open");
+    hydrateVisibleGuides(modal);
   }
 
   function closeExerciseGuide() {
@@ -1132,7 +1279,8 @@
           <div class="field full exercise-guide-admin">
             <span>Guia visual</span>
             <div class="exercise-guide-admin__row">
-              <img src="${esc(guideImage(ex.id))}" alt="" loading="lazy">
+              <div class="exercise-guide-admin__icon">📷</div>
+              <div><strong>Referência real</strong><small>${esc(guideFor(ex.id)?.consulta||"Sem busca mapeada")}</small></div>
               ${visualButton(ex.id,"Pré-visualizar")}
             </div>
           </div>
@@ -1262,6 +1410,7 @@
     if(state.tab==="historico") renderHistory();
     if(state.tab==="evolucao") renderEvolution();
     if(state.tab==="configuracoes") renderSettings();
+    requestAnimationFrame(()=>hydrateVisibleGuides(document));
   }
 
   function bindEvents() {
@@ -1401,6 +1550,10 @@
       bindEvents();
       setTab(state.tab,false);
       renderAll();
+
+      const guideObserver=new MutationObserver(()=>hydrateVisibleGuides(document));
+      guideObserver.observe(document.body,{childList:true,subtree:true});
+
       if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
         requestAnimationFrame(() => document.querySelector("#medidas")?.scrollIntoView({behavior:"smooth",block:"start"}));
       }
