@@ -556,3 +556,16 @@
 }
 
 /* MMCD_TREINO_CALENDAR_V24_1_END */
+
+/* MMCD_TREINO_CONFIG_SEPARATE_V24_2_START */
+.treino-page:not(.treino-config-page) .treino-tabs{grid-template-columns:repeat(3,1fr)}
+.treino-config-page{max-width:1280px}
+.treino-config-hero{align-items:center;margin-bottom:22px}
+.treino-config-hero h1{margin-bottom:5px}
+.treino-config-page .settings-block:first-child{margin-top:0}
+@media(max-width:760px){
+  .treino-page:not(.treino-config-page) .treino-tabs{grid-template-columns:repeat(3,minmax(92px,1fr))}
+  .treino-config-hero{grid-template-columns:1fr}
+  .treino-config-hero .btn{width:100%}
+}
+/* MMCD_TREINO_CONFIG_SEPARATE_V24_2_END */

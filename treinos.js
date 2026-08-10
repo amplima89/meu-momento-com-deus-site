@@ -1173,8 +1173,10 @@
     $$(".treino-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.tab===tab));
     $$(".treino-panel").forEach(panel=>panel.hidden=panel.dataset.panel!==tab);
     if(pushHash){
-      const map={hoje:"hoje",historico:"historico",evolucao:"evolucao",configuracoes:"configuracoes"};
-      history.replaceState(null,"",`#${map[tab]||"hoje"}`);
+      if (window.MMCD_TREINO_PAGE_MODE !== "configuracoes") {
+        const map={hoje:"hoje",historico:"historico",evolucao:"evolucao"};
+        history.replaceState(null,"",`#${map[tab]||"hoje"}`);
+      }
     }
     if(tab==="historico") renderHistory();
     if(tab==="evolucao") renderEvolution();
@@ -1182,8 +1184,9 @@
   }
 
   function tabFromHash() {
+    if (window.MMCD_TREINO_PAGE_MODE === "configuracoes") return "configuracoes";
     const h=location.hash.replace("#","").toLowerCase();
-    return ["hoje","historico","evolucao","configuracoes"].includes(h)?h:"hoje";
+    return ["hoje","historico","evolucao"].includes(h)?h:"hoje";
   }
 
   function renderAll() {
@@ -1210,7 +1213,14 @@
       }
 
       const go=event.target.closest("[data-go-tab]");
-      if(go){setTab(go.dataset.goTab);return;}
+      if(go){
+        if (go.dataset.goTab === "configuracoes" && window.MMCD_TREINO_PAGE_MODE !== "configuracoes") {
+          location.href = "treinos-config.html#medidas";
+          return;
+        }
+        setTab(go.dataset.goTab);
+        return;
+      }
 
       const action=event.target.closest("[data-action]");
       if(action){
@@ -1309,6 +1319,9 @@
       bindEvents();
       setTab(state.tab,false);
       renderAll();
+      if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
+        requestAnimationFrame(() => document.querySelector("#medidas")?.scrollIntoView({behavior:"smooth",block:"start"}));
+      }
       status("Dados online · Supabase","saved");
     } catch(error) {
       console.error(error);

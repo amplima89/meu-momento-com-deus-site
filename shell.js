@@ -11,7 +11,7 @@ window.MMCDShell=async function(active){
   ['estatisticas','relatorios.html','08','Estatísticas','Evolução']
  ];
  const settingsActive=active==='metas'||active==='series';
- const settingsWorkout=active==='treinos' && location.hash==='#configuracoes';
+ const settingsWorkout=active==='treinos-config';
  const storedSettingsOpen=localStorage.getItem('mmcd:sidebar:settings-open');
  const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
  const navHtml=nav.map(x=>`
@@ -49,7 +49,7 @@ window.MMCDShell=async function(active){
       <a class="sidebar-subnav__link ${active==='series'?'active':''}" href="series.html">
        <span class="sidebar-subnav__dot"></span><span><strong>Séries & filmes</strong><small>Biblioteca de exposição</small></span>
       </a>
-      <a class="sidebar-subnav__link ${settingsWorkout?'active':''}" href="treinos.html#configuracoes">
+      <a class="sidebar-subnav__link ${settingsWorkout?'active':''}" href="treinos-config.html">
        <span class="sidebar-subnav__dot"></span><span><strong>Plano de treino</strong><small>Programa, exercícios e medidas</small></span>
       </a>
      </div>
