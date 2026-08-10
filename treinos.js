@@ -260,6 +260,7 @@
   }
 
   const exerciseMediaCache=new Map();
+  const exerciseMediaOwners=new Map();
 
   function guideFor(exerciseId) {
     return window.MMCD_TREINO_GUIAS?.[exerciseId] || window.MMCD_TREINO_GUIA_PADRAO || null;
@@ -272,7 +273,14 @@
   }
 
   function normalizeGuideText(value) {
-    return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    return String(value||"")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .toLowerCase()
+      .replace(/\b(machine|cable|smith|barbell|dumbbell)\b/g," ")
+      .replace(/[^a-z0-9]+/g," ")
+      .replace(/\s+/g," ")
+      .trim();
   }
 
   function absoluteWgerUrl(url) {
@@ -285,28 +293,63 @@
     const names=[];
     if(item?.name) names.push(item.name);
     if(item?.exercise_name) names.push(item.exercise_name);
-    if(Array.isArray(item?.translations)) item.translations.forEach(t=>{if(t?.name) names.push(t.name)});
-    return names.filter(Boolean);
+    if(Array.isArray(item?.translations)) {
+      item.translations.forEach(t=>{if(t?.name) names.push(t.name)});
+    }
+    return [...new Set(names.filter(Boolean))];
   }
 
   function mediaUrl(image) {
-    return absoluteWgerUrl(image?.thumbnails?.medium || image?.thumbnails?.small || image?.image || image?.url || image?.path || "");
+    return absoluteWgerUrl(
+      image?.thumbnails?.medium ||
+      image?.thumbnails?.small ||
+      image?.image ||
+      image?.url ||
+      image?.path ||
+      ""
+    );
   }
 
-  function scoreWgerResult(item,query) {
-    const q=normalizeGuideText(query);
-    if(!q) return 0;
+  function tokenScore(a,b) {
+    const A=new Set(normalizeGuideText(a).split(" ").filter(x=>x.length>2));
+    const B=new Set(normalizeGuideText(b).split(" ").filter(x=>x.length>2));
+    if(!A.size || !B.size) return 0;
+
+    const common=[...A].filter(x=>B.has(x)).length;
+    const precision=common/A.size;
+    const recall=common/B.size;
+
+    if(common===0) return 0;
+    return Math.round((precision*.6 + recall*.4)*100);
+  }
+
+  function scoreWgerResult(item,aliases) {
+    const names=extractExerciseNames(item);
     let best=0;
-    extractExerciseNames(item).map(normalizeGuideText).forEach(name=>{
-      if(name===q) best=Math.max(best,100);
-      else if(name.includes(q)||q.includes(name)) best=Math.max(best,82);
-      else{
-        const qa=new Set(q.split(" ").filter(x=>x.length>2));
-        const na=new Set(name.split(" ").filter(x=>x.length>2));
-        const common=[...qa].filter(x=>na.has(x)).length;
-        best=Math.max(best,Math.round(common/Math.max(1,Math.max(qa.size,na.size))*70));
-      }
+
+    aliases.forEach(alias=>{
+      const q=normalizeGuideText(alias);
+      names.forEach(raw=>{
+        const name=normalizeGuideText(raw);
+
+        if(name===q) {
+          best=Math.max(best,100);
+          return;
+        }
+
+        // A containment match is allowed only when the smaller phrase
+        // still contains at least two meaningful words.
+        const qTokens=q.split(" ").filter(x=>x.length>2);
+        const nTokens=name.split(" ").filter(x=>x.length>2);
+        if((name.includes(q) || q.includes(name)) && Math.min(qTokens.length,nTokens.length)>=2) {
+          best=Math.max(best,88);
+          return;
+        }
+
+        best=Math.max(best,tokenScore(alias,raw));
+      });
     });
+
     return best;
   }
 
@@ -316,63 +359,122 @@
     if(Array.isArray(item?.exercise_images)) raw.push(...item.exercise_images);
     if(item?.image && typeof item.image==="object") raw.push(item.image);
 
+    const seen=new Set();
     return raw.map(img=>({
       url:mediaUrl(img),
       style:String(img?.style||img?.image_style||"").toLowerCase(),
       author:img?.license_author || img?.author || item?.license_author || "",
       license:img?.license?.short_name || img?.license?.full_name || img?.license_name || item?.license?.short_name || item?.license?.full_name || ""
-    })).filter(x=>x.url).sort((a,b)=>{
-      const rank=x=>x.style.includes("photo")||x.style.includes("foto")?3:x.style.includes("3d")?2:1;
+    }))
+    .filter(x=>{
+      if(!x.url || seen.has(x.url)) return false;
+      seen.add(x.url);
+      return true;
+    })
+    .sort((a,b)=>{
+      const rank=x=>{
+        if(x.style.includes("photo")||x.style.includes("foto")) return 4;
+        if(x.style.includes("3d")) return 3;
+        if(x.style.includes("drawing")||x.style.includes("illustration")) return 2;
+        return 1;
+      };
       return rank(b)-rank(a);
     });
+  }
+
+  function canUseMedia(images,visualKey) {
+    if(!images?.length) return false;
+
+    // A visual can be reused only by aliases of the SAME movement
+    // (e.g. the Tuesday and Saturday version of the same pulldown).
+    for(const image of images) {
+      const owner=exerciseMediaOwners.get(image.url);
+      if(owner && owner!==visualKey) return false;
+    }
+    return true;
+  }
+
+  function reserveMedia(images,visualKey) {
+    images.forEach(image=>exerciseMediaOwners.set(image.url,visualKey));
+  }
+
+  async function searchWger(query) {
+    const url=`https://wger.de/api/v2/exerciseinfo/?limit=40&language=2&status=2&search=${encodeURIComponent(query)}`;
+    const response=await fetch(url,{headers:{Accept:"application/json"}});
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload=await response.json();
+    return Array.isArray(payload)?payload:(payload?.results||[]);
   }
 
   async function fetchWgerGuide(exerciseId) {
     if(exerciseMediaCache.has(exerciseId)) return exerciseMediaCache.get(exerciseId);
 
     const guide=guideFor(exerciseId);
-    const query=guide?.consulta||"";
-    if(!query){
+    const aliases=(guide?.consultas?.length ? guide.consultas : [guide?.consulta]).filter(Boolean);
+    const visualKey=guide?.visualKey || exerciseId;
+
+    if(!aliases.length) {
       const empty={images:[],source:"",sourceLabel:"",error:"Sem busca visual mapeada."};
       exerciseMediaCache.set(exerciseId,empty);
       return empty;
     }
 
-    const attempts=[
-      `https://wger.de/api/v2/exerciseinfo/?limit=30&language=2&status=2&search=${encodeURIComponent(query)}`,
-      `https://wger.de/api/v2/exerciseinfo/?limit=30&search=${encodeURIComponent(query)}`,
-      `https://wger.de/api/v2/exerciseinfo/?limit=100&language=2&status=2`
-    ];
-
     let lastError="";
-    for(const url of attempts){
-      try{
-        const response=await fetch(url,{headers:{Accept:"application/json"}});
-        if(!response.ok){lastError=`HTTP ${response.status}`;continue}
-        const payload=await response.json();
-        const rows=Array.isArray(payload)?payload:(payload?.results||[]);
-        const ranked=rows.map(item=>({item,score:scoreWgerResult(item,query)})).sort((a,b)=>b.score-a.score);
+    let bestRejectedScore=0;
 
-        for(const candidate of ranked){
-          if(candidate.score<18) continue;
+    // IMPORTANT: every request remains query-specific.
+    // There is deliberately NO "load all exercises and pick something" fallback.
+    for(const query of aliases) {
+      try {
+        const rows=await searchWger(query);
+        if(!rows.length) continue;
+
+        const ranked=rows
+          .map(item=>({item,score:scoreWgerResult(item,aliases)}))
+          .sort((a,b)=>b.score-a.score);
+
+        for(const candidate of ranked) {
+          bestRejectedScore=Math.max(bestRejectedScore,candidate.score);
+
+          // Strong semantic match only.
+          if(candidate.score<72) continue;
+
           const images=extractWgerImages(candidate.item);
           if(!images.length) continue;
+
+          // Prevent "the same guy/image for everything".
+          if(!canUseMedia(images,visualKey)) continue;
+
+          reserveMedia(images,visualKey);
+
           const id=candidate.item?.id || candidate.item?.uuid || "";
           const result={
             images:images.slice(0,3),
             source:id?`https://wger.de/exercise/${id}/view`:"https://wger.de",
             sourceLabel:extractExerciseNames(candidate.item)[0] || query,
+            matchedQuery:query,
+            matchScore:candidate.score,
+            visualKey,
             error:""
           };
+
           exerciseMediaCache.set(exerciseId,result);
           return result;
         }
-      }catch(error){
+      } catch(error) {
         lastError=error?.message||String(error);
       }
     }
 
-    const empty={images:[],source:"https://wger.de",sourceLabel:"wger",error:lastError||"Nenhuma imagem adequada encontrada."};
+    const empty={
+      images:[],
+      source:"https://wger.de",
+      sourceLabel:"wger",
+      matchedQuery:"",
+      matchScore:bestRejectedScore,
+      visualKey,
+      error:lastError || `Nenhuma referência atingiu a qualidade mínima (${bestRejectedScore}/100).`
+    };
     exerciseMediaCache.set(exerciseId,empty);
     return empty;
   }
@@ -403,6 +505,8 @@
     const licenses=[...new Set((media.images||[]).map(x=>x.license).filter(Boolean))];
     return `<div class="exercise-media-source">
       <span>Fonte visual: wger</span>
+      ${media.sourceLabel?`<span>Correspondência: ${esc(media.sourceLabel)}</span>`:""}
+      ${media.matchScore?`<span>Confiança: ${esc(media.matchScore)}/100</span>`:""}
       ${authors.length?`<span>Autor: ${esc(authors.join(", "))}</span>`:""}
       ${licenses.length?`<span>Licença: ${esc(licenses.join(", "))}</span>`:""}
       ${media.source?`<a href="${esc(media.source)}" target="_blank" rel="noopener noreferrer">Ver fonte</a>`:""}
@@ -424,7 +528,7 @@
       </div>${attributionHtml(media)}`;
     }else{
       visual.classList.remove("exercise-guide__visual--loading");
-      visual.innerHTML=`<div class="exercise-media-unavailable"><span>📷</span><strong>Referência visual indisponível</strong><p>Não encontrei uma foto ou ilustração confiável para este exercício. O sistema não vai substituir por um desenho genérico.</p></div>`;
+      visual.innerHTML=`<div class="exercise-media-unavailable"><span>📷</span><strong>Referência visual indisponível</strong><p>Não encontrei uma foto ou ilustração que corresponda com segurança a este exercício. Prefiro deixar sem imagem do que repetir uma referência errada.</p></div>`;
     }
   }
 

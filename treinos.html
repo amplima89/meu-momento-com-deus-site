@@ -14,8 +14,8 @@
       history.replaceState(null, "", location.pathname + location.search + "#hoje");
     }
   </script>
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260810-treino-v25-1" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?retry='+Date.now()">
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260810-treino-v25-1" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260810-treino-v25-2" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260810-treino-v25-2" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
 </head>
 <body>
   <div class="app-shell">
@@ -81,7 +81,7 @@
   <script>
   (async function(){
     const BASE='/meu-momento-com-deus-site/';
-    const VERSION='20260810-treino-v25-1';
+    const VERSION='20260810-treino-v25-2';
 
     function loadScript(file){
       return new Promise((resolve,reject)=>{
@@ -115,7 +115,7 @@
       if(status) status.textContent="Falha ao carregar — atualize a página";
       const root=document.querySelector("#treino-today-root") || document.querySelector("#treino-settings-root");
       if(root && !root.innerHTML.trim()){
-        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>Não foi possível carregar os arquivos do módulo Treinos.</strong><p>Atualize a página. Se persistir, execute novamente o instalador V25.1.</p></article>';
+        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>Não foi possível carregar os arquivos do módulo Treinos.</strong><p>Atualize a página. Se persistir, execute novamente o instalador V25.2.</p></article>';
       }
     }
   })();

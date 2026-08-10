@@ -873,3 +873,16 @@
   .exercise-guide-admin__row .exercise-visual-btn{grid-column:1/-1;width:100%}
 }
 /* MMCD_TREINO_REAL_MEDIA_V25_1_END */
+
+
+/* MMCD_TREINO_VISUAL_MATCH_V25_2_START */
+.exercise-media-source span:nth-child(3){
+  font-weight:800;
+}
+.exercise-media-unavailable{
+  border:1px dashed #d6dce5;
+  border-radius:12px;
+  margin:8px;
+  background:#fafbfc;
+}
+/* MMCD_TREINO_VISUAL_MATCH_V25_2_END */
