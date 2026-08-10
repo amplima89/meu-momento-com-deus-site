@@ -999,3 +999,150 @@
 }
 
 /* MMCD_TREINO_CURATED_START_END_V26_END */
+
+
+/* MMCD_FUTEBOL_WARMUP_VISUAL_V26_1_START */
+
+.football-warmup-preview,
+.football-warmup-list{
+  display:grid;
+  gap:8px;
+}
+
+.football-warmup-preview__row{
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--surface);
+}
+
+.football-warmup-preview__row>div{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+
+.football-warmup-preview__row strong{
+  font-size:.78rem;
+}
+
+.football-warmup-preview__row small{
+  color:var(--muted);
+  font-size:.63rem;
+}
+
+.football-warmup-card{
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface);
+  overflow:hidden;
+  transition:.15s;
+}
+
+.football-warmup-card.done{
+  border-color:transparent;
+  background:color-mix(in srgb,var(--train-green-soft) 48%,var(--surface));
+}
+
+.football-warmup-card__top{
+  display:grid;
+  grid-template-columns:34px 34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+  padding:12px;
+}
+
+.football-warmup-check{
+  width:34px;
+  height:34px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:1rem;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.football-warmup-card.done .football-warmup-check{
+  border-color:transparent;
+  background:var(--train-green);
+  color:#fff;
+}
+
+.football-warmup-card__copy{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+
+.football-warmup-card__copy strong{
+  font-size:.78rem;
+}
+
+.football-warmup-card__copy small{
+  color:var(--muted);
+  font-size:.62rem;
+}
+
+.football-warmup-card__details{
+  border-top:1px solid var(--line);
+}
+
+.football-warmup-card__details>summary{
+  cursor:pointer;
+  padding:10px 13px;
+  color:var(--accent);
+  font-size:.64rem;
+  font-weight:850;
+  list-style:none;
+}
+
+.football-warmup-card__details>summary::-webkit-details-marker{
+  display:none;
+}
+
+.football-warmup-card__details[open]>summary{
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2);
+}
+
+.football-warmup-card__details .exercise-guide.compact{
+  margin:12px;
+}
+
+@media(max-width:760px){
+  .football-warmup-preview__row{
+    grid-template-columns:30px minmax(0,1fr);
+    padding:10px;
+  }
+
+  .football-warmup-preview__row .exercise-visual-btn{
+    grid-column:2;
+    justify-self:start;
+  }
+
+  .football-warmup-card__top{
+    grid-template-columns:34px minmax(0,1fr);
+    gap:8px;
+  }
+
+  .football-warmup-card__top>.exercise-order{
+    display:none;
+  }
+
+  .football-warmup-card__top .exercise-visual-btn{
+    grid-column:2;
+    justify-self:start;
+  }
+
+  .football-warmup-card__details .exercise-guide.compact{
+    margin:10px;
+  }
+}
+
+/* MMCD_FUTEBOL_WARMUP_VISUAL_V26_1_END */

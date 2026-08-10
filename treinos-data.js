@@ -22,11 +22,41 @@ window.MMCD_TREINO_PLANO_PADRAO = {
       objetivo: "Condicionamento para o futebol",
       intensidade: 5,
       aquecimento: [
-        "2 min caminhada/trote",
-        "2 × 10 agachamentos livres",
-        "2 × 8 avanços alternados",
-        "2 × 20 segundos de skipping",
-        "3 acelerações progressivas"
+        {
+          id:"futebol-caminhada-trote",
+          nome:"Caminhada + trote leve",
+          prescricao:"2 min",
+          texto:"2 min caminhada/trote",
+          guiaId:"futebol-caminhada-trote"
+        },
+        {
+          id:"futebol-agachamento-livre",
+          nome:"Agachamento livre",
+          prescricao:"2 × 10",
+          texto:"2 × 10 agachamentos livres",
+          guiaId:"futebol-agachamento-livre"
+        },
+        {
+          id:"futebol-avanco-alternado",
+          nome:"Avanço alternado",
+          prescricao:"2 × 8",
+          texto:"2 × 8 avanços alternados",
+          guiaId:"futebol-avanco-alternado"
+        },
+        {
+          id:"futebol-skipping",
+          nome:"Skipping",
+          prescricao:"2 × 20 s",
+          texto:"2 × 20 segundos de skipping",
+          guiaId:"futebol-skipping"
+        },
+        {
+          id:"futebol-aceleracao-progressiva",
+          nome:"Acelerações progressivas",
+          prescricao:"3 repetições",
+          texto:"3 acelerações progressivas",
+          guiaId:"futebol-aceleracao-progressiva"
+        }
       ]
     },
     {

@@ -212,11 +212,51 @@
         intensidade:workout.intensidade
       },
       exercicios:(workout.exercicios||[]).map(createExerciseSession),
-      aquecimento:(workout.aquecimento||[]).map((texto,i)=>({id:i,texto,concluido:false})),
+      aquecimento:(workout.aquecimento||[]).map((item,i)=>{
+        if(typeof item==="string") return {id:i,texto:item,nome:item,prescricao:"",guiaId:"",concluido:false};
+        return {
+          id:item.id ?? i,
+          texto:item.texto || item.nome || "",
+          nome:item.nome || item.texto || "",
+          prescricao:item.prescricao || "",
+          guiaId:item.guiaId || item.id || "",
+          concluido:false
+        };
+      }),
       protocolo:(workout.protocolo||[]).map((texto,i)=>({id:i,texto,concluido:false})),
       futebol:{duracao:"",intensidade:"",folego:"",explosao:"",pernas:"",observacao:""},
       cardio:{duracao:"",protocoloStatus:"completo",intensidade:"",observacao:""}
     };
+  }
+
+  function enrichFootballWarmupSession(session,workout) {
+    if(!session || session.tipo!=="futebol" || !Array.isArray(session.aquecimento)) return false;
+    const plan=workout?.aquecimento || [];
+    let changed=false;
+
+    session.aquecimento.forEach((saved,index)=>{
+      const planned=plan.find(x=>typeof x==="object" && (x.id===saved.id || x.texto===saved.texto))
+        || plan[index];
+
+      if(!planned || typeof planned==="string") return;
+
+      const values={
+        id:planned.id ?? saved.id,
+        texto:planned.texto || saved.texto || planned.nome || "",
+        nome:planned.nome || saved.nome || planned.texto || "",
+        prescricao:planned.prescricao || saved.prescricao || "",
+        guiaId:planned.guiaId || saved.guiaId || planned.id || ""
+      };
+
+      Object.entries(values).forEach(([key,value])=>{
+        if(saved[key]!==value){
+          saved[key]=value;
+          changed=true;
+        }
+      });
+    });
+
+    return changed;
   }
 
   function exerciseDone(ex) {
@@ -424,7 +464,21 @@
 
   function plannedPreviewHtml(workout) {
     if (workout.tipo==="futebol") {
-      return `<div class="preview-list">${(workout.aquecimento||[]).map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>`;
+      return `<div class="football-warmup-preview">
+        ${(workout.aquecimento||[]).map((raw,i)=>{
+          const item=typeof raw==="string"
+            ? {id:i,nome:raw,texto:raw,prescricao:"",guiaId:""}
+            : raw;
+          return `<div class="football-warmup-preview__row">
+            <span class="exercise-order">${String(i+1).padStart(2,"0")}</span>
+            <div>
+              <strong>${esc(item.nome || item.texto || "")}</strong>
+              <small>${esc(item.prescricao || item.texto || "")}</small>
+            </div>
+            ${item.guiaId?visualButton(item.guiaId,"Ver execução"):""}
+          </div>`;
+        }).join("")}
+      </div>`;
     }
 
     if (workout.tipo==="cardio") {
@@ -482,6 +536,10 @@
     const workout=workoutForDate(iso);
     const session=sessionForDate(iso);
     const program=state.plano.programa;
+
+    if(session && workout?.tipo==="futebol" && enrichFootballWarmupSession(session,workout)) {
+      saveSessions();
+    }
     const navigator=calendarNavigatorHtml();
 
     $("#treino-program-name").textContent=program.nome || "Plano de treino";
@@ -682,12 +740,35 @@
       </button>`).join("")}</div>`;
   }
 
+  function footballWarmupChecklist(items) {
+    return `<div class="football-warmup-list">${(items||[]).map((item,i)=>{
+      const guideId=item.guiaId || "";
+      return `<article class="football-warmup-card ${item.concluido?"done":""}">
+        <div class="football-warmup-card__top">
+          <button class="football-warmup-check" type="button" data-action="toggle-check" data-kind="aquecimento" data-index="${esc(item.id)}" aria-label="${item.concluido?"Marcar como não concluído":"Marcar como concluído"}">
+            ${item.concluido?"✓":"○"}
+          </button>
+          <span class="exercise-order">${String(i+1).padStart(2,"0")}</span>
+          <div class="football-warmup-card__copy">
+            <strong>${esc(item.nome || item.texto || "")}</strong>
+            <small>${esc(item.prescricao || item.texto || "")}</small>
+          </div>
+          ${guideId?visualButton(guideId,"Ver execução"):""}
+        </div>
+        ${guideId?`<details class="football-warmup-card__details">
+          <summary>Como fazer</summary>
+          ${guideHtml(guideId,true)}
+        </details>`:""}
+      </article>`;
+    }).join("")}</div>`;
+  }
+
   function renderFootball(root,workout,session) {
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
       <article class="card special-workout-card">
         <div class="section-head"><div><p class="eyebrow">Antes do jogo</p><h2>Aquecimento</h2></div></div>
-        ${checklist(session.aquecimento,"aquecimento")}
+        ${footballWarmupChecklist(session.aquecimento)}
       </article>
       <article class="card special-workout-card">
         <div class="section-head"><div><p class="eyebrow">Depois do jogo</p><h2>Como foi?</h2></div></div>

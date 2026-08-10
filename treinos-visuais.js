@@ -496,6 +496,92 @@ window.MMCD_TREINO_GUIAS = {
     "fonte": "Free Exercise DB",
     "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
     "datasetId": "Seated_One-arm_Cable_Pulley_Rows"
+  },
+  "futebol-caminhada-trote": {
+    "titulo": "Caminhada + trote leve",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Trail_Running_Walking/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Trail_Running_Walking/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Comece caminhando em ritmo ativo para elevar gradualmente a temperatura corporal.",
+      "Passe para um trote leve, com passos curtos e soltos.",
+      "Mantenha tronco ereto, braços relaxados e respiração confortável.",
+      "Use os 2 minutos para sair do repouso e chegar ao movimento — não é corrida forte."
+    ],
+    "dica": "A meta aqui é aquecer, não cansar antes do jogo.",
+    "observacaoVisual": "As imagens mostram o padrão de caminhada/corrida. No aquecimento, faça a transição progressiva de caminhada para trote leve.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Trail_Running_Walking"
+  },
+  "futebol-agachamento-livre": {
+    "titulo": "Agachamento livre",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Pés aproximadamente na largura dos ombros.",
+      "Leve o quadril para trás e flexione joelhos e quadril.",
+      "Mantenha peito aberto e joelhos acompanhando a direção dos pés.",
+      "Suba empurrando o chão e repita até completar 10 repetições."
+    ],
+    "dica": "Faça 2 séries de 10 com controle; não precisa buscar profundidade máxima.",
+    "observacaoVisual": "INÍCIO mostra a posição em pé; FIM mostra a parte baixa do agachamento.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Bodyweight_Squat"
+  },
+  "futebol-avanco-alternado": {
+    "titulo": "Avanço alternado",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Walking_Lunge/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Walking_Lunge/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Comece em pé, com tronco ereto.",
+      "Dê um passo à frente e desça o quadril.",
+      "Mantenha o joelho da frente alinhado com o pé.",
+      "Empurre o chão para subir e alterne a perna seguinte."
+    ],
+    "dica": "Faça 8 repetições por lado em cada série, sem pressa.",
+    "observacaoVisual": "O movimento da referência é o avanço caminhando, adequado para o padrão alternado do aquecimento.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Bodyweight_Walking_Lunge"
+  },
+  "futebol-skipping": {
+    "titulo": "Skipping",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Fast_Skipping/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Fast_Skipping/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Comece em posição relaxada e mantenha o corpo alto.",
+      "Alterne os apoios rapidamente, usando um padrão leve de passo e salto.",
+      "Mantenha contato curto com o chão e braços acompanhando o ritmo.",
+      "Execute por 20 segundos, descanse brevemente e repita."
+    ],
+    "dica": "O objetivo é ativar coordenação e frequência de passada, não saltar o mais alto possível.",
+    "observacaoVisual": "A referência é o Fast Skipping da base, mostrando as duas fases do padrão de skipping.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Fast_Skipping"
+  },
+  "futebol-aceleracao-progressiva": {
+    "titulo": "Acelerações progressivas",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Linear_3-Part_Start_Technique/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Linear_3-Part_Start_Technique/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Comece em posição atlética, com leve inclinação do corpo à frente.",
+      "Acelere de forma gradual em uma distância curta, sem sair em velocidade máxima.",
+      "Faça a primeira repetição aproximadamente a 60% do seu máximo.",
+      "Na segunda, aumente para cerca de 75%; na terceira, chegue perto de 85–90%.",
+      "Desacelere progressivamente depois de cada repetição e caminhe de volta antes da próxima."
+    ],
+    "dica": "São acelerações de preparação para o jogo, não tiros máximos.",
+    "observacaoVisual": "A referência mostra a postura inicial e a saída de aceleração. O seu exercício continua progressivo: cada repetição aumenta a velocidade gradualmente.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Linear_3-Part_Start_Technique"
   }
 };
 
