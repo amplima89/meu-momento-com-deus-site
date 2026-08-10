@@ -43,6 +43,81 @@
     return Number.isInteger(n) ? String(n) : n.toLocaleString("pt-BR",{maximumFractionDigits:1});
   };
 
+  const FOOTBALL_WARMUP_V26_2 = [
+    {id:"futebol-caminhada-trote",nome:"Caminhada + trote leve",prescricao:"2 min",texto:"2 min caminhada/trote",guiaId:"futebol-caminhada-trote"},
+    {id:"futebol-agachamento-livre",nome:"Agachamento livre",prescricao:"2 × 10",texto:"2 × 10 agachamentos livres",guiaId:"futebol-agachamento-livre"},
+    {id:"futebol-avanco-alternado",nome:"Avanço alternado",prescricao:"2 × 8",texto:"2 × 8 avanços alternados",guiaId:"futebol-avanco-alternado"},
+    {id:"futebol-skipping",nome:"Skipping",prescricao:"2 × 20 s",texto:"2 × 20 segundos de skipping",guiaId:"futebol-skipping"},
+    {id:"futebol-aceleracao-progressiva",nome:"Acelerações progressivas",prescricao:"3 repetições",texto:"3 acelerações progressivas",guiaId:"futebol-aceleracao-progressiva"}
+  ];
+
+  function normalizeFootballText(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[×x]/g, "x")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function footballWarmupMeta(raw,index=0) {
+    const item = typeof raw === "string"
+      ? {texto:raw,nome:raw,prescricao:"",guiaId:"",id:index}
+      : (raw || {});
+
+    const text = normalizeFootballText(item.texto || item.nome || "");
+    const byId = FOOTBALL_WARMUP_V26_2.find(x => x.id === item.id || x.id === item.guiaId);
+    const byText = FOOTBALL_WARMUP_V26_2.find(x => {
+      const target = normalizeFootballText(x.texto);
+      const name = normalizeFootballText(x.nome);
+      return text === target || text === name || text.includes(name) || target.includes(text);
+    });
+    const fallback = FOOTBALL_WARMUP_V26_2[index] || null;
+    const meta = byId || byText || fallback;
+
+    if (!meta) return {
+      id:item.id ?? index,
+      nome:item.nome || item.texto || "",
+      prescricao:item.prescricao || "",
+      texto:item.texto || item.nome || "",
+      guiaId:item.guiaId || ""
+    };
+
+    return {
+      id:meta.id,
+      nome:item.nome && item.nome !== item.texto ? item.nome : meta.nome,
+      prescricao:item.prescricao || meta.prescricao,
+      texto:item.texto || meta.texto,
+      guiaId:item.guiaId || meta.guiaId
+    };
+  }
+
+  function upgradeFootballWarmupPlan(plan) {
+    const football = plan?.treinos?.find(t => t.tipo === "futebol" || t.id === "segunda-futebol");
+    if (!football) return false;
+
+    const current = Array.isArray(football.aquecimento) ? football.aquecimento : [];
+    const upgraded = FOOTBALL_WARMUP_V26_2.map((meta,index) => {
+      const old = current[index];
+      const merged = footballWarmupMeta(old ?? meta,index);
+      return {
+        id:meta.id,
+        nome:merged.nome || meta.nome,
+        prescricao:merged.prescricao || meta.prescricao,
+        texto:merged.texto || meta.texto,
+        guiaId:meta.guiaId
+      };
+    });
+
+    const before = JSON.stringify(current);
+    const after = JSON.stringify(upgraded);
+    if (before === after) return false;
+
+    football.aquecimento = upgraded;
+    return true;
+  }
+
   function status(msg, kind="") {
     const el = $("#treino-save-status");
     if (!el) return;
@@ -114,6 +189,8 @@
     ]);
 
     state.plano = normalizePlan(planValue);
+    const footballPlanMigrated = upgradeFootballWarmupPlan(state.plano);
+
     state.sessoes = Array.isArray(sessionsValue?.sessoes) ? sessionsValue.sessoes : [];
     state.medidas = Array.isArray(measuresValue?.medidas) ? measuresValue.medidas : [];
 
@@ -121,7 +198,7 @@
       state.plano.programa.dataInicio = todayIso();
     }
 
-    if (!planValue) {
+    if (!planValue || footballPlanMigrated) {
       await saveKey(KEYS.plano, {...state.plano, atualizadoEm:new Date().toISOString()});
     }
     if (!sessionsValue) {
@@ -213,13 +290,13 @@
       },
       exercicios:(workout.exercicios||[]).map(createExerciseSession),
       aquecimento:(workout.aquecimento||[]).map((item,i)=>{
-        if(typeof item==="string") return {id:i,texto:item,nome:item,prescricao:"",guiaId:"",concluido:false};
+        const meta=footballWarmupMeta(item,i);
         return {
-          id:item.id ?? i,
-          texto:item.texto || item.nome || "",
-          nome:item.nome || item.texto || "",
-          prescricao:item.prescricao || "",
-          guiaId:item.guiaId || item.id || "",
+          id:meta.id ?? i,
+          texto:meta.texto || "",
+          nome:meta.nome || meta.texto || "",
+          prescricao:meta.prescricao || "",
+          guiaId:meta.guiaId || "",
           concluido:false
         };
       }),
@@ -231,21 +308,17 @@
 
   function enrichFootballWarmupSession(session,workout) {
     if(!session || session.tipo!=="futebol" || !Array.isArray(session.aquecimento)) return false;
-    const plan=workout?.aquecimento || [];
     let changed=false;
 
+    // Match by old text/order, independent of whether the stored plan was already migrated.
     session.aquecimento.forEach((saved,index)=>{
-      const planned=plan.find(x=>typeof x==="object" && (x.id===saved.id || x.texto===saved.texto))
-        || plan[index];
-
-      if(!planned || typeof planned==="string") return;
-
+      const meta=footballWarmupMeta(saved,index);
       const values={
-        id:planned.id ?? saved.id,
-        texto:planned.texto || saved.texto || planned.nome || "",
-        nome:planned.nome || saved.nome || planned.texto || "",
-        prescricao:planned.prescricao || saved.prescricao || "",
-        guiaId:planned.guiaId || saved.guiaId || planned.id || ""
+        id:meta.id,
+        texto:meta.texto,
+        nome:meta.nome,
+        prescricao:meta.prescricao,
+        guiaId:meta.guiaId
       };
 
       Object.entries(values).forEach(([key,value])=>{
@@ -466,9 +539,7 @@
     if (workout.tipo==="futebol") {
       return `<div class="football-warmup-preview">
         ${(workout.aquecimento||[]).map((raw,i)=>{
-          const item=typeof raw==="string"
-            ? {id:i,nome:raw,texto:raw,prescricao:"",guiaId:""}
-            : raw;
+          const item=footballWarmupMeta(raw,i);
           return `<div class="football-warmup-preview__row">
             <span class="exercise-order">${String(i+1).padStart(2,"0")}</span>
             <div>
@@ -741,7 +812,9 @@
   }
 
   function footballWarmupChecklist(items) {
-    return `<div class="football-warmup-list">${(items||[]).map((item,i)=>{
+    return `<div class="football-warmup-list">${(items||[]).map((saved,i)=>{
+      const meta=footballWarmupMeta(saved,i);
+      const item={...saved,...meta,concluido:Boolean(saved?.concluido)};
       const guideId=item.guiaId || "";
       return `<article class="football-warmup-card ${item.concluido?"done":""}">
         <div class="football-warmup-card__top">
