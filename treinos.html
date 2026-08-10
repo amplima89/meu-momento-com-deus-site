@@ -7,8 +7,15 @@
   <title>Treinos — Life Style</title>
   <link rel="icon" href="favicon.ico?v=20260810-treino24" sizes="any">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260810-treino24">
-  <link rel="stylesheet" href="=20260810-treino-v24-2">
-  <link rel="stylesheet" href="=20260810-treino-v24-2">
+
+  <script>
+    // Compatibilidade com links antigos: cadastro nunca abre dentro de Treinos.
+    if (location.hash === "#configuracoes") {
+      history.replaceState(null, "", location.pathname + location.search + "#hoje");
+    }
+  </script>
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260810-treino-v24-3" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260810-treino-v24-3" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
 </head>
 <body>
   <div class="app-shell">
@@ -70,14 +77,47 @@
       <div id="finish-modal-body"></div>
     </div>
   </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (async function(){
+    const BASE='/meu-momento-com-deus-site/';
+    const VERSION='20260810-treino-v24-3';
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260810-treino24"></script>
-  <script src="supabase-client.js?v=20260810-treino24"></script>
-  <script src="auth.js?v=20260810-treino24"></script>
-  <script src="=20260810-treino-v24-2"></script>
-  <script>MMCDShell('treinos')</script>
-  <script src="=20260810-treino-v24-2"></script>
-  <script src="=20260810-treino-v24-2"></script>
+    function loadScript(file){
+      return new Promise((resolve,reject)=>{
+        const primary=document.createElement("script");
+        primary.src=BASE+file+"?v="+VERSION;
+        primary.onload=()=>resolve();
+        primary.onerror=()=>{
+          primary.remove();
+          const fallback=document.createElement("script");
+          fallback.src=BASE+file+"?retry="+Date.now();
+          fallback.onload=()=>resolve();
+          fallback.onerror=()=>reject(new Error("Não foi possível carregar "+file));
+          document.body.appendChild(fallback);
+        };
+        document.body.appendChild(primary);
+      });
+    }
+
+    try{
+      await loadScript("supabase-config.js");
+      await loadScript("supabase-client.js");
+      await loadScript("auth.js");
+      await loadScript("shell.js");
+      await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
+      await loadScript("treinos-data.js");
+      await loadScript("treinos.js");
+    }catch(error){
+      console.error("Falha ao iniciar Treinos:",error);
+      const status=document.querySelector("#treino-save-status");
+      if(status) status.textContent="Falha ao carregar — atualize a página";
+      const root=document.querySelector("#treino-today-root") || document.querySelector("#treino-settings-root");
+      if(root && !root.innerHTML.trim()){
+        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>Não foi possível carregar os arquivos do módulo Treinos.</strong><p>Atualize a página. Se persistir, execute novamente o instalador V24.3.</p></article>';
+      }
+    }
+  })();
+  </script>
 </body>
 </html>
