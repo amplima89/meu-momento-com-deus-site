@@ -963,11 +963,47 @@
   function toggleCheck(kind,index) {
     const session=sessionForDate(todayIso());
     if (!session || !Array.isArray(session[kind])) return;
-    const item=session[kind].find(x=>Number(x.id)===Number(index));
-    if (!item) return;
-    item.concluido=!item.concluido;
-    saveSessions();
+
+    const requestedId=String(index ?? "");
+    const items=session[kind];
+
+    // Compatibilidade:
+    // - IDs novos em texto: futebol-caminhada-trote
+    // - IDs antigos numéricos: 0, 1, 2...
+    // - sessões legadas em que o id possa estar ausente
+    const item=items.find((x,pos)=>{
+      if (String(x?.id ?? "") === requestedId) return true;
+
+      const numericRequested=Number(requestedId);
+      const numericSaved=Number(x?.id);
+      if (
+        requestedId !== "" &&
+        Number.isFinite(numericRequested) &&
+        Number.isFinite(numericSaved) &&
+        numericSaved === numericRequested
+      ) return true;
+
+      return String(pos) === requestedId;
+    });
+
+    if (!item) {
+      console.warn("Treinos: item do checklist não encontrado.", {kind,index});
+      MMCDUI?.toast?.("Não consegui localizar este item do treino.");
+      return;
+    }
+
+    item.concluido=!Boolean(item.concluido);
+
+    // Atualiza a interface imediatamente.
     renderToday();
+
+    // Depois persiste no Supabase.
+    saveSessions().catch(error=>{
+      console.error("Treinos: falha ao salvar checklist.",error);
+      item.concluido=!Boolean(item.concluido);
+      renderToday();
+      MMCDUI?.toast?.("Não foi possível salvar o check. Tente novamente.");
+    });
   }
 
   function updateSpecial(group,field,value) {
