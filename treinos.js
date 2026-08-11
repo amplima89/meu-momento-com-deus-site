@@ -228,6 +228,15 @@
     if (!measuresValue) {
       await saveKey(KEYS.medidas, {schemaVersion:1,medidas:[],atualizadoEm:new Date().toISOString()});
     }
+
+    // Corrige automaticamente sessões ativas criadas antes de uma edição do plano.
+    if (syncActiveSessionWithPlan()) {
+      await saveKey(KEYS.sessoes, {
+        schemaVersion:1,
+        sessoes:state.sessoes,
+        atualizadoEm:new Date().toISOString()
+      });
+    }
   }
 
   function savePlan() {
@@ -325,6 +334,138 @@
       futebol:{duracao:"",intensidade:"",folego:"",explosao:"",pernas:"",observacao:""},
       cardio:{duracao:"",protocoloStatus:"completo",intensidade:"",observacao:""}
     };
+  }
+
+  function syncExerciseSessionWithPlan(saved,planExercise) {
+    if(!saved) return createExerciseSession(planExercise);
+
+    const fresh=createExerciseSession(planExercise);
+    saved.exercicioId=planExercise.id;
+    saved.nome=planExercise.nome;
+    saved.equipamento=planExercise.equipamento||"";
+    saved.grupo=planExercise.grupo||"";
+    saved.registro=planExercise.registro||"peso_reps";
+    saved.observacao=planExercise.observacao||"";
+    saved.planejado={...(fresh.planejado||{})};
+
+    if(saved.registro==="protocolo") {
+      const wasDone=Boolean(saved.series?.[0]?.concluida);
+      saved.series=[{numero:1,concluida:wasDone}];
+      return saved;
+    }
+
+    const oldSeries=Array.isArray(saved.series)?saved.series:[];
+    saved.series=(fresh.series||[]).map(freshSeries=>{
+      const old=oldSeries.find(x=>Number(x.numero)===Number(freshSeries.numero));
+      if(!old) return freshSeries;
+
+      return {
+        ...freshSeries,
+        peso:Number(old.peso||0),
+        reps:Number(old.reps ?? freshSeries.reps ?? 0),
+        segundos:Number(old.segundos ?? freshSeries.segundos ?? 0),
+        concluida:Boolean(old.concluida)
+      };
+    });
+
+    return saved;
+  }
+
+  function syncFootballWarmupWithPlan(session,workout) {
+    const current=Array.isArray(session.aquecimento)?session.aquecimento:[];
+    const planned=Array.isArray(workout.aquecimento)?workout.aquecimento:[];
+
+    session.aquecimento=planned.map((raw,index)=>{
+      const meta=footballWarmupMeta(raw,index);
+
+      let old=current.find(x=>String(x?.id??"")===String(meta.id??""));
+      if(!old) {
+        const target=normalizeFootballText(meta.texto||meta.nome||"");
+        old=current.find(x=>normalizeFootballText(x?.texto||x?.nome||"")===target);
+      }
+
+      return {
+        id:meta.id ?? index,
+        texto:meta.texto||meta.nome||"",
+        nome:meta.nome||meta.texto||"",
+        prescricao:meta.prescricao||"",
+        guiaId:meta.guiaId||"",
+        concluido:Boolean(old?.concluido)
+      };
+    });
+  }
+
+  function syncProtocolWithPlan(session,workout) {
+    const current=Array.isArray(session.protocolo)?session.protocolo:[];
+    const planned=Array.isArray(workout.protocolo)?workout.protocolo:[];
+
+    session.protocolo=planned.map((texto,index)=>{
+      const old=current.find(x=>String(x?.texto||"")===String(texto||"")) || current[index];
+      return {id:index,texto,concluido:Boolean(old?.concluido)};
+    });
+  }
+
+  function syncActiveSessionWithPlan() {
+    const iso=todayIso();
+    const session=sessionForDate(iso);
+    const workout=workoutForDate(iso);
+
+    // Histórico finalizado nunca é alterado.
+    if(!session || !workout || session.status!=="em_andamento") return false;
+    if(String(session.treinoId)!==String(workout.id)) return false;
+
+    const before=JSON.stringify({
+      treinoSnapshot:session.treinoSnapshot,
+      exercicios:session.exercicios,
+      aquecimento:session.aquecimento,
+      protocolo:session.protocolo
+    });
+
+    session.tipo=workout.tipo;
+    session.treinoSnapshot={
+      nome:workout.nome,
+      objetivo:workout.objetivo,
+      tipo:workout.tipo,
+      intensidade:workout.intensidade
+    };
+
+    if(workout.tipo==="futebol") {
+      syncFootballWarmupWithPlan(session,workout);
+    } else {
+      const current=Array.isArray(session.exercicios)?session.exercicios:[];
+      const currentById=new Map(current.map(ex=>[String(ex.exercicioId),ex]));
+
+      // A lista da sessão passa a seguir EXATAMENTE a lista do plano:
+      // deletou -> sai; adicionou -> entra; manteve -> conserva cargas/checks.
+      session.exercicios=(workout.exercicios||[]).map(planExercise=>
+        syncExerciseSessionWithPlan(currentById.get(String(planExercise.id)),planExercise)
+      );
+
+      if(workout.tipo==="cardio") syncProtocolWithPlan(session,workout);
+    }
+
+    const after=JSON.stringify({
+      treinoSnapshot:session.treinoSnapshot,
+      exercicios:session.exercicios,
+      aquecimento:session.aquecimento,
+      protocolo:session.protocolo
+    });
+
+    return before!==after;
+  }
+
+  async function persistPlanAndSync(message="Plano de treino salvo.") {
+    const sessionChanged=syncActiveSessionWithPlan();
+
+    await savePlan();
+    if(sessionChanged) await saveSessions();
+
+    renderAll();
+    MMCDUI?.toast?.(
+      sessionChanged
+        ? "Plano salvo e treino atual sincronizado."
+        : message
+    );
   }
 
   function enrichFootballWarmupSession(session,workout) {
@@ -725,7 +866,7 @@
     const session=sessionForDate(iso);
     const program=state.plano.programa;
 
-    if(session && workout?.tipo==="futebol" && enrichFootballWarmupSession(session,workout)) {
+    if(session?.status==="em_andamento" && syncActiveSessionWithPlan()) {
       saveSessions();
     }
     const navigator=calendarNavigatorHtml();
@@ -1663,7 +1804,7 @@
     </details>`;
   }
 
-  function savePlanFields() {
+  async function savePlanFields() {
     $$("[data-plan-field]").forEach(el=>{
       state.plano.programa[el.dataset.planField]=el.value;
     });
@@ -1701,9 +1842,7 @@
       item[el.dataset.visualField]=el.value;
     });
 
-    savePlan();
-    MMCDUI?.toast?.("Plano de treino salvo.");
-    renderAll();
+    await persistPlanAndSync("Plano de treino salvo.");
   }
 
   function newPhase() {
@@ -1776,12 +1915,15 @@
     });
   }
 
-  function removeFootballWarmup(wi,ai) {
+  async function removeFootballWarmup(wi,ai) {
     const w=state.plano.treinos[Number(wi)];
     if (!Array.isArray(w?.aquecimento) || !w.aquecimento[Number(ai)]) return;
+
     w.aquecimento.splice(Number(ai),1);
     w.aquecimentoSchemaVersion=2;
+
     renderSettings();
+    await persistPlanAndSync("Movimento removido e plano atualizado.");
   }
 
   function updateVisualConfigFromControl(el) {
@@ -1804,11 +1946,14 @@
     }
   }
 
-  function removeExercise(wi,ei) {
+  async function removeExercise(wi,ei) {
     const w=state.plano.treinos[Number(wi)];
     if (!w?.exercicios?.[Number(ei)]) return;
+
     w.exercicios.splice(Number(ei),1);
+
     renderSettings();
+    await persistPlanAndSync("Exercício removido e plano atualizado.");
   }
 
   function saveMeasurement(form) {
