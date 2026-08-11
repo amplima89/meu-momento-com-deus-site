@@ -73,7 +73,8 @@
       const name = normalizeFootballText(x.nome);
       return text === target || text === name || text.includes(name) || target.includes(text);
     });
-    const fallback = FOOTBALL_WARMUP_V26_2[index] || null;
+    const legacyId = item.id === undefined || item.id === null || /^\d+$/.test(String(item.id));
+    const fallback = (typeof raw === "string" || legacyId) ? (FOOTBALL_WARMUP_V26_2[index] || null) : null;
     const meta = byId || byText || fallback;
 
     if (!meta) return {
@@ -97,24 +98,44 @@
     const football = plan?.treinos?.find(t => t.tipo === "futebol" || t.id === "segunda-futebol");
     if (!football) return false;
 
+    // A partir da V26.5, a composição do futebol é editável pelo usuário.
+    // Portanto a migração automática roda uma única vez e nunca mais
+    // recompõe/apaga o que foi adicionado manualmente.
+    if (Number(football.aquecimentoSchemaVersion || 0) >= 2) return false;
+
     const current = Array.isArray(football.aquecimento) ? football.aquecimento : [];
-    const upgraded = FOOTBALL_WARMUP_V26_2.map((meta,index) => {
-      const old = current[index];
-      const merged = footballWarmupMeta(old ?? meta,index);
-      return {
-        id:meta.id,
-        nome:merged.nome || meta.nome,
-        prescricao:merged.prescricao || meta.prescricao,
-        texto:merged.texto || meta.texto,
-        guiaId:meta.guiaId
-      };
+    const upgraded=[];
+
+    current.forEach((raw,index)=>{
+      const meta=footballWarmupMeta(raw,index);
+      upgraded.push({
+        ...(typeof raw==="object" && raw ? raw : {}),
+        id:meta.id ?? `futebol-mov-${Date.now()}-${index}`,
+        nome:meta.nome || meta.texto || "Movimento",
+        prescricao:meta.prescricao || "",
+        texto:meta.texto || meta.nome || "",
+        guiaId:meta.guiaId || "",
+        imagemInicio:typeof raw==="object" ? (raw.imagemInicio||"") : "",
+        imagemFim:typeof raw==="object" ? (raw.imagemFim||"") : "",
+        observacao:typeof raw==="object" ? (raw.observacao||"") : ""
+      });
     });
 
-    const before = JSON.stringify(current);
-    const after = JSON.stringify(upgraded);
-    if (before === after) return false;
+    // Primeira migração de instalações antigas: garante os cinco movimentos
+    // padrão apenas quando ainda não havia estrutura editável.
+    if (!upgraded.length) {
+      FOOTBALL_WARMUP_V26_2.forEach(meta=>{
+        upgraded.push({
+          ...meta,
+          imagemInicio:"",
+          imagemFim:"",
+          observacao:""
+        });
+      });
+    }
 
-    football.aquecimento = upgraded;
+    football.aquecimento=upgraded;
+    football.aquecimentoSchemaVersion=2;
     return true;
   }
 
@@ -372,8 +393,104 @@
     return `<span class="treino-flames" aria-label="intensidade ${n} de 5">${"🔥".repeat(clamp(Number(n||0),0,5))}</span>`;
   }
 
+  function findPlanMovementById(exerciseId) {
+    for(const workout of state.plano?.treinos || []) {
+      const exercise=(workout.exercicios||[]).find(x=>String(x.id)===String(exerciseId));
+      if(exercise) return exercise;
+
+      const warmup=(workout.aquecimento||[]).find(x=>
+        typeof x==="object" && x && String(x.id)===String(exerciseId)
+      );
+      if(warmup) return warmup;
+    }
+    return null;
+  }
+
   function guideFor(exerciseId) {
-    return window.MMCD_TREINO_GUIAS?.[exerciseId] || null;
+    const movement=findPlanMovementById(exerciseId);
+    const library=window.MMCD_TREINO_GUIAS || {};
+    const linked=movement?.guiaId ? library[movement.guiaId] : null;
+    const own=library[exerciseId] || null;
+    const base=linked || own;
+
+    const customStart=String(movement?.imagemInicio||"").trim();
+    const customEnd=String(movement?.imagemFim||"").trim();
+
+    if(customStart && customEnd) {
+      return {
+        ...(base||{}),
+        titulo:movement?.nome || base?.titulo || "Exercício",
+        inicio:customStart,
+        fim:customEnd,
+        passos:base?.passos || [
+          "Observe a posição inicial.",
+          "Execute o movimento de forma controlada.",
+          "Compare sua posição final com a referência.",
+          "Interrompa se houver dor ou desconforto articular."
+        ],
+        dica:movement?.observacao || base?.dica || "Use as imagens como referência de posição e amplitude.",
+        observacaoVisual:base?.observacaoVisual || "",
+        fonte:"Imagem personalizada",
+        fonteUrl:""
+      };
+    }
+
+    return base;
+  }
+
+  function visualLibraryOptions(selected="") {
+    const rows=[];
+    const seen=new Set();
+
+    Object.entries(window.MMCD_TREINO_GUIAS||{}).forEach(([id,guide])=>{
+      const signature=guide?.datasetId || `${guide?.titulo||id}|${guide?.inicio||""}|${guide?.fim||""}`;
+      if(seen.has(signature)) return;
+      seen.add(signature);
+      rows.push({id,titulo:guide?.titulo||id});
+    });
+
+    rows.sort((a,b)=>a.titulo.localeCompare(b.titulo,"pt-BR"));
+
+    return `<option value="">Sem referência da biblioteca</option>` +
+      rows.map(row=>`<option value="${esc(row.id)}" ${String(selected)===String(row.id)?"selected":""}>${esc(row.titulo)}</option>`).join("");
+  }
+
+  function visualConfigHtml(item,attrs) {
+    const currentGuide=item?.guiaId || (window.MMCD_TREINO_GUIAS?.[item?.id] ? item.id : "");
+    const hasGuide=Boolean(guideFor(item?.id));
+
+    return `<div class="field full exercise-guide-admin">
+      <span>Guia visual</span>
+      <div class="visual-config-box">
+        <div class="visual-config-box__intro">
+          <div>
+            <strong>Como vincular as fotos</strong>
+            <small>Escolha uma referência pronta ou informe duas URLs: início e fim.</small>
+          </div>
+          ${hasGuide?visualButton(item.id,"Pré-visualizar"):""}
+        </div>
+
+        <label class="field">
+          <span>Referência da biblioteca</span>
+          <select ${attrs} data-visual-field="guiaId">${visualLibraryOptions(currentGuide)}</select>
+        </label>
+
+        <div class="visual-url-grid">
+          <label class="field">
+            <span>Imagem — início (URL)</span>
+            <input type="url" ${attrs} data-visual-field="imagemInicio" value="${esc(item?.imagemInicio||"")}" placeholder="https://.../inicio.jpg">
+          </label>
+          <label class="field">
+            <span>Imagem — fim (URL)</span>
+            <input type="url" ${attrs} data-visual-field="imagemFim" value="${esc(item?.imagemFim||"")}" placeholder="https://.../fim.jpg">
+          </label>
+        </div>
+
+        <p class="visual-config-help">
+          As duas URLs personalizadas têm prioridade sobre a biblioteca. O vínculo fica salvo junto com este exercício no Supabase.
+        </p>
+      </div>
+    </div>`;
   }
 
   function visualButton(exerciseId,label="Ver execução") {
@@ -779,7 +896,11 @@
     }
     const time=ex.registro==="tempo";
     return `<div class="series-card ${s.concluida?"done":""} ${highlight?"focus":""}">
-      <div class="series-title"><span>SÉRIE ${s.numero}</span>${s.concluida?"<b>✓</b>":""}</div>
+      <div class="series-title">
+        <span>SÉRIE ${s.numero}</span>
+        ${!time?`<small class="series-load-required">carga + reps obrigatórios</small>`:""}
+        ${s.concluida?"<b>✓</b>":""}
+      </div>
       <div class="series-controls ${time?"single":""}">
         ${time ? `
           <label><span>Tempo</span><div class="stepper">
@@ -788,7 +909,7 @@
             <strong>s</strong>
             <button type="button" data-step-field="segundos" data-step="5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">+</button>
           </div></label>` : `
-          <label><span>Peso total</span><div class="stepper">
+          <label><span>Carga total</span><div class="stepper">
             <button type="button" data-step-field="peso" data-step="-2.5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">−</button>
             <input inputmode="decimal" type="number" min="0" step="0.5" value="${Number(s.peso||0)}" data-field="peso" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">
             <strong>kg</strong>
@@ -845,13 +966,26 @@
       </article>
       <article class="card special-workout-card">
         <div class="section-head"><div><p class="eyebrow">Depois do jogo</p><h2>Como foi?</h2></div></div>
-        <div class="special-fields">
-          ${specialNumber("Duração (min)","duracao",session.futebol.duracao,0,240,1,"futebol")}
-          ${specialNumber("Intensidade percebida","intensidade",session.futebol.intensidade,1,10,1,"futebol")}
-          ${specialNumber("Fôlego","folego",session.futebol.folego,1,10,1,"futebol")}
-          ${specialNumber("Explosão","explosao",session.futebol.explosao,1,10,1,"futebol")}
-          ${specialNumber("Condição das pernas","pernas",session.futebol.pernas,1,10,1,"futebol")}
-          <label class="field full"><span>Observação</span><textarea data-special="futebol" data-field="observacao">${esc(session.futebol.observacao)}</textarea></label>
+        <div class="football-report">
+          <div class="football-report__duration">
+            ${specialNumber("Tempo total em campo (min)","duracao",session.futebol.duracao,0,240,1,"futebol")}
+            <p>Informe somente o tempo efetivamente jogado.</p>
+          </div>
+
+          <div class="football-report__intro">
+            <strong>Avaliação do jogo</strong>
+            <p>Escolha a palavra que melhor representa como você se sentiu. A escala numérica fica apenas no histórico para acompanhar sua evolução.</p>
+          </div>
+
+          ${subjectiveRating("intensidade",session.futebol.intensidade)}
+          ${subjectiveRating("folego",session.futebol.folego)}
+          ${subjectiveRating("explosao",session.futebol.explosao)}
+          ${subjectiveRating("pernas",session.futebol.pernas)}
+
+          <label class="field football-report__notes">
+            <span>Observação do jogo</span>
+            <textarea data-special="futebol" data-field="observacao" placeholder="Ex.: senti a perna pesada no segundo tempo, chutei bem, cansou depois de 60 min...">${esc(session.futebol.observacao)}</textarea>
+          </label>
         </div>
       </article>
       <button class="btn primary finish-special" data-action="finish-workout">FINALIZAR FUTEBOL</button>`;
@@ -882,6 +1016,88 @@
       </article>
       <div class="exercise-stack">${exerciseCards}</div>
       <button class="btn primary finish-special" data-action="finish-workout">FINALIZAR TREINO</button>`;
+  }
+
+  const SUBJECTIVE_SCALES = {
+    intensidade: {
+      titulo:"Intensidade do jogo",
+      ajuda:"Quanto esforço o jogo exigiu de você?",
+      opcoes:[
+        {valor:1,label:"Leve"},
+        {valor:2,label:"Moderada"},
+        {valor:3,label:"Forte"},
+        {valor:4,label:"Muito forte"},
+        {valor:5,label:"No limite"}
+      ]
+    },
+    folego: {
+      titulo:"Fôlego",
+      ajuda:"Como seu condicionamento sustentou o jogo?",
+      opcoes:[
+        {valor:1,label:"Muito ruim"},
+        {valor:2,label:"Ruim"},
+        {valor:3,label:"Regular"},
+        {valor:4,label:"Bom"},
+        {valor:5,label:"Ótimo"}
+      ]
+    },
+    explosao: {
+      titulo:"Explosão",
+      ajuda:"Como estavam suas arrancadas e mudanças de ritmo?",
+      opcoes:[
+        {valor:1,label:"Travado"},
+        {valor:2,label:"Baixa"},
+        {valor:3,label:"Regular"},
+        {valor:4,label:"Boa"},
+        {valor:5,label:"Excelente"}
+      ]
+    },
+    pernas: {
+      titulo:"Condição das pernas",
+      ajuda:"Como as pernas responderam durante o jogo?",
+      opcoes:[
+        {valor:1,label:"Muito pesadas"},
+        {valor:2,label:"Pesadas"},
+        {valor:3,label:"Normais"},
+        {valor:4,label:"Boas"},
+        {valor:5,label:"Soltas"}
+      ]
+    }
+  };
+
+  function subjectiveStoredValue(value) {
+    const n=Number(value);
+    if(!Number.isFinite(n) || n<=0) return 0;
+    if(n<=5) return Math.round(n);
+    return Math.max(1,Math.min(5,Math.ceil(n/2)));
+  }
+
+  function subjectiveRating(field,value,group="futebol") {
+    const scale=SUBJECTIVE_SCALES[field];
+    if(!scale) return "";
+    const selected=subjectiveStoredValue(value);
+
+    return `<section class="subjective-rating" data-rating="${esc(field)}">
+      <div class="subjective-rating__head">
+        <div>
+          <strong>${esc(scale.titulo)}</strong>
+          <small>${esc(scale.ajuda)}</small>
+        </div>
+        ${selected?`<span class="subjective-rating__selected">${esc(scale.opcoes.find(x=>x.valor===selected)?.label||"")}</span>`:"<span class=\"subjective-rating__selected empty\">Não avaliado</span>"}
+      </div>
+      <div class="subjective-rating__options">
+        ${scale.opcoes.map(option=>`
+          <button
+            type="button"
+            class="subjective-rating__option ${selected===option.valor?"active":""}"
+            data-rating-group="${esc(group)}"
+            data-rating-field="${esc(field)}"
+            data-rating-value="${option.valor}"
+            aria-pressed="${selected===option.valor?"true":"false"}"
+          >${esc(option.label)}</button>
+        `).join("")}
+      </div>
+    </section>`;
   }
 
   function specialNumber(label,field,value,min,max,step,group) {
@@ -931,9 +1147,28 @@
     if (!session || !ex) return;
     const s=ex.series.find(x=>Number(x.numero)===Number(seriesNo));
     if (!s) return;
+
+    // Exercício com carga: não permite concluir uma série sem registrar carga.
+    if (!s.concluida && ex.registro==="peso_reps") {
+      if (num(s.peso)<=0) {
+        window.MMCDUI?.toast?.("Informe a carga total em kg antes de concluir a série.");
+        const input=document.querySelector(`[data-exercise-id="${CSS.escape(exerciseId)}"][data-series="${seriesNo}"][data-field="peso"]`);
+        input?.focus();
+        return;
+      }
+
+      if (num(s.reps)<=0) {
+        window.MMCDUI?.toast?.("Informe as repetições realizadas antes de concluir a série.");
+        const input=document.querySelector(`[data-exercise-id="${CSS.escape(exerciseId)}"][data-series="${seriesNo}"][data-field="reps"]`);
+        input?.focus();
+        return;
+      }
+    }
+
     s.concluida=!s.concluida;
     saveSessions();
     renderToday();
+
     if (s.concluida) {
       requestAnimationFrame(()=>{
         const current=$(".exercise-card.current .series-card:not(.done)") || $(".exercise-card.current");
@@ -1330,6 +1565,64 @@
     return `<label class="field"><span>${esc(label)}${name!=="data"?" (cm)":""}</span><input name="${name}" type="${type}" ${type==="number"?'inputmode="decimal" step="0.1" min="0"':""} value="${esc(value)}" ${required?"required":""}></label>`;
   }
 
+  function footballWarmupSettings(w,wi) {
+    const items=(w.aquecimento||[]);
+
+    const cards=items.map((raw,ai)=>{
+      const item=footballWarmupMeta(raw,ai);
+      const stored=typeof raw==="object" && raw ? raw : {};
+      const merged={...item,...stored};
+
+      return `<div class="settings-exercise settings-football-movement">
+        <div class="settings-exercise__title">
+          <div>
+            <strong>${esc(merged.nome||merged.texto||`Movimento ${ai+1}`)}</strong>
+            <small>Aquecimento / preparação</small>
+          </div>
+          <button class="mini-action danger" type="button" data-action="remove-football-warmup" data-workout-index="${wi}" data-warmup-index="${ai}">Remover</button>
+        </div>
+
+        <div class="exercise-config-grid">
+          <label class="field">
+            <span>Nome do movimento</span>
+            <input data-workout-index="${wi}" data-warmup-index="${ai}" data-warmup-field="nome" value="${esc(merged.nome||"")}">
+          </label>
+
+          <label class="field">
+            <span>Prescrição</span>
+            <input data-workout-index="${wi}" data-warmup-index="${ai}" data-warmup-field="prescricao" value="${esc(merged.prescricao||"")}" placeholder="Ex.: 2 × 10 ou 30 s">
+          </label>
+
+          <label class="field full">
+            <span>Observação</span>
+            <input data-workout-index="${wi}" data-warmup-index="${ai}" data-warmup-field="observacao" value="${esc(merged.observacao||"")}" placeholder="Orientação opcional">
+          </label>
+
+          ${visualConfigHtml(
+            merged,
+            `data-workout-index="${wi}" data-warmup-index="${ai}"`
+          )}
+        </div>
+      </div>`;
+    }).join("");
+
+    return `<section class="football-settings-block">
+      <div class="settings-subhead">
+        <div>
+          <strong>Aquecimento / movimentos</strong>
+          <small>Estes são os exercícios que aparecem antes do jogo.</small>
+        </div>
+        <button class="btn small" type="button" data-action="add-football-warmup" data-workout-index="${wi}">+ Adicionar movimento</button>
+      </div>
+
+      <div class="settings-exercise-list">
+        ${cards || `<div class="settings-empty-list">Nenhum movimento cadastrado.</div>`}
+      </div>
+
+      <button class="btn small settings-add-bottom" type="button" data-action="add-football-warmup" data-workout-index="${wi}">+ Adicionar movimento</button>
+    </section>`;
+  }
+
   function workoutSettings(w,wi) {
     if (w.tipo==="descanso") {
       return `<details class="settings-workout"><summary><div><strong>${esc(w.diaNome)} — Descanso</strong><small>Recuperação</small></div><span>›</span></summary><div class="settings-workout-body"><label class="field"><span>Objetivo</span><input data-workout-index="${wi}" data-workout-field="objetivo" value="${esc(w.objetivo)}"></label></div></details>`;
@@ -1345,17 +1638,10 @@
           <label class="field"><span>Repetições / duração</span><input data-workout-index="${wi}" data-exercise-index="${ei}" data-exercise-field="reps" value="${esc(ex.reps||"")}"></label>
           <label class="field"><span>Descanso</span><input data-workout-index="${wi}" data-exercise-index="${ei}" data-exercise-field="descanso" value="${esc(ex.descanso||"")}"></label>
           <label class="field full"><span>Observação</span><input data-workout-index="${wi}" data-exercise-index="${ei}" data-exercise-field="observacao" value="${esc(ex.observacao||"")}"></label>
-          <div class="field full exercise-guide-admin">
-            <span>Guia visual</span>
-            <div class="exercise-guide-admin__row">
-              <div class="exercise-guide-admin__icon">📷</div>
-              <div>
-                <strong>${guideFor(ex.id)?"Início + fim cadastrados":"Sem referência cadastrada"}</strong>
-                <small>${guideFor(ex.id)?.datasetId||"—"}</small>
-              </div>
-              ${guideFor(ex.id)?visualButton(ex.id,"Pré-visualizar"):""}
-            </div>
-          </div>
+          ${visualConfigHtml(
+            ex,
+            `data-workout-index="${wi}" data-exercise-index="${ei}"`
+          )}
         </div>
       </div>`).join("");
 
@@ -1367,7 +1653,12 @@
           <label class="field"><span>Tipo</span><select data-workout-index="${wi}" data-workout-field="tipo"><option value="musculacao" ${w.tipo==="musculacao"?"selected":""}>Musculação</option><option value="futebol" ${w.tipo==="futebol"?"selected":""}>Futebol</option><option value="cardio" ${w.tipo==="cardio"?"selected":""}>Cardio</option></select></label>
           <label class="field full"><span>Objetivo</span><input data-workout-index="${wi}" data-workout-field="objetivo" value="${esc(w.objetivo)}"></label>
         </div>
-        ${["musculacao","cardio"].includes(w.tipo)?`<div class="settings-exercise-list">${exercises}</div><button class="btn small" data-action="add-exercise" data-workout-index="${wi}">+ Exercício</button>`:""}
+        ${w.tipo==="futebol"
+          ? footballWarmupSettings(w,wi)
+          : ["musculacao","cardio"].includes(w.tipo)
+            ? `<div class="settings-exercise-list">${exercises}</div><button class="btn small" type="button" data-action="add-exercise" data-workout-index="${wi}">+ Adicionar exercício</button>`
+            : ""
+        }
       </div>
     </details>`;
   }
@@ -1387,6 +1678,29 @@
       const f=el.dataset.exerciseField;
       ex[f]=f==="series" ? Math.max(1,Number(el.value||1)) : el.value;
     });
+
+    $$("[data-exercise-index][data-visual-field]").forEach(el=>{
+      const w=state.plano.treinos[Number(el.dataset.workoutIndex)];
+      const ex=w?.exercicios?.[Number(el.dataset.exerciseIndex)];
+      if (!ex) return;
+      ex[el.dataset.visualField]=el.value;
+    });
+
+    $$("[data-warmup-field]").forEach(el=>{
+      const w=state.plano.treinos[Number(el.dataset.workoutIndex)];
+      const item=w?.aquecimento?.[Number(el.dataset.warmupIndex)];
+      if (!item || typeof item!=="object") return;
+      item[el.dataset.warmupField]=el.value;
+      item.texto=item.nome || item.texto || "";
+    });
+
+    $$("[data-warmup-index][data-visual-field]").forEach(el=>{
+      const w=state.plano.treinos[Number(el.dataset.workoutIndex)];
+      const item=w?.aquecimento?.[Number(el.dataset.warmupIndex)];
+      if (!item || typeof item!=="object") return;
+      item[el.dataset.visualField]=el.value;
+    });
+
     savePlan();
     MMCDUI?.toast?.("Plano de treino salvo.");
     renderAll();
@@ -1421,13 +1735,73 @@
       reps:"10",
       registro:"peso_reps",
       descanso:"60–90 s",
-      observacao:""
+      observacao:"",
+      guiaId:"",
+      imagemInicio:"",
+      imagemFim:""
     });
     renderSettings();
     requestAnimationFrame(()=>{
       const details=$$(".settings-workout")[Number(workoutIndex)];
       if(details) details.open=true;
     });
+  }
+
+  function addFootballWarmup(workoutIndex) {
+    const w=state.plano.treinos[Number(workoutIndex)];
+    if (!w) return;
+
+    w.aquecimento ||= [];
+    w.aquecimentoSchemaVersion=2;
+
+    const id=`futebol-custom-${Date.now()}`;
+    w.aquecimento.push({
+      id,
+      nome:"Novo movimento",
+      prescricao:"2 × 10",
+      texto:"Novo movimento",
+      guiaId:"",
+      imagemInicio:"",
+      imagemFim:"",
+      observacao:""
+    });
+
+    renderSettings();
+
+    requestAnimationFrame(()=>{
+      const details=$$(".settings-workout")[Number(workoutIndex)];
+      if(details) details.open=true;
+      const cards=details?.querySelectorAll(".settings-football-movement");
+      cards?.[cards.length-1]?.scrollIntoView({behavior:"smooth",block:"center"});
+    });
+  }
+
+  function removeFootballWarmup(wi,ai) {
+    const w=state.plano.treinos[Number(wi)];
+    if (!Array.isArray(w?.aquecimento) || !w.aquecimento[Number(ai)]) return;
+    w.aquecimento.splice(Number(ai),1);
+    w.aquecimentoSchemaVersion=2;
+    renderSettings();
+  }
+
+  function updateVisualConfigFromControl(el) {
+    const field=el.dataset.visualField;
+    if(!field) return;
+
+    const wi=Number(el.dataset.workoutIndex);
+    const w=state.plano.treinos[wi];
+    if(!w) return;
+
+    if(el.dataset.exerciseIndex !== undefined) {
+      const ex=w.exercicios?.[Number(el.dataset.exerciseIndex)];
+      if(ex) ex[field]=el.value;
+      return;
+    }
+
+    if(el.dataset.warmupIndex !== undefined) {
+      const item=w.aquecimento?.[Number(el.dataset.warmupIndex)];
+      if(item && typeof item==="object") item[field]=el.value;
+    }
   }
 
   function removeExercise(wi,ei) {
@@ -1511,6 +1885,19 @@
         return;
       }
 
+      const rating=event.target.closest("[data-rating-group][data-rating-field][data-rating-value]");
+      if(rating){
+        const session=sessionForDate(todayIso());
+        const group=rating.dataset.ratingGroup;
+        const field=rating.dataset.ratingField;
+        if(session?.[group]){
+          session[group][field]=Number(rating.dataset.ratingValue);
+          saveSessions();
+          renderToday();
+        }
+        return;
+      }
+
       const action=event.target.closest("[data-action]");
       if(action){
         const a=action.dataset.action;
@@ -1524,6 +1911,8 @@
         else if(a==="new-phase") newPhase();
         else if(a==="add-exercise") addExercise(action.dataset.workoutIndex);
         else if(a==="remove-exercise") removeExercise(action.dataset.workoutIndex,action.dataset.exerciseIndex);
+        else if(a==="add-football-warmup") addFootballWarmup(action.dataset.workoutIndex);
+        else if(a==="remove-football-warmup") removeFootballWarmup(action.dataset.workoutIndex,action.dataset.warmupIndex);
         else if(a==="delete-measure") deleteMeasurement(action.dataset.measureId);
         else if(a==="back-today"){
           state.selectedDate=todayIso();
@@ -1561,6 +1950,13 @@
     });
 
     document.addEventListener("change",event=>{
+      const visualControl=event.target.closest("[data-visual-field]");
+      if(visualControl){
+        updateVisualConfigFromControl(visualControl);
+        renderSettings();
+        return;
+      }
+
       if(event.target.id==="treino-date-picker"){
         state.selectedDate=event.target.value || todayIso();
         renderToday();

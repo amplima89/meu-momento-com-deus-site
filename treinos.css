@@ -1146,3 +1146,327 @@
 }
 
 /* MMCD_FUTEBOL_WARMUP_VISUAL_V26_1_END */
+
+
+/* MMCD_FOOTBALL_SEMANTIC_RATING_AND_LOADS_V26_4_START */
+
+.football-report{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.football-report__duration{
+  grid-column:1/-1;
+  max-width:420px;
+}
+
+.football-report__duration p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:.62rem;
+}
+
+.football-report__intro{
+  grid-column:1/-1;
+  padding:13px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface-2);
+}
+
+.football-report__intro strong{
+  display:block;
+  margin-bottom:3px;
+  font-size:.76rem;
+}
+
+.football-report__intro p{
+  margin:0;
+  max-width:790px;
+  color:var(--muted);
+  font-size:.65rem;
+  line-height:1.45;
+}
+
+.subjective-rating{
+  min-width:0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface);
+}
+
+.subjective-rating__head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:11px;
+}
+
+.subjective-rating__head>div{
+  display:grid;
+  gap:3px;
+}
+
+.subjective-rating__head strong{
+  font-size:.76rem;
+}
+
+.subjective-rating__head small{
+  color:var(--muted);
+  font-size:.61rem;
+  line-height:1.35;
+}
+
+.subjective-rating__selected{
+  flex:0 0 auto;
+  padding:5px 8px;
+  border-radius:999px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  font-size:.58rem;
+  font-weight:850;
+  white-space:nowrap;
+}
+
+.subjective-rating__selected.empty{
+  background:var(--surface-2);
+  color:var(--muted);
+}
+
+.subjective-rating__options{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;
+}
+
+.subjective-rating__option{
+  min-height:38px;
+  padding:7px 5px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--muted);
+  font-size:.61rem;
+  font-weight:760;
+  cursor:pointer;
+}
+
+.subjective-rating__option:hover{
+  border-color:color-mix(in srgb,var(--accent) 35%,var(--line));
+  color:var(--text);
+}
+
+.subjective-rating__option.active{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+  color:var(--accent);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 10%,transparent);
+}
+
+.football-report__notes{
+  grid-column:1/-1;
+}
+
+.football-report__notes textarea{
+  min-height:96px;
+}
+
+.series-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.series-load-required{
+  margin-right:auto;
+  padding:4px 6px;
+  border-radius:999px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:.52rem;
+  font-weight:760;
+}
+
+@media(max-width:900px){
+  .football-report{
+    grid-template-columns:1fr;
+  }
+
+  .football-report__duration,
+  .football-report__intro,
+  .football-report__notes{
+    grid-column:auto;
+  }
+}
+
+@media(max-width:760px){
+  .subjective-rating{
+    padding:12px;
+  }
+
+  .subjective-rating__head{
+    display:grid;
+  }
+
+  .subjective-rating__selected{
+    justify-self:start;
+  }
+
+  .subjective-rating__options{
+    display:flex;
+    overflow-x:auto;
+    gap:6px;
+    padding-bottom:3px;
+    scroll-snap-type:x proximity;
+  }
+
+  .subjective-rating__option{
+    flex:0 0 108px;
+    scroll-snap-align:start;
+  }
+
+  .series-title{
+    flex-wrap:wrap;
+  }
+
+  .series-load-required{
+    order:3;
+    width:max-content;
+  }
+}
+
+/* MMCD_FOOTBALL_SEMANTIC_RATING_AND_LOADS_V26_4_END */
+
+
+/* MMCD_TRAINING_REGISTRATION_AND_VISUAL_LINK_V26_5_START */
+
+.football-settings-block{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+
+.settings-subhead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:11px;
+}
+
+.settings-subhead>div{
+  display:grid;
+  gap:3px;
+}
+
+.settings-subhead strong{
+  font-size:.76rem;
+}
+
+.settings-subhead small{
+  color:var(--muted);
+  font-size:.62rem;
+}
+
+.settings-football-movement .settings-exercise__title>div{
+  display:grid;
+  gap:2px;
+}
+
+.settings-football-movement .settings-exercise__title small{
+  color:var(--muted);
+  font-size:.56rem;
+}
+
+.settings-add-bottom{
+  display:none;
+  width:100%;
+  margin-top:10px;
+}
+
+.settings-empty-list{
+  padding:18px;
+  border:1px dashed var(--line);
+  border-radius:11px;
+  color:var(--muted);
+  font-size:.68rem;
+  text-align:center;
+}
+
+.visual-config-box{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface-2);
+}
+
+.visual-config-box__intro{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.visual-config-box__intro>div{
+  display:grid;
+  gap:3px;
+}
+
+.visual-config-box__intro strong{
+  font-size:.72rem;
+}
+
+.visual-config-box__intro small{
+  color:var(--muted);
+  font-size:.59rem;
+}
+
+.visual-url-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+.visual-config-help{
+  margin:9px 0 0;
+  color:var(--muted);
+  font-size:.57rem;
+  line-height:1.45;
+}
+
+@media(max-width:760px){
+  .settings-subhead{
+    align-items:flex-start;
+  }
+
+  .settings-subhead>.btn{
+    display:none;
+  }
+
+  .settings-add-bottom{
+    display:flex;
+  }
+
+  .visual-config-box__intro{
+    align-items:flex-start;
+  }
+
+  .visual-config-box__intro{
+    display:grid;
+  }
+
+  .visual-config-box__intro .exercise-visual-btn{
+    justify-self:start;
+  }
+
+  .visual-url-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* MMCD_TRAINING_REGISTRATION_AND_VISUAL_LINK_V26_5_END */
