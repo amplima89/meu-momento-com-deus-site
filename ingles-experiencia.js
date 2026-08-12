@@ -311,19 +311,28 @@
     const examples = grid.querySelector('[data-lesson-kind="examples"]');
     const reading = grid.querySelector('[data-lesson-kind="reading"]');
     const expressions = grid.querySelector('[data-lesson-kind="expressions"]');
+    const comprehension = grid.querySelector('[data-lesson-kind="quick"]');
+    const speaking = grid.querySelector('[data-lesson-kind="speaking"]');
     const writing = grid.querySelector('[data-lesson-kind="writing"]');
+    const scene = grid.querySelector('[data-lesson-kind="scene"]');
 
     if (grammar) grammar.querySelector(".english-block-kicker").textContent = "1 · Entenda";
     if (concept) concept.querySelector(".english-block-kicker").textContent = "Como funciona";
     if (examples) examples.querySelector(".english-block-kicker").textContent = "Exemplos do foco";
-    if (reading) reading.querySelector(".english-block-kicker").textContent = "2 · Leia e pratique";
-    if (expressions) expressions.querySelector(".english-block-kicker").textContent = "Expressões úteis da leitura";
-    if (writing) writing.querySelector(".english-block-kicker").textContent = "3 · Produza";
+    if (reading) reading.querySelector(".english-block-kicker").textContent = "2 · Leia e expanda";
+    if (expressions) expressions.querySelector(".english-block-kicker").textContent = "Vocabulário da leitura";
+    if (comprehension) comprehension.querySelector(".english-block-kicker").textContent = "3 · Compreenda";
+    if (speaking) speaking.querySelector(".english-block-kicker").textContent = "4 · Fale";
+    if (writing) writing.querySelector(".english-block-kicker").textContent = "5 · Produza";
 
     if (grammar) {
       const titulo = grammar.querySelector(".english-block-main-title");
       if (titulo) titulo.textContent = familiaGramatical(titulo.textContent);
     }
+
+    [grammar, concept, examples, reading, expressions, comprehension, speaking, writing, scene]
+      .filter(Boolean)
+      .forEach(bloco => grid.append(bloco));
   }
 
   function transcricaoHtml(item) {
@@ -430,7 +439,7 @@
     section.innerHTML = `
       <header class="series-final-head">
         <div>
-          <p class="english-block-kicker">4 · Série — texto original</p>
+          <p class="english-block-kicker">6 · Série ou filme</p>
           <h2>${esc(item?.titulo || "Série ou filme")}</h2>
           <p class="series-final-subtitle">
             Trecho original do arquivo de legenda que você salvou no Life Style. Leia tudo aqui; não é necessário abrir o episódio.

@@ -300,6 +300,7 @@
     "useful expressions": { tipo: "expressions", titulo: "Expressões úteis", icone: "+" },
     "writing practice": { tipo: "writing", titulo: "Prática de escrita", icone: "✎" },
     "speaking practice": { tipo: "speaking", titulo: "Prática de fala", icone: "●" },
+    "comprehension practice": { tipo: "quick", titulo: "Compreensão", icone: "?" },
     "quick practice": { tipo: "quick", titulo: "Prática rápida", icone: "→" }
   };
 
@@ -406,8 +407,7 @@
     escrita.pratica = extrairPraticaEstruturada(escrita.conteudo) || praticaFundamentalFallback();
     escrita.legada = !extrairPraticaEstruturada(escrita.conteudo);
 
-    // Fase 1: leitura, vocabulário e escrita estruturada. A fala volta em uma etapa futura.
-    aula.blocos = aula.blocos.filter(bloco => bloco.tipo !== "speaking" && bloco.tipo !== "quick");
+    // V31: speaking e compreensão fazem parte da aula adaptativa.
     return aula;
   }
 
@@ -457,6 +457,8 @@
       resposta = `<div class="english-response-workspace" data-writing-workspace data-pattern="${escaparHtml(pratica.pattern)}" data-meaning="${escaparHtml(pratica.meaning)}" data-model="${escaparHtml(pratica.model)}" data-prompts="${escaparHtml(JSON.stringify(pratica.prompts))}" data-origin="${escaparHtml(pratica.origem || "gerada")}"></div>`;
     } else if (bloco.tipo === "reading") {
       resposta = '<div class="english-response-workspace english-reading-recorder" data-reading-workspace></div>';
+    } else if (bloco.tipo === "speaking") {
+      resposta = '<div class="english-response-workspace" data-speaking-workspace></div>';
     }
 
     return `
@@ -484,7 +486,7 @@
     }
 
     const aula = completarAulaLegada(extrairBlocosDaAula(texto));
-    const nota = '<div class="practice-note"><strong>Fase 1:</strong> leia, grave a leitura, selecione em azul as palavras que quer guardar e pratique uma estrutura simples em 5 frases curtas.</div>';
+    const nota = '<div class="practice-note"><strong>Aula adaptativa:</strong> entenda o conceito, leia, teste a compreensão, fale, produza e finalize reconhecendo o inglês em contexto real.</div>';
 
     if (!aula.blocos.length) {
       return nota + renderizarFragmento(texto);

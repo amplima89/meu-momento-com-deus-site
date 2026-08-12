@@ -140,6 +140,98 @@ window.MMCDShell=async function(active){
   if(logo.complete&&logo.naturalWidth===0)fallback();
  }
 
+ // MMCD_LEARNING_GROUPS_V31_START
+ const buildLearningGroup=({
+   mainSelector,childSelector,groupClass,menuId,storageKey,activeKeys,
+   primaryHref,primaryTitle,primarySubtitle
+ })=>{
+   const main=document.querySelector(mainSelector);
+   if(!main||main.closest(`.${groupClass}`))return;
+
+   const child=document.querySelector(childSelector);
+   const isActive=activeKeys.includes(active);
+   const saved=localStorage.getItem(storageKey)==='1';
+   const open=isActive||saved;
+
+   const group=document.createElement('div');
+   group.className=`sidebar-settings ${groupClass} ${open?'open':''}`;
+
+   const button=document.createElement('button');
+   button.type='button';
+   button.className=`sidebar-link sidebar-settings__toggle ${isActive?'active':''}`;
+   button.setAttribute('aria-expanded',open?'true':'false');
+   button.setAttribute('aria-controls',menuId);
+   button.innerHTML=main.innerHTML;
+
+   const oldArrow=button.querySelector('.sidebar-link__arrow');
+   if(oldArrow){
+     oldArrow.className='sidebar-settings__chevron';
+     oldArrow.textContent='›';
+   }
+
+   const menu=document.createElement('div');
+   menu.className=`sidebar-subnav ${open?'open':''}`;
+   menu.id=menuId;
+   menu.hidden=!open;
+
+   const primary=document.createElement('a');
+   primary.className=`sidebar-subnav__link ${activeKeys[0]===active?'active':''}`;
+   primary.href=primaryHref;
+   primary.innerHTML=`<span class="sidebar-subnav__dot"></span><span><strong>${primaryTitle}</strong><small>${primarySubtitle}</small></span>`;
+   menu.append(primary);
+
+   if(child){
+     const secondary=document.createElement('a');
+     secondary.className=`sidebar-subnav__link ${activeKeys[1]===active?'active':''}`;
+     secondary.href=child.getAttribute('href')||'#';
+     const strong=child.querySelector('strong')?.textContent?.trim()||'Evolução';
+     const small=child.querySelector('small')?.textContent?.trim()||'';
+     secondary.innerHTML=`<span class="sidebar-subnav__dot"></span><span><strong>${strong}</strong><small>${small}</small></span>`;
+     menu.append(secondary);
+   }
+
+   main.replaceWith(group);
+   if(child)child.remove();
+   group.append(button,menu);
+
+   const setOpen=(next,persist=true)=>{
+     group.classList.toggle('open',next);
+     menu.classList.toggle('open',next);
+     menu.hidden=!next;
+     button.setAttribute('aria-expanded',next?'true':'false');
+     if(persist)localStorage.setItem(storageKey,next?'1':'0');
+   };
+   button.addEventListener('click',()=>setOpen(!group.classList.contains('open')));
+   if(isActive)setOpen(true,false);
+ };
+
+ buildLearningGroup({
+   mainSelector:'.sidebar-link[href^="biblia.html"]',
+   childSelector:'.sidebar-bible-map-link',
+   groupClass:'sidebar-bible-group',
+   menuId:'sidebar-bible-menu',
+   storageKey:'mmcd:sidebar:bible-open',
+   activeKeys:['biblia','biblia-mapa'],
+   primaryHref:'biblia.html',
+   primaryTitle:'Leitura e anotações',
+   primarySubtitle:'Capítulos, versículos e notas'
+ });
+
+ buildLearningGroup({
+   mainSelector:'.sidebar-link[href^="ingles.html"]',
+   childSelector:'.sidebar-english-evolution-link',
+   groupClass:'sidebar-english-group',
+   menuId:'sidebar-english-menu',
+   storageKey:'mmcd:sidebar:english-open',
+   activeKeys:['ingles','ingles-evolucao'],
+   primaryHref:'ingles.html',
+   primaryTitle:'Aula do dia',
+   primarySubtitle:'Prática adaptativa'
+ });
+ // MMCD_LEARNING_GROUPS_V31_END
+
+
+
  
 
  try{const session=await MMCDAuth.requireSession();const sidebar=document.querySelector('.sidebar');if(sidebar){sidebar.append(MMCDAuth.accountButton(session.user));sidebar.insertAdjacentHTML('beforeend','<div class="sync-status">Dados online · Supabase</div>')}}catch(e){console.error(e)}
