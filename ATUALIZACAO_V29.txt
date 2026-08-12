@@ -1,0 +1,26 @@
+LIFE STYLE — PAI ATLETA V29
+Atualização: 12/08/2026
+
+PRINCIPAIS MELHORIAS
+- Histórico já finalizado permanece imutável.
+- Afundo com halter substitui o Afundo Búlgaro no Smith nos próximos treinos.
+- Cardio moderado incluído na quarta (15 min) e sexta (20 min).
+- Exercícios concluídos ficam em verde claro.
+- Ao finalizar parcialmente, exercícios não realizados ficam em vermelho claro.
+- Registro de carga permite escolher KG ou PLACAS por exercício.
+- A última execução do exercício aparece automaticamente com séries, repetições e carga/unidade.
+- Evolução respeita a unidade utilizada, sem misturar kg e placas na mesma curva.
+- Ao finalizar o treino, o botão de finalização desaparece e o estado da tela é atualizado imediatamente.
+- O treino finalizado marca automaticamente o indicador de Atividade configurado/detectado.
+- Uma sessão já concluída no dia da atualização também é reconciliada com Atividades ao abrir o módulo.
+- Sistema de temas multiusuário com Branco + azul, Azul profundo, Rosa claro, Verde claro, Laranja suave, Marsala, Azul bebê, Lavanda, Areia, Turquesa suave e Grafite + azul.
+- Em Configurações > Plano de treino > Temas de cores, o administrador pode habilitar/desabilitar as paletas disponíveis.
+
+IMPORTANTE — TEMAS MULTIUSUÁRIO
+Para que a lista de temas habilitados pelo administrador seja compartilhada entre TODOS os usuários, execute uma única vez no SQL Editor do Supabase:
+
+configuracao-banco/SUPABASE_TEMAS_MULTIUSUARIO.sql
+
+O arquivo é idempotente e não apaga os dados existentes. Após a migração, a primeira conta autenticada que abrir a página de Configurações assume a função de administrador inicial.
+
+Sem essa migração, as paletas e a escolha de tema continuam funcionando, mas o catálogo habilitado/desabilitado fica apenas no ambiente local do navegador.

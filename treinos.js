@@ -7,12 +7,15 @@
     sessoes: "treino_sessoes_v1",
     medidas: "treino_medidas_v1"
   };
+  const HARDCORE_PHASE_SCHEMA_VERSION = 3;
+  const HARDCORE_PHASE_START = "2026-08-12";
 
   const state = {
     user: null,
     plano: null,
     sessoes: [],
     medidas: [],
+    atividadesData: null,
     tab: "hoje",
     selectedDate: null,
     loading: true,
@@ -44,11 +47,17 @@
     const n = Number(value || 0);
     return Number.isInteger(n) ? String(n) : n.toLocaleString("pt-BR",{maximumFractionDigits:1});
   };
+  const normalizeLoadUnit = value => String(value||"").toLowerCase()==="placas" ? "placas" : "kg";
+  const loadUnitLabel = value => normalizeLoadUnit(value)==="placas" ? "placas" : "kg";
+  const normalizeText = value => String(value||"")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 
   const FOOTBALL_WARMUP_V26_2 = [
     {id:"futebol-caminhada-trote",nome:"Caminhada + trote leve",prescricao:"2 min",texto:"2 min caminhada/trote",guiaId:"futebol-caminhada-trote"},
     {id:"futebol-agachamento-livre",nome:"Agachamento livre",prescricao:"2 × 10",texto:"2 × 10 agachamentos livres",guiaId:"futebol-agachamento-livre"},
     {id:"futebol-avanco-alternado",nome:"Avanço alternado",prescricao:"2 × 8",texto:"2 × 8 avanços alternados",guiaId:"futebol-avanco-alternado"},
+    {id:"futebol-mobilidade-quadril",nome:"Mobilidade de quadril",prescricao:"10 por lado",texto:"10 movimentos de mobilidade de quadril por lado",guiaId:"futebol-mobilidade-quadril"},
+    {id:"futebol-mobilidade-tornozelo",nome:"Mobilidade de tornozelo",prescricao:"10 por lado",texto:"10 movimentos de mobilidade de tornozelo por lado",guiaId:"futebol-mobilidade-tornozelo"},
     {id:"futebol-skipping",nome:"Skipping",prescricao:"2 × 20 s",texto:"2 × 20 segundos de skipping",guiaId:"futebol-skipping"},
     {id:"futebol-aceleracao-progressiva",nome:"Acelerações progressivas",prescricao:"3 repetições",texto:"3 acelerações progressivas",guiaId:"futebol-aceleracao-progressiva"}
   ];
@@ -197,31 +206,84 @@
     const base = clone(window.MMCD_TREINO_PLANO_PADRAO);
     if (!value?.programa || !Array.isArray(value?.treinos)) return base;
     return {
-      schemaVersion:1,
+      schemaVersion:Number(value.schemaVersion || 1),
       programa:{...base.programa,...value.programa},
       treinos:value.treinos
     };
   }
 
+  function copyVisualOverrides(targetPlan, previousPlan) {
+    const previous=new Map();
+
+    (previousPlan?.treinos||[]).forEach(workout=>{
+      (workout.exercicios||[]).forEach(item=>{
+        if(!previous.has(String(item.id))) previous.set(String(item.id),item);
+      });
+      (workout.aquecimento||[]).forEach(item=>{
+        if(item && typeof item==="object" && !previous.has(String(item.id))) previous.set(String(item.id),item);
+      });
+    });
+
+    const preserve=item=>{
+      const old=previous.get(String(item?.id));
+      if(!old || !item) return;
+      ["guiaId","imagemInicio","imagemFim"].forEach(field=>{
+        const custom=String(old[field]||"").trim();
+        if(custom) item[field]=old[field];
+      });
+    };
+
+    (targetPlan?.treinos||[]).forEach(workout=>{
+      (workout.exercicios||[]).forEach(preserve);
+      (workout.aquecimento||[]).forEach(item=>{
+        if(item && typeof item==="object") preserve(item);
+      });
+    });
+  }
+
+  function upgradeHardcorePhasePlan(plan) {
+    if(Number(plan?.schemaVersion||1) >= HARDCORE_PHASE_SCHEMA_VERSION) return false;
+
+    const previous=clone(plan);
+    const target=clone(window.MMCD_TREINO_PLANO_PADRAO);
+    copyVisualOverrides(target,previous);
+
+    target.schemaVersion=HARDCORE_PHASE_SCHEMA_VERSION;
+    target.programa.dataInicio=HARDCORE_PHASE_START;
+    target.programa.dataFim="";
+
+    plan.schemaVersion=target.schemaVersion;
+    plan.programa=target.programa;
+    plan.treinos=target.treinos;
+    return true;
+  }
+
   async function loadAll() {
     await mustUser();
-    const [planValue,sessionsValue,measuresValue] = await Promise.all([
+    const activitiesPromise=window.MMCD?.carregar
+      ? window.MMCD.carregar().catch(error=>{console.warn("Treinos: atividades indisponíveis para integração automática.",error);return null;})
+      : Promise.resolve(null);
+
+    const [planValue,sessionsValue,measuresValue,activitiesValue] = await Promise.all([
       loadKey(KEYS.plano),
       loadKey(KEYS.sessoes),
-      loadKey(KEYS.medidas)
+      loadKey(KEYS.medidas),
+      activitiesPromise
     ]);
 
     state.plano = normalizePlan(planValue);
+    const hardcorePhaseMigrated = upgradeHardcorePhasePlan(state.plano);
     const footballPlanMigrated = upgradeFootballWarmupPlan(state.plano);
 
     state.sessoes = Array.isArray(sessionsValue?.sessoes) ? sessionsValue.sessoes : [];
     state.medidas = Array.isArray(measuresValue?.medidas) ? measuresValue.medidas : [];
+    state.atividadesData = activitiesValue || null;
 
     if (!state.plano.programa.dataInicio) {
       state.plano.programa.dataInicio = todayIso();
     }
 
-    if (!planValue || footballPlanMigrated) {
+    if (!planValue || hardcorePhaseMigrated || footballPlanMigrated) {
       await saveKey(KEYS.plano, {...state.plano, atualizadoEm:new Date().toISOString()});
     }
     if (!sessionsValue) {
@@ -231,7 +293,7 @@
       await saveKey(KEYS.medidas, {schemaVersion:1,medidas:[],atualizadoEm:new Date().toISOString()});
     }
 
-    // Corrige automaticamente sessões ativas criadas antes de uma edição do plano.
+    // Sessões finalizadas são histórico imutável. Só uma sessão ainda em andamento pode acompanhar o plano novo.
     if (syncActiveSessionWithPlan()) {
       await saveKey(KEYS.sessoes, {
         schemaVersion:1,
@@ -270,8 +332,16 @@
 
   function exercisePrior(exerciseId, workoutId, beforeDate=todayIso()) {
     const prior = priorSession(workoutId,beforeDate);
-    if (!prior?.exercicios) return null;
-    return prior.exercicios.find(ex => ex.exercicioId === exerciseId) || null;
+    const sameWorkout = prior?.exercicios?.find(ex => ex.exercicioId === exerciseId) || null;
+    if (sameWorkout) return {...sameWorkout,_priorDate:prior.data};
+
+    const previousAnyWorkout = state.sessoes
+      .filter(s => s.data < beforeDate && ["concluido","parcial"].includes(s.status))
+      .sort((a,b) => b.data.localeCompare(a.data))
+      .find(s => s.exercicios?.some(ex => ex.exercicioId === exerciseId));
+
+    const previousExercise=previousAnyWorkout?.exercicios?.find(ex => ex.exercicioId === exerciseId) || null;
+    return previousExercise ? {...previousExercise,_priorDate:previousAnyWorkout.data} : null;
   }
 
   function repsDefault(label) {
@@ -280,20 +350,22 @@
   }
 
   function createExerciseSession(ex) {
+    const total = Math.max(1,Number(ex.series || 1));
+    const planned={series:total,reps:ex.reps||"",descanso:ex.descanso||"",observacao:ex.observacao||""};
     if (ex.registro === "protocolo") {
       return {
-        exercicioId:ex.id,nome:ex.nome,registro:"protocolo",
-        observacao:ex.observacao||"", series:[{numero:1,concluida:false}]
+        exercicioId:ex.id,nome:ex.nome,equipamento:ex.equipamento||"",grupo:ex.grupo||"",registro:"protocolo",
+        observacao:ex.observacao||"",planejado,series:[{numero:1,concluida:false}]
       };
     }
-    const total = Math.max(1,Number(ex.series || 1));
     return {
       exercicioId:ex.id,
       nome:ex.nome,
       equipamento:ex.equipamento||"",
       grupo:ex.grupo||"",
       registro:ex.registro||"peso_reps",
-      planejado:{series:total,reps:ex.reps||"",descanso:ex.descanso||"",observacao:ex.observacao||""},
+      unidadeCarga:normalizeLoadUnit(ex.unidadeCarga),
+      planejado:planned,
       series:Array.from({length:total},(_,i)=>({
         numero:i+1,
         peso:0,
@@ -318,9 +390,17 @@
         nome:workout.nome,
         objetivo:workout.objetivo,
         tipo:workout.tipo,
-        intensidade:workout.intensidade
+        intensidade:workout.intensidade,
+        orientacao:workout.orientacao||""
       },
-      exercicios:(workout.exercicios||[]).map(createExerciseSession),
+      exercicios:(workout.exercicios||[]).map(ex=>{
+        const item=createExerciseSession(ex);
+        if(item.registro==="peso_reps") {
+          const prior=exercisePrior(ex.id,workout.id,todayIso());
+          item.unidadeCarga=normalizeLoadUnit(prior?.unidadeCarga || ex.unidadeCarga || "kg");
+        }
+        return item;
+      }),
       aquecimento:(workout.aquecimento||[]).map((item,i)=>{
         const meta=footballWarmupMeta(item,i);
         return {
@@ -333,7 +413,7 @@
         };
       }),
       protocolo:(workout.protocolo||[]).map((texto,i)=>({id:i,texto,concluido:false})),
-      futebol:{duracao:"",intensidade:"",folego:"",explosao:"",pernas:"",observacao:""},
+      futebol:{duracao:"",intensidade:"",folego:"",explosao:"",pernas:"",recuperacao:"",observacao:""},
       cardio:{duracao:"",protocoloStatus:"completo",intensidade:"",observacao:""}
     };
   }
@@ -348,6 +428,7 @@
     saved.grupo=planExercise.grupo||"";
     saved.registro=planExercise.registro||"peso_reps";
     saved.observacao=planExercise.observacao||"";
+    saved.unidadeCarga=saved.registro==="peso_reps" ? normalizeLoadUnit(saved.unidadeCarga || fresh.unidadeCarga || planExercise.unidadeCarga || "kg") : undefined;
     saved.planejado={...(fresh.planejado||{})};
 
     if(saved.registro==="protocolo") {
@@ -428,7 +509,8 @@
       nome:workout.nome,
       objetivo:workout.objetivo,
       tipo:workout.tipo,
-      intensidade:workout.intensidade
+      intensidade:workout.intensidade,
+      orientacao:workout.orientacao||""
     };
 
     if(workout.tipo==="futebol") {
@@ -529,7 +611,45 @@
       return `<strong>Concluído</strong><span>Protocolo</span>`;
     }
     const best = done.reduce((a,b)=>Number(b.peso||0)>Number(a.peso||0)?b:a,done[0]);
-    return `<strong>${fmt(best.peso)} kg × ${fmt(best.reps)}</strong><span>${done.length} série(s)</span>`;
+    const unit=loadUnitLabel(ex.unidadeCarga);
+    return `<strong>${fmt(best.peso)} ${unit} × ${fmt(best.reps)}</strong><span>${done.length} série(s)</span>`;
+  }
+
+  function lastExerciseText(ex) {
+    if(!ex) return "Sem histórico";
+    const done=(ex.series||[]).filter(s=>s.concluida);
+    if(!done.length) return "Sem série concluída";
+    if(ex.registro==="tempo") return `${fmt(Math.max(...done.map(s=>Number(s.segundos||0))))} s`;
+    if(ex.registro==="protocolo") return "Protocolo concluído";
+    const unit=loadUnitLabel(ex.unidadeCarga);
+    return done.map(s=>`${fmt(s.peso)} ${unit} × ${fmt(s.reps)}`).join(" · ");
+  }
+
+  function lastExerciseDetail(ex) {
+    if(!ex) return "";
+    const done=(ex.series||[]).filter(s=>s.concluida);
+    if(!done.length) return "";
+    if(ex.registro==="tempo") return `<div class="last-series-history">${done.map(s=>`<span>S${s.numero}: ${fmt(s.segundos)} s</span>`).join("")}</div>`;
+    if(ex.registro==="protocolo") return `<div class="last-series-history"><span>Protocolo concluído</span></div>`;
+    const unit=loadUnitLabel(ex.unidadeCarga);
+    return `<div class="last-series-history">${done.map(s=>`<span>S${s.numero}: ${fmt(s.peso)} ${unit} × ${fmt(s.reps)}</span>`).join("")}</div>`;
+  }
+
+  function loadUnitControl(ex,locked=false) {
+    if(ex?.registro!=="peso_reps") return "";
+    const unit=normalizeLoadUnit(ex.unidadeCarga);
+    return `<div class="load-unit-box"><span>REGISTRAR CARGA EM</span><div class="load-unit-toggle" role="group" aria-label="Unidade da carga">
+      <button type="button" class="${unit==="kg"?"active":""}" data-action="set-load-unit" data-exercise-id="${esc(ex.exercicioId)}" data-load-unit="kg" ${locked?"disabled":""}>KG</button>
+      <button type="button" class="${unit==="placas"?"active":""}" data-action="set-load-unit" data-exercise-id="${esc(ex.exercicioId)}" data-load-unit="placas" ${locked?"disabled":""}>PLACAS</button>
+    </div></div>`;
+  }
+
+  function exerciseHistoryBox(pex,exerciseId,locked=false) {
+    return `<div class="last-time-box">
+      <div class="last-time-box__head"><span>ÚLTIMA VEZ</span>${pex?`<small>${datePt(pex._priorDate)}</small>`:""}${pex&&!locked?`<button class="mini-action" data-action="copy-last" data-exercise-id="${esc(exerciseId)}">Usar último treino</button>`:""}</div>
+      <div class="last-time-box__summary">${lastExerciseSummary(pex)}</div>
+      ${lastExerciseDetail(pex)}
+    </div>`;
   }
 
   function intensityFlames(n=5) {
@@ -815,13 +935,14 @@
     if (workout.tipo==="cardio") {
       return `
         <div class="preview-list">${(workout.protocolo||[]).map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>
+        <div class="preview-protocol-guide">${visualButton("bike-estacionaria","Ver execução da bike")}</div>
         ${(workout.exercicios||[]).length?`
           <div class="preview-exercises preview-exercises--calendar">
             ${(workout.exercicios||[]).map((x,i)=>`
               <div class="preview-exercise-row">
                 <span>${String(i+1).padStart(2,"0")}</span>
                 <div><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>
-                ${x.registro==="protocolo"?"":visualButton(x.id,"Ver execução")}
+                ${visualButton(x.id,"Ver execução")}
               </div>`).join("")}
           </div>`:""}`;
     }
@@ -830,7 +951,7 @@
       <div class="preview-exercise-row">
         <span>${String(i+1).padStart(2,"0")}</span>
         <div><strong>${esc(x.nome)}</strong><small>${esc(x.series)} × ${esc(x.reps)}</small></div>
-        ${x.registro==="protocolo"?"":visualButton(x.id,"Ver execução")}
+        ${visualButton(x.id,"Ver execução")}
       </div>`).join("")}</div>`;
   }
 
@@ -847,8 +968,8 @@
         <div class="selected-plan-card__head">
           <div>
             <span class="treino-kicker">REGISTRO DE ${esc(datePt(iso))}</span>
-            <h2>${esc(workout?.tituloCurto || session.treinoSnapshot?.nome || "Treino")}</h2>
-            <p>${esc(workout?.objetivo || session.treinoSnapshot?.objetivo || "")}</p>
+            <h2>${esc(session.treinoSnapshot?.nome || workout?.tituloCurto || "Treino")}</h2>
+            <p>${esc(session.treinoSnapshot?.objetivo || workout?.objetivo || "")}</p>
           </div>
           <span class="selected-plan-status ${session.status}">${session.status==="concluido"?"Concluído":session.status==="parcial"?"Parcial":"Em andamento"}</span>
         </div>
@@ -966,13 +1087,15 @@
 
   function renderSessionHeader(workout,session) {
     const p=progress(session);
+    const statusLabel=session.status==="concluido"?"TREINO CONCLUÍDO":session.status==="parcial"?"TREINO FINALIZADO · PARCIAL":"EM ANDAMENTO";
     return `
-      <article class="card active-workout-head">
+      <article class="card active-workout-head ${session.status}">
         <div class="active-workout-head__title">
           <div>
-            <span class="treino-kicker">${session.status==="concluido"?"TREINO CONCLUÍDO":"EM ANDAMENTO"}</span>
+            <span class="treino-kicker">${statusLabel}</span>
             <h2>${esc(workout.tituloCurto)}</h2>
             <p>${esc(workout.objetivo)}</p>
+            ${workout.orientacao?`<p class="muted">${esc(workout.orientacao)}</p>`:""}
           </div>
           ${intensityFlames(workout.intensidade)}
         </div>
@@ -1028,106 +1151,115 @@
   }
 
   function renderStrength(root,workout,session) {
-    const currentIdx=currentExerciseIndex(session);
-    const prior=priorSession(workout.id,session.data);
+    const locked=session.status!=="em_andamento";
+    const currentIdx=locked ? -1 : currentExerciseIndex(session);
     const exerciseCards=(session.exercicios||[]).map((ex,idx)=>{
       const done=exerciseDone(ex);
-      const pex=prior?.exercicios?.find(x=>x.exercicioId===ex.exercicioId);
-      const isCurrent=!done && idx===currentIdx;
+      const missed=session.status==="parcial" && !done;
+      const pex=exercisePrior(ex.exercicioId,workout.id,session.data);
+      const isCurrent=!locked && !done && idx===currentIdx;
       const isOpen=exercisePanelIsOpen(ex.exercicioId);
-      const seriesHtml=(ex.series||[]).map(s=>seriesRow(ex,s,isOpen && !s.concluida)).join("");
+      const seriesHtml=(ex.series||[]).map(s=>seriesRow(ex,s,isOpen && !s.concluida,locked)).join("");
+      const stateLabel=done?"Concluído":missed?"Não realizado":isOpen?"Em preenchimento":isCurrent?"Próximo":"Pendente";
       return `
-        <article class="exercise-card ${done?"done":""} ${isCurrent?"current":""} ${isOpen?"open":""}" data-exercise="${esc(ex.exercicioId)}">
+        <article class="exercise-card ${done?"done":""} ${missed?"missed":""} ${isCurrent?"current":""} ${isOpen?"open":""}" data-exercise="${esc(ex.exercicioId)}">
           <div class="exercise-card__head">
             <button type="button" class="exercise-card__identity" data-action="toggle-exercise" data-exercise-id="${esc(ex.exercicioId)}" aria-expanded="${isOpen?"true":"false"}">
               <span class="exercise-order">${String(idx+1).padStart(2,"0")}</span>
               <span class="exercise-card__copy">
-                <strong>${done?"✓ ":""}${esc(ex.nome)}</strong>
+                <strong>${done?"✓ ":missed?"× ":""}${esc(ex.nome)}</strong>
                 <small>${esc(ex.planejado?.series||ex.series.length)} × ${esc(ex.planejado?.reps||"")} ${ex.planejado?.descanso?`· descanso ${esc(ex.planejado.descanso)}`:""}</small>
+                ${pex?`<small class="exercise-last-inline">Última: ${esc(lastExerciseText(pex))}</small>`:""}
               </span>
             </button>
             <div class="exercise-head-actions">
-              <span class="exercise-state">${done?"Concluído":isOpen?"Em preenchimento":isCurrent?"Próximo":"Pendente"}</span>
+              <span class="exercise-state">${stateLabel}</span>
               ${visualButton(ex.exercicioId,"Ver execução")}
               ${exerciseAccordionButton(ex.exercicioId,isOpen)}
             </div>
           </div>
           <div class="exercise-card__body" ${isOpen?"":"hidden"}>
             ${ex.planejado?.observacao?`<div class="exercise-note">${esc(ex.planejado.observacao)}</div>`:""}
-            <div class="last-time-box">
-              <span>ÚLTIMA VEZ</span>
-              <div>${lastExerciseSummary(pex)}</div>
-              ${prior?`<small>${datePt(prior.data)}</small>`:""}
-              ${pex?`<button class="mini-action" data-action="copy-last" data-exercise-id="${esc(ex.exercicioId)}">Usar último treino</button>`:""}
-            </div>
+            ${exerciseHistoryBox(pex,ex.exercicioId,locked)}
+            ${loadUnitControl(ex,locked)}
             <div class="series-stack">${seriesHtml}</div>
           </div>
         </article>`;
     }).join("");
     const p=progress(session);
+    const finishArea=session.status==="em_andamento"
+      ? `<article class="card finish-workout-card">
+          <div><span class="treino-kicker">${p.pct===100?"PRONTO PARA FINALIZAR":"FINAL DO TREINO"}</span><h2>${p.done}/${p.total} exercícios</h2><p>${p.pct===100?"Todas as séries foram concluídas.":"Você pode finalizar como parcial se precisar encerrar agora."}</p></div>
+          <button class="btn primary finish-btn" data-action="finish-workout">${p.pct===100?"FINALIZAR TREINO":"FINALIZAR PARCIAL"}</button>
+        </article>`
+      : `<article class="card workout-closed-card ${session.status}"><div><span class="treino-kicker">${session.status==="concluido"?"TREINO ENCERRADO":"TREINO ENCERRADO PARCIALMENTE"}</span><h2>${p.done}/${p.total} exercícios</h2><p>${session.status==="concluido"?"Treino finalizado e salvo no histórico.":"Os exercícios não realizados foram mantidos como pendentes no histórico."}</p></div><strong>${session.status==="concluido"?"✓":"◐"}</strong></article>`;
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
-      <article class="exercise-accordion-intro"><div><strong>Exercícios agrupados</strong><span>Abra um exercício, registre as séries e ele fecha automaticamente quando terminar.</span></div><span>${p.done}/${p.total}</span></article>
+      <article class="exercise-accordion-intro"><div><strong>Exercícios agrupados</strong><span>${locked?"Treino encerrado. Abra um exercício para consultar o registro.":"Abra um exercício, registre as séries e ele fecha automaticamente quando terminar."}</span></div><span>${p.done}/${p.total}</span></article>
       <div class="exercise-stack">${exerciseCards}</div>
-      <article class="card finish-workout-card">
-        <div><span class="treino-kicker">${p.pct===100?"PRONTO PARA FINALIZAR":"FINAL DO TREINO"}</span><h2>${p.done}/${p.total} exercícios</h2><p>${p.pct===100?"Todas as séries foram concluídas.":"Você pode finalizar como parcial se precisar encerrar agora."}</p></div>
-        <button class="btn primary finish-btn" data-action="finish-workout">${p.pct===100?"FINALIZAR TREINO":"FINALIZAR PARCIAL"}</button>
-      </article>`;
+      ${finishArea}`;
   }
 
-  function seriesRow(ex,s,highlight) {
+  function seriesRow(ex,s,highlight,locked=false) {
+    const disabled=locked?"disabled":"";
     if (ex.registro==="protocolo") {
       return `<div class="series-card protocol-series ${s.concluida?"done":""}">
         <div><span>PROTOCOLO</span><strong>${esc(ex.planejado?.reps||"Concluir")}</strong></div>
-        <button class="series-check ${s.concluida?"done":""}" data-action="toggle-series" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">${s.concluida?"✓ Concluído":"✓ Concluir"}</button>
+        <button class="series-check ${s.concluida?"done":""}" data-action="toggle-series" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>${s.concluida?"✓ Concluído":"✓ Concluir"}</button>
       </div>`;
     }
     const time=ex.registro==="tempo";
+    const unit=normalizeLoadUnit(ex.unidadeCarga);
+    const plates=unit==="placas";
+    const loadLabel=plates?"Placa":"Carga total";
+    const unitLabel=plates?"placas":"kg";
+    const step=plates?1:2.5;
+    const inputStep=plates?1:0.5;
     return `<div class="series-card ${s.concluida?"done":""} ${highlight?"focus":""}">
       <div class="series-title">
         <span>SÉRIE ${s.numero}</span>
-        ${!time?`<small class="series-load-required">carga + reps obrigatórios</small>`:""}
+        ${!time?`<small class="series-load-required">${plates?"placa":"carga"} + reps obrigatórios</small>`:""}
         ${s.concluida?"<b>✓</b>":""}
       </div>
       <div class="series-controls ${time?"single":""}">
         ${time ? `
           <label><span>Tempo</span><div class="stepper">
-            <button type="button" data-step-field="segundos" data-step="-5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">−</button>
-            <input inputmode="numeric" type="number" min="0" step="5" value="${Number(s.segundos||0)}" data-field="segundos" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">
+            <button type="button" data-step-field="segundos" data-step="-5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>−</button>
+            <input inputmode="numeric" type="number" min="0" step="5" value="${Number(s.segundos||0)}" data-field="segundos" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>
             <strong>s</strong>
-            <button type="button" data-step-field="segundos" data-step="5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">+</button>
+            <button type="button" data-step-field="segundos" data-step="5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>+</button>
           </div></label>` : `
-          <label><span>Carga total</span><div class="stepper">
-            <button type="button" data-step-field="peso" data-step="-2.5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">−</button>
-            <input inputmode="decimal" type="number" min="0" step="0.5" value="${Number(s.peso||0)}" data-field="peso" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">
-            <strong>kg</strong>
-            <button type="button" data-step-field="peso" data-step="2.5" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">+</button>
+          <label><span>${loadLabel}</span><div class="stepper">
+            <button type="button" data-step-field="peso" data-step="-${step}" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>−</button>
+            <input inputmode="decimal" type="number" min="0" step="${inputStep}" value="${Number(s.peso||0)}" data-field="peso" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>
+            <strong>${unitLabel}</strong>
+            <button type="button" data-step-field="peso" data-step="${step}" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>+</button>
           </div></label>
           <label><span>Repetições</span><div class="stepper">
-            <button type="button" data-step-field="reps" data-step="-1" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">−</button>
-            <input inputmode="numeric" type="number" min="0" step="1" value="${Number(s.reps||0)}" data-field="reps" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">
-            <button type="button" data-step-field="reps" data-step="1" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">+</button>
+            <button type="button" data-step-field="reps" data-step="-1" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>−</button>
+            <input inputmode="numeric" type="number" min="0" step="1" value="${Number(s.reps||0)}" data-field="reps" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>
+            <button type="button" data-step-field="reps" data-step="1" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>+</button>
           </div></label>`}
       </div>
-      <button class="series-check ${s.concluida?"done":""}" data-action="toggle-series" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}">${s.concluida?"✓ Série concluída":"✓ Concluir série"}</button>
+      <button class="series-check ${s.concluida?"done":""}" data-action="toggle-series" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>${s.concluida?"✓ Série concluída":"✓ Concluir série"}</button>
     </div>`;
   }
 
-  function checklist(items,kind) {
+  function checklist(items,kind,locked=false) {
     return `<div class="protocol-list">${(items||[]).map(item=>`
-      <button class="protocol-item ${item.concluido?"done":""}" data-action="toggle-check" data-kind="${kind}" data-index="${item.id}">
+      <button class="protocol-item ${item.concluido?"done":""}" data-action="toggle-check" data-kind="${kind}" data-index="${item.id}" ${locked?"disabled":""}>
         <span>${item.concluido?"✓":"○"}</span><strong>${esc(item.texto)}</strong>
       </button>`).join("")}</div>`;
   }
 
-  function footballWarmupChecklist(items) {
+  function footballWarmupChecklist(items,locked=false) {
     return `<div class="football-warmup-list">${(items||[]).map((saved,i)=>{
       const meta=footballWarmupMeta(saved,i);
       const item={...saved,...meta,concluido:Boolean(saved?.concluido)};
       const guideId=item.guiaId || "";
       return `<article class="football-warmup-card ${item.concluido?"done":""}">
         <div class="football-warmup-card__top">
-          <button class="football-warmup-check" type="button" data-action="toggle-check" data-kind="aquecimento" data-index="${esc(item.id)}" aria-label="${item.concluido?"Marcar como não concluído":"Marcar como concluído"}">
+          <button class="football-warmup-check" type="button" data-action="toggle-check" data-kind="aquecimento" data-index="${esc(item.id)}" aria-label="${item.concluido?"Marcar como não concluído":"Marcar como concluído"}" ${locked?"disabled":""}>
             ${item.concluido?"✓":"○"}
           </button>
           <span class="exercise-order">${String(i+1).padStart(2,"0")}</span>
@@ -1146,17 +1278,18 @@
   }
 
   function renderFootball(root,workout,session) {
+    const locked=session.status!=="em_andamento";
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
       <article class="card special-workout-card">
         <div class="section-head"><div><p class="eyebrow">Antes do jogo</p><h2>Aquecimento</h2></div></div>
-        ${footballWarmupChecklist(session.aquecimento)}
+        ${footballWarmupChecklist(session.aquecimento,locked)}
       </article>
       <article class="card special-workout-card">
         <div class="section-head"><div><p class="eyebrow">Depois do jogo</p><h2>Como foi?</h2></div></div>
         <div class="football-report">
           <div class="football-report__duration">
-            ${specialNumber("Tempo total em campo (min)","duracao",session.futebol.duracao,0,240,1,"futebol")}
+            ${specialNumber("Tempo total em campo (min)","duracao",session.futebol.duracao,0,240,1,"futebol",locked)}
             <p>Informe somente o tempo efetivamente jogado.</p>
           </div>
 
@@ -1165,49 +1298,56 @@
             <p>Escolha a palavra que melhor representa como você se sentiu. A escala numérica fica apenas no histórico para acompanhar sua evolução.</p>
           </div>
 
-          ${subjectiveRating("intensidade",session.futebol.intensidade)}
-          ${subjectiveRating("folego",session.futebol.folego)}
-          ${subjectiveRating("explosao",session.futebol.explosao)}
-          ${subjectiveRating("pernas",session.futebol.pernas)}
+          ${subjectiveRating("intensidade",session.futebol.intensidade,"futebol",locked)}
+          ${subjectiveRating("folego",session.futebol.folego,"futebol",locked)}
+          ${subjectiveRating("explosao",session.futebol.explosao,"futebol",locked)}
+          ${subjectiveRating("pernas",session.futebol.pernas,"futebol",locked)}
+          ${subjectiveRating("recuperacao",session.futebol.recuperacao,"futebol",locked)}
 
           <label class="field football-report__notes">
             <span>Observação do jogo</span>
-            <textarea data-special="futebol" data-field="observacao" placeholder="Ex.: senti a perna pesada no segundo tempo, chutei bem, cansou depois de 60 min...">${esc(session.futebol.observacao)}</textarea>
+            <textarea data-special="futebol" data-field="observacao" placeholder="Ex.: senti a perna pesada no segundo tempo, chutei bem, cansou depois de 60 min..." ${locked?"disabled":""}>${esc(session.futebol.observacao)}</textarea>
           </label>
         </div>
       </article>
-      <button class="btn primary finish-special" data-action="finish-workout">FINALIZAR FUTEBOL</button>`;
+      ${session.status==="em_andamento"?`<button class="btn primary finish-special" data-action="finish-workout">FINALIZAR FUTEBOL</button>`:`<article class="card workout-closed-card concluido"><div><span class="treino-kicker">JOGO ENCERRADO</span><h2>Futebol registrado</h2><p>Treino salvo no histórico.</p></div><strong>✓</strong></article>`}`;
   }
 
   function renderCardio(root,workout,session) {
+    const locked=session.status!=="em_andamento";
     const exerciseCards=(session.exercicios||[]).map((ex,idx)=>{
       const done=exerciseDone(ex);
+      const missed=session.status==="parcial" && !done;
+      const pex=exercisePrior(ex.exercicioId,workout.id,session.data);
       const isOpen=exercisePanelIsOpen(ex.exercicioId);
-      return `<article class="exercise-card ${done?"done":""} ${isOpen?"open":""}" data-exercise="${esc(ex.exercicioId)}">
+      return `<article class="exercise-card ${done?"done":""} ${missed?"missed":""} ${isOpen?"open":""}" data-exercise="${esc(ex.exercicioId)}">
         <div class="exercise-card__head">
           <button type="button" class="exercise-card__identity" data-action="toggle-exercise" data-exercise-id="${esc(ex.exercicioId)}" aria-expanded="${isOpen?"true":"false"}">
             <span class="exercise-order">${String(idx+1).padStart(2,"0")}</span>
-            <span class="exercise-card__copy"><strong>${done?"✓ ":""}${esc(ex.nome)}</strong><small>${esc(ex.planejado?.series)} × ${esc(ex.planejado?.reps)}</small></span>
+            <span class="exercise-card__copy"><strong>${done?"✓ ":missed?"× ":""}${esc(ex.nome)}</strong><small>${esc(ex.planejado?.series)} × ${esc(ex.planejado?.reps)}</small>${pex?`<small class="exercise-last-inline">Última: ${esc(lastExerciseText(pex))}</small>`:""}</span>
           </button>
-          <div class="exercise-head-actions"><span class="exercise-state">${done?"Concluído":isOpen?"Em preenchimento":"Pendente"}</span>${visualButton(ex.exercicioId,"Ver execução")}${exerciseAccordionButton(ex.exercicioId,isOpen)}</div>
+          <div class="exercise-head-actions"><span class="exercise-state">${done?"Concluído":missed?"Não realizado":isOpen?"Em preenchimento":"Pendente"}</span>${visualButton(ex.exercicioId,"Ver execução")}${exerciseAccordionButton(ex.exercicioId,isOpen)}</div>
         </div>
-        <div class="exercise-card__body" ${isOpen?"":"hidden"}><div class="series-stack">${(ex.series||[]).map(s=>seriesRow(ex,s,isOpen && !s.concluida)).join("")}</div></div>
+        <div class="exercise-card__body" ${isOpen?"":"hidden"}>${exerciseHistoryBox(pex,ex.exercicioId,locked)}${loadUnitControl(ex,locked)}<div class="series-stack">${(ex.series||[]).map(s=>seriesRow(ex,s,isOpen && !s.concluida,locked)).join("")}</div></div>
       </article>`;
     }).join("");
+    const finish=session.status==="em_andamento"
+      ? `<button class="btn primary finish-special" data-action="finish-workout">FINALIZAR TREINO</button>`
+      : `<article class="card workout-closed-card ${session.status}"><div><span class="treino-kicker">${session.status==="concluido"?"TREINO ENCERRADO":"TREINO ENCERRADO PARCIALMENTE"}</span><h2>Registro salvo</h2><p>${session.status==="concluido"?"Cardio finalizado e salvo no histórico.":"Os itens não realizados foram sinalizados no histórico."}</p></div><strong>${session.status==="concluido"?"✓":"◐"}</strong></article>`;
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
       <article class="card special-workout-card">
-        <div class="section-head"><div><p class="eyebrow">Bicicleta</p><h2>Protocolo</h2></div></div>
-        ${checklist(session.protocolo,"protocolo")}
+        <div class="section-head"><div><p class="eyebrow">Bicicleta</p><h2>Protocolo</h2></div>${visualButton("bike-estacionaria","Ver execução")}</div>
+        ${checklist(session.protocolo,"protocolo",locked)}
         <div class="special-fields cardio-summary">
-          ${specialNumber("Duração total (min)","duracao",session.cardio.duracao,0,180,1,"cardio")}
-          <label class="field"><span>Protocolo</span><select data-special="cardio" data-field="protocoloStatus"><option value="completo" ${session.cardio.protocoloStatus==="completo"?"selected":""}>Completo</option><option value="parcial" ${session.cardio.protocoloStatus==="parcial"?"selected":""}>Parcial</option></select></label>
-          ${specialNumber("Intensidade percebida","intensidade",session.cardio.intensidade,1,10,1,"cardio")}
-          <label class="field full"><span>Observação</span><textarea data-special="cardio" data-field="observacao">${esc(session.cardio.observacao)}</textarea></label>
+          ${specialNumber("Duração total (min)","duracao",session.cardio.duracao,0,180,1,"cardio",locked)}
+          <label class="field"><span>Protocolo</span><select data-special="cardio" data-field="protocoloStatus" ${locked?"disabled":""}><option value="completo" ${session.cardio.protocoloStatus==="completo"?"selected":""}>Completo</option><option value="parcial" ${session.cardio.protocoloStatus==="parcial"?"selected":""}>Parcial</option></select></label>
+          ${specialNumber("Intensidade percebida","intensidade",session.cardio.intensidade,1,10,1,"cardio",locked)}
+          <label class="field full"><span>Observação</span><textarea data-special="cardio" data-field="observacao" ${locked?"disabled":""}>${esc(session.cardio.observacao)}</textarea></label>
         </div>
       </article>
-      ${exerciseCards?`<article class="exercise-accordion-intro"><div><strong>Exercícios agrupados</strong><span>Abra somente o exercício que estiver registrando.</span></div></article><div class="exercise-stack">${exerciseCards}</div>`:""}
-      <button class="btn primary finish-special" data-action="finish-workout">FINALIZAR TREINO</button>`;
+      ${exerciseCards?`<article class="exercise-accordion-intro"><div><strong>Exercícios agrupados</strong><span>${locked?"Treino encerrado. Abra para consultar o registro.":"Abra somente o exercício que estiver registrando."}</span></div></article><div class="exercise-stack">${exerciseCards}</div>`:""}
+      ${finish}`;
   }
 
   const SUBJECTIVE_SCALES = {
@@ -1254,6 +1394,17 @@
         {valor:4,label:"Boas"},
         {valor:5,label:"Soltas"}
       ]
+    },
+    recuperacao: {
+      titulo:"Recuperação entre esforços",
+      ajuda:"Quão rápido você conseguia recuperar o fôlego para acelerar de novo?",
+      opcoes:[
+        {valor:1,label:"Muito lenta"},
+        {valor:2,label:"Lenta"},
+        {valor:3,label:"Regular"},
+        {valor:4,label:"Boa"},
+        {valor:5,label:"Muito boa"}
+      ]
     }
   };
 
@@ -1264,7 +1415,7 @@
     return Math.max(1,Math.min(5,Math.ceil(n/2)));
   }
 
-  function subjectiveRating(field,value,group="futebol") {
+  function subjectiveRating(field,value,group="futebol",locked=false) {
     const scale=SUBJECTIVE_SCALES[field];
     if(!scale) return "";
     const selected=subjectiveStoredValue(value);
@@ -1286,14 +1437,15 @@
             data-rating-field="${esc(field)}"
             data-rating-value="${option.valor}"
             aria-pressed="${selected===option.valor?"true":"false"}"
+            ${locked?"disabled":""}
           >${esc(option.label)}</button>
         `).join("")}
       </div>
     </section>`;
   }
 
-  function specialNumber(label,field,value,min,max,step,group) {
-    return `<label class="field"><span>${esc(label)}</span><input type="number" inputmode="decimal" min="${min}" max="${max}" step="${step}" value="${esc(value)}" data-special="${group}" data-field="${field}"></label>`;
+  function specialNumber(label,field,value,min,max,step,group,locked=false) {
+    return `<label class="field"><span>${esc(label)}</span><input type="number" inputmode="decimal" min="${min}" max="${max}" step="${step}" value="${esc(value)}" data-special="${group}" data-field="${field}" ${locked?"disabled":""}></label>`;
   }
 
   function startWorkout() {
@@ -1316,7 +1468,7 @@
 
   function updateSeries(exerciseId,seriesNo,field,value) {
     const {session,ex}=findSessionExercise(exerciseId);
-    if (!session || !ex) return;
+    if (!session || !ex || session.status!=="em_andamento") return;
     const s=ex.series.find(x=>Number(x.numero)===Number(seriesNo));
     if (!s) return;
     s[field]=Math.max(0,num(value));
@@ -1325,10 +1477,10 @@
 
   function stepSeries(exerciseId,seriesNo,field,delta) {
     const {session,ex}=findSessionExercise(exerciseId);
-    if (!session || !ex) return;
+    if (!session || !ex || session.status!=="em_andamento") return;
     const s=ex.series.find(x=>Number(x.numero)===Number(seriesNo));
     if (!s) return;
-    const precision=field==="peso" ? 1 : 0;
+    const precision=field==="peso" && normalizeLoadUnit(ex.unidadeCarga)==="placas" ? 0 : field==="peso" ? 1 : 0;
     const next=Math.max(0,Number((num(s[field])+num(delta)).toFixed(precision)));
     s[field]=next;
     openExerciseId=exerciseId;
@@ -1336,14 +1488,24 @@
     renderToday();
   }
 
+  function setLoadUnit(exerciseId,unit) {
+    const {session,ex}=findSessionExercise(exerciseId);
+    if(!session || !ex || session.status!=="em_andamento" || ex.registro!=="peso_reps") return;
+    ex.unidadeCarga=normalizeLoadUnit(unit);
+    openExerciseId=exerciseId;
+    saveSessions();
+    renderToday();
+  }
+
   function toggleSeries(exerciseId,seriesNo) {
     const {session,ex}=findSessionExercise(exerciseId);
-    if (!session || !ex) return;
+    if (!session || !ex || session.status!=="em_andamento") return;
     const s=ex.series.find(x=>Number(x.numero)===Number(seriesNo));
     if (!s) return;
     if (!s.concluida && ex.registro==="peso_reps") {
+      const unit=normalizeLoadUnit(ex.unidadeCarga);
       if (num(s.peso)<=0) {
-        window.MMCDUI?.toast?.("Informe a carga total em kg antes de concluir a série.");
+        window.MMCDUI?.toast?.(unit==="placas"?"Informe a placa utilizada antes de concluir a série.":"Informe a carga total em kg antes de concluir a série.");
         const input=document.querySelector(`[data-exercise-id="${CSS.escape(exerciseId)}"][data-series="${seriesNo}"][data-field="peso"]`);
         input?.focus(); return;
       }
@@ -1362,16 +1524,16 @@
     renderToday();
     if (exercicioTerminou) {
       window.MMCDUI?.toast?.(`${ex.nome} concluído.`);
-      // Sem scroll automático: o usuário permanece no mesmo trecho da página.
     }
   }
 
   function copyLast(exerciseId) {
     const session=sessionForDate(todayIso());
-    if (!session) return;
+    if (!session || session.status!=="em_andamento") return;
     const current=session.exercicios.find(x=>x.exercicioId===exerciseId);
     const prior=exercisePrior(exerciseId,session.treinoId,session.data);
     if (!current || !prior) return;
+    if(current.registro==="peso_reps") current.unidadeCarga=normalizeLoadUnit(prior.unidadeCarga||current.unidadeCarga);
     current.series.forEach((s,i)=>{
       const old=prior.series?.[i] || prior.series?.[prior.series.length-1];
       if (!old) return;
@@ -1387,27 +1549,15 @@
 
   function toggleCheck(kind,index) {
     const session=sessionForDate(todayIso());
-    if (!session || !Array.isArray(session[kind])) return;
+    if (!session || session.status!=="em_andamento" || !Array.isArray(session[kind])) return;
 
     const requestedId=String(index ?? "");
     const items=session[kind];
-
-    // Compatibilidade:
-    // - IDs novos em texto: futebol-caminhada-trote
-    // - IDs antigos numéricos: 0, 1, 2...
-    // - sessões legadas em que o id possa estar ausente
     const item=items.find((x,pos)=>{
       if (String(x?.id ?? "") === requestedId) return true;
-
       const numericRequested=Number(requestedId);
       const numericSaved=Number(x?.id);
-      if (
-        requestedId !== "" &&
-        Number.isFinite(numericRequested) &&
-        Number.isFinite(numericSaved) &&
-        numericSaved === numericRequested
-      ) return true;
-
+      if (requestedId !== "" && Number.isFinite(numericRequested) && Number.isFinite(numericSaved) && numericSaved === numericRequested) return true;
       return String(pos) === requestedId;
     });
 
@@ -1418,11 +1568,7 @@
     }
 
     item.concluido=!Boolean(item.concluido);
-
-    // Atualiza a interface imediatamente.
     renderToday();
-
-    // Depois persiste no Supabase.
     saveSessions().catch(error=>{
       console.error("Treinos: falha ao salvar checklist.",error);
       item.concluido=!Boolean(item.concluido);
@@ -1433,14 +1579,76 @@
 
   function updateSpecial(group,field,value) {
     const session=sessionForDate(todayIso());
-    if (!session?.[group]) return;
+    if (!session?.[group] || session.status!=="em_andamento") return;
     session[group][field]=value;
     saveSessions();
   }
 
-  function finishWorkout() {
+  function scoreWorkoutActivity(meta) {
+    const name=normalizeText(meta?.nome);
+    const desc=normalizeText(meta?.descricao);
+    let score=0;
+    if(name==="treino") score+=120;
+    if(name==="atividade fisica") score+=115;
+    if(name.includes("treino")) score+=95;
+    if(name.includes("atividade fisica")) score+=90;
+    if(name.includes("exercicio")) score+=80;
+    if(name.includes("academia")) score+=70;
+    if(desc.includes("treino") || desc.includes("atividade fisica")) score+=20;
+    return score;
+  }
+
+  function activityMetaForWorkout(date=todayIso()) {
+    const data=state.atividadesData;
+    if(!data || !window.MMCD) return null;
+    const active=window.MMCD.metasNaData(data,date) || [];
+    const configured=String(state.plano?.programa?.atividadeMetaId||"").trim();
+    if(configured){
+      const exact=active.find(meta=>String(meta.id)===configured);
+      if(exact) return exact;
+    }
+    return active.map(meta=>({meta,score:scoreWorkoutActivity(meta)}))
+      .filter(x=>x.score>0)
+      .sort((a,b)=>b.score-a.score)[0]?.meta || null;
+  }
+
+  function workoutHadEffort(session) {
+    if(!session) return false;
+    if(session.tipo==="futebol") return num(session.futebol?.duracao)>0 || (session.aquecimento||[]).some(x=>x.concluido);
+    if(session.tipo==="cardio") return num(session.cardio?.duracao)>0 || (session.protocolo||[]).some(x=>x.concluido) || (session.exercicios||[]).some(ex=>exerciseDone(ex));
+    return (session.exercicios||[]).some(ex=>(ex.series||[]).some(series=>series.concluida));
+  }
+
+  async function markWorkoutActivity(session) {
+    if(!workoutHadEffort(session) || !window.MMCD || !state.atividadesData) return {ok:false,reason:"sem-integracao"};
+    const meta=activityMetaForWorkout(session.data);
+    if(!meta) return {ok:false,reason:"sem-meta"};
+    const previous=window.MMCD.registro(state.atividadesData,session.data,meta.id);
+    if(previous?.concluida && !window.MMCD.estaAbonada(previous)) return {ok:true,already:true,meta};
+    window.MMCD.setRegistro(state.atividadesData,session.data,meta.id,{
+      concluida:true,abonada:false,valor:1,texto:"",observacao:previous?.observacao||"",origem:"treino"
+    });
+    state.atividadesData=await window.MMCD.salvarRegistroAtividade(state.atividadesData,session.data,meta.id);
+    window.dispatchEvent(new CustomEvent("mmcd:atividade-atualizada",{detail:{data:session.data,metaId:meta.id,origem:"treino"}}));
+    return {ok:true,meta};
+  }
+
+  async function reconcileFinishedWorkoutActivity() {
     const session=sessionForDate(todayIso());
-    if (!session || session.status==="concluido") return;
+    if(!session || !["concluido","parcial"].includes(session.status)) return;
+    try{
+      const activity=await markWorkoutActivity(session);
+      if(activity.ok && !activity.already){
+        MMCDUI?.toast?.(`${activity.meta.nome} atualizada a partir do treino de hoje.`,3200);
+      }
+    }catch(error){
+      console.warn("Treinos: não foi possível reconciliar a atividade do treino finalizado.",error);
+    }
+  }
+
+  async function finishWorkout() {
+    const session=sessionForDate(todayIso());
+    if (!session || session.status!=="em_andamento") return;
     const p=progress(session);
     session.status=p.pct===100 || session.tipo==="futebol" ? "concluido" : "parcial";
     if (session.tipo==="cardio" && session.cardio.protocoloStatus==="parcial") session.status="parcial";
@@ -1449,8 +1657,22 @@
     session.duracaoMinutos=Math.max(1,Math.round((Date.now()-start.getTime())/60000));
     if (session.tipo==="futebol" && num(session.futebol.duracao)>0) session.duracaoMinutos=num(session.futebol.duracao);
     if (session.tipo==="cardio" && num(session.cardio.duracao)>0) session.duracaoMinutos=num(session.cardio.duracao);
-    saveSessions();
+
+    // Fecha e redesenha imediatamente; o salvamento segue na mesma ação.
+    const sessionSave=saveSessions();
+    openExerciseId=null;
     renderAll();
+    await sessionSave;
+
+    try{
+      const activity=await markWorkoutActivity(session);
+      if(activity.ok && !activity.already) MMCDUI?.toast?.(`Treino finalizado · ${activity.meta.nome} marcada automaticamente.`);
+      else if(activity.reason==="sem-meta") MMCDUI?.toast?.("Treino finalizado. Selecione em Configurações qual atividade deve ser marcada automaticamente.",4200);
+    }catch(error){
+      console.error("Treinos: falha ao atualizar a atividade diária.",error);
+      MMCDUI?.toast?.("Treino finalizado, mas não consegui atualizar a atividade diária.",4200);
+    }
+
     showFinishSummary(session);
   }
 
@@ -1463,6 +1685,7 @@
         if (ex.registro!=="peso_reps") return;
         const cur=Math.max(0,...ex.series.filter(s=>s.concluida).map(s=>num(s.peso)));
         const oldEx=prior?.exercicios?.find(x=>x.exercicioId===ex.exercicioId);
+        if(oldEx && normalizeLoadUnit(oldEx.unidadeCarga)!==normalizeLoadUnit(ex.unidadeCarga)) return;
         const old=Math.max(0,...(oldEx?.series||[]).filter(s=>s.concluida).map(s=>num(s.peso)));
         if (cur>old && old>0) increased++;
         else if (cur===old && cur>0) maintained++;
@@ -1582,7 +1805,13 @@
 
   function monthSessions(reference=new Date()) {
     const prefix=`${reference.getFullYear()}-${String(reference.getMonth()+1).padStart(2,"0")}`;
-    return state.sessoes.filter(s=>s.data.startsWith(prefix));
+    const start=state.plano.programa.dataInicio;
+    const end=state.plano.programa.dataFim;
+    return state.sessoes.filter(s=>
+      s.data.startsWith(prefix) &&
+      (!start || s.data>=start) &&
+      (!end || s.data<=end)
+    );
   }
 
   function sessionExerciseBest(session,exerciseId) {
@@ -1590,7 +1819,8 @@
     if (!ex || ex.registro!=="peso_reps") return null;
     const vals=ex.series.filter(s=>s.concluida && num(s.peso)>0).map(s=>({peso:num(s.peso),reps:num(s.reps)}));
     if (!vals.length) return null;
-    return vals.sort((a,b)=>b.peso-a.peso || b.reps-a.reps)[0];
+    const best=vals.sort((a,b)=>b.peso-a.peso || b.reps-a.reps)[0];
+    return {...best,unidadeCarga:normalizeLoadUnit(ex.unidadeCarga)};
   }
 
   function loadProgressRows(reference=new Date()) {
@@ -1600,8 +1830,10 @@
       (s.exercicios||[]).forEach(ex=>{
         const best=sessionExerciseBest(s,ex.exercicioId);
         if (!best) return;
-        if (!map.has(ex.exercicioId)) map.set(ex.exercicioId,{id:ex.exercicioId,nome:ex.nome,rows:[]});
-        map.get(ex.exercicioId).rows.push({data:s.data,...best});
+        const unit=normalizeLoadUnit(best.unidadeCarga);
+        const key=`${ex.exercicioId}::${unit}`;
+        if (!map.has(key)) map.set(key,{id:ex.exercicioId,nome:ex.nome,unit,rows:[]});
+        map.get(key).rows.push({data:s.data,...best});
       });
     });
     return [...map.values()].map(item=>{
@@ -1628,21 +1860,29 @@
     state.plano.treinos.forEach(w=>(w.exercicios||[]).forEach(ex=>{
       if (ex.registro==="peso_reps") seen.set(ex.id,ex.nome);
     }));
+    state.sessoes.forEach(session=>(session.exercicios||[]).forEach(ex=>{
+      if (ex.registro==="peso_reps" && !seen.has(ex.exercicioId)) seen.set(ex.exercicioId,ex.nome);
+    }));
     return [...seen.entries()];
   }
 
   function exerciseHistory(exerciseId) {
-    return state.sessoes
+    const rows=state.sessoes
       .filter(s=>["concluido","parcial"].includes(s.status))
       .sort((a,b)=>a.data.localeCompare(b.data))
       .map(s=>{
         const best=sessionExerciseBest(s,exerciseId);
         return best?{data:s.data,...best}:null;
       }).filter(Boolean);
+    if(!rows.length) return rows;
+    // KG e placas representam escalas diferentes. A evolução mostra a unidade usada mais recentemente.
+    const latestUnit=normalizeLoadUnit(rows[rows.length-1].unidadeCarga);
+    return rows.filter(row=>normalizeLoadUnit(row.unidadeCarga)===latestUnit);
   }
 
   function chartSvg(rows) {
     if (!rows.length) return `<div class="empty">Ainda não há cargas registradas.</div>`;
+    const unit=loadUnitLabel(rows[0]?.unidadeCarga);
     const W=680,H=210,p=28;
     const vals=rows.map(r=>r.peso);
     const min=Math.min(...vals),max=Math.max(...vals);
@@ -1653,10 +1893,10 @@
       return {x,y,...r};
     });
     const poly=pts.map(p=>`${p.x},${p.y}`).join(" ");
-    return `<div class="load-chart-wrap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Carga por data">
+    return `<div class="load-chart-wrap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Carga por data em ${unit}">
       <line x1="${p}" y1="${H-p}" x2="${W-p}" y2="${H-p}" class="chart-axis"/>
       <polyline points="${poly}" class="chart-line"/>
-      ${pts.map(pt=>`<circle cx="${pt.x}" cy="${pt.y}" r="5" class="chart-dot"><title>${datePt(pt.data)} — ${fmt(pt.peso)} kg</title></circle>`).join("")}
+      ${pts.map(pt=>`<circle cx="${pt.x}" cy="${pt.y}" r="5" class="chart-dot"><title>${datePt(pt.data)} — ${fmt(pt.peso)} ${unit}</title></circle>`).join("")}
     </svg></div>`;
   }
 
@@ -1684,8 +1924,8 @@
         <div class="section-head"><div><p class="eyebrow">Principais evoluções</p><h2>Cargas no mês</h2></div></div>
         <div class="load-progress-list">${loads.length?loads.slice(0,8).map(item=>`
           <div class="load-progress-row">
-            <div><strong>${esc(item.nome)}</strong><small>${fmt(item.first.peso)} → ${fmt(item.last.peso)} kg</small></div>
-            <b class="${item.delta>0?"up":item.delta<0?"down":""}">${item.delta>0?"↑":item.delta<0?"↓":"→"} ${item.delta>0?"+":""}${fmt(item.delta)} kg ${item.first.peso?`(${item.pct>0?"+":""}${item.pct.toFixed(1).replace(".",",")}%)`:""}</b>
+            <div><strong>${esc(item.nome)}</strong><small>${fmt(item.first.peso)} → ${fmt(item.last.peso)} ${loadUnitLabel(item.unit)}</small></div>
+            <b class="${item.delta>0?"up":item.delta<0?"down":""}">${item.delta>0?"↑":item.delta<0?"↓":"→"} ${item.delta>0?"+":""}${fmt(item.delta)} ${loadUnitLabel(item.unit)} ${item.first.peso?`(${item.pct>0?"+":""}${item.pct.toFixed(1).replace(".",",")}%)`:""}</b>
           </div>`).join(""):`<div class="empty">Registre cargas para acompanhar a evolução.</div>`}</div>
       </article>
       <article class="card evolution-card">
@@ -1697,8 +1937,58 @@
           <select id="exercise-history-select" class="compact-select">${options.map(([id,name])=>`<option value="${esc(id)}" ${id===selected?"selected":""}>${esc(name)}</option>`).join("")}</select>
         </div>
         ${chartSvg(hist)}
-        <div class="exercise-history-list">${hist.slice().reverse().slice(0,12).map(r=>`<div><span>${datePt(r.data)}</span><strong>${fmt(r.peso)} kg × ${fmt(r.reps)}</strong></div>`).join("")}</div>
+        <div class="exercise-history-list">${hist.slice().reverse().slice(0,12).map(r=>`<div><span>${datePt(r.data)}</span><strong>${fmt(r.peso)} ${loadUnitLabel(r.unidadeCarga)} × ${fmt(r.reps)}</strong></div>`).join("")}</div>
       </article>`;
+  }
+
+  function activityIntegrationHtml() {
+    const metas=state.atividadesData?.metas || [];
+    const configured=String(state.plano?.programa?.atividadeMetaId||"");
+    const detected=activityMetaForWorkout(todayIso());
+    if(!metas.length){
+      return `<article class="card settings-block"><div class="section-head"><div><p class="eyebrow">Integração</p><h2>Treino → Atividades</h2></div></div><p class="muted">As atividades diárias não puderam ser carregadas agora. O treino continua funcionando normalmente.</p></article>`;
+    }
+    const options=metas.slice().sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||""),"pt-BR")).map(meta=>`<option value="${esc(meta.id)}" ${configured===String(meta.id)?"selected":""}>${esc(meta.nome)}</option>`).join("");
+    return `<article class="card settings-block">
+      <div class="section-head"><div><p class="eyebrow">Integração automática</p><h2>Treino → Atividades</h2><p class="muted">Ao finalizar um treino com execução registrada, esta atividade será marcada automaticamente no mesmo dia.</p></div></div>
+      <div class="settings-grid">
+        <label class="field full"><span>Indicador de atividade</span><select data-plan-field="atividadeMetaId"><option value="" ${!configured?"selected":""}>Detectar automaticamente${detected?` — ${esc(detected.nome)}`:""}</option>${options}</select></label>
+      </div>
+      <div class="settings-hint">${detected?`Detecção atual: <strong>${esc(detected.nome)}</strong>.`:"Nenhuma atividade com nome compatível foi detectada. Selecione uma atividade acima."}</div>
+      <div class="settings-actions"><button class="btn primary" data-action="save-plan">Salvar integração</button></div>
+    </article>`;
+  }
+
+  function themeSettingsHtml() {
+    const api=window.MMCDTheme;
+    if(!api) return "";
+    const catalog=api.getCatalog();
+    const enabled=api.getEnabled();
+    const current=api.getCurrent();
+    const admin=api.isAdmin();
+    const choices=catalog.filter(item=>enabled.includes(item.id)).map(item=>`<button type="button" class="theme-admin-choice ${current===item.id?"active":""}" data-action="choose-theme" data-theme-id="${esc(item.id)}"><span class="theme-admin-swatch" style="--theme-swatch:${esc(item.swatch)};--theme-surface:${esc(item.surface)}"></span><span><strong>${esc(item.label)}</strong><small>${current===item.id?"Em uso":"Usar este tema"}</small></span>${current===item.id?"<b>✓</b>":""}</button>`).join("");
+    const adminRows=catalog.map(item=>`<label class="theme-enable-row"><span class="theme-admin-swatch" style="--theme-swatch:${esc(item.swatch)};--theme-surface:${esc(item.surface)}"></span><span><strong>${esc(item.label)}</strong><small>${esc(item.short)}</small></span><input type="checkbox" data-theme-enabled value="${esc(item.id)}" ${enabled.includes(item.id)?"checked":""} ${admin?"":"disabled"}></label>`).join("");
+    return `<article class="card settings-block" id="aparencia">
+      <div class="section-head"><div><p class="eyebrow">Aparência</p><h2>Temas de cores</h2><p class="muted">Cada usuário escolhe a própria paleta entre as opções liberadas.</p></div><span class="db-badge">${api.governanceMode()==="global"?"Multiusuário":"Compatível"}</span></div>
+      <div class="theme-admin-choices">${choices}</div>
+      <div class="theme-admin-governance">
+        <div class="settings-subhead"><div><strong>Administração das paletas</strong><small>${admin?"Habilite somente as cores que você quer disponibilizar no projeto.":"Somente administradores podem alterar o catálogo disponível."}</small></div></div>
+        <div class="theme-enable-grid">${adminRows}</div>
+        ${admin?`<div class="settings-actions"><button type="button" class="btn primary" data-action="save-theme-catalog">Salvar cores habilitadas</button></div>`:""}
+        ${api.governanceMode()!=="global"?`<p class="theme-governance-note">O painel já funciona neste ambiente. Para a liberação de cores valer globalmente para todos os usuários, execute a migração <strong>SUPABASE_TEMAS_MULTIUSUARIO.sql</strong> incluída no projeto.</p>`:""}
+      </div>
+    </article>`;
+  }
+
+  async function saveThemeCatalog() {
+    const api=window.MMCDTheme;
+    if(!api?.isAdmin?.()) return;
+    const ids=$$("[data-theme-enabled]:checked").map(el=>el.value);
+    try{
+      const result=await api.saveEnabled(ids);
+      renderSettings();
+      MMCDUI?.toast?.(result.savedGlobal?"Cores habilitadas para o projeto.":"Cores salvas neste ambiente. Execute a migração para governança multiusuário.",3600);
+    }catch(error){MMCDUI?.toast?.(error.message||"Não foi possível salvar as cores.",3600);}
   }
 
   function renderSettings() {
@@ -1720,6 +2010,9 @@
         </div>
         <div class="settings-actions"><button class="btn primary" data-action="save-plan">Salvar programa</button><button class="btn" data-action="new-phase">Criar nova fase</button></div>
       </article>
+
+      ${activityIntegrationHtml()}
+      ${themeSettingsHtml()}
 
       <article class="card settings-block">
         <div class="section-head"><div><p class="eyebrow">Treinos e exercícios</p><h2>Composição semanal</h2><p class="muted">Esses cadastros não aparecem durante a execução normal.</p></div></div>
@@ -2086,7 +2379,7 @@
         const session=sessionForDate(todayIso());
         const group=rating.dataset.ratingGroup;
         const field=rating.dataset.ratingField;
-        if(session?.[group]){
+        if(session?.[group] && session.status==="em_andamento"){
           session[group][field]=Number(rating.dataset.ratingValue);
           saveSessions();
           renderToday();
@@ -2101,10 +2394,13 @@
         else if(a==="toggle-exercise") toggleExercisePanel(action.dataset.exerciseId);
         else if(a==="toggle-series") toggleSeries(action.dataset.exerciseId,action.dataset.series);
         else if(a==="copy-last") copyLast(action.dataset.exerciseId);
+        else if(a==="set-load-unit") setLoadUnit(action.dataset.exerciseId,action.dataset.loadUnit);
         else if(a==="finish-workout") finishWorkout();
         else if(a==="toggle-check") toggleCheck(action.dataset.kind,action.dataset.index);
         else if(a==="close-history") $("#history-detail-card").hidden=true;
         else if(a==="save-plan") savePlanFields();
+        else if(a==="choose-theme"){ window.MMCDTheme?.setTheme?.(action.dataset.themeId).then(()=>renderSettings()); }
+        else if(a==="save-theme-catalog") saveThemeCatalog();
         else if(a==="new-phase") newPhase();
         else if(a==="add-exercise") addExercise(action.dataset.workoutIndex);
         else if(a==="remove-exercise") removeExercise(action.dataset.workoutIndex,action.dataset.exerciseIndex);
@@ -2215,7 +2511,9 @@
       bindEvents();
       setTab(state.tab,false);
       renderAll();
-if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
+      // Também reconcilia um treino que já havia sido finalizado antes desta atualização.
+      await reconcileFinishedWorkoutActivity();
+      if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
         requestAnimationFrame(() => document.querySelector("#medidas")?.scrollIntoView({behavior:"smooth",block:"start"}));
       }
       status("Dados online · Supabase","saved");

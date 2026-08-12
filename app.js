@@ -2221,10 +2221,10 @@ function renderizarMeditacao() {
    ========================================================= */
 
 function aplicarTema(tema) {
-    const escuro =
-        tema === "escuro";
+    const temaValido = tema || "claro";
+    const escuro = window.MMCDTheme?.isDark?.(temaValido) ?? (temaValido === "escuro");
 
-    document.documentElement.dataset.tema = escuro ? "escuro" : "claro";
+    document.documentElement.dataset.tema = temaValido;
 
     document.body.classList.toggle(
         "tema-escuro",

@@ -145,6 +145,21 @@ window.MMCD_TREINO_GUIAS = {
     "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
     "datasetId": "Leg_Press"
   },
+
+  "afundo-com-halter": {
+    "titulo": "Afundo com halter",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Rear_Lunge/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Rear_Lunge/1.jpg",
+    "passos": [
+      "Segure um halter em cada mão e mantenha o tronco alto.",
+      "Dê a passada para trás e desça com controle até as duas pernas ficarem bem flexionadas.",
+      "Empurre o chão com a perna da frente para retornar à posição inicial.",
+      "Complete as repetições de um lado mantendo quadril e joelho estáveis."
+    ],
+    "dica": "Use uma carga que permita manter equilíbrio e amplitude. A perna da frente deve fazer a maior parte do trabalho.",
+    "fonte": "Free Exercise DB",
+    "datasetId": "Dumbbell_Rear_Lunge"
+  },
   "afundo-bulgaro-smith": {
     "titulo": "Afundo Búlgaro no Smith",
     "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Single-Leg_Split_Squat/0.jpg",
@@ -582,6 +597,193 @@ window.MMCD_TREINO_GUIAS = {
     "fonte": "Free Exercise DB",
     "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
     "datasetId": "Linear_3-Part_Start_Technique"
+  },
+  "futebol-mobilidade-quadril": {
+    "titulo": "Mobilidade de quadril",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Fique em pé e use um apoio se precisar de equilíbrio.",
+      "Eleve um joelho aproximadamente até a altura do quadril.",
+      "Abra o joelho para fora desenhando um círculo amplo e controlado.",
+      "Complete as repetições de um lado e depois troque a perna."
+    ],
+    "dica": "O objetivo é ganhar amplitude com controle; não transforme o movimento em balanço rápido.",
+    "observacaoVisual": "A referência mostra círculos de quadril em pé, exatamente o padrão usado no aquecimento.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Standing_Hip_Circles"
+  },
+  "futebol-mobilidade-tornozelo": {
+    "titulo": "Mobilidade de tornozelo",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_Circles/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_Circles/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Use um apoio e tire um pé levemente do chão.",
+      "Desenhe círculos amplos com a ponta do pé, movimentando o tornozelo.",
+      "Faça o movimento nos dois sentidos sem mexer o joelho excessivamente.",
+      "Complete as repetições e troque o lado."
+    ],
+    "dica": "Faça devagar e busque amplitude confortável, principalmente antes das acelerações.",
+    "observacaoVisual": "A referência mostra o padrão de círculos do tornozelo usado no aquecimento.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Ankle_Circles"
+  },
+  "puxada-alta-ajoelhado-crossover": {
+    "titulo": "Puxada alta ajoelhado no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Ajoelhe-se diante da polia alta e mantenha o tronco firme.",
+      "Comece com os braços estendidos e o peito aberto.",
+      "Leve os cotovelos para baixo e puxe em direção à parte alta do peito.",
+      "Retorne devagar até alongar as dorsais sem perder o controle."
+    ],
+    "dica": "Não transforme a puxada em uma remada inclinando demais o tronco para trás.",
+    "observacaoVisual": "A imagem da base mostra a versão sentada da puxada alta. No seu treino, mantenha a mesma trajetória de braços e cotovelos, porém ajoelhado no crossover.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Wide-Grip_Lat_Pulldown"
+  },
+  "crucifixo-crossover": {
+    "titulo": "Crucifixo no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crossover/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crossover/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Posicione as polias e dê um passo à frente para criar tensão.",
+      "Mantenha leve flexão dos cotovelos e peito aberto.",
+      "Feche os braços em arco à frente do corpo, contraindo o peitoral.",
+      "Abra novamente de forma controlada até sentir alongamento confortável."
+    ],
+    "dica": "O cotovelo fica quase fixo; o movimento acontece principalmente no ombro.",
+    "observacaoVisual": "A referência é o Cable Crossover da própria base.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Cable_Crossover"
+  },
+  "elevacao-lateral-unilateral-crossover": {
+    "titulo": "Elevação lateral unilateral no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Seated_Lateral_Raise/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Seated_Lateral_Raise/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Use a polia baixa e segure o cabo com o braço que vai trabalhar.",
+      "Mantenha tronco estável e cotovelo levemente flexionado.",
+      "Eleve o braço para o lado até aproximadamente a altura do ombro.",
+      "Desça devagar mantendo tensão contínua no deltoide."
+    ],
+    "dica": "Evite encolher o ombro ou inclinar o tronco para roubar a repetição.",
+    "observacaoVisual": "A referência disponível mostra elevação lateral no cabo em versão bilateral/sentada. No seu treino, execute unilateral em pé mantendo a mesma trajetória lateral do braço.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Cable_Seated_Lateral_Raise"
+  },
+  "agachamento-smith-forca": {
+    "titulo": "Agachamento no Smith",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Squat/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Squat/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Posicione a barra sobre a parte alta das costas e destrave o Smith.",
+      "Mantenha os pés firmes e o tronco estável.",
+      "Desça controlando joelhos e quadril até uma amplitude segura.",
+      "Suba forte empurrando o chão, sem perder o alinhamento."
+    ],
+    "dica": "Como este é um exercício de força, priorize uma descida sólida e repetível antes de aumentar a carga.",
+    "observacaoVisual": "A referência é o Smith Machine Squat da própria base.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Smith_Machine_Squat"
+  },
+  "wood-chop-crossover": {
+    "titulo": "Wood Chop no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Cable_Wood_Chop/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Cable_Wood_Chop/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Fique de lado para a polia alta e segure o puxador com as duas mãos.",
+      "Trave o core antes de iniciar.",
+      "Puxe o cabo diagonalmente para baixo e através do corpo.",
+      "Retorne devagar e repita antes de trocar o lado."
+    ],
+    "dica": "Gire de forma controlada; não deixe apenas os braços puxarem o cabo.",
+    "observacaoVisual": "A referência é o Standing Cable Wood Chop da própria base.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Standing_Cable_Wood_Chop"
+  },
+  "elevacao-lateral-crossover": {
+    "titulo": "Elevação lateral no crossover",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Seated_Lateral_Raise/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Seated_Lateral_Raise/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Use as polias baixas e mantenha o tronco firme.",
+      "Comece com leve flexão nos cotovelos.",
+      "Eleve os braços lateralmente até aproximadamente a altura dos ombros.",
+      "Desça controlando e mantenha tensão contínua."
+    ],
+    "dica": "Na série com drop-set, reduza a carga sem mudar a técnica.",
+    "observacaoVisual": "A referência mostra elevação lateral no cabo em versão sentada; a trajetória do ombro é a mesma usada no crossover em pé.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Cable_Seated_Lateral_Raise"
+  },
+  "leg-press-finisher-sabado": {
+    "titulo": "Finisher — Leg Press",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Apoie completamente quadril e lombar no banco.",
+      "Desça a plataforma com controle até a amplitude segura.",
+      "Empurre a plataforma mantendo joelhos alinhados aos pés.",
+      "Repita em ritmo contínuo para completar as 15 repetições."
+    ],
+    "dica": "Aqui a carga é moderada e o descanso é curto; não sacrifique a amplitude só para terminar mais rápido.",
+    "observacaoVisual": "É o mesmo padrão do Leg Press principal; muda o objetivo do bloco, não a execução.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Leg_Press"
+  },
+  "finisher-bike-sabado": {
+    "titulo": "Finisher final — Bike",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Ajuste o banco para pedalar sem fechar excessivamente o joelho.",
+      "Faça 20 segundos fortes mantendo cadência e postura.",
+      "Reduza para 40 segundos leves sem parar de pedalar.",
+      "Complete 8 ciclos e finalize com 5 minutos bem leves."
+    ],
+    "dica": "Nos tiros, busque potência alta sem perder o controle do quadril sobre o banco.",
+    "observacaoVisual": "A referência mostra o posicionamento básico na bicicleta estacionária; o protocolo de intensidade continua sendo 20 s forte + 40 s leve.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Bicycling_Stationary"
+  },
+  "bike-estacionaria": {
+    "titulo": "Bike — protocolo Motor",
+    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/0.jpg",
+    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/1.jpg",
+    "estatico": false,
+    "passos": [
+      "Ajuste a altura do banco antes do aquecimento.",
+      "Mantenha tronco estável, mãos leves no guidão e joelhos acompanhando a linha dos pés.",
+      "Nos blocos fortes, aumente resistência e/ou cadência sem desmontar a postura.",
+      "Nos blocos leves, continue pedalando para favorecer a recuperação entre esforços."
+    ],
+    "dica": "O objetivo do Motor é repetir potência depois de recuperar; não transforme todos os blocos em sprint máximo.",
+    "observacaoVisual": "A referência mostra o posicionamento na bicicleta estacionária. As intensidades e tempos seguem o protocolo descrito no treino.",
+    "fonte": "Free Exercise DB",
+    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
+    "datasetId": "Bicycling_Stationary"
   }
 };
 
