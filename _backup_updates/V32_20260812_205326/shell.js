@@ -10,7 +10,7 @@ window.MMCDShell=async function(active){
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
- const settingsActive=active==='metas'||active==='series'||active==='perfil'||active==='aparencia';
+ const settingsActive=active==='metas'||active==='series'||active==='perfil';
  const settingsWorkout=active==='treinos-config';
  const storedSettingsOpen=localStorage.getItem('mmcd:sidebar:settings-open');
  const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
@@ -53,9 +53,6 @@ window.MMCDShell=async function(active){
       </a>
       <a class="sidebar-subnav__link ${active==='series'?'active':''}" href="series.html">
        <span class="sidebar-subnav__dot"></span><span><strong>Séries & filmes</strong><small>Biblioteca de exposição</small></span>
-      </a>
-      <a class="sidebar-subnav__link ${active==='aparencia'?'active':''}" href="aparencia.html">
-       <span class="sidebar-subnav__dot"></span><span><strong>Aparência</strong><small>Temas e cores</small></span>
       </a>
       <a class="sidebar-subnav__link ${settingsWorkout?'active':''}" href="treinos-config.html">
        <span class="sidebar-subnav__dot"></span><span><strong>Plano de treino</strong><small>Programa, exercícios e medidas</small></span>
@@ -135,35 +132,6 @@ window.MMCDShell=async function(active){
  // MMCD_BIBLIA_PROGRESS_NAV_V29_END
 
 
- // MMCD_MOBILE_SUBMENU_V32_START
- const isMobileNav=()=>window.matchMedia?.('(max-width:760px)').matches;
- let mobileSubmenuLayer=null;
- const closeMobileSubmenu=()=>{
-  mobileSubmenuLayer?.remove();
-  mobileSubmenuLayer=null;
- };
- const openMobileSubmenu=(menu,title='Opções')=>{
-  closeMobileSubmenu();
-  const links=[...menu.querySelectorAll('a')];
-  if(!links.length)return;
-  const layer=document.createElement('div');
-  layer.className='mobile-subnav-layer';
-  layer.innerHTML=`<button type="button" class="mobile-subnav-backdrop" aria-label="Fechar menu"></button><div class="mobile-subnav-sheet" role="dialog" aria-modal="true"><div class="mobile-subnav-sheet__head"><strong>${window.MMCDUI?.esc?.(title)||title}</strong><button type="button" aria-label="Fechar">×</button></div><div class="mobile-subnav-sheet__links"></div></div>`;
-  const target=layer.querySelector('.mobile-subnav-sheet__links');
-  links.forEach(link=>{
-   const clone=link.cloneNode(true);
-   clone.classList.add('mobile-subnav-sheet__link');
-   clone.addEventListener('click',closeMobileSubmenu,{once:true});
-   target.append(clone);
-  });
-  layer.querySelector('.mobile-subnav-backdrop')?.addEventListener('click',closeMobileSubmenu);
-  layer.querySelector('.mobile-subnav-sheet__head button')?.addEventListener('click',closeMobileSubmenu);
-  document.body.append(layer);
-  mobileSubmenuLayer=layer;
-  requestAnimationFrame(()=>layer.classList.add('open'));
- };
- // MMCD_MOBILE_SUBMENU_V32_END
-
  const settings=document.querySelector('.sidebar-settings');
  const settingsButton=document.querySelector('#sidebar-settings-toggle');
  const settingsMenu=document.querySelector('#sidebar-settings-menu');
@@ -175,13 +143,7 @@ window.MMCDShell=async function(active){
    settingsButton.setAttribute('aria-expanded',open?'true':'false');
    if(persist)localStorage.setItem('mmcd:sidebar:settings-open',open?'1':'0');
   };
-  settingsButton.addEventListener('click',()=>{
-   if(isMobileNav()){
-    openMobileSubmenu(settingsMenu,'Configurações');
-    return;
-   }
-   setSettingsOpen(!settings.classList.contains('open'));
-  });
+  settingsButton.addEventListener('click',()=>setSettingsOpen(!settings.classList.contains('open')));
   if(settingsActive||settingsWorkout)setSettingsOpen(true,false);
  }
 
@@ -253,13 +215,7 @@ window.MMCDShell=async function(active){
      button.setAttribute('aria-expanded',next?'true':'false');
      if(persist)localStorage.setItem(storageKey,next?'1':'0');
    };
-   button.addEventListener('click',()=>{
-     if(isMobileNav()){
-       openMobileSubmenu(menu,primaryTitle);
-       return;
-     }
-     setOpen(!group.classList.contains('open'));
-   });
+   button.addEventListener('click',()=>setOpen(!group.classList.contains('open')));
    if(isActive)setOpen(true,false);
  };
 

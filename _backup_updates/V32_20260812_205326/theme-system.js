@@ -101,7 +101,7 @@ window.MMCDTheme = (() => {
       if(data?.user_id) return true;
 
       // Em uma instalação nova, somente a página de Configurações tenta assumir o primeiro administrador.
-      if(state.activePage==="treinos-config" || state.activePage==="aparencia"){
+      if(state.activePage==="treinos-config"){
         const claim=await db.rpc("mmcd_claim_first_admin");
         if(!claim.error && claim.data===true) return true;
       }
@@ -109,7 +109,7 @@ window.MMCDTheme = (() => {
     }catch(error){
       // Compatibilidade com a instalação atual, que ainda não possui as tabelas de governança.
       console.info("Temas: governança global ainda não instalada; usando modo compatível.");
-      return state.activePage==="treinos-config" || state.activePage==="aparencia";
+      return state.activePage==="treinos-config";
     }
   }
 

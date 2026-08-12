@@ -324,22 +324,3 @@ html[data-tema="escuro"]{
 .account-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .account-signout{flex:0 0 auto}
 /* MMCD_PROFILE_AVATAR_V34_END */
-
-
-/* MMCD_MOBILE_SUBMENU_SHEET_V32_START */
-.mobile-subnav-layer{position:fixed;inset:0;z-index:1000;display:grid;align-items:end;pointer-events:none}
-.mobile-subnav-layer.open{pointer-events:auto}
-.mobile-subnav-backdrop{position:absolute;inset:0;border:0;background:rgba(3,7,13,.50);backdrop-filter:blur(2px);opacity:0;transition:opacity .18s ease}
-.mobile-subnav-layer.open .mobile-subnav-backdrop{opacity:1}
-.mobile-subnav-sheet{position:relative;width:min(100%,520px);margin:0 auto calc(92px + env(safe-area-inset-bottom));padding:10px;border:1px solid var(--nav-line);border-radius:18px;background:var(--nav-sub-bg);box-shadow:0 24px 70px rgba(0,0,0,.42);transform:translateY(18px);opacity:0;transition:.18s ease}
-.mobile-subnav-layer.open .mobile-subnav-sheet{transform:none;opacity:1}
-.mobile-subnav-sheet__head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 6px 9px;color:var(--nav-text)}
-.mobile-subnav-sheet__head strong{font-size:.76rem;letter-spacing:.03em}
-.mobile-subnav-sheet__head button{width:34px;height:34px;border:1px solid var(--nav-line);border-radius:10px;background:var(--nav-hover);color:var(--nav-text);font-size:1.25rem;cursor:pointer}
-.mobile-subnav-sheet__links{display:grid;gap:5px}
-.mobile-subnav-sheet__link.sidebar-subnav__link{position:static!important;display:grid!important;grid-template-columns:9px minmax(0,1fr)!important;width:100%!important;min-height:48px!important;margin:0!important;padding:9px 10px!important;border-radius:12px!important;color:var(--nav-text)!important;background:transparent!important}
-.mobile-subnav-sheet__link.sidebar-subnav__link:hover,.mobile-subnav-sheet__link.sidebar-subnav__link.active{background:var(--nav-hover)!important}
-.mobile-subnav-sheet__link.sidebar-subnav__link strong{font-size:.76rem!important}
-.mobile-subnav-sheet__link.sidebar-subnav__link small{display:block!important;margin-top:3px!important;color:var(--nav-muted)!important;font-size:.59rem!important}
-@media(min-width:761px){.mobile-subnav-layer{display:none!important}}
-/* MMCD_MOBILE_SUBMENU_SHEET_V32_END */

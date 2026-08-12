@@ -2072,6 +2072,7 @@
       </article>
 
       ${activityIntegrationHtml()}
+      ${themeSettingsHtml()}
 
       <article class="card settings-block">
         <div class="section-head"><div><p class="eyebrow">Treinos e exercícios</p><h2>Composição semanal</h2><p class="muted">Esses cadastros não aparecem durante a execução normal.</p></div></div>
