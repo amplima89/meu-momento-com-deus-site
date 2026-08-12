@@ -1,14 +1,14 @@
 "use strict";
 window.MMCDShell=async function(active){
  const nav=[
-  ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
-  ['meditacao','index.html','02','🙏','Meditação','Momento com Deus','Meditação'],
-  ['biblia','biblia.html','03','📖','Bíblia','Leitura e anotações','Bíblia'],
-  ['ingles','ingles.html','04','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
-  ['treinos','treinos.html#hoje','05','🏋️','Treinos','Plano de treino','Treinos'],
-  ['atividades','atividades.html','06','✅','Atividades','Rotina diária','Atividades'],
-  ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
-  ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
+  ['missoes','painel.html','01','Missões','Visão da vida'],
+  ['meditacao','index.html','02','Meditação','Momento com Deus'],
+  ['biblia','biblia.html','03','Bíblia','Leitura e anotações'],
+  ['ingles','ingles.html','04','Inglês diário','Aula adaptativa'],
+  ['treinos','treinos.html#hoje','05','Treinos','Plano de treino'],
+  ['atividades','atividades.html','06','Atividades','Rotina diária'],
+  ['livros','livros.html','07','Livros','Biblioteca'],
+  ['estatisticas','relatorios.html','08','Estatísticas','Evolução']
  ];
  const settingsActive=active==='metas'||active==='series';
  const settingsWorkout=active==='treinos-config';
@@ -16,9 +16,8 @@ window.MMCDShell=async function(active){
  const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
  const navHtml=nav.map(x=>`
   <a class="sidebar-link ${active===x[0]?'active':''}" href="${x[1]}">
-   <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">${x[2]}</span><span class="sidebar-icon-mobile" aria-hidden="true">${x[3]}</span></span>
-   <div class="sidebar-link__copy"><strong>${x[4]}</strong><small>${x[5]}</small></div>
-   <span class="sidebar-mobile-label">${x[6]}</span>
+   <span class="sidebar-link__icon">${x[2]}</span>
+   <div class="sidebar-link__copy"><strong>${x[3]}</strong><small>${x[4]}</small></div>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
   </a>`).join('');
  const sidebarHtml=`
@@ -39,9 +38,8 @@ window.MMCDShell=async function(active){
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
     <div class="sidebar-settings ${settingsOpen?'open':''}">
      <button type="button" class="sidebar-link sidebar-settings__toggle ${settingsActive||settingsWorkout?'active':''}" id="sidebar-settings-toggle" aria-expanded="${settingsOpen?'true':'false'}" aria-controls="sidebar-settings-menu">
-      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
+      <span class="sidebar-link__icon">09</span>
       <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
-      <span class="sidebar-mobile-label">Ajustes</span>
       <span class="sidebar-settings__chevron" aria-hidden="true">›</span>
      </button>
      <div class="sidebar-subnav ${settingsOpen?'open':''}" id="sidebar-settings-menu" ${settingsOpen?'':'hidden'}>
@@ -237,18 +235,6 @@ window.MMCDShell=async function(active){
  
 
  try{const session=await MMCDAuth.requireSession();const sidebar=document.querySelector('.sidebar');if(sidebar){sidebar.append(MMCDAuth.accountButton(session.user));sidebar.insertAdjacentHTML('beforeend','<div class="sync-status">Dados online · Supabase</div>')}}catch(e){console.error(e)}
-
- // No celular, mantém a área ativa visível dentro do menu horizontal.
- if(window.matchMedia?.('(max-width:760px)').matches){
-  requestAnimationFrame(()=>{
-   const mobileNav=document.querySelector('.sidebar-nav');
-   const activeItem=mobileNav?.querySelector('.sidebar-link.active');
-   if(!mobileNav||!activeItem)return;
-   const left=Math.max(0,activeItem.offsetLeft-(mobileNav.clientWidth-activeItem.offsetWidth)/2);
-   mobileNav.scrollTo({left,behavior:'auto'});
-  });
- }
-
  if(window.MMCDTheme){
   await window.MMCDTheme.init({active});
  }else{

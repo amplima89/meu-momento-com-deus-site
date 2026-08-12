@@ -414,8 +414,7 @@
       }),
       protocolo:(workout.protocolo||[]).map((texto,i)=>({id:i,texto,concluido:false})),
       futebol:{duracao:"",intensidade:"",folego:"",explosao:"",pernas:"",recuperacao:"",observacao:""},
-      cardio:{duracao:"",protocoloStatus:"completo",intensidade:"",observacao:""},
-      avaliacao:{ritmo:"",atualizadoEm:null}
+      cardio:{duracao:"",protocoloStatus:"completo",intensidade:"",observacao:""}
     };
   }
 
@@ -588,15 +587,6 @@
     if (session.tipo === "futebol") {
       const total = Math.max(1,session.aquecimento?.length || 0);
       const done = (session.aquecimento||[]).filter(x=>x.concluido).length;
-      return {done,total,pct:Math.round(done/total*100)};
-    }
-    if (session.tipo === "cardio") {
-      const protocolTotal=(session.protocolo||[]).length;
-      const protocolDone=(session.protocolo||[]).filter(x=>x.concluido).length;
-      const exerciseTotal=(session.exercicios||[]).length;
-      const exerciseDoneCount=(session.exercicios||[]).filter(exerciseDone).length;
-      const total=Math.max(1,protocolTotal+exerciseTotal);
-      const done=protocolDone+exerciseDoneCount;
       return {done,total,pct:Math.round(done/total*100)};
     }
     const total = Math.max(1,session.exercicios?.length || 0);
@@ -944,7 +934,7 @@
 
     if (workout.tipo==="cardio") {
       return `
-        <div class="preview-list preview-list--checkable">${(workout.protocolo||[]).map(x=>`<div><span aria-hidden="true">○</span><strong>${esc(x)}</strong></div>`).join("")}</div>
+        <div class="preview-list">${(workout.protocolo||[]).map(x=>`<div>• ${esc(x)}</div>`).join("")}</div>
         <div class="preview-protocol-guide">${visualButton("bike-estacionaria","Ver execução da bike")}</div>
         ${(workout.exercicios||[]).length?`
           <div class="preview-exercises preview-exercises--calendar">
@@ -1109,7 +1099,7 @@
           </div>
           ${intensityFlames(workout.intensidade)}
         </div>
-        <div class="workout-progress-copy"><strong>${p.done} de ${p.total}</strong><span> ${session.tipo==="cardio"?"itens concluídos":"exercícios concluídos"}</span><b>${p.pct}%</b></div>
+        <div class="workout-progress-copy"><strong>${p.done} de ${p.total}</strong><span> exercícios concluídos</span><b>${p.pct}%</b></div>
         <div class="workout-progress"><i style="width:${p.pct}%"></i></div>
       </article>`;
   }
@@ -1347,7 +1337,7 @@
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
       <article class="card special-workout-card">
-        <div class="section-head"><div><p class="eyebrow">Bicicleta</p><h2>Protocolo</h2><span class="protocol-progress-copy">${(session.protocolo||[]).filter(x=>x.concluido).length}/${(session.protocolo||[]).length} etapas concluídas</span></div>${visualButton("bike-estacionaria","Ver execução")}</div>
+        <div class="section-head"><div><p class="eyebrow">Bicicleta</p><h2>Protocolo</h2></div>${visualButton("bike-estacionaria","Ver execução")}</div>
         ${checklist(session.protocolo,"protocolo",locked)}
         <div class="special-fields cardio-summary">
           ${specialNumber("Duração total (min)","duracao",session.cardio.duracao,0,180,1,"cardio",locked)}
@@ -1656,53 +1646,6 @@
     }
   }
 
-  const WORKOUT_RHYTHM_OPTIONS=[
-    {valor:1,label:"Travado"},
-    {valor:2,label:"Abaixo"},
-    {valor:3,label:"Bom"},
-    {valor:4,label:"Muito bom"},
-    {valor:5,label:"Excelente"}
-  ];
-
-  function workoutFeedbackValue(session){
-    const value=Number(session?.avaliacao?.ritmo||0);
-    return Number.isFinite(value) ? clamp(Math.round(value),0,5) : 0;
-  }
-
-  function workoutFeedbackHtml(session){
-    if(session?.tipo==="futebol") return "";
-    const selected=workoutFeedbackValue(session);
-    return `<section class="finish-feedback">
-      <div class="finish-feedback__head">
-        <span class="treino-kicker">CHECK-OUT DO TREINO</span>
-        <h3>Como foi o ritmo do treino?</h3>
-        <p>Registre sua percepção geral para comparar a evolução ao longo das semanas.</p>
-      </div>
-      <div class="finish-feedback__options">
-        ${WORKOUT_RHYTHM_OPTIONS.map(option=>`<button type="button" class="finish-feedback__option ${selected===option.valor?"active":""}" data-workout-feedback="${option.valor}" aria-pressed="${selected===option.valor?"true":"false"}"><b>${option.valor}</b><span>${esc(option.label)}</span></button>`).join("")}
-      </div>
-      <small class="finish-feedback__saved">${selected?`✓ Ritmo salvo: ${esc(WORKOUT_RHYTHM_OPTIONS.find(x=>x.valor===selected)?.label||"")}`:"Escolha uma opção. O registro é salvo automaticamente."}</small>
-    </section>`;
-  }
-
-  async function saveWorkoutFeedback(value){
-    const session=sessionForDate(todayIso());
-    if(!session || !["concluido","parcial"].includes(session.status) || session.tipo==="futebol") return;
-    const rating=clamp(Math.round(Number(value)||0),1,5);
-    session.avaliacao={...(session.avaliacao||{}),ritmo:rating,atualizadoEm:new Date().toISOString()};
-    await saveSessions();
-    showFinishSummary(session);
-    MMCDUI?.toast?.("Ritmo do treino salvo.");
-  }
-
-  function promptPendingWorkoutFeedback(){
-    if(window.MMCD_TREINO_PAGE_MODE==="configuracoes") return;
-    const session=sessionForDate(todayIso());
-    if(!session || !["concluido","parcial"].includes(session.status) || session.tipo==="futebol") return;
-    if(workoutFeedbackValue(session)>0) return;
-    showFinishSummary(session);
-  }
-
   async function finishWorkout() {
     const session=sessionForDate(todayIso());
     if (!session || session.status!=="em_andamento") return;
@@ -1750,14 +1693,13 @@
     }
     const modal=$("#finish-modal");
     $("#finish-modal-body").innerHTML=`
-      <span class="treino-kicker">${session.status==="concluido"?"TREINO CONCLUÍDO 🔥":"TREINO FINALIZADO · PARCIAL"}</span>
+      <span class="treino-kicker">TREINO CONCLUÍDO 🔥</span>
       <h2>${esc(workout?.nome||"Treino")}</h2>
       <div class="finish-stats">
         <div><span>Tempo</span><strong>${fmt(session.duracaoMinutos)} min</strong></div>
         ${session.tipo==="musculacao"?`<div><span>Aumentos de carga</span><strong>${increased}</strong></div><div><span>Mantidos</span><strong>${maintained}</strong></div>`:""}
         <div><span>Status</span><strong>${session.status==="concluido"?"Concluído":"Parcial"}</strong></div>
-      </div>
-      ${workoutFeedbackHtml(session)}`;
+      </div>`;
     modal.hidden=false;
   }
 
@@ -1839,10 +1781,8 @@
       return;
     }
     const exercises=(session.exercicios||[]).map(ex=>`<div class="detail-exercise"><strong>${esc(ex.nome)}</strong><span>${lastExerciseSummary(ex)}</span></div>`).join("");
-    const rhythmValue=workoutFeedbackValue(session);
-    const rhythmLabel=rhythmValue ? WORKOUT_RHYTHM_OPTIONS.find(x=>x.valor===rhythmValue)?.label : "";
     card.hidden=false;
-    card.innerHTML=`<button class="detail-close" data-action="close-history">×</button><span class="treino-kicker">${datePt(iso)}</span><h2>${esc(session.treinoSnapshot?.nome||workout?.nome||"Treino")}</h2><div class="detail-meta"><span>${session.status==="concluido"?"Concluído":"Parcial"}</span><span>${session.duracaoMinutos?`${fmt(session.duracaoMinutos)} min`:""}</span>${rhythmLabel?`<span>Ritmo: ${esc(rhythmLabel)}</span>`:""}</div>${exercises||"<p>Registro concluído.</p>"}`;
+    card.innerHTML=`<button class="detail-close" data-action="close-history">×</button><span class="treino-kicker">${datePt(iso)}</span><h2>${esc(session.treinoSnapshot?.nome||workout?.nome||"Treino")}</h2><div class="detail-meta"><span>${session.status==="concluido"?"Concluído":"Parcial"}</span><span>${session.duracaoMinutos?`${fmt(session.duracaoMinutos)} min`:""}</span></div>${exercises||"<p>Registro concluído.</p>"}`;
     card.scrollIntoView({behavior:"smooth",block:"center"});
   }
 
@@ -2447,12 +2387,6 @@
         return;
       }
 
-      const workoutFeedback=event.target.closest("[data-workout-feedback]");
-      if(workoutFeedback){
-        saveWorkoutFeedback(workoutFeedback.dataset.workoutFeedback);
-        return;
-      }
-
       const action=event.target.closest("[data-action]");
       if(action){
         const a=action.dataset.action;
@@ -2579,8 +2513,6 @@
       renderAll();
       // Também reconcilia um treino que já havia sido finalizado antes desta atualização.
       await reconcileFinishedWorkoutActivity();
-      // Se o treino de hoje já havia sido encerrado antes desta versão, abre o check-out pendente.
-      promptPendingWorkoutFeedback();
       if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
         requestAnimationFrame(() => document.querySelector("#medidas")?.scrollIntoView({behavior:"smooth",block:"start"}));
       }

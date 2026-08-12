@@ -1,10 +1,10 @@
 :root{
-  --train-green:var(--success,#138a62);
-  --train-green-soft:color-mix(in srgb,var(--success,#138a62) 13%,var(--surface,#fff));
+  --train-green:#138a62;
+  --train-green-soft:#e8f7f1;
   --train-yellow:#d78a16;
-  --train-yellow-soft:color-mix(in srgb,#f2b84b 17%,var(--surface,#fff));
-  --train-red:var(--danger,#c44a4a);
-  --train-red-soft:color-mix(in srgb,var(--danger,#c44a4a) 11%,var(--surface,#fff));
+  --train-yellow-soft:#fff5df;
+  --train-red:#c44a4a;
+  --train-red-soft:#fff0f0;
 }
 
 .treino-page{max-width:1280px}
@@ -27,7 +27,7 @@
   min-height:44px;border:0;border-radius:10px;background:transparent;color:var(--muted);
   font-weight:750;cursor:pointer
 }
-.treino-tab.active{background:var(--accent);color:#fff;box-shadow:0 5px 16px color-mix(in srgb,var(--accent) 24%,transparent)}
+.treino-tab.active{background:var(--text);color:var(--surface)}
 .treino-panel[hidden]{display:none!important}
 
 .today-start-card,.active-workout-head,.treino-week-card,.treino-rest-card,.special-workout-card,.finish-workout-card,
@@ -42,7 +42,7 @@
 .today-start-card p,.active-workout-head p{margin:0;color:var(--muted)}
 .treino-flames{white-space:nowrap;font-size:1.05rem;letter-spacing:-.12em}
 .today-count{margin:22px 0 12px;color:var(--muted);font-weight:700}
-.treino-start-btn{width:100%;min-height:58px!important;border-radius:14px!important;background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;font-weight:850;letter-spacing:.04em}
+.treino-start-btn{width:100%;min-height:58px!important;border-radius:14px!important;background:#11151c!important;color:#fff!important;font-weight:850;letter-spacing:.04em}
 .today-preview{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
 .today-preview summary{cursor:pointer;color:var(--muted);font-size:.78rem;font-weight:700}
 .preview-list{display:grid;gap:7px;margin-top:12px;color:var(--muted);font-size:.82rem}
@@ -124,7 +124,7 @@
 .protocol-item{display:grid;grid-template-columns:26px 1fr;align-items:center;gap:9px;width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text);text-align:left;cursor:pointer}
 .protocol-item span{color:var(--muted)}
 .protocol-item strong{font-size:.76rem}
-.protocol-item.done{background:var(--train-green-soft);border-color:color-mix(in srgb,var(--train-green) 24%,var(--line));color:var(--train-green)}
+.protocol-item.done{background:var(--train-green-soft);border-color:transparent;color:#0f6449}
 .special-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .special-fields .full{grid-column:1/-1}
 .cardio-summary{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
@@ -1529,124 +1529,3 @@
 .protocol-item:disabled,.football-warmup-check:disabled,.subjective-rating__option:disabled{cursor:default}
 .protocol-item:disabled:not(.done),.football-warmup-check:disabled,.subjective-rating__option:disabled:not(.active){opacity:.68}
 /* MMCD_TREINO_LOCKED_CONTROLS_V29_END */
-
-
-/* MMCD_TREINO_V30_THEME_CHECKOUT_HIIT_START */
-.treino-page .btn.primary,
-.treino-page .finish-special{
-  background:var(--accent);
-  color:#fff;
-  border-color:var(--accent);
-}
-.treino-page .btn.primary:hover,
-.treino-page .finish-special:hover{
-  filter:brightness(.97);
-}
-
-/* Estado concluído continua semanticamente verde, mas se adapta à superfície do tema atual. */
-.active-workout-head.concluido{
-  background:linear-gradient(135deg,color-mix(in srgb,var(--train-green) 10%,var(--surface)) 0%,var(--surface) 72%);
-  border-color:color-mix(in srgb,var(--train-green) 38%,var(--line));
-  box-shadow:inset 5px 0 0 var(--train-green),var(--shadow);
-}
-.active-workout-head.concluido .treino-kicker,
-.active-workout-head.concluido .workout-progress-copy b{color:var(--train-green)}
-.active-workout-head.concluido .workout-progress i{background:var(--train-green)}
-.active-workout-head.parcial{
-  background:linear-gradient(135deg,color-mix(in srgb,var(--train-red) 8%,var(--surface)) 0%,var(--surface) 72%);
-  border-color:color-mix(in srgb,var(--train-red) 34%,var(--line));
-  box-shadow:inset 5px 0 0 var(--train-red),var(--shadow);
-}
-.active-workout-head.parcial .workout-progress i{background:var(--train-red)}
-
-.exercise-card.done{
-  background:color-mix(in srgb,var(--train-green) 9%,var(--surface));
-  border-color:color-mix(in srgb,var(--train-green) 34%,var(--line));
-  box-shadow:inset 4px 0 0 color-mix(in srgb,var(--train-green) 72%,transparent),0 8px 24px color-mix(in srgb,var(--train-green) 8%,transparent);
-}
-.exercise-card.missed{
-  background:color-mix(in srgb,var(--train-red) 8%,var(--surface));
-  border-color:color-mix(in srgb,var(--train-red) 32%,var(--line));
-  box-shadow:inset 4px 0 0 color-mix(in srgb,var(--train-red) 70%,transparent),0 8px 24px color-mix(in srgb,var(--train-red) 7%,transparent);
-}
-.workout-closed-card.concluido{
-  background:color-mix(in srgb,var(--train-green) 9%,var(--surface));
-  border-color:color-mix(in srgb,var(--train-green) 34%,var(--line));
-  box-shadow:inset 5px 0 0 var(--train-green),var(--shadow);
-}
-.workout-closed-card.concluido .treino-kicker,
-.workout-closed-card.concluido>strong{color:var(--train-green)}
-.workout-closed-card.parcial{box-shadow:inset 5px 0 0 var(--train-red),var(--shadow)}
-
-.preview-list--checkable{gap:8px}
-.preview-list--checkable>div{
-  display:grid;
-  grid-template-columns:26px minmax(0,1fr);
-  align-items:start;
-  gap:9px;
-  padding:10px 11px;
-  border:1px solid var(--line);
-  border-radius:10px;
-  background:var(--surface);
-  color:var(--text);
-}
-.preview-list--checkable>div>span{
-  display:grid;
-  place-items:center;
-  width:24px;
-  height:24px;
-  border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));
-  border-radius:8px;
-  color:var(--accent);
-  background:var(--accent-soft);
-  font-weight:900;
-}
-.preview-list--checkable strong{font-size:.72rem;line-height:1.45}
-.protocol-progress-copy{display:block;margin-top:4px;color:var(--muted);font-size:.6rem;font-weight:700}
-.protocol-item span{
-  display:grid;
-  place-items:center;
-  width:24px;
-  height:24px;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:var(--surface-2);
-  font-weight:900;
-}
-.protocol-item.done span{border-color:transparent;background:var(--train-green);color:#fff}
-
-.finish-feedback{
-  margin-top:18px;
-  padding-top:18px;
-  border-top:1px solid var(--line);
-}
-.finish-feedback__head h3{margin:5px 0 4px;font-size:1rem}
-.finish-feedback__head p{margin:0;color:var(--muted);font-size:.68rem;line-height:1.45}
-.finish-feedback__options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:13px}
-.finish-feedback__option{
-  min-width:0;
-  min-height:70px;
-  display:grid;
-  place-items:center;
-  align-content:center;
-  gap:4px;
-  padding:8px 5px;
-  border:1px solid var(--line);
-  border-radius:11px;
-  background:var(--surface-2);
-  color:var(--text);
-  cursor:pointer;
-}
-.finish-feedback__option b{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:var(--surface);color:var(--accent);font-size:.68rem}
-.finish-feedback__option span{font-size:.57rem;font-weight:760;text-align:center;line-height:1.2}
-.finish-feedback__option.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent)}
-.finish-feedback__option.active b{background:var(--accent);color:#fff}
-.finish-feedback__saved{display:block;margin-top:10px;color:var(--muted);font-size:.6rem}
-.finish-feedback__option.active~*{}
-
-@media(max-width:760px){
-  .finish-feedback__options{grid-template-columns:repeat(5,minmax(58px,1fr));overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-  .finish-feedback__options::-webkit-scrollbar{display:none}
-  .finish-feedback__option{min-width:64px}
-}
-/* MMCD_TREINO_V30_THEME_CHECKOUT_HIIT_END */
