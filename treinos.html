@@ -14,7 +14,7 @@
       history.replaceState(null, "", location.pathname + location.search + "#hoje");
     }
   </script>
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260811-treino-v26-7-2" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260811-shell-biblia-v29" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?v=20260811-shell-biblia-v29?retry='+Date.now()">
   <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260811-treino-v26-7-2" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
 </head>
 <body>
@@ -104,7 +104,7 @@
       await loadScript("supabase-config.js");
       await loadScript("supabase-client.js");
       await loadScript("auth.js");
-      await loadScript("shell.js?v=20260811-life-v28");
+      await loadScript("shell.js?v=20260811-shell-biblia-v29");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
       await loadScript("treinos-data.js");
       await loadScript("treinos-visuais.js");

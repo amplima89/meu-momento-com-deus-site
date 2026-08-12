@@ -3,7 +3,7 @@ window.MMCDShell=async function(active){
  const nav=[
   ['missoes','painel.html','01','Missões','Visão da vida'],
   ['meditacao','index.html','02','Meditação','Momento com Deus'],
-  ['biblia','biblia.html','03','Bíblia','Leitura e progresso'],
+  ['biblia','biblia.html','03','Bíblia','Leitura e anotações'],
   ['ingles','ingles.html','04','Inglês diário','Prática e revisão'],
   ['treinos','treinos.html#hoje','05','Treinos','Plano de treino'],
   ['atividades','atividades.html','06','Atividades','Rotina diária'],
@@ -64,25 +64,52 @@ window.MMCDShell=async function(active){
  document.body.insertAdjacentHTML('afterbegin',sidebarHtml);
  document.body.classList.add('app-body');
 
- // MMCD_BIBLIA_PROGRESS_NAV_V28_START
+ // MMCD_BIBLIA_PROGRESS_NAV_V29_START
  const bibliaNavLink=document.querySelector('.sidebar-link[href^="biblia.html"]');
  const bibliaNavSmall=bibliaNavLink?.querySelector('small');
+
+ if(bibliaNavLink&&!document.querySelector('.sidebar-bible-map-link')){
+   bibliaNavLink.insertAdjacentHTML('afterend',`
+    <a class="sidebar-bible-map-link ${active==='biblia-mapa'?'active':''}" href="biblia-mapa.html">
+      <span class="sidebar-bible-map-link__dot" aria-hidden="true"></span>
+      <span class="sidebar-bible-map-link__copy">
+        <strong>Mapa da Bíblia</strong>
+        <small>Progresso geral</small>
+      </span>
+      <span class="sidebar-bible-map-link__arrow" aria-hidden="true">›</span>
+    </a>`);
+ }
+
  window.MMCDAtualizarProgressoBiblia=function(resumo){
    if(!bibliaNavSmall)return;
    const chapters=Number(resumo?.capitulosConcluidos||0);
    const percent=Number(resumo?.percentual||0);
-   if(!chapters){bibliaNavSmall.textContent='Leitura e progresso';return;}
+   if(!chapters){
+     bibliaNavSmall.textContent='Leitura e anotações';
+     return;
+   }
    const pct=Number.isInteger(percent)?String(percent):percent.toFixed(1).replace('.',',');
    bibliaNavSmall.textContent=`${pct}% lida · ${chapters.toLocaleString('pt-BR')} cap.`;
  };
+
  try{
    if(window.MMCDSupabase&&window.MMCDAuth){
      const bibliaSession=await MMCDAuth.requireSession();
-     const {data:bibliaProgressRow,error:bibliaProgressError}=await window.MMCDSupabase.from('configuracoes_usuario').select('valor').eq('user_id',bibliaSession.user.id).eq('chave','biblia_progresso_v2').maybeSingle();
-     if(!bibliaProgressError)window.MMCDAtualizarProgressoBiblia(bibliaProgressRow?.valor?.resumo||{});
+     const {data:bibliaProgressRow,error:bibliaProgressError}=await window.MMCDSupabase
+       .from('configuracoes_usuario')
+       .select('valor')
+       .eq('user_id',bibliaSession.user.id)
+       .eq('chave','biblia_progresso_v2')
+       .maybeSingle();
+
+     if(!bibliaProgressError){
+       window.MMCDAtualizarProgressoBiblia(bibliaProgressRow?.valor?.resumo||{});
+     }
    }
- }catch(bibliaProgressError){console.warn('Bíblia: progresso da sidebar indisponível.',bibliaProgressError);}
- // MMCD_BIBLIA_PROGRESS_NAV_V28_END
+ }catch(bibliaProgressError){
+   console.warn('Bíblia: progresso da sidebar indisponível.',bibliaProgressError);
+ }
+ // MMCD_BIBLIA_PROGRESS_NAV_V29_END
 
 
  const settings=document.querySelector('.sidebar-settings');

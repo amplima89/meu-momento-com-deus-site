@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Bíblia online — Life Style</title>
-  <link rel="stylesheet" href="painel.css?v=20260811-biblia27">
-  <link rel="stylesheet" href="biblia.css?v=20260811-biblia27">
+  <link rel="stylesheet" href="painel.css?v=20260811-shell-biblia-v29">
+  <link rel="stylesheet" href="biblia.css?v=20260811-biblia-v29">
 </head>
 <body>
   <div class="app-shell">
@@ -22,7 +22,7 @@
       <section class="card section bible-toolbar">
         <label class="field"><span>Livro</span><select id="biblia-livro"></select></label>
         <label class="field"><span>Capítulo</span><select id="biblia-capitulo"></select></label>
-        <div class="bible-toolbar__actions"><button id="biblia-anterior" class="btn" type="button">← Anterior</button><button id="biblia-proximo" class="btn primary" type="button">Próximo →</button></div>
+        
       </section>
 
       <section class="bible-progress-overview" id="biblia-progresso-overview">
@@ -57,41 +57,46 @@
 
       <section class="bible-layout">
         <article class="card bible-reader">
-          <header class="bible-reader__head">
-            <div><p class="eyebrow">João Ferreira de Almeida</p><h2 id="biblia-titulo">Carregando...</h2><span id="biblia-status" class="muted"></span></div>
-            <button id="biblia-check-capitulo" class="bible-chapter-check" type="button" aria-pressed="false" disabled>
-              <span class="bible-chapter-check__box">○</span>
-              <span><strong>Capítulo concluído?</strong><small>Marcar como lido</small></span>
-            </button>
+          <header class="bible-reader__head bible-reader__head--v29">
+            <div class="bible-reader__identity">
+              <p class="eyebrow">João Ferreira de Almeida</p>
+              <h2 id="biblia-titulo">Carregando...</h2>
+              <span id="biblia-status" class="muted"></span>
+            </div>
+            <div class="bible-reader__chapter-actions" aria-label="Navegação do capítulo">
+              <button id="biblia-anterior" class="bible-reader-nav" type="button" aria-label="Capítulo anterior"><span aria-hidden="true">←</span><span>Anterior</span></button>
+              <button id="biblia-check-capitulo" class="bible-chapter-check" type="button" aria-pressed="false" disabled>
+                <span class="bible-chapter-check__box">○</span>
+                <span><strong>Capítulo concluído?</strong><small>Marcar como lido</small></span>
+              </button>
+              <button id="biblia-proximo" class="bible-reader-nav bible-reader-nav--next" type="button" aria-label="Próximo capítulo"><span>Próximo</span><span aria-hidden="true">→</span></button>
+            </div>
           </header>
           <div id="biblia-conteudo" class="bible-content"><div class="bible-loading">Carregando...</div></div>
         </article>
         <aside class="bible-side">
-          <section class="card"><p class="eyebrow">Como marcar</p><h3>Suas anotações visuais</h3><p class="bible-help muted">Ao selecionar uma palavra ou frase, ela é marcada automaticamente. As marcações ficam no Supabase e aparecem em qualquer computador conectado à sua conta.</p><button id="biblia-limpar" class="btn small" type="button">Limpar capítulo</button></section>
+          <section class="card"><p class="eyebrow">Durante a leitura</p><h3>Marque e reflita</h3><p class="bible-help muted">Selecione uma palavra ou frase para destacar e criar uma anotação. Para anotar o versículo inteiro, use o botão <strong>+ Anotar</strong> ao lado dele.</p><button id="biblia-limpar" class="btn small" type="button">Limpar marcações do capítulo</button></section>
           <section class="card"><p class="eyebrow">Marcações do capítulo</p><div id="biblia-destaques" class="bible-highlight-list"></div></section>
-          <section class="card bible-motivation-card">
-            <p class="eyebrow">Próximo marco</p>
-            <h3 id="biblia-motivacao-titulo">Continue avançando</h3>
-            <p id="biblia-motivacao-texto" class="bible-help muted">Seu progresso aparecerá aqui.</p>
-            <button id="biblia-ir-mapa" class="btn small" type="button">Ver mapa geral</button>
-          </section>
           <p class="bible-source">Texto bíblico: João Ferreira de Almeida, domínio público, disponibilizado por <a href="https://bible-api.com" target="_blank" rel="noopener noreferrer">bible-api.com</a>.</p>
         </aside>
       </section>
 
-      <section class="card bible-map-section" id="biblia-mapa">
-        <header class="bible-map-head">
-          <div><p class="eyebrow">Mapa geral</p><h2>Da Gênesis ao Apocalipse</h2><p class="muted">Cada quadrado representa um capítulo. Abra um livro para ver os capítulos e marcar sua leitura.</p></div>
-          <div class="bible-map-filters" role="group" aria-label="Filtrar mapa da Bíblia">
-            <button type="button" class="active" data-bible-filter="todos">Todos</button>
-            <button type="button" data-bible-filter="AT">Antigo</button>
-            <button type="button" data-bible-filter="NT">Novo</button>
-            <button type="button" data-bible-filter="andamento">Em andamento</button>
-            <button type="button" data-bible-filter="concluidos">Concluídos</button>
+
+      <section class="card bible-notes-section" id="biblia-anotacoes">
+        <header class="bible-notes-head">
+          <div>
+            <p class="eyebrow">Minhas anotações</p>
+            <h2>O que este capítulo falou comigo?</h2>
+            <p class="muted">Os versículos ou trechos que você selecionar aparecem aqui para receber suas reflexões.</p>
           </div>
+          <span id="biblia-notes-count" class="bible-notes-count">0 anotações</span>
         </header>
-        <div id="biblia-map-summary" class="bible-map-summary"></div>
-        <div id="biblia-map-list" class="bible-map-list"></div>
+        <div class="bible-notes-guide">
+          <span><b>1</b> Selecione um trecho ou toque em <strong>+ Anotar</strong></span>
+          <span><b>2</b> Escolha o tipo da anotação</span>
+          <span><b>3</b> Registre sua consideração e salve</span>
+        </div>
+        <div id="biblia-notes-list" class="bible-notes-list"><div class="bible-notes-empty">Nenhuma anotação neste capítulo.</div></div>
       </section>
     </main>
   </div>
@@ -99,8 +104,8 @@
   <script src="supabase-config.js?v=20260811-biblia27"></script>
   <script src="supabase-client.js?v=20260811-biblia27"></script>
   <script src="auth.js?v=20260811-biblia27"></script>
-  <script src="shell.js?v=20260811-life-v28"></script>
+  <script src="shell.js?v=20260811-shell-biblia-v29"></script>
   <script>MMCDShell("biblia")</script>
-  <script src="biblia.js?v=20260811-biblia27"></script>
+  <script src="biblia.js?v=20260811-biblia-v29"></script>
 </body>
 </html>

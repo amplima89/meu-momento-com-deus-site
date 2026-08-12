@@ -137,3 +137,17 @@ html[data-tema="escuro"]{--bg:#0b0c0f;--surface:#13151a;--surface-2:#1a1d23;--te
  .sidebar-subnav{position:fixed;right:9px;bottom:79px;left:auto;width:220px;margin:0;padding:8px;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:#111419;box-shadow:0 18px 48px rgba(0,0,0,.36);z-index:110}
 }
 /* MMCD_SIDEBAR_PRO_V24_END */
+
+/* MMCD_BIBLIA_MAP_SIDEBAR_V29_START */
+.sidebar-bible-map-link{display:grid;grid-template-columns:12px minmax(0,1fr) 12px;align-items:center;gap:8px;margin:-3px 7px 3px 48px;padding:8px 8px 8px 10px;border-radius:10px;color:#8c93a0;text-decoration:none;transition:.16s ease}
+.sidebar-bible-map-link:hover{background:#151922;color:#dfe5ef}
+.sidebar-bible-map-link.active{background:#10203d;color:#fff}
+.sidebar-bible-map-link__dot{width:5px;height:5px;border-radius:50%;background:#556071}
+.sidebar-bible-map-link.active .sidebar-bible-map-link__dot{background:#6f9fff;box-shadow:0 0 0 4px rgba(82,132,255,.12)}
+.sidebar-bible-map-link__copy{min-width:0;display:grid;gap:1px}
+.sidebar-bible-map-link__copy strong{font-size:.68rem;font-weight:760}
+.sidebar-bible-map-link__copy small{color:#697486;font-size:.56rem}
+.sidebar-bible-map-link__arrow{color:#586476;font-size:.65rem}
+@media(max-width:760px){.sidebar-bible-map-link{margin-left:42px}}
+/* MMCD_BIBLIA_MAP_SIDEBAR_V29_END */
+

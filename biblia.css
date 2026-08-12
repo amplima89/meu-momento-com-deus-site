@@ -102,3 +102,79 @@
 @media(max-width:390px){.bible-progress-main{grid-template-columns:1fr}.bible-progress-ring{justify-self:center}.bible-stat-grid{grid-template-columns:1fr 1fr}.bible-chapter-grid{grid-template-columns:repeat(7,minmax(0,1fr))}}
 [data-tema="escuro"] .bible-chapter-check.done,[data-tema="escuro"] .bible-book-card.complete{border-color:rgba(70,190,145,.28)}
 /* MMCD_BIBLIA_PROGRESS_V27_END */
+
+
+/* MMCD_BIBLIA_READER_NOTES_V29_START */
+.bible-toolbar{grid-template-columns:minmax(220px,1fr) minmax(160px,.42fr)}
+.bible-reader__head--v29{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(520px,1.3fr);align-items:center;gap:16px}
+.bible-reader__identity{min-width:0}
+.bible-reader__chapter-actions{display:grid;grid-template-columns:auto minmax(210px,1fr) auto;align-items:stretch;gap:8px}
+.bible-reader-nav{min-height:54px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 13px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font-size:.65rem;font-weight:800;cursor:pointer}
+.bible-reader-nav:hover:not(:disabled){border-color:color-mix(in srgb,var(--accent) 36%,var(--line));color:var(--accent)}
+.bible-reader-nav:disabled{opacity:.4;cursor:default}
+.bible-reader-nav--next{background:var(--text);border-color:var(--text);color:var(--surface)}
+.bible-reader-nav--next:hover:not(:disabled){color:var(--surface);opacity:.9}
+.bible-reader__chapter-actions .bible-chapter-check{min-width:0;width:100%}
+
+.bible-verse{position:relative;padding-right:72px}
+.bible-verse-note-btn{position:absolute;top:.12rem;right:0;min-height:27px;padding:0 7px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--muted);font-size:.55rem;font-weight:800;opacity:0;cursor:pointer;transition:.15s ease}
+.bible-verse:hover .bible-verse-note-btn,.bible-verse-note-btn:focus-visible{opacity:1;border-color:var(--line);background:var(--surface-2);color:var(--accent)}
+.bible-highlight-row__actions{display:flex;gap:5px;flex-wrap:wrap}
+.bible-highlight-row__actions button{width:auto!important}
+
+.bible-notes-section{margin-top:20px;padding:22px}
+.bible-notes-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding-bottom:15px;border-bottom:1px solid var(--line)}
+.bible-notes-head h2{margin:4px 0;font-size:1.35rem;letter-spacing:-.035em}
+.bible-notes-head p.muted{margin:0}
+.bible-notes-count{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:.6rem;font-weight:800}
+.bible-notes-guide{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}
+.bible-notes-guide>span{display:flex;align-items:center;gap:7px;min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:.59rem}
+.bible-notes-guide b{width:22px;height:22px;flex:0 0 auto;display:grid;place-items:center;border-radius:50%;background:var(--accent-soft);color:var(--accent)}
+.bible-notes-list{display:grid;gap:12px}
+.bible-notes-empty{min-height:130px;display:grid;place-items:center;align-content:center;gap:5px;padding:24px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center}
+.bible-notes-empty strong{color:var(--text);font-size:.78rem}
+.bible-notes-empty span{font-size:.64rem}
+.bible-note-card{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--surface);transition:.18s ease}
+.bible-note-card.new{border-color:color-mix(in srgb,var(--accent) 48%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-soft) 72%,transparent)}
+.bible-note-card__quote{padding:14px 15px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.bible-note-card__quote>span{display:block;margin-bottom:7px;color:var(--accent);font-size:.58rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.bible-note-card__quote blockquote{margin:0;padding:0;border:0;color:var(--text);font-family:Georgia,"Times New Roman",serif;font-size:.82rem;line-height:1.55}
+.bible-note-types{display:flex;flex-wrap:wrap;gap:6px;padding:12px 15px 0}
+.bible-note-types button{min-height:31px;padding:0 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:.57rem;font-weight:800;cursor:pointer}
+.bible-note-types button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.bible-note-comment{display:grid;gap:6px;padding:12px 15px}
+.bible-note-comment>span{color:var(--muted);font-size:.58rem;font-weight:800}
+.bible-note-comment textarea{min-height:108px;resize:vertical;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font:inherit;line-height:1.5}
+.bible-note-card__footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 15px;border-top:1px solid var(--line)}
+.bible-note-status{color:var(--muted);font-size:.56rem}
+.bible-note-card__footer>div{display:flex;gap:7px}
+
+.bible-map-page .page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}
+.bible-map-section--standalone{margin-top:18px}
+.bible-book-card__actions a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+
+@media(max-width:980px){
+  .bible-reader__head--v29{grid-template-columns:1fr}
+  .bible-reader__chapter-actions{grid-template-columns:auto minmax(180px,1fr) auto}
+}
+@media(max-width:680px){
+  .bible-toolbar{grid-template-columns:1fr 110px}
+  .bible-reader__chapter-actions{grid-template-columns:42px minmax(0,1fr) 42px}
+  .bible-reader-nav{min-width:42px;padding:0;font-size:.82rem}
+  .bible-reader-nav>span:not([aria-hidden="true"]){display:none}
+  .bible-chapter-check{padding:8px 9px}
+  .bible-chapter-check strong{font-size:.62rem}
+  .bible-chapter-check small{font-size:.52rem}
+  .bible-verse{padding-right:0;padding-bottom:28px}
+  .bible-verse-note-btn{top:auto;right:0;bottom:3px;opacity:1;border-color:var(--line);background:var(--surface-2)}
+  .bible-notes-section{padding:15px 12px}
+  .bible-notes-head{display:grid}
+  .bible-notes-count{justify-self:start}
+  .bible-notes-guide{grid-template-columns:1fr}
+  .bible-note-card__footer{align-items:flex-start;display:grid}
+  .bible-note-card__footer>div{width:100%}
+  .bible-note-card__footer .btn{flex:1 1 auto}
+  .bible-map-page .page-header{display:grid}
+  .bible-map-page .page-header>.btn{justify-self:start}
+}
+/* MMCD_BIBLIA_READER_NOTES_V29_END */

@@ -38,12 +38,16 @@
   const motivacaoTitulo = document.querySelector("#biblia-motivacao-titulo");
   const motivacaoTexto = document.querySelector("#biblia-motivacao-texto");
   const irMapa = document.querySelector("#biblia-ir-mapa");
+  const notesList = document.querySelector("#biblia-notes-list");
+  const notesCount = document.querySelector("#biblia-notes-count");
 
   if (!db || !livroSelect || !capituloSelect || !conteudo) return;
 
   let usuario = null;
   let versos = [];
   let destaques = [];
+  let anotacoes = [];
+  let filaSalvarAnotacoes = Promise.resolve();
   let filaSalvar = Promise.resolve();
   let timerSelecao = null;
   let tokenCarga = 0;
@@ -301,6 +305,174 @@
     return db.from("configuracoes_usuario").upsert({ user_id: usuario.id, chave: CHAVE_PREFERENCIA, valor }, { onConflict: "user_id,chave" });
   }
 
+
+  function chaveAnotacoes() {
+    return `biblia_anotacoes_v1:${livroAtual().id}:${capituloAtual()}`;
+  }
+
+  function normalizarAnotacoes(valor) {
+    const lista = Array.isArray(valor) ? valor : valor?.anotacoes;
+    if (!Array.isArray(lista)) return [];
+    return lista.map((x, i) => ({
+      id: String(x?.id || `nota-${Date.now()}-${i}`),
+      referencia: String(x?.referencia || ""),
+      versiculoInicio: Number(x?.versiculoInicio || 0),
+      versiculoFim: Number(x?.versiculoFim || x?.versiculoInicio || 0),
+      citacao: String(x?.citacao || ""),
+      tipo: ["reflexao","aplicacao","oracao","duvida","promessa"].includes(String(x?.tipo)) ? String(x.tipo) : "reflexao",
+      comentario: String(x?.comentario || ""),
+      highlightId: String(x?.highlightId || ""),
+      criadoEm: x?.criadoEm || new Date().toISOString(),
+      atualizadoEm: x?.atualizadoEm || x?.criadoEm || new Date().toISOString()
+    })).filter(x => x.citacao.trim());
+  }
+
+  async function carregarAnotacoes() {
+    const { data, error } = await db.from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", usuario.id)
+      .eq("chave", chaveAnotacoes())
+      .maybeSingle();
+    if (error) throw error;
+    anotacoes = normalizarAnotacoes(data?.valor);
+  }
+
+  function salvarAnotacoes() {
+    const chave = chaveAnotacoes();
+    const valor = {
+      anotacoes,
+      livroId: livroAtual().id,
+      livro: livroAtual().nome,
+      capitulo: capituloAtual(),
+      atualizadoEm: new Date().toISOString()
+    };
+    filaSalvarAnotacoes = filaSalvarAnotacoes.catch(() => undefined).then(async () => {
+      const { error } = await db.from("configuracoes_usuario").upsert(
+        { user_id: usuario.id, chave, valor },
+        { onConflict: "user_id,chave" }
+      );
+      if (error) throw error;
+    });
+    return filaSalvarAnotacoes;
+  }
+
+  function referenciaVersiculos(inicio, fim = inicio) {
+    const livro = livroAtual().nome;
+    const cap = capituloAtual();
+    if (!inicio) return `${livro} ${cap}`;
+    return inicio === fim ? `${livro} ${cap}:${inicio}` : `${livro} ${cap}:${inicio}–${fim}`;
+  }
+
+  function notaDuplicada(citacao, referencia) {
+    const q = String(citacao || "").trim();
+    return anotacoes.find(x => x.citacao.trim() === q && x.referencia === referencia);
+  }
+
+  function criarAnotacao({ citacao, versiculoInicio = 0, versiculoFim = versiculoInicio, highlightId = "" }) {
+    const texto = String(citacao || "").replace(/\s+/g, " ").trim();
+    if (!texto) return null;
+    const referencia = referenciaVersiculos(versiculoInicio, versiculoFim);
+    const existente = notaDuplicada(texto, referencia);
+    if (existente) return existente;
+
+    const nota = {
+      id: `nota-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      referencia,
+      versiculoInicio: Number(versiculoInicio || 0),
+      versiculoFim: Number(versiculoFim || versiculoInicio || 0),
+      citacao: texto,
+      tipo: "reflexao",
+      comentario: "",
+      highlightId: String(highlightId || ""),
+      criadoEm: new Date().toISOString(),
+      atualizadoEm: new Date().toISOString()
+    };
+    anotacoes.unshift(nota);
+    return nota;
+  }
+
+  function renderizarAnotacoes({ focarId = "" } = {}) {
+    if (!notesList) return;
+    if (notesCount) notesCount.textContent = `${anotacoes.length} ${anotacoes.length === 1 ? "anotação" : "anotações"}`;
+
+    if (!anotacoes.length) {
+      notesList.innerHTML = `
+        <div class="bible-notes-empty">
+          <strong>Seu caderno deste capítulo está vazio.</strong>
+          <span>Selecione um trecho da leitura ou use <b>+ Anotar</b> em um versículo.</span>
+        </div>`;
+      return;
+    }
+
+    notesList.innerHTML = anotacoes.map(nota => `
+      <article class="bible-note-card" data-note-id="${esc(nota.id)}">
+        <div class="bible-note-card__quote">
+          <span>${esc(nota.referencia)}</span>
+          <blockquote>${esc(nota.citacao)}</blockquote>
+        </div>
+
+        <div class="bible-note-types" role="group" aria-label="Tipo da anotação">
+          ${[
+            ["reflexao","Reflexão"],
+            ["aplicacao","Aplicação"],
+            ["oracao","Oração"],
+            ["duvida","Dúvida"],
+            ["promessa","Promessa"]
+          ].map(([value,label]) => `
+            <button type="button" class="${nota.tipo === value ? "active" : ""}" data-note-type="${value}" aria-pressed="${nota.tipo === value ? "true" : "false"}">${label}</button>
+          `).join("")}
+        </div>
+
+        <label class="bible-note-comment">
+          <span>Minha consideração</span>
+          <textarea data-note-comment placeholder="${
+            nota.tipo === "oracao" ? "Transforme este texto em oração..." :
+            nota.tipo === "aplicacao" ? "O que preciso praticar a partir deste texto?" :
+            nota.tipo === "duvida" ? "O que preciso estudar ou entender melhor?" :
+            nota.tipo === "promessa" ? "O que este texto me lembra sobre Deus?" :
+            "O que chamou minha atenção neste texto?"
+          }">${esc(nota.comentario)}</textarea>
+        </label>
+
+        <footer class="bible-note-card__footer">
+          <span class="bible-note-status">${nota.comentario.trim() ? "Anotação registrada" : "Aguardando sua consideração"}</span>
+          <div>
+            <button type="button" class="btn small danger-outline" data-note-delete>Excluir</button>
+            <button type="button" class="btn small primary" data-note-save>Salvar anotação</button>
+          </div>
+        </footer>
+      </article>`).join("");
+
+    if (focarId) {
+      requestAnimationFrame(() => {
+        const card = notesList.querySelector(`[data-note-id="${CSS.escape(focarId)}"]`);
+        card?.classList.add("new");
+        card?.querySelector("textarea")?.focus({ preventScroll: true });
+      });
+    }
+  }
+
+  async function anotarVersiculo(numero) {
+    const verso = versos.find(v => Number(v.numero) === Number(numero));
+    if (!verso) return;
+
+    const nota = criarAnotacao({
+      citacao: verso.texto,
+      versiculoInicio: verso.numero,
+      versiculoFim: verso.numero
+    });
+
+    renderizarAnotacoes({ focarId: nota?.id || "" });
+    document.querySelector("#biblia-anotacoes")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    try {
+      await salvarAnotacoes();
+      window.MMCDUI?.toast(`${referenciaVersiculos(verso.numero)} enviado para Minhas anotações.`);
+    } catch (erro) {
+      console.error(erro);
+      window.MMCDUI?.toast("A anotação apareceu, mas não sincronizou.");
+    }
+  }
+
   function normalizarDestaques(valor) {
     const lista = Array.isArray(valor) ? valor : valor?.destaques;
     if (!Array.isArray(lista)) return [];
@@ -387,11 +559,14 @@
     const mapas = mapaVersos();
     conteudo.innerHTML = versos.map((verso, i) => `
       <p class="bible-verse" data-verso="${verso.numero}" data-start="${mapas[i].inicio}" data-end="${mapas[i].fim}">
-        <span class="bible-verse__number">${verso.numero}</span><span class="bible-verse__text">${segmentosVerso(verso, mapas[i])}</span>
+        <span class="bible-verse__number">${verso.numero}</span>
+        <span class="bible-verse__text">${segmentosVerso(verso, mapas[i])}</span>
+        <button type="button" class="bible-verse-note-btn" data-note-verse="${verso.numero}" title="Enviar ${esc(referenciaVersiculos(verso.numero))} para Minhas anotações">+ Anotar</button>
       </p>`).join("");
     titulo.textContent = `${livroAtual().nome} ${capituloAtual()}`;
     status.textContent = `${versos.length} versículos · marcações sincronizadas`;
     renderizarListaDestaques();
+    renderizarAnotacoes();
     atualizarNavegacao();
     renderizarProgresso();
   }
@@ -401,15 +576,40 @@
       listaDestaques.innerHTML = '<p class="muted">Nenhuma marcação neste capítulo.</p>';
       return;
     }
+
     listaDestaques.innerHTML = destaques.map(d => `
       <div class="bible-highlight-row" data-id="${esc(d.id)}">
-        <p>${esc(d.texto)}</p><button type="button">Remover</button>
+        <p>${esc(d.texto)}</p>
+        <div class="bible-highlight-row__actions">
+          <button type="button" data-highlight-note>Anotar</button>
+          <button type="button" data-highlight-remove>Remover</button>
+        </div>
       </div>`).join("");
-    listaDestaques.querySelectorAll("button").forEach(btn => btn.addEventListener("click", async () => {
+
+    listaDestaques.querySelectorAll("[data-highlight-remove]").forEach(btn => btn.addEventListener("click", async () => {
       const id = btn.closest("[data-id]").dataset.id;
       await removerDestaque(id);
     }));
+
+    listaDestaques.querySelectorAll("[data-highlight-note]").forEach(btn => btn.addEventListener("click", async () => {
+      const id = btn.closest("[data-id]").dataset.id;
+      const destaque = destaques.find(x => x.id === id);
+      if (!destaque) return;
+
+      const ref = referenciaDoOffset(destaque.inicio, destaque.fim);
+      const nota = criarAnotacao({
+        citacao: destaque.texto,
+        versiculoInicio: ref.inicio,
+        versiculoFim: ref.fim,
+        highlightId: destaque.id
+      });
+
+      renderizarAnotacoes({ focarId: nota?.id || "" });
+      await salvarAnotacoes();
+      document.querySelector("#biblia-anotacoes")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
   }
+
 
   function nosDeTexto() {
     const walker = document.createTreeWalker(conteudo, NodeFilter.SHOW_TEXT, {
@@ -444,6 +644,16 @@
     return { inicio, fim };
   }
 
+  function referenciaDoOffset(inicio, fim) {
+    const mapas = mapaVersos();
+    const encontrados = mapas.filter(v => fim > v.inicio && inicio < v.fim);
+    if (!encontrados.length) return { inicio: 0, fim: 0 };
+    return {
+      inicio: encontrados[0].numero,
+      fim: encontrados[encontrados.length - 1].numero
+    };
+  }
+
   function cruzaDestaque(inicio, fim) {
     return destaques.some(d => fim > d.inicio && inicio < d.fim);
   }
@@ -454,26 +664,47 @@
       if (!silencioso) window.MMCDUI?.toast("Selecione uma palavra ou frase da Bíblia.");
       return;
     }
+
     const range = selecao.getRangeAt(0);
-    const ancestral = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+    const ancestral = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+      ? range.commonAncestorContainer
+      : range.commonAncestorContainer.parentElement;
+
     if (!ancestral || !conteudo.contains(ancestral)) return;
+
     const texto = range.toString().replace(/\s+/g, " ").trim();
     const offsets = offsetsDaSelecao(range);
     if (!texto || !offsets || offsets.fim <= offsets.inicio) return;
+
     if (cruzaDestaque(offsets.inicio, offsets.fim)) {
       if (!silencioso) window.MMCDUI?.toast("Esse trecho já cruza uma marcação.");
       return;
     }
-    destaques.push({ id: `biblia-${Date.now()}-${Math.random().toString(16).slice(2)}`, ...offsets, texto });
+
+    const ref = referenciaDoOffset(offsets.inicio, offsets.fim);
+    const highlightId = `biblia-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    destaques.push({ id: highlightId, ...offsets, texto });
     destaques.sort((a, b) => a.inicio - b.inicio);
+
+    const nota = criarAnotacao({
+      citacao: texto,
+      versiculoInicio: ref.inicio,
+      versiculoFim: ref.fim,
+      highlightId
+    });
+
     selecao.removeAllRanges();
     renderizar();
+    renderizarAnotacoes({ focarId: nota?.id || "" });
+    document.querySelector("#biblia-anotacoes")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
     try {
-      await salvarDestaques();
-      window.MMCDUI?.toast("Marcação bíblica salva no banco.");
+      await Promise.all([salvarDestaques(), salvarAnotacoes()]);
+      window.MMCDUI?.toast("Trecho marcado e enviado para Minhas anotações.");
     } catch (erro) {
       console.error(erro);
-      window.MMCDUI?.toast("A marcação apareceu, mas não sincronizou.");
+      window.MMCDUI?.toast("O trecho apareceu, mas a sincronização falhou.");
     }
   }
 
@@ -501,7 +732,11 @@
     status.textContent = "Bíblia online · João Ferreira de Almeida";
     await salvarPreferencia();
     try {
-      const [capitulo] = await Promise.all([buscarCapitulo(), carregarDestaques()]);
+      const [capitulo] = await Promise.all([
+        buscarCapitulo(),
+        carregarDestaques(),
+        carregarAnotacoes()
+      ]);
       if (meuToken !== tokenCarga) return;
       versos = capitulo;
       renderizar();
@@ -533,11 +768,70 @@
   capituloSelect.addEventListener("change", carregar);
   anterior.addEventListener("click", () => navegar(-1));
   proximo.addEventListener("click", () => navegar(1));
+  conteudo.addEventListener("click", evento => {
+    const noteVerse = evento.target.closest("[data-note-verse]");
+    if (noteVerse) {
+      evento.preventDefault();
+      anotarVersiculo(Number(noteVerse.dataset.noteVerse));
+    }
+  });
+
+  notesList?.addEventListener("click", async evento => {
+    const card = evento.target.closest("[data-note-id]");
+    if (!card) return;
+
+    const nota = anotacoes.find(x => x.id === card.dataset.noteId);
+    if (!nota) return;
+
+    const typeButton = evento.target.closest("[data-note-type]");
+    if (typeButton) {
+      const textareaAtual = card.querySelector("[data-note-comment]");
+      if (textareaAtual) nota.comentario = textareaAtual.value;
+      nota.tipo = typeButton.dataset.noteType;
+      nota.atualizadoEm = new Date().toISOString();
+      renderizarAnotacoes({ focarId: nota.id });
+      return;
+    }
+
+    if (evento.target.closest("[data-note-save]")) {
+      const textarea = card.querySelector("[data-note-comment]");
+      nota.comentario = textarea?.value || "";
+      nota.atualizadoEm = new Date().toISOString();
+      try {
+        await salvarAnotacoes();
+        renderizarAnotacoes();
+        window.MMCDUI?.toast("Anotação salva no Supabase.");
+      } catch (erro) {
+        console.error(erro);
+        window.MMCDUI?.toast("Não foi possível salvar a anotação.");
+      }
+      return;
+    }
+
+    if (evento.target.closest("[data-note-delete]")) {
+      if (!confirm(`Excluir sua anotação de ${nota.referencia}?`)) return;
+      anotacoes = anotacoes.filter(x => x.id !== nota.id);
+      try {
+        await salvarAnotacoes();
+        renderizarAnotacoes();
+        window.MMCDUI?.toast("Anotação excluída.");
+      } catch (erro) {
+        console.error(erro);
+        window.MMCDUI?.toast("Não foi possível excluir a anotação.");
+      }
+    }
+  });
+
   conteudo.addEventListener("mouseup", evento => {
     if (evento.button !== 0 || evento.detail > 1) return;
     clearTimeout(timerSelecao);
     timerSelecao = setTimeout(() => marcarSelecao({ silencioso: true }), 250);
   });
+  conteudo.addEventListener("touchend", () => {
+    clearTimeout(timerSelecao);
+    timerSelecao = setTimeout(() => marcarSelecao({ silencioso: true }), 350);
+  }, { passive: true });
+
   conteudo.addEventListener("dblclick", evento => {
     clearTimeout(timerSelecao);
     const marca = evento.target.closest?.("mark.bible-highlight");
@@ -601,16 +895,26 @@
     }
   });
 
-  irMapa?.addEventListener("click",()=>document.querySelector("#biblia-mapa")?.scrollIntoView({behavior:"smooth",block:"start"}));
-
   (async () => {
     try {
       const session = await window.MMCDAuth.requireSession();
       usuario = session.user;
       preencherLivros();
       const [pref] = await Promise.all([carregarPreferencia(), carregarProgresso()]);
-      livroSelect.value = LIVROS.some(x => x.id === pref.livro) ? pref.livro : "JHN";
-      preencherCapitulos(pref.capitulo || 1);
+      const params = new URLSearchParams(location.search);
+      const livroUrl = params.get("livro");
+      const capituloUrl = Number(params.get("capitulo") || 0);
+
+      livroSelect.value = LIVROS.some(x => x.id === livroUrl)
+        ? livroUrl
+        : (LIVROS.some(x => x.id === pref.livro) ? pref.livro : "JHN");
+
+      const selecionado = livroAtual();
+      const capituloInicial = capituloUrl >= 1 && capituloUrl <= selecionado.capitulos
+        ? capituloUrl
+        : (pref.capitulo || 1);
+
+      preencherCapitulos(capituloInicial);
       renderizarProgresso();
       await carregar();
     } catch (erro) {
