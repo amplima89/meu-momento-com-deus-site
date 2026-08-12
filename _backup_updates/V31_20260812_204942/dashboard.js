@@ -158,13 +158,6 @@
 
       <div class="quick-journal-compose">
         <textarea id="quick-journal-text" maxlength="900" rows="3" placeholder="Ex.: Adiei o estudo mesmo sabendo que precisava começar. / Tivemos uma conversa muito boa no jantar. / Treinei sem vontade e fiquei feliz por ter ido."></textarea>
-        <div class="quick-journal-voice">
-          <button id="quick-journal-mic" class="btn quick-journal-mic" type="button" aria-pressed="false">
-            <span aria-hidden="true">🎙️</span>
-            <span data-mic-label>Transcrever fala</span>
-          </button>
-          <span id="quick-journal-voice-status" class="muted">O áudio não é salvo. Apenas o texto transcrito entra no registro.</span>
-        </div>
         <div class="quick-journal-categories" role="group" aria-label="Categoria do registro">
           ${CATEGORIAS_DIARIO_RAPIDO.map(([nome, icone]) => `
             <button class="quick-category ${nome === categoriaDiarioRapido ? "is-active" : ""}" type="button" data-quick-category="${escapeHtml(nome)}">
@@ -198,127 +191,7 @@
     });
 
     section.querySelector("#quick-journal-save")?.addEventListener("click", salvarNovoRegistroRapido);
-    section.querySelector("#quick-journal-mic")?.addEventListener("click", alternarTranscricaoRapida);
-    configurarTranscricaoRapida();
     renderizarDiarioRapido();
-  }
-
-  let quickSpeechRecognition = null;
-  let quickSpeechAtiva = false;
-  let quickSpeechBase = "";
-  let quickSpeechFinal = "";
-
-  function speechRecognitionCtor() {
-    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-  }
-
-  function atualizarEstadoMicrofone(ativo, mensagem = "") {
-    const button = document.querySelector("#quick-journal-mic");
-    const label = button?.querySelector("[data-mic-label]");
-    const status = document.querySelector("#quick-journal-voice-status");
-    quickSpeechAtiva = !!ativo;
-    if (button) {
-      button.classList.toggle("is-listening", quickSpeechAtiva);
-      button.setAttribute("aria-pressed", quickSpeechAtiva ? "true" : "false");
-    }
-    if (label) label.textContent = quickSpeechAtiva ? "Parar transcrição" : "Transcrever fala";
-    if (status && mensagem) status.textContent = mensagem;
-  }
-
-  function configurarTranscricaoRapida() {
-    const button = document.querySelector("#quick-journal-mic");
-    const status = document.querySelector("#quick-journal-voice-status");
-    if (!button) return;
-
-    if (!speechRecognitionCtor()) {
-      button.dataset.unsupported = "1";
-      if (status) status.textContent = "Este navegador não oferece transcrição direta. No iPhone, use o microfone do teclado no campo acima.";
-      return;
-    }
-
-    if (status) status.textContent = "O áudio não é salvo. Apenas o texto transcrito entra no registro.";
-  }
-
-  function pararTranscricaoRapida() {
-    if (!quickSpeechRecognition) return;
-    try { quickSpeechRecognition.stop(); } catch {}
-  }
-
-  function alternarTranscricaoRapida() {
-    const textarea = document.querySelector("#quick-journal-text");
-    const status = document.querySelector("#quick-journal-voice-status");
-    const Recognition = speechRecognitionCtor();
-
-    if (!Recognition) {
-      window.MMCDUI?.toast("Use o microfone do teclado para ditar neste navegador.");
-      textarea?.focus();
-      return;
-    }
-
-    if (quickSpeechAtiva) {
-      atualizarEstadoMicrofone(false, "Finalizando a transcrição...");
-      pararTranscricaoRapida();
-      return;
-    }
-
-    quickSpeechBase = String(textarea?.value || "").trim();
-    quickSpeechFinal = "";
-    const recognition = new Recognition();
-    quickSpeechRecognition = recognition;
-    recognition.lang = "pt-BR";
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-      atualizarEstadoMicrofone(true, "Ouvindo... fale normalmente. O áudio não será armazenado.");
-    };
-
-    recognition.onresult = event => {
-      let finalChunk = "";
-      let interimChunk = "";
-
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
-        const transcript = String(event.results[index][0]?.transcript || "").trim();
-        if (!transcript) continue;
-        if (event.results[index].isFinal) finalChunk += (finalChunk ? " " : "") + transcript;
-        else interimChunk += (interimChunk ? " " : "") + transcript;
-      }
-
-      if (finalChunk) quickSpeechFinal += (quickSpeechFinal ? " " : "") + finalChunk;
-      const parts = [quickSpeechBase, quickSpeechFinal, interimChunk].map(x => String(x || "").trim()).filter(Boolean);
-      if (textarea) {
-        textarea.value = parts.join(" ").slice(0, 900);
-        textarea.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-    };
-
-    recognition.onerror = event => {
-      const map = {
-        "not-allowed": "Permita o acesso ao microfone para transcrever sua fala.",
-        "audio-capture": "Não encontrei um microfone disponível.",
-        "network": "A transcrição do navegador está indisponível agora.",
-        "no-speech": "Não detectei fala. Toque no microfone e tente novamente."
-      };
-      atualizarEstadoMicrofone(false, map[event.error] || "Não foi possível transcrever. Tente novamente.");
-    };
-
-    recognition.onend = () => {
-      quickSpeechRecognition = null;
-      if (quickSpeechAtiva) {
-        atualizarEstadoMicrofone(false, "Transcrição encerrada. Revise o texto e salve quando quiser.");
-      } else if (status?.textContent === "Finalizando a transcrição...") {
-        if (status) status.textContent = "Transcrição encerrada. Revise o texto e salve quando quiser.";
-      }
-    };
-
-    try {
-      recognition.start();
-    } catch (error) {
-      quickSpeechRecognition = null;
-      atualizarEstadoMicrofone(false, "Não foi possível iniciar o microfone.");
-      console.warn("Registro rápido: transcrição indisponível.", error);
-    }
   }
 
   function renderizarDiarioRapido() {
@@ -356,10 +229,6 @@
   }
 
   async function salvarNovoRegistroRapido() {
-    if (quickSpeechAtiva) {
-      atualizarEstadoMicrofone(false, "Finalizando a transcrição antes de salvar...");
-      pararTranscricaoRapida();
-    }
     const textarea = document.querySelector("#quick-journal-text");
     const button = document.querySelector("#quick-journal-save");
     const status = document.querySelector("#quick-journal-status");
@@ -535,9 +404,7 @@
   }
 
   const medMeta = d.metas.find(item => item.nome.toLowerCase().includes("medita"));
-  // A existência da meditação gerada para hoje não significa que ela foi realizada.
-  // O card só fica concluído quando a atividade/meta de meditação foi efetivamente marcada.
-  const medDone = !!(medMeta && MMCD.registro(d, iso, medMeta.id)?.concluida);
+  const medDone = !!(d.meditacoes[iso] || (medMeta && MMCD.registro(d, iso, medMeta.id)?.concluida));
 
   const metrics = metaMetrics();
   let weightDetail = "Último registro";

@@ -314,13 +314,3 @@ html[data-tema="escuro"]{
   .sidebar-subnav{bottom:calc(94px + env(safe-area-inset-bottom))}
 }
 /* MMCD_MOBILE_ICON_NAV_V33_END */
-
-/* MMCD_PROFILE_AVATAR_V34_START */
-.sidebar-v24 .sidebar-brand__mark img{object-fit:contain}
-.sidebar-v24 .account-menu{gap:7px;align-items:center}
-.sidebar-v24 .account-button--profile{display:flex;align-items:center;gap:8px;max-width:172px;padding:5px 9px 5px 5px;text-decoration:none}
-.account-avatar{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:color-mix(in srgb,var(--nav-icon) 18%,#11151d);border:1px solid color-mix(in srgb,var(--nav-icon) 26%,transparent);color:var(--nav-icon);font-size:.68rem;font-weight:900}
-.account-avatar img{width:100%;height:100%;display:block;object-fit:cover}
-.account-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.account-signout{flex:0 0 auto}
-/* MMCD_PROFILE_AVATAR_V34_END */

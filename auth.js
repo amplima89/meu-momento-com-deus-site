@@ -82,14 +82,113 @@
     return current.user;
   }
 
+  const PROFILE_KEY = "perfil_usuario_v1";
+
+  async function loadProfile(currentUser) {
+    if (!currentUser?.id) return {};
+    try {
+      const { data, error } = await client
+        .from("configuracoes_usuario")
+        .select("valor")
+        .eq("user_id", currentUser.id)
+        .eq("chave", PROFILE_KEY)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data?.valor && typeof data.valor === "object" ? data.valor : {};
+    } catch (error) {
+      console.warn("Perfil: não foi possível carregar a foto personalizada.", error);
+      return {};
+    }
+  }
+
+  async function saveProfile(currentUser, value) {
+    if (!currentUser?.id) throw new Error("Usuário não identificado.");
+    const { error } = await client
+      .from("configuracoes_usuario")
+      .upsert({
+        user_id: currentUser.id,
+        chave: PROFILE_KEY,
+        valor: value || {}
+      }, { onConflict: "user_id,chave" });
+
+    if (error) throw new Error(`Não foi possível salvar o perfil: ${error.message}`);
+    return value || {};
+  }
+
+  function userLabel(currentUser, profile = {}) {
+    return String(
+      profile.nome ||
+      currentUser?.user_metadata?.full_name ||
+      currentUser?.user_metadata?.name ||
+      currentUser?.user_metadata?.user_name ||
+      currentUser?.email?.split("@")[0] ||
+      "Conta"
+    ).trim();
+  }
+
+  function fallbackAvatar(currentUser) {
+    return currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.picture || "";
+  }
+
+  function renderAccountAvatar(container, currentUser, profile = {}) {
+    if (!container) return;
+    const source = profile.avatarDataUrl || fallbackAvatar(currentUser);
+    const label = userLabel(currentUser, profile);
+    container.innerHTML = source
+      ? `<img src="${safe(source)}" alt="">`
+      : `<span aria-hidden="true">${safe((label[0] || "U").toUpperCase())}</span>`;
+  }
+
+  async function hydrateAccountButton(wrap, currentUser) {
+    const profile = await loadProfile(currentUser);
+    const label = userLabel(currentUser, profile);
+    const avatar = wrap.querySelector("[data-account-avatar]");
+    const name = wrap.querySelector("[data-account-name]");
+    renderAccountAvatar(avatar, currentUser, profile);
+    if (name) name.textContent = label;
+    wrap.dataset.profileReady = "1";
+    return profile;
+  }
+
   function accountButton(currentUser) {
     const email = currentUser?.email || currentUser?.user_metadata?.user_name || "Conta";
+    const label = userLabel(currentUser);
     const wrap = document.createElement("div");
     wrap.className = "account-menu";
-    wrap.innerHTML = `<button class="btn small account-button" type="button" title="${safe(email)}">${safe(email.split("@")[0])}</button><button class="btn small" type="button" data-signout>Sair</button>`;
+    wrap.innerHTML = `
+      <a class="btn small account-button account-button--profile" href="perfil.html" title="Perfil de ${safe(email)}">
+        <span class="account-avatar" data-account-avatar aria-hidden="true"><span>${safe((label[0] || "U").toUpperCase())}</span></span>
+        <span class="account-name" data-account-name>${safe(label)}</span>
+      </a>
+      <button class="btn small account-signout" type="button" data-signout>Sair</button>`;
     wrap.querySelector("[data-signout]").addEventListener("click", signOut);
+    hydrateAccountButton(wrap, currentUser);
     return wrap;
   }
 
-  window.MMCDAuth = { requireSession, session, user, signOut, accountButton, showLogin };
+  async function refreshAccountProfile(currentUser) {
+    const current = currentUser || (await requireSession()).user;
+    const profile = await loadProfile(current);
+    document.querySelectorAll(".account-menu").forEach(wrap => {
+      const label = userLabel(current, profile);
+      renderAccountAvatar(wrap.querySelector("[data-account-avatar]"), current, profile);
+      const name = wrap.querySelector("[data-account-name]");
+      if (name) name.textContent = label;
+    });
+    return profile;
+  }
+
+  window.MMCDAuth = {
+    requireSession,
+    session,
+    user,
+    signOut,
+    accountButton,
+    showLogin,
+    loadProfile,
+    saveProfile,
+    refreshAccountProfile,
+    PROFILE_KEY
+  };
 })();
