@@ -4,7 +4,7 @@ window.MMCDShell=async function(active){
   ['missoes','painel.html','01','Missões','Visão da vida'],
   ['meditacao','index.html','02','Meditação','Momento com Deus'],
   ['biblia','biblia.html','03','Bíblia','Leitura e anotações'],
-  ['ingles','ingles.html','04','Inglês diário','Prática e revisão'],
+  ['ingles','ingles.html','04','Inglês diário','Aula adaptativa'],
   ['treinos','treinos.html#hoje','05','Treinos','Plano de treino'],
   ['atividades','atividades.html','06','Atividades','Rotina diária'],
   ['livros','livros.html','07','Livros','Biblioteca'],
@@ -63,6 +63,12 @@ window.MMCDShell=async function(active){
   </aside>`;
  document.body.insertAdjacentHTML('afterbegin',sidebarHtml);
  document.body.classList.add('app-body');
+ // MMCD_ENGLISH_EVOLUTION_NAV_V30_START
+ const englishNavLink=document.querySelector('.sidebar-link[href^="ingles.html"]');
+ if(englishNavLink&&!document.querySelector('.sidebar-english-evolution-link')){
+   englishNavLink.insertAdjacentHTML('afterend',`<a class="sidebar-english-evolution-link ${active==='ingles-evolucao'?'active':''}" href="ingles-evolucao.html"><span class="sidebar-english-evolution-link__dot"></span><span class="sidebar-english-evolution-link__copy"><strong>Evolução do inglês</strong><small>Progresso e diagnóstico</small></span><span class="sidebar-english-evolution-link__arrow">›</span></a>`);
+ }
+ // MMCD_ENGLISH_EVOLUTION_NAV_V30_END
 
  // MMCD_BIBLIA_PROGRESS_NAV_V29_START
  const bibliaNavLink=document.querySelector('.sidebar-link[href^="biblia.html"]');

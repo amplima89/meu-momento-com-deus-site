@@ -151,3 +151,7 @@ html[data-tema="escuro"]{--bg:#0b0c0f;--surface:#13151a;--surface-2:#1a1d23;--te
 @media(max-width:760px){.sidebar-bible-map-link{margin-left:42px}}
 /* MMCD_BIBLIA_MAP_SIDEBAR_V29_END */
 
+/* MMCD_ENGLISH_EVOLUTION_NAV_V30_START */
+.sidebar-english-evolution-link{display:grid;grid-template-columns:12px minmax(0,1fr) 12px;align-items:center;gap:8px;margin:-3px 7px 3px 48px;padding:8px 8px 8px 10px;border-radius:10px;color:#8c93a0;text-decoration:none}.sidebar-english-evolution-link:hover{background:#151922;color:#dfe5ef}.sidebar-english-evolution-link.active{background:#10203d;color:#fff}.sidebar-english-evolution-link__dot{width:5px;height:5px;border-radius:50%;background:#556071}.sidebar-english-evolution-link.active .sidebar-english-evolution-link__dot{background:#6f9fff}.sidebar-english-evolution-link__copy{display:grid;gap:1px}.sidebar-english-evolution-link__copy strong{font-size:.68rem}.sidebar-english-evolution-link__copy small{color:#697486;font-size:.56rem}.sidebar-english-evolution-link__arrow{color:#586476;font-size:.65rem}
+/* MMCD_ENGLISH_EVOLUTION_NAV_V30_END */
+
