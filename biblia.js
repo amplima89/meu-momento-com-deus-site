@@ -4,6 +4,12 @@
   const LIVROS = [{"id": "GEN", "nome": "Gênesis", "api": "Genesis", "capitulos": 50}, {"id": "EXO", "nome": "Êxodo", "api": "Exodus", "capitulos": 40}, {"id": "LEV", "nome": "Levítico", "api": "Leviticus", "capitulos": 27}, {"id": "NUM", "nome": "Números", "api": "Numbers", "capitulos": 36}, {"id": "DEU", "nome": "Deuteronômio", "api": "Deuteronomy", "capitulos": 34}, {"id": "JOS", "nome": "Josué", "api": "Joshua", "capitulos": 24}, {"id": "JDG", "nome": "Juízes", "api": "Judges", "capitulos": 21}, {"id": "RUT", "nome": "Rute", "api": "Ruth", "capitulos": 4}, {"id": "1SA", "nome": "1 Samuel", "api": "1 Samuel", "capitulos": 31}, {"id": "2SA", "nome": "2 Samuel", "api": "2 Samuel", "capitulos": 24}, {"id": "1KI", "nome": "1 Reis", "api": "1 Kings", "capitulos": 22}, {"id": "2KI", "nome": "2 Reis", "api": "2 Kings", "capitulos": 25}, {"id": "1CH", "nome": "1 Crônicas", "api": "1 Chronicles", "capitulos": 29}, {"id": "2CH", "nome": "2 Crônicas", "api": "2 Chronicles", "capitulos": 36}, {"id": "EZR", "nome": "Esdras", "api": "Ezra", "capitulos": 10}, {"id": "NEH", "nome": "Neemias", "api": "Nehemiah", "capitulos": 13}, {"id": "EST", "nome": "Ester", "api": "Esther", "capitulos": 10}, {"id": "JOB", "nome": "Jó", "api": "Job", "capitulos": 42}, {"id": "PSA", "nome": "Salmos", "api": "Psalms", "capitulos": 150}, {"id": "PRO", "nome": "Provérbios", "api": "Proverbs", "capitulos": 31}, {"id": "ECC", "nome": "Eclesiastes", "api": "Ecclesiastes", "capitulos": 12}, {"id": "SNG", "nome": "Cânticos", "api": "Song of Solomon", "capitulos": 8}, {"id": "ISA", "nome": "Isaías", "api": "Isaiah", "capitulos": 66}, {"id": "JER", "nome": "Jeremias", "api": "Jeremiah", "capitulos": 52}, {"id": "LAM", "nome": "Lamentações", "api": "Lamentations", "capitulos": 5}, {"id": "EZK", "nome": "Ezequiel", "api": "Ezekiel", "capitulos": 48}, {"id": "DAN", "nome": "Daniel", "api": "Daniel", "capitulos": 12}, {"id": "HOS", "nome": "Oséias", "api": "Hosea", "capitulos": 14}, {"id": "JOL", "nome": "Joel", "api": "Joel", "capitulos": 3}, {"id": "AMO", "nome": "Amós", "api": "Amos", "capitulos": 9}, {"id": "OBA", "nome": "Obadias", "api": "Obadiah", "capitulos": 1}, {"id": "JON", "nome": "Jonas", "api": "Jonah", "capitulos": 4}, {"id": "MIC", "nome": "Miquéias", "api": "Micah", "capitulos": 7}, {"id": "NAM", "nome": "Naum", "api": "Nahum", "capitulos": 3}, {"id": "HAB", "nome": "Habacuque", "api": "Habakkuk", "capitulos": 3}, {"id": "ZEP", "nome": "Sofonias", "api": "Zephaniah", "capitulos": 3}, {"id": "HAG", "nome": "Ageu", "api": "Haggai", "capitulos": 2}, {"id": "ZEC", "nome": "Zacarias", "api": "Zechariah", "capitulos": 14}, {"id": "MAL", "nome": "Malaquias", "api": "Malachi", "capitulos": 4}, {"id": "MAT", "nome": "Mateus", "api": "Matthew", "capitulos": 28}, {"id": "MRK", "nome": "Marcos", "api": "Mark", "capitulos": 16}, {"id": "LUK", "nome": "Lucas", "api": "Luke", "capitulos": 24}, {"id": "JHN", "nome": "João", "api": "John", "capitulos": 21}, {"id": "ACT", "nome": "Atos", "api": "Acts", "capitulos": 28}, {"id": "ROM", "nome": "Romanos", "api": "Romans", "capitulos": 16}, {"id": "1CO", "nome": "1 Coríntios", "api": "1 Corinthians", "capitulos": 16}, {"id": "2CO", "nome": "2 Coríntios", "api": "2 Corinthians", "capitulos": 13}, {"id": "GAL", "nome": "Gálatas", "api": "Galatians", "capitulos": 6}, {"id": "EPH", "nome": "Efésios", "api": "Ephesians", "capitulos": 6}, {"id": "PHP", "nome": "Filipenses", "api": "Philippians", "capitulos": 4}, {"id": "COL", "nome": "Colossenses", "api": "Colossians", "capitulos": 4}, {"id": "1TH", "nome": "1 Tessalonicenses", "api": "1 Thessalonians", "capitulos": 5}, {"id": "2TH", "nome": "2 Tessalonicenses", "api": "2 Thessalonians", "capitulos": 3}, {"id": "1TI", "nome": "1 Timóteo", "api": "1 Timothy", "capitulos": 6}, {"id": "2TI", "nome": "2 Timóteo", "api": "2 Timothy", "capitulos": 4}, {"id": "TIT", "nome": "Tito", "api": "Titus", "capitulos": 3}, {"id": "PHM", "nome": "Filemom", "api": "Philemon", "capitulos": 1}, {"id": "HEB", "nome": "Hebreus", "api": "Hebrews", "capitulos": 13}, {"id": "JAS", "nome": "Tiago", "api": "James", "capitulos": 5}, {"id": "1PE", "nome": "1 Pedro", "api": "1 Peter", "capitulos": 5}, {"id": "2PE", "nome": "2 Pedro", "api": "2 Peter", "capitulos": 3}, {"id": "1JN", "nome": "1 João", "api": "1 John", "capitulos": 5}, {"id": "2JN", "nome": "2 João", "api": "2 John", "capitulos": 1}, {"id": "3JN", "nome": "3 João", "api": "3 John", "capitulos": 1}, {"id": "JUD", "nome": "Judas", "api": "Jude", "capitulos": 1}, {"id": "REV", "nome": "Apocalipse", "api": "Revelation", "capitulos": 22}];
   const TRADUCAO = "almeida";
   const CHAVE_PREFERENCIA = "biblia_preferencia_v1";
+  const CHAVE_PROGRESSO = "biblia_progresso_v2";
+  const TOTAL_CAPITULOS = 1189;
+  const TOTAL_VERSICULOS = 31102;
+  const TOTAL_CAPITULOS_AT = 929;
+  const TOTAL_CAPITULOS_NT = 260;
+  const VERSOS_POR_LIVRO = {"GEN":1533,"EXO":1213,"LEV":859,"NUM":1288,"DEU":959,"JOS":658,"JDG":618,"RUT":85,"1SA":810,"2SA":695,"1KI":816,"2KI":719,"1CH":942,"2CH":822,"EZR":280,"NEH":406,"EST":167,"JOB":1070,"PSA":2461,"PRO":915,"ECC":222,"SNG":117,"ISA":1292,"JER":1364,"LAM":154,"EZK":1273,"DAN":357,"HOS":197,"JOL":73,"AMO":146,"OBA":21,"JON":48,"MIC":105,"NAM":47,"HAB":56,"ZEP":53,"HAG":38,"ZEC":211,"MAL":55,"MAT":1071,"MRK":678,"LUK":1151,"JHN":879,"ACT":1007,"ROM":433,"1CO":437,"2CO":257,"GAL":149,"EPH":155,"PHP":104,"COL":95,"1TH":89,"2TH":47,"1TI":113,"2TI":83,"TIT":46,"PHM":25,"HEB":303,"JAS":108,"1PE":105,"2PE":61,"1JN":105,"2JN":13,"3JN":14,"JUD":25,"REV":404};
   const db = window.MMCDSupabase;
   const livroSelect = document.querySelector("#biblia-livro");
   const capituloSelect = document.querySelector("#biblia-capitulo");
@@ -14,6 +20,24 @@
   const proximo = document.querySelector("#biblia-proximo");
   const listaDestaques = document.querySelector("#biblia-destaques");
   const limpar = document.querySelector("#biblia-limpar");
+  const checkCapitulo = document.querySelector("#biblia-check-capitulo");
+  const mapaLista = document.querySelector("#biblia-map-list");
+  const mapaResumo = document.querySelector("#biblia-map-summary");
+  const progressRing = document.querySelector("#biblia-progress-ring");
+  const progressPercent = document.querySelector("#biblia-progress-percent");
+  const progressTitle = document.querySelector("#biblia-progress-title");
+  const progressMessage = document.querySelector("#biblia-progress-message");
+  const statBooks = document.querySelector("#biblia-stat-books");
+  const statChapters = document.querySelector("#biblia-stat-chapters");
+  const statVerses = document.querySelector("#biblia-stat-verses");
+  const statCurrentBook = document.querySelector("#biblia-stat-current-book");
+  const atLabel = document.querySelector("#biblia-at-label");
+  const ntLabel = document.querySelector("#biblia-nt-label");
+  const atBar = document.querySelector("#biblia-at-bar");
+  const ntBar = document.querySelector("#biblia-nt-bar");
+  const motivacaoTitulo = document.querySelector("#biblia-motivacao-titulo");
+  const motivacaoTexto = document.querySelector("#biblia-motivacao-texto");
+  const irMapa = document.querySelector("#biblia-ir-mapa");
 
   if (!db || !livroSelect || !capituloSelect || !conteudo) return;
 
@@ -23,6 +47,9 @@
   let filaSalvar = Promise.resolve();
   let timerSelecao = null;
   let tokenCarga = 0;
+  let progresso = { schemaVersion: 2, capitulos: {}, livrosCompletos: {}, atualizadoEm: null, resumo: {} };
+  let filtroMapa = "todos";
+  let salvandoProgresso = Promise.resolve();
 
   const esc = valor => String(valor ?? "").replace(/[&<>"']/g, c => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -31,6 +58,223 @@
   function livroAtual() { return LIVROS.find(x => x.id === livroSelect.value) || LIVROS[0]; }
   function capituloAtual() { return Math.max(1, Number(capituloSelect.value || 1)); }
   function chaveDestaques() { return `destaques_biblia:${TRADUCAO}:${livroAtual().id}:${capituloAtual()}`; }
+
+
+  function testamentoDoLivro(livro) {
+    return LIVROS.findIndex(x => x.id === livro.id) >= 39 ? "NT" : "AT";
+  }
+
+  function totalVersosLivro(livro) {
+    return Number(VERSOS_POR_LIVRO[livro.id] || 0);
+  }
+
+  function chaveCapitulo(livroId, capitulo) {
+    return `${livroId}:${Number(capitulo)}`;
+  }
+
+  function progressoNormalizado(valor) {
+    const v = valor && typeof valor === "object" ? valor : {};
+    return {
+      schemaVersion: 2,
+      capitulos: v.capitulos && typeof v.capitulos === "object" ? v.capitulos : {},
+      livrosCompletos: v.livrosCompletos && typeof v.livrosCompletos === "object" ? v.livrosCompletos : {},
+      atualizadoEm: v.atualizadoEm || null,
+      resumo: v.resumo && typeof v.resumo === "object" ? v.resumo : {}
+    };
+  }
+
+  async function carregarProgresso() {
+    const { data, error } = await db.from("configuracoes_usuario")
+      .select("valor")
+      .eq("user_id", usuario.id)
+      .eq("chave", CHAVE_PROGRESSO)
+      .maybeSingle();
+    if (error) throw error;
+    progresso = progressoNormalizado(data?.valor);
+  }
+
+  function livroBaseCompleto(livroId) {
+    return Boolean(progresso.livrosCompletos?.[livroId]);
+  }
+
+  function excecoesLivro(livroId) {
+    return progresso.livrosCompletos?.[livroId]?.excecoes || {};
+  }
+
+  function capituloConcluido(livroId, capitulo) {
+    const chave = chaveCapitulo(livroId, capitulo);
+    if (livroBaseCompleto(livroId)) return !Object.prototype.hasOwnProperty.call(excecoesLivro(livroId), String(Number(capitulo)));
+    return Boolean(progresso.capitulos?.[chave]?.concluido);
+  }
+
+  function dadosLivro(livro) {
+    const baseCompleto = livroBaseCompleto(livro.id);
+    let capitulosConcluidos = 0;
+    let versiculosConcluidos = 0;
+
+    if (baseCompleto) {
+      const excecoes = excecoesLivro(livro.id);
+      const excluidos = Object.keys(excecoes);
+      capitulosConcluidos = Math.max(0, livro.capitulos - excluidos.length);
+      const versosExcluidos = excluidos.reduce((acc, cap) => acc + Number(excecoes[cap]?.versiculos || 0), 0);
+      versiculosConcluidos = Math.max(0, totalVersosLivro(livro) - versosExcluidos);
+    } else {
+      for (let cap = 1; cap <= livro.capitulos; cap += 1) {
+        const item = progresso.capitulos?.[chaveCapitulo(livro.id, cap)];
+        if (!item?.concluido) continue;
+        capitulosConcluidos += 1;
+        versiculosConcluidos += Number(item.versiculos || 0);
+      }
+    }
+
+    const concluido = capitulosConcluidos === livro.capitulos;
+    return {livro,testamento:testamentoDoLivro(livro),capitulosConcluidos,versiculosConcluidos:concluido?totalVersosLivro(livro):versiculosConcluidos,concluido,percentual:livro.capitulos?Math.round(capitulosConcluidos/livro.capitulos*100):0};
+  }
+
+  function resumoProgresso() {
+    const livros=LIVROS.map(dadosLivro);
+    const capitulosConcluidos=livros.reduce((a,x)=>a+x.capitulosConcluidos,0);
+    const versiculosConcluidos=livros.reduce((a,x)=>a+x.versiculosConcluidos,0);
+    const livrosConcluidos=livros.filter(x=>x.concluido).length;
+    const atCapitulos=livros.filter(x=>x.testamento==="AT").reduce((a,x)=>a+x.capitulosConcluidos,0);
+    const ntCapitulos=livros.filter(x=>x.testamento==="NT").reduce((a,x)=>a+x.capitulosConcluidos,0);
+    const percentual=Math.round(capitulosConcluidos/TOTAL_CAPITULOS*1000)/10;
+    return {livrosConcluidos,capitulosConcluidos,versiculosConcluidos,percentual,atCapitulos,ntCapitulos,totalLivros:66,totalCapitulos:TOTAL_CAPITULOS,totalVersiculos:TOTAL_VERSICULOS};
+  }
+
+  function prepararResumoParaSalvar() {
+    progresso.resumo=resumoProgresso();
+    progresso.atualizadoEm=new Date().toISOString();
+  }
+
+  function salvarProgresso() {
+    prepararResumoParaSalvar();
+    const valor=JSON.parse(JSON.stringify(progresso));
+    salvandoProgresso=salvandoProgresso.catch(()=>undefined).then(async()=>{
+      const {error}=await db.from("configuracoes_usuario").upsert({user_id:usuario.id,chave:CHAVE_PROGRESSO,valor},{onConflict:"user_id,chave"});
+      if(error) throw error;
+      window.MMCDAtualizarProgressoBiblia?.(valor.resumo);
+    });
+    return salvandoProgresso;
+  }
+
+  function cacheVersosDoCapitulo(livro,capitulo) {
+    try {
+      const cacheKey=`mmcd:biblia:${TRADUCAO}:${livro.id}:${Number(capitulo)}`;
+      const cache=JSON.parse(localStorage.getItem(cacheKey)||"null");
+      if(Array.isArray(cache?.versos)&&cache.versos.length)return cache.versos.length;
+    } catch {}
+    return 0;
+  }
+
+  async function quantidadeVersosCapitulo(livro,capitulo) {
+    if(livro.id===livroAtual().id&&Number(capitulo)===capituloAtual()&&versos.length)return versos.length;
+    const cached=cacheVersosDoCapitulo(livro,capitulo);
+    if(cached)return cached;
+    const url=`https://bible-api.com/${encodeURIComponent(`${livro.api} ${Number(capitulo)}`)}?translation=${TRADUCAO}&single_chapter_book_matching=indifferent`;
+    const resposta=await fetch(url,{headers:{Accept:"application/json"}});
+    if(!resposta.ok)throw new Error(`Resposta ${resposta.status}`);
+    const dados=await resposta.json();
+    const quantidade=Array.isArray(dados.verses)?dados.verses.length:0;
+    if(!quantidade)throw new Error("Capítulo sem versículos.");
+    return quantidade;
+  }
+
+  function promoverLivroSeCompleto(livro) {
+    if(livroBaseCompleto(livro.id))return;
+    for(let cap=1;cap<=livro.capitulos;cap+=1){if(!progresso.capitulos?.[chaveCapitulo(livro.id,cap)]?.concluido)return;}
+    progresso.livrosCompletos[livro.id]={concluidoEm:new Date().toISOString(),excecoes:{}};
+    Object.keys(progresso.capitulos).forEach(chave=>{if(chave.startsWith(`${livro.id}:`))delete progresso.capitulos[chave];});
+  }
+
+  async function definirCapituloConcluido(livro,capitulo,concluido,{versiculosConhecidos=0}={}) {
+    const chave=chaveCapitulo(livro.id,capitulo);
+    const numeroCap=String(Number(capitulo));
+    if(concluido){
+      if(livroBaseCompleto(livro.id)) delete progresso.livrosCompletos[livro.id].excecoes[numeroCap];
+      else {
+        const quantidade=Number(versiculosConhecidos||await quantidadeVersosCapitulo(livro,capitulo));
+        progresso.capitulos[chave]={concluido:true,versiculos:quantidade,concluidoEm:new Date().toISOString()};
+        promoverLivroSeCompleto(livro);
+      }
+    } else {
+      if(livroBaseCompleto(livro.id)){
+        const quantidade=Number(versiculosConhecidos||await quantidadeVersosCapitulo(livro,capitulo));
+        progresso.livrosCompletos[livro.id].excecoes[numeroCap]={versiculos:quantidade,alteradoEm:new Date().toISOString()};
+      } else delete progresso.capitulos[chave];
+    }
+    await salvarProgresso();
+    renderizarProgresso();
+  }
+
+  async function alternarCapitulo(livro,capitulo,opcoes={}) {
+    const novoEstado=!capituloConcluido(livro.id,capitulo);
+    await definirCapituloConcluido(livro,capitulo,novoEstado,opcoes);
+    window.MMCDUI?.toast(novoEstado?`${livro.nome} ${capitulo} concluído.`:`${livro.nome} ${capitulo} voltou para pendente.`);
+  }
+
+  async function marcarLivroCompleto(livro) {
+    progresso.livrosCompletos[livro.id]={concluidoEm:new Date().toISOString(),excecoes:{}};
+    Object.keys(progresso.capitulos).forEach(chave=>{if(chave.startsWith(`${livro.id}:`))delete progresso.capitulos[chave];});
+    await salvarProgresso();renderizarProgresso();window.MMCDUI?.toast(`${livro.nome} marcado como concluído.`);
+  }
+
+  async function limparLivro(livro) {
+    delete progresso.livrosCompletos[livro.id];
+    Object.keys(progresso.capitulos).forEach(chave=>{if(chave.startsWith(`${livro.id}:`))delete progresso.capitulos[chave];});
+    await salvarProgresso();renderizarProgresso();window.MMCDUI?.toast(`Progresso de ${livro.nome} removido.`);
+  }
+
+  function formatarNumero(n){return Number(n||0).toLocaleString("pt-BR");}
+  function melhorLivroEmAndamento(){return LIVROS.map(dadosLivro).filter(x=>!x.concluido&&x.capitulosConcluidos>0).sort((a,b)=>b.percentual-a.percentual||b.capitulosConcluidos-a.capitulosConcluidos)[0]||null;}
+
+  function renderizarCabecalhoProgresso(){
+    const resumo=resumoProgresso();const emAndamento=melhorLivroEmAndamento();
+    progressRing?.style.setProperty("--progress",String(resumo.percentual));
+    if(progressPercent)progressPercent.textContent=`${String(resumo.percentual).replace(".",",")}%`;
+    if(progressTitle)progressTitle.textContent=resumo.capitulosConcluidos?`${formatarNumero(resumo.capitulosConcluidos)} capítulos já percorridos`:"Um capítulo de cada vez";
+    if(progressMessage){
+      if(resumo.capitulosConcluidos===0)progressMessage.textContent="Marque o primeiro capítulo concluído. A partir daí, o mapa começa a contar sua história.";
+      else if(resumo.percentual>=100)progressMessage.textContent="Toda a Bíblia está marcada como concluída. O mapa agora registra uma caminhada completa.";
+      else if(emAndamento){const faltam=emAndamento.livro.capitulos-emAndamento.capitulosConcluidos;progressMessage.textContent=`${emAndamento.livro.nome} está em ${emAndamento.percentual}%. Faltam ${faltam} capítulo${faltam===1?"":"s"} para concluir o livro.`;}
+      else progressMessage.textContent="Continue marcando os capítulos à medida que concluir a leitura.";
+    }
+    if(statBooks)statBooks.innerHTML=`${resumo.livrosConcluidos} <small>/ 66</small>`;
+    if(statChapters)statChapters.innerHTML=`${formatarNumero(resumo.capitulosConcluidos)} <small>/ 1.189</small>`;
+    if(statVerses)statVerses.innerHTML=`${formatarNumero(resumo.versiculosConcluidos)} <small>/ 31.102</small>`;
+    if(statCurrentBook)statCurrentBook.textContent=emAndamento?`${emAndamento.livro.nome} · ${emAndamento.percentual}%`:(resumo.livrosConcluidos?`${resumo.livrosConcluidos} livro${resumo.livrosConcluidos===1?"":"s"} completo${resumo.livrosConcluidos===1?"":"s"}`:"—");
+    if(atLabel)atLabel.textContent=`${formatarNumero(resumo.atCapitulos)} / ${formatarNumero(TOTAL_CAPITULOS_AT)} capítulos`;
+    if(ntLabel)ntLabel.textContent=`${formatarNumero(resumo.ntCapitulos)} / ${formatarNumero(TOTAL_CAPITULOS_NT)} capítulos`;
+    if(atBar)atBar.style.width=`${Math.min(100,resumo.atCapitulos/TOTAL_CAPITULOS_AT*100)}%`;
+    if(ntBar)ntBar.style.width=`${Math.min(100,resumo.ntCapitulos/TOTAL_CAPITULOS_NT*100)}%`;
+    if(motivacaoTitulo&&motivacaoTexto){
+      const atual=dadosLivro(livroAtual());
+      if(atual.concluido){motivacaoTitulo.textContent=`${livroAtual().nome} concluído ✓`;motivacaoTexto.textContent="Este livro está completo no seu mapa. Você pode seguir para o próximo ou revisitar qualquer capítulo.";}
+      else if(atual.capitulosConcluidos>0){const faltam=atual.livro.capitulos-atual.capitulosConcluidos;motivacaoTitulo.textContent=`${atual.percentual}% de ${atual.livro.nome}`;motivacaoTexto.textContent=`Faltam ${faltam} capítulo${faltam===1?"":"s"} para concluir este livro.`;}
+      else {motivacaoTitulo.textContent=`Comece ${livroAtual().nome}`;motivacaoTexto.textContent="Quando terminar o capítulo atual, marque o check. O avanço aparecerá imediatamente no mapa.";}
+    }
+    window.MMCDAtualizarProgressoBiblia?.(resumo);
+  }
+
+  function livroPassaFiltro(item){if(filtroMapa==="AT"||filtroMapa==="NT")return item.testamento===filtroMapa;if(filtroMapa==="andamento")return item.capitulosConcluidos>0&&!item.concluido;if(filtroMapa==="concluidos")return item.concluido;return true;}
+
+  function renderizarMapa(){
+    if(!mapaLista)return;
+    const resumo=resumoProgresso();const livros=LIVROS.map(dadosLivro).filter(livroPassaFiltro);
+    if(mapaResumo)mapaResumo.innerHTML=`<span><b>${resumo.livrosConcluidos}</b> livros completos</span><span><b>${formatarNumero(resumo.capitulosConcluidos)}</b> de 1.189 capítulos</span><span><b>${formatarNumero(resumo.versiculosConcluidos)}</b> de 31.102 versículos</span>`;
+    if(!livros.length){mapaLista.innerHTML='<div class="bible-map-empty">Nenhum livro corresponde a este filtro.</div>';return;}
+    mapaLista.innerHTML=livros.map(item=>{
+      const livro=item.livro;
+      const chapterButtons=Array.from({length:livro.capitulos},(_,i)=>{const cap=i+1;const done=capituloConcluido(livro.id,cap);return `<button type="button" class="bible-chapter-dot ${done?"done":""}" data-book-id="${esc(livro.id)}" data-chapter="${cap}" aria-pressed="${done?"true":"false"}" title="${esc(livro.nome)} ${cap} · ${done?"concluído":"pendente"}">${done?"✓":cap}</button>`;}).join("");
+      return `<details class="bible-book-card ${item.concluido?"complete":""}" data-book-card="${esc(livro.id)}"><summary><div class="bible-book-card__identity"><span class="bible-book-status">${item.concluido?"✓":item.percentual+"%"}</span><div><strong>${esc(livro.nome)}</strong><small>${item.capitulosConcluidos}/${livro.capitulos} capítulos · ${formatarNumero(item.versiculosConcluidos)}/${formatarNumero(totalVersosLivro(livro))} versículos</small></div></div><div class="bible-book-card__progress"><i style="width:${item.percentual}%"></i></div></summary><div class="bible-book-card__body"><div class="bible-book-card__actions"><button type="button" class="btn small" data-open-book="${esc(livro.id)}">Abrir no leitor</button>${item.concluido?`<button type="button" class="btn small danger-outline" data-clear-book="${esc(livro.id)}">Desmarcar livro</button>`:`<button type="button" class="btn small primary" data-complete-book="${esc(livro.id)}">Marcar livro completo</button>`}</div><div class="bible-chapter-grid">${chapterButtons}</div></div></details>`;
+    }).join("");
+  }
+
+  function atualizarCheckCapitulo(){
+    if(!checkCapitulo)return;const done=capituloConcluido(livroAtual().id,capituloAtual());checkCapitulo.disabled=!versos.length;checkCapitulo.classList.toggle("done",done);checkCapitulo.setAttribute("aria-pressed",done?"true":"false");checkCapitulo.querySelector(".bible-chapter-check__box").textContent=done?"✓":"○";checkCapitulo.querySelector("strong").textContent=done?"Capítulo concluído":"Capítulo concluído?";checkCapitulo.querySelector("small").textContent=done?"Clique para desmarcar":"Marcar como lido";
+  }
+
+  function renderizarProgresso(){renderizarCabecalhoProgresso();renderizarMapa();atualizarCheckCapitulo();}
 
   function preencherLivros() {
     livroSelect.innerHTML = LIVROS.map(l => `<option value="${l.id}">${esc(l.nome)}</option>`).join("");
@@ -149,6 +393,7 @@
     status.textContent = `${versos.length} versículos · marcações sincronizadas`;
     renderizarListaDestaques();
     atualizarNavegacao();
+    renderizarProgresso();
   }
 
   function renderizarListaDestaques() {
@@ -310,14 +555,63 @@
     await salvarDestaques();
   });
 
+  checkCapitulo?.addEventListener("click", async () => {
+    if (!versos.length || checkCapitulo.disabled) return;
+    checkCapitulo.disabled = true;
+    try { await alternarCapitulo(livroAtual(), capituloAtual(), { versiculosConhecidos: versos.length }); }
+    catch (erro) { console.error(erro); window.MMCDUI?.toast("Não foi possível salvar o progresso deste capítulo."); }
+    finally { atualizarCheckCapitulo(); }
+  });
+
+  document.querySelectorAll("[data-bible-filter]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      filtroMapa = btn.dataset.bibleFilter || "todos";
+      document.querySelectorAll("[data-bible-filter]").forEach(x => x.classList.toggle("active", x === btn));
+      renderizarMapa();
+    });
+  });
+
+  mapaLista?.addEventListener("click", async evento => {
+    const chapter = evento.target.closest("[data-book-id][data-chapter]");
+    if (chapter) {
+      const livro = LIVROS.find(x => x.id === chapter.dataset.bookId); if (!livro) return;
+      const cap = Number(chapter.dataset.chapter); chapter.disabled = true;
+      try { await alternarCapitulo(livro, cap); }
+      catch (erro) { console.error(erro); window.MMCDUI?.toast("Não foi possível atualizar este capítulo."); }
+      finally { chapter.disabled = false; }
+      return;
+    }
+    const completeBook = evento.target.closest("[data-complete-book]");
+    if (completeBook) {
+      const livro=LIVROS.find(x=>x.id===completeBook.dataset.completeBook); if(!livro)return;
+      if(!confirm(`Marcar todos os ${livro.capitulos} capítulos de ${livro.nome} como concluídos?`))return;
+      try{await marcarLivroCompleto(livro)}catch(erro){console.error(erro);window.MMCDUI?.toast("Não foi possível marcar o livro completo.")}return;
+    }
+    const clearBook=evento.target.closest("[data-clear-book]");
+    if(clearBook){
+      const livro=LIVROS.find(x=>x.id===clearBook.dataset.clearBook);if(!livro)return;
+      if(!confirm(`Remover todas as marcações de leitura de ${livro.nome}? As marcações amarelas do texto não serão afetadas.`))return;
+      try{await limparLivro(livro)}catch(erro){console.error(erro);window.MMCDUI?.toast("Não foi possível limpar o progresso deste livro.")}return;
+    }
+    const openBook=evento.target.closest("[data-open-book]");
+    if(openBook){
+      const livro=LIVROS.find(x=>x.id===openBook.dataset.openBook);if(!livro)return;livroSelect.value=livro.id;
+      const primeiroPendente=Array.from({length:livro.capitulos},(_,i)=>i+1).find(cap=>!capituloConcluido(livro.id,cap))||1;
+      preencherCapitulos(primeiroPendente);await carregar();document.querySelector(".bible-toolbar")?.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+  });
+
+  irMapa?.addEventListener("click",()=>document.querySelector("#biblia-mapa")?.scrollIntoView({behavior:"smooth",block:"start"}));
+
   (async () => {
     try {
       const session = await window.MMCDAuth.requireSession();
       usuario = session.user;
       preencherLivros();
-      const pref = await carregarPreferencia();
+      const [pref] = await Promise.all([carregarPreferencia(), carregarProgresso()]);
       livroSelect.value = LIVROS.some(x => x.id === pref.livro) ? pref.livro : "JHN";
       preencherCapitulos(pref.capitulo || 1);
+      renderizarProgresso();
       await carregar();
     } catch (erro) {
       console.error(erro);

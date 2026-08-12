@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Bíblia online — Life Style</title>
-  <link rel="stylesheet" href="painel.css?v=20260810-treino-v24">
-  <link rel="stylesheet" href="biblia.css?v=20260805-anki-biblia1">
+  <link rel="stylesheet" href="painel.css?v=20260811-biblia27">
+  <link rel="stylesheet" href="biblia.css?v=20260811-biblia27">
 </head>
 <body>
   <div class="app-shell">
@@ -17,32 +17,90 @@
     </header>
     <main class="app-main bible-page">
       <section class="page-header">
-        <div><p class="eyebrow">Palavra de Deus</p><h1>Bíblia online</h1><p class="muted">Leia por livro e capítulo. Selecione uma palavra ou frase para marcar; dê duplo clique em uma marcação para removê-la.</p></div>
+        <div><p class="eyebrow">Palavra de Deus</p><h1>Bíblia online</h1><p class="muted">Leia, marque o que Deus falou com você e acompanhe visualmente o caminho percorrido pela Bíblia.</p></div>
       </section>
       <section class="card section bible-toolbar">
         <label class="field"><span>Livro</span><select id="biblia-livro"></select></label>
         <label class="field"><span>Capítulo</span><select id="biblia-capitulo"></select></label>
         <div class="bible-toolbar__actions"><button id="biblia-anterior" class="btn" type="button">← Anterior</button><button id="biblia-proximo" class="btn primary" type="button">Próximo →</button></div>
       </section>
+
+      <section class="bible-progress-overview" id="biblia-progresso-overview">
+        <article class="card bible-progress-main">
+          <div class="bible-progress-ring" id="biblia-progress-ring" style="--progress:0">
+            <div><strong id="biblia-progress-percent">0%</strong><span>da Bíblia</span></div>
+          </div>
+          <div class="bible-progress-main__copy">
+            <p class="eyebrow">Sua caminhada</p>
+            <h2 id="biblia-progress-title">Um capítulo de cada vez</h2>
+            <p id="biblia-progress-message" class="muted">Marque os capítulos concluídos e veja sua evolução crescer.</p>
+            <div class="bible-testament-bars">
+              <div>
+                <span><b>Antigo Testamento</b><small id="biblia-at-label">0 / 929 capítulos</small></span>
+                <div class="bible-progress-bar"><i id="biblia-at-bar" style="width:0%"></i></div>
+              </div>
+              <div>
+                <span><b>Novo Testamento</b><small id="biblia-nt-label">0 / 260 capítulos</small></span>
+                <div class="bible-progress-bar"><i id="biblia-nt-bar" style="width:0%"></i></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <div class="bible-stat-grid">
+          <article class="card bible-stat"><span>Livros concluídos</span><strong id="biblia-stat-books">0 <small>/ 66</small></strong></article>
+          <article class="card bible-stat"><span>Capítulos concluídos</span><strong id="biblia-stat-chapters">0 <small>/ 1.189</small></strong></article>
+          <article class="card bible-stat"><span>Versículos percorridos</span><strong id="biblia-stat-verses">0 <small>/ 31.102</small></strong></article>
+          <article class="card bible-stat"><span>Livro mais avançado</span><strong id="biblia-stat-current-book" class="textual">—</strong></article>
+        </div>
+      </section>
+
       <section class="bible-layout">
         <article class="card bible-reader">
-          <header class="bible-reader__head"><div><p class="eyebrow">João Ferreira de Almeida</p><h2 id="biblia-titulo">Carregando...</h2></div><span id="biblia-status" class="muted"></span></header>
+          <header class="bible-reader__head">
+            <div><p class="eyebrow">João Ferreira de Almeida</p><h2 id="biblia-titulo">Carregando...</h2><span id="biblia-status" class="muted"></span></div>
+            <button id="biblia-check-capitulo" class="bible-chapter-check" type="button" aria-pressed="false" disabled>
+              <span class="bible-chapter-check__box">○</span>
+              <span><strong>Capítulo concluído?</strong><small>Marcar como lido</small></span>
+            </button>
+          </header>
           <div id="biblia-conteudo" class="bible-content"><div class="bible-loading">Carregando...</div></div>
         </article>
         <aside class="bible-side">
           <section class="card"><p class="eyebrow">Como marcar</p><h3>Suas anotações visuais</h3><p class="bible-help muted">Ao selecionar uma palavra ou frase, ela é marcada automaticamente. As marcações ficam no Supabase e aparecem em qualquer computador conectado à sua conta.</p><button id="biblia-limpar" class="btn small" type="button">Limpar capítulo</button></section>
           <section class="card"><p class="eyebrow">Marcações do capítulo</p><div id="biblia-destaques" class="bible-highlight-list"></div></section>
+          <section class="card bible-motivation-card">
+            <p class="eyebrow">Próximo marco</p>
+            <h3 id="biblia-motivacao-titulo">Continue avançando</h3>
+            <p id="biblia-motivacao-texto" class="bible-help muted">Seu progresso aparecerá aqui.</p>
+            <button id="biblia-ir-mapa" class="btn small" type="button">Ver mapa geral</button>
+          </section>
           <p class="bible-source">Texto bíblico: João Ferreira de Almeida, domínio público, disponibilizado por <a href="https://bible-api.com" target="_blank" rel="noopener noreferrer">bible-api.com</a>.</p>
         </aside>
+      </section>
+
+      <section class="card bible-map-section" id="biblia-mapa">
+        <header class="bible-map-head">
+          <div><p class="eyebrow">Mapa geral</p><h2>Da Gênesis ao Apocalipse</h2><p class="muted">Cada quadrado representa um capítulo. Abra um livro para ver os capítulos e marcar sua leitura.</p></div>
+          <div class="bible-map-filters" role="group" aria-label="Filtrar mapa da Bíblia">
+            <button type="button" class="active" data-bible-filter="todos">Todos</button>
+            <button type="button" data-bible-filter="AT">Antigo</button>
+            <button type="button" data-bible-filter="NT">Novo</button>
+            <button type="button" data-bible-filter="andamento">Em andamento</button>
+            <button type="button" data-bible-filter="concluidos">Concluídos</button>
+          </div>
+        </header>
+        <div id="biblia-map-summary" class="bible-map-summary"></div>
+        <div id="biblia-map-list" class="bible-map-list"></div>
       </section>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260805-anki-biblia1"></script>
-  <script src="supabase-client.js?v=20260805-anki-biblia1"></script>
-  <script src="auth.js?v=20260805-anki-biblia1"></script>
-  <script src="shell.js?v=20260810-treino-v24"></script>
+  <script src="supabase-config.js?v=20260811-biblia27"></script>
+  <script src="supabase-client.js?v=20260811-biblia27"></script>
+  <script src="auth.js?v=20260811-biblia27"></script>
+  <script src="shell.js?v=20260811-life-v28"></script>
   <script>MMCDShell("biblia")</script>
-  <script src="biblia.js?v=20260805-anki-biblia1"></script>
+  <script src="biblia.js?v=20260811-biblia27"></script>
 </body>
 </html>

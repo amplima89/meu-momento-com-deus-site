@@ -1470,3 +1470,15 @@
 }
 
 /* MMCD_TRAINING_REGISTRATION_AND_VISUAL_LINK_V26_5_END */
+
+
+/* MMCD_TREINO_ACCORDION_V26_7_START */
+.exercise-accordion-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 2px 10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.exercise-accordion-intro>div{display:grid;gap:2px}.exercise-accordion-intro strong{font-size:.68rem}.exercise-accordion-intro span{color:var(--muted);font-size:.58rem;line-height:1.35}.exercise-accordion-intro>span{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:var(--surface);color:var(--accent);font-weight:850}
+.exercise-card{transition:border-color .16s ease,box-shadow .16s ease,opacity .16s ease}.exercise-card.open{border-color:color-mix(in srgb,var(--accent) 46%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-soft) 72%,transparent);opacity:1}
+.exercise-card__head{border-bottom:0}.exercise-card.open .exercise-card__head{border-bottom:1px solid var(--line)}
+.exercise-card__identity{min-width:0;flex:1 1 auto;display:flex;align-items:center;gap:11px;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}.exercise-card__copy{min-width:0;display:grid;gap:3px}.exercise-card__copy strong{overflow:hidden;color:var(--text);font-size:1rem;font-weight:800;line-height:1.2;text-overflow:ellipsis}.exercise-card__copy small{color:var(--muted);font-size:.68rem;line-height:1.35}
+.exercise-card__body[hidden]{display:none!important}.exercise-expand-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:35px;padding:0 9px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--muted);font-size:.61rem;font-weight:800;cursor:pointer}.exercise-card.open .exercise-expand-btn{border-color:color-mix(in srgb,var(--accent) 30%,var(--line));background:var(--accent-soft);color:var(--accent)}.exercise-expand-icon{font-size:.86rem;line-height:1}
+.exercise-card__body .series-stack{padding-top:13px}.exercise-card__body .last-time-box + .series-stack{padding-top:0}.exercise-card__body > .exercise-guide{display:none!important}
+@media(max-width:760px){.exercise-accordion-intro{align-items:flex-start}.exercise-card__head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:13px 12px}.exercise-card__identity{gap:9px}.exercise-card__copy strong{font-size:.92rem;white-space:normal}.exercise-card__copy small{font-size:.62rem}.exercise-head-actions{display:grid!important;grid-template-columns:auto auto;align-items:center;justify-items:end;gap:6px}.exercise-head-actions .exercise-state{display:none!important}.exercise-visual-btn{min-height:34px;padding:0 8px}.exercise-visual-btn__icon{width:19px;height:19px}.exercise-expand-btn{min-height:34px;padding:0 8px}.exercise-expand-label{display:none}.exercise-expand-icon{font-size:1rem}.exercise-card__body .last-time-box{margin-top:12px}.exercise-card__body .series-stack{padding-top:12px}}
+/* MMCD_TREINO_ACCORDION_V26_7_END */

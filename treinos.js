@@ -20,6 +20,8 @@
     saveQueue: Promise.resolve()
   };
 
+  let openExerciseId=null;
+
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
   const esc = value => window.MMCDUI?.esc ? MMCDUI.esc(value) : String(value ?? "");
@@ -979,6 +981,52 @@
       </article>`;
   }
 
+
+  function exercisePanelIsOpen(exerciseId) {
+    return String(openExerciseId ?? "") === String(exerciseId ?? "");
+  }
+
+  function toggleExercisePanel(exerciseId) {
+    const id=String(exerciseId||"");
+    if(!id) return;
+    const selected=document.querySelector(`.exercise-card[data-exercise="${CSS.escape(id)}"]`);
+    if(!selected) return;
+    const wasOpen=selected.classList.contains("open");
+
+    document.querySelectorAll(".exercise-card.open").forEach(card=>{
+      card.classList.remove("open");
+      const body=card.querySelector(".exercise-card__body");
+      if(body) body.hidden=true;
+      card.querySelectorAll("[data-action='toggle-exercise']").forEach(toggle=>{
+        toggle.setAttribute("aria-expanded","false");
+        const label=toggle.querySelector(".exercise-expand-label");
+        if(label) label.textContent="Abrir";
+        const icon=toggle.querySelector(".exercise-expand-icon");
+        if(icon) icon.textContent="⌄";
+      });
+    });
+
+    if(wasOpen) { openExerciseId=null; return; }
+    openExerciseId=id;
+    selected.classList.add("open");
+    const body=selected.querySelector(".exercise-card__body");
+    if(body) body.hidden=false;
+    selected.querySelectorAll("[data-action='toggle-exercise']").forEach(toggle=>{
+      toggle.setAttribute("aria-expanded","true");
+      const label=toggle.querySelector(".exercise-expand-label");
+      if(label) label.textContent="Fechar";
+      const icon=toggle.querySelector(".exercise-expand-icon");
+      if(icon) icon.textContent="⌃";
+    });
+  }
+
+  function exerciseAccordionButton(exerciseId,isOpen) {
+    return `<button type="button" class="exercise-expand-btn" data-action="toggle-exercise" data-exercise-id="${esc(exerciseId)}" aria-expanded="${isOpen?"true":"false"}" aria-label="${isOpen?"Fechar exercício":"Abrir exercício"}">
+      <span class="exercise-expand-label">${isOpen?"Fechar":"Abrir"}</span>
+      <span class="exercise-expand-icon" aria-hidden="true">${isOpen?"⌃":"⌄"}</span>
+    </button>`;
+  }
+
   function renderStrength(root,workout,session) {
     const currentIdx=currentExerciseIndex(session);
     const prior=priorSession(workout.id,session.data);
@@ -986,44 +1034,43 @@
       const done=exerciseDone(ex);
       const pex=prior?.exercicios?.find(x=>x.exercicioId===ex.exercicioId);
       const isCurrent=!done && idx===currentIdx;
-      const seriesHtml=(ex.series||[]).map(s=>seriesRow(ex,s,isCurrent && !s.concluida)).join("");
+      const isOpen=exercisePanelIsOpen(ex.exercicioId);
+      const seriesHtml=(ex.series||[]).map(s=>seriesRow(ex,s,isOpen && !s.concluida)).join("");
       return `
-        <article class="exercise-card ${done?"done":""} ${isCurrent?"current":""}" data-exercise="${esc(ex.exercicioId)}">
+        <article class="exercise-card ${done?"done":""} ${isCurrent?"current":""} ${isOpen?"open":""}" data-exercise="${esc(ex.exercicioId)}">
           <div class="exercise-card__head">
-            <div>
+            <button type="button" class="exercise-card__identity" data-action="toggle-exercise" data-exercise-id="${esc(ex.exercicioId)}" aria-expanded="${isOpen?"true":"false"}">
               <span class="exercise-order">${String(idx+1).padStart(2,"0")}</span>
-              <div>
-                <h3>${done?"✓ ":""}${esc(ex.nome)}</h3>
-                <p>${esc(ex.planejado?.series||ex.series.length)} × ${esc(ex.planejado?.reps||"")} ${ex.planejado?.descanso?`· descanso ${esc(ex.planejado.descanso)}`:""}</p>
-              </div>
-            </div>
+              <span class="exercise-card__copy">
+                <strong>${done?"✓ ":""}${esc(ex.nome)}</strong>
+                <small>${esc(ex.planejado?.series||ex.series.length)} × ${esc(ex.planejado?.reps||"")} ${ex.planejado?.descanso?`· descanso ${esc(ex.planejado.descanso)}`:""}</small>
+              </span>
+            </button>
             <div class="exercise-head-actions">
-              <span class="exercise-state">${done?"Concluído":isCurrent?"Agora":"Depois"}</span>
-              ${visualButton(ex.exercicioId,isCurrent?"Execução":"Ver execução")}
+              <span class="exercise-state">${done?"Concluído":isOpen?"Em preenchimento":isCurrent?"Próximo":"Pendente"}</span>
+              ${visualButton(ex.exercicioId,"Ver execução")}
+              ${exerciseAccordionButton(ex.exercicioId,isOpen)}
             </div>
           </div>
-          ${isCurrent ? guideHtml(ex.exercicioId,true) : ""}
-          ${ex.planejado?.observacao?`<div class="exercise-note">${esc(ex.planejado.observacao)}</div>`:""}
-          <div class="last-time-box">
-            <span>ÚLTIMA VEZ</span>
-            <div>${lastExerciseSummary(pex)}</div>
-            ${prior?`<small>${datePt(prior.data)}</small>`:""}
-            ${pex?`<button class="mini-action" data-action="copy-last" data-exercise-id="${esc(ex.exercicioId)}">Usar último treino</button>`:""}
+          <div class="exercise-card__body" ${isOpen?"":"hidden"}>
+            ${ex.planejado?.observacao?`<div class="exercise-note">${esc(ex.planejado.observacao)}</div>`:""}
+            <div class="last-time-box">
+              <span>ÚLTIMA VEZ</span>
+              <div>${lastExerciseSummary(pex)}</div>
+              ${prior?`<small>${datePt(prior.data)}</small>`:""}
+              ${pex?`<button class="mini-action" data-action="copy-last" data-exercise-id="${esc(ex.exercicioId)}">Usar último treino</button>`:""}
+            </div>
+            <div class="series-stack">${seriesHtml}</div>
           </div>
-          <div class="series-stack">${seriesHtml}</div>
         </article>`;
     }).join("");
-
     const p=progress(session);
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
+      <article class="exercise-accordion-intro"><div><strong>Exercícios agrupados</strong><span>Abra um exercício, registre as séries e ele fecha automaticamente quando terminar.</span></div><span>${p.done}/${p.total}</span></article>
       <div class="exercise-stack">${exerciseCards}</div>
       <article class="card finish-workout-card">
-        <div>
-          <span class="treino-kicker">${p.pct===100?"PRONTO PARA FINALIZAR":"FINAL DO TREINO"}</span>
-          <h2>${p.done}/${p.total} exercícios</h2>
-          <p>${p.pct===100?"Todas as séries foram concluídas.":"Você pode finalizar como parcial se precisar encerrar agora."}</p>
-        </div>
+        <div><span class="treino-kicker">${p.pct===100?"PRONTO PARA FINALIZAR":"FINAL DO TREINO"}</span><h2>${p.done}/${p.total} exercícios</h2><p>${p.pct===100?"Todas as séries foram concluídas.":"Você pode finalizar como parcial se precisar encerrar agora."}</p></div>
         <button class="btn primary finish-btn" data-action="finish-workout">${p.pct===100?"FINALIZAR TREINO":"FINALIZAR PARCIAL"}</button>
       </article>`;
   }
@@ -1133,16 +1180,20 @@
   }
 
   function renderCardio(root,workout,session) {
-    const exerciseCards=(session.exercicios||[]).map((ex,idx)=>`
-      <article class="exercise-card ${exerciseDone(ex)?"done":""}">
+    const exerciseCards=(session.exercicios||[]).map((ex,idx)=>{
+      const done=exerciseDone(ex);
+      const isOpen=exercisePanelIsOpen(ex.exercicioId);
+      return `<article class="exercise-card ${done?"done":""} ${isOpen?"open":""}" data-exercise="${esc(ex.exercicioId)}">
         <div class="exercise-card__head">
-          <div><span class="exercise-order">${String(idx+1).padStart(2,"0")}</span><div><h3>${esc(ex.nome)}</h3><p>${esc(ex.planejado?.series)} × ${esc(ex.planejado?.reps)}</p></div></div>
-          ${visualButton(ex.exercicioId)}
+          <button type="button" class="exercise-card__identity" data-action="toggle-exercise" data-exercise-id="${esc(ex.exercicioId)}" aria-expanded="${isOpen?"true":"false"}">
+            <span class="exercise-order">${String(idx+1).padStart(2,"0")}</span>
+            <span class="exercise-card__copy"><strong>${done?"✓ ":""}${esc(ex.nome)}</strong><small>${esc(ex.planejado?.series)} × ${esc(ex.planejado?.reps)}</small></span>
+          </button>
+          <div class="exercise-head-actions"><span class="exercise-state">${done?"Concluído":isOpen?"Em preenchimento":"Pendente"}</span>${visualButton(ex.exercicioId,"Ver execução")}${exerciseAccordionButton(ex.exercicioId,isOpen)}</div>
         </div>
-        ${guideHtml(ex.exercicioId,true)}
-        <div class="series-stack">${(ex.series||[]).map(s=>seriesRow(ex,s,false)).join("")}</div>
-      </article>`).join("");
-
+        <div class="exercise-card__body" ${isOpen?"":"hidden"}><div class="series-stack">${(ex.series||[]).map(s=>seriesRow(ex,s,isOpen && !s.concluida)).join("")}</div></div>
+      </article>`;
+    }).join("");
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
       <article class="card special-workout-card">
@@ -1155,7 +1206,7 @@
           <label class="field full"><span>Observação</span><textarea data-special="cardio" data-field="observacao">${esc(session.cardio.observacao)}</textarea></label>
         </div>
       </article>
-      <div class="exercise-stack">${exerciseCards}</div>
+      ${exerciseCards?`<article class="exercise-accordion-intro"><div><strong>Exercícios agrupados</strong><span>Abra somente o exercício que estiver registrando.</span></div></article><div class="exercise-stack">${exerciseCards}</div>`:""}
       <button class="btn primary finish-special" data-action="finish-workout">FINALIZAR TREINO</button>`;
   }
 
@@ -1252,6 +1303,7 @@
     if (sessionForDate(iso)) return;
     state.sessoes.push(createSession(workout));
     saveSessions();
+    openExerciseId=null;
     renderAll();
     requestAnimationFrame(()=>$(".active-workout-head")?.scrollIntoView({behavior:"smooth",block:"start"}));
   }
@@ -1279,6 +1331,7 @@
     const precision=field==="peso" ? 1 : 0;
     const next=Math.max(0,Number((num(s[field])+num(delta)).toFixed(precision)));
     s[field]=next;
+    openExerciseId=exerciseId;
     saveSessions();
     renderToday();
   }
@@ -1288,33 +1341,28 @@
     if (!session || !ex) return;
     const s=ex.series.find(x=>Number(x.numero)===Number(seriesNo));
     if (!s) return;
-
-    // Exercício com carga: não permite concluir uma série sem registrar carga.
     if (!s.concluida && ex.registro==="peso_reps") {
       if (num(s.peso)<=0) {
         window.MMCDUI?.toast?.("Informe a carga total em kg antes de concluir a série.");
         const input=document.querySelector(`[data-exercise-id="${CSS.escape(exerciseId)}"][data-series="${seriesNo}"][data-field="peso"]`);
-        input?.focus();
-        return;
+        input?.focus(); return;
       }
-
       if (num(s.reps)<=0) {
         window.MMCDUI?.toast?.("Informe as repetições realizadas antes de concluir a série.");
         const input=document.querySelector(`[data-exercise-id="${CSS.escape(exerciseId)}"][data-series="${seriesNo}"][data-field="reps"]`);
-        input?.focus();
-        return;
+        input?.focus(); return;
       }
     }
-
-    s.concluida=!s.concluida;
+    const concluindo=!Boolean(s.concluida);
+    s.concluida=!Boolean(s.concluida);
+    const exercicioTerminou=exerciseDone(ex);
+    if (exercicioTerminou) openExerciseId=null;
+    else if (concluindo) openExerciseId=exerciseId;
     saveSessions();
     renderToday();
-
-    if (s.concluida) {
-      requestAnimationFrame(()=>{
-        const current=$(".exercise-card.current .series-card:not(.done)") || $(".exercise-card.current");
-        current?.scrollIntoView({behavior:"smooth",block:"center"});
-      });
+    if (exercicioTerminou) {
+      window.MMCDUI?.toast?.(`${ex.nome} concluído.`);
+      // Sem scroll automático: o usuário permanece no mesmo trecho da página.
     }
   }
 
@@ -1331,6 +1379,7 @@
       if ("reps" in s) s.reps=Number(old.reps||0);
       if ("segundos" in s) s.segundos=Number(old.segundos||0);
     });
+    openExerciseId=exerciseId;
     saveSessions();
     renderToday();
     MMCDUI?.toast?.("Último treino copiado.");
@@ -1976,6 +2025,7 @@
   }
 
   function setTab(tab,pushHash=true) {
+    if(tab==="hoje" && state.tab!==tab) openExerciseId=null;
     state.tab=tab;
     $$(".treino-tab").forEach(btn=>btn.classList.toggle("active",btn.dataset.tab===tab));
     $$(".treino-panel").forEach(panel=>panel.hidden=panel.dataset.panel!==tab);
@@ -2016,6 +2066,7 @@
       const planDate=event.target.closest("[data-plan-date]");
       if(planDate){
         state.selectedDate=planDate.dataset.planDate;
+        openExerciseId=null;
         renderToday();
         return;
       }
@@ -2047,6 +2098,7 @@
       if(action){
         const a=action.dataset.action;
         if(a==="start-workout") startWorkout();
+        else if(a==="toggle-exercise") toggleExercisePanel(action.dataset.exerciseId);
         else if(a==="toggle-series") toggleSeries(action.dataset.exerciseId,action.dataset.series);
         else if(a==="copy-last") copyLast(action.dataset.exerciseId);
         else if(a==="finish-workout") finishWorkout();
