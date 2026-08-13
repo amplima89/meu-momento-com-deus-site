@@ -12,24 +12,6 @@
   const esc=v=>window.MMCDUI?.esc?window.MMCDUI.esc(v):String(v??'');
   let draftEnabled=new Set(api.getEnabled());
   let saving=false;
-  let mobileNavigationGuardUntil=0;
-  const isMobile=()=>window.matchMedia?.('(max-width:760px)').matches;
-  const armMobileNavigationGuard=(ms=900)=>{
-    if(isMobile()) mobileNavigationGuardUntil=Date.now()+ms;
-  };
-
-  // Safari/iOS pode gerar um segundo clique (ghost click) quando um controle fica
-  // próximo da navegação fixa. Se o toque começou num controle de Aparência,
-  // bloqueia somente uma eventual navegação da barra inferior logo em seguida.
-  document.addEventListener('click',event=>{
-    if(Date.now()>mobileNavigationGuardUntil)return;
-    if(event.target.closest?.('.sidebar a,.sidebar button')){
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation?.();
-      mobileNavigationGuardUntil=0;
-    }
-  },true);
 
   const catalogIds=()=>api.getCatalog().map(item=>item.id);
   const orderedDraft=()=>catalogIds().filter(id=>draftEnabled.has(id));
@@ -97,10 +79,7 @@
     </section>`;
 
     root.querySelectorAll('[data-theme-choice]').forEach(btn=>{
-      btn.addEventListener('pointerdown',armMobileNavigationGuard);
-      btn.addEventListener('touchstart',armMobileNavigationGuard,{passive:true});
       btn.addEventListener('click',async event=>{
-        armMobileNavigationGuard();
         event.preventDefault();
         event.stopPropagation();
         await api.setTheme(btn.dataset.themeChoice);
@@ -110,21 +89,14 @@
     });
 
     root.querySelectorAll('[data-theme-enabled-toggle]').forEach(btn=>{
-      btn.addEventListener('pointerdown',armMobileNavigationGuard);
-      btn.addEventListener('touchstart',armMobileNavigationGuard,{passive:true});
       btn.addEventListener('click',event=>{
-        armMobileNavigationGuard();
         event.preventDefault();
         event.stopPropagation();
         toggleEnabled(btn.dataset.themeEnabledToggle,btn);
       });
     });
 
-    const saveButton=root.querySelector('#appearance-save');
-    saveButton?.addEventListener('pointerdown',armMobileNavigationGuard);
-    saveButton?.addEventListener('touchstart',armMobileNavigationGuard,{passive:true});
-    saveButton?.addEventListener('click',async event=>{
-      armMobileNavigationGuard(1200);
+    root.querySelector('#appearance-save')?.addEventListener('click',async event=>{
       event.preventDefault();
       event.stopPropagation();
       if(saving)return;
@@ -147,11 +119,10 @@
     });
   }
 
-  // Mantém gestos dos controles dentro da própria página.
-  ['pointerdown','pointerup','touchstart','touchend'].forEach(type=>{
+  // Evita que gestos nos controles de aparência vazem para a navegação mobile.
+  ['pointerdown','touchstart'].forEach(type=>{
     root.addEventListener(type,event=>{
       if(event.target.closest?.('[data-theme-choice],[data-theme-enabled-toggle],#appearance-save')){
-        armMobileNavigationGuard();
         event.stopPropagation();
       }
     },{passive:true});

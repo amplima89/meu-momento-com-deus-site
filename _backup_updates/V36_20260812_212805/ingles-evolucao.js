@@ -185,17 +185,11 @@
     grammarCounts
   };
 
-  // Persistir o resumo é útil, mas uma falha de gravação não pode derrubar o relatório visual.
-  try {
-    const { error: summaryError } = await db.from("configuracoes_usuario").upsert({
-      user_id: user.id,
-      chave: SUMMARY_KEY,
-      valor: summary
-    }, { onConflict: "user_id,chave" });
-    if (summaryError) throw summaryError;
-  } catch (summaryError) {
-    console.warn("Evolução do inglês: não foi possível salvar o resumo, mas o relatório continuará visível.", summaryError);
-  }
+  await db.from("configuracoes_usuario").upsert({
+    user_id: user.id,
+    chave: SUMMARY_KEY,
+    valor: summary
+  }, { onConflict: "user_id,chave" });
 
   document.querySelector("#english-overall-ring")?.style.setProperty("--progress", String(overallEvidence || 0));
   document.querySelector("#english-overall-score").textContent = overallEvidence === null ? "—" : `${overallEvidence}%`;
@@ -204,8 +198,7 @@
     : overallEvidence >= 80 ? "Evidências fortes em várias habilidades"
     : overallEvidence >= 65 ? "Evolução consistente, com pontos claros para fortalecer"
     : "Algumas habilidades precisam de reforço";
-  const overallText = document.querySelector("#english-overall-text");
-  if (overallText) overallText.textContent =
+  document.querySelector("#english-overall-text").textContent =
     "Este índice resume evidências registradas no Life Style; não é uma nota de fluência nem uma classificação CEFR.";
   document.querySelector("#english-study-days").textContent =
     `${activeDays} dia${activeDays === 1 ? "" : "s"} estudado${activeDays === 1 ? "" : "s"} nos últimos 30`;
@@ -251,8 +244,7 @@
     ).join("")
     : '<div class="english-evolution-empty">A trilha aparecerá conforme suas aulas forem registradas.</div>';
 })().catch(error => {
-  console.error("Evolução do inglês:", error);
+  console.error(error);
   const title = document.querySelector("#english-overall-title");
-  if (title && /Carregando/i.test(title.textContent || "")) title.textContent = "Não foi possível carregar o relatório";
-  window.MMCDUI?.toast?.("Não foi possível atualizar todos os dados do relatório.", 3200);
+  if (title) title.textContent = "Não foi possível carregar o relatório";
 });
