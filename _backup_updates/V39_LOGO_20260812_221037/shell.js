@@ -25,7 +25,7 @@ window.MMCDShell=async function(active){
   <aside class="sidebar sidebar-v24">
    <a class="sidebar-brand" href="painel.html" aria-label="Life Style — início">
     <span class="sidebar-brand__mark">
-     <img src="./logo-ls-sidebar.png?v=20260813-brand-v39" alt="Life Style">
+     <img src="./logo-ls-sidebar.png?v=20260812-brand-v34" alt="Life Style">
      <span class="sidebar-brand__fallback" aria-hidden="true">LS</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -76,7 +76,7 @@ window.MMCDShell=async function(active){
  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(link=>{
   try{
    const url=new URL(link.getAttribute('href'),location.href);
-   url.searchParams.set('lsv','20260813-brand-v39');
+   url.searchParams.set('lsv','20260812-brand-v34');
    link.setAttribute('href',url.pathname.split('/').pop()+url.search);
   }catch{}
  });
