@@ -6,7 +6,6 @@ window.MMCDTheme = (() => {
   const SYSTEM_KEY = "temas_habilitados_v1";
   const LOCAL_ENABLED_KEY = "mmcd:themes:enabled";
   const LOCAL_THEME_KEY = "mmcd:tema";
-  const REMOTE_SYNC_MIN_MS = 5000;
 
   const catalog = [
     {id:"claro",label:"Branco + azul",short:"Azul",swatch:"#2563eb",surface:"#ffffff",dark:false,themeColor:"#f6f7f9"},
@@ -29,9 +28,7 @@ window.MMCDTheme = (() => {
     admin:false,
     systemStorage:false,
     initialized:false,
-    activePage:"",
-    lastRemoteSync:0,
-    remoteSyncBound:false
+    activePage:""
   };
 
   const esc = value => window.MMCDUI?.esc ? window.MMCDUI.esc(value) : String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -67,85 +64,30 @@ window.MMCDTheme = (() => {
     return next;
   }
 
-  async function fetchRemoteUserPreference(){
-    if(!db || !state.user) return null;
-    const {data,error}=await db.from("configuracoes_usuario")
-      .select("valor")
-      .eq("user_id",state.user.id)
-      .eq("chave",USER_PREF_KEY)
-      .maybeSingle();
-    if(error) throw error;
-    const id=data?.valor?.tema;
-    return validTheme(id) ? id : null;
-  }
-
   async function loadUserPreference(){
-    const local=localStorage.getItem(LOCAL_THEME_KEY)||"claro";
-    if(!db || !state.user) return local;
+    if(!db || !state.user) return localStorage.getItem(LOCAL_THEME_KEY)||"claro";
     try{
-      return (await fetchRemoteUserPreference()) || local;
+      const {data,error}=await db.from("configuracoes_usuario")
+        .select("valor")
+        .eq("user_id",state.user.id)
+        .eq("chave",USER_PREF_KEY)
+        .maybeSingle();
+      if(error) throw error;
+      return data?.valor?.tema || localStorage.getItem(LOCAL_THEME_KEY) || "claro";
     }catch(error){
       console.warn("Temas: preferência remota indisponível.",error);
-      return local;
+      return localStorage.getItem(LOCAL_THEME_KEY)||"claro";
     }
   }
 
   async function saveUserPreference(id){
-    if(!db || !state.user) return false;
-    const valor={tema:id,atualizadoEm:new Date().toISOString()};
-
-    // Atualiza primeiro para não depender exclusivamente de índice/ON CONFLICT.
-    const updated=await db.from("configuracoes_usuario")
-      .update({valor})
-      .eq("user_id",state.user.id)
-      .eq("chave",USER_PREF_KEY)
-      .select("user_id,chave");
-    if(updated.error) throw updated.error;
-    if(Array.isArray(updated.data) && updated.data.length) return true;
-
-    const inserted=await db.from("configuracoes_usuario").insert({
+    if(!db || !state.user) return;
+    const {error}=await db.from("configuracoes_usuario").upsert({
       user_id:state.user.id,
       chave:USER_PREF_KEY,
-      valor
-    });
-    if(!inserted.error) return true;
-
-    // Se outro dispositivo criou a linha entre o UPDATE e o INSERT, tenta atualizar novamente.
-    const retry=await db.from("configuracoes_usuario")
-      .update({valor})
-      .eq("user_id",state.user.id)
-      .eq("chave",USER_PREF_KEY);
-    if(retry.error) throw retry.error;
-    return true;
-  }
-
-  async function syncThemeFromRemote({force=false}={}){
-    if(!db || !state.user) return false;
-    const now=Date.now();
-    if(!force && now-state.lastRemoteSync<REMOTE_SYNC_MIN_MS) return false;
-    state.lastRemoteSync=now;
-    try{
-      const remote=await fetchRemoteUserPreference();
-      if(!remote) return false;
-      if(remote!==state.current){
-        apply(remote);
-        renderPicker();
-      }
-      return true;
-    }catch(error){
-      console.warn("Temas: não foi possível atualizar a preferência entre dispositivos.",error);
-      return false;
-    }
-  }
-
-  function bindRemoteSync(){
-    if(state.remoteSyncBound) return;
-    state.remoteSyncBound=true;
-    document.addEventListener("visibilitychange",()=>{
-      if(document.visibilityState==="visible") syncThemeFromRemote({force:true});
-    });
-    window.addEventListener("pageshow",()=>syncThemeFromRemote({force:true}));
-    window.addEventListener("focus",()=>syncThemeFromRemote());
+      valor:{tema:id,atualizadoEm:new Date().toISOString()}
+    },{onConflict:"user_id,chave"});
+    if(error) throw error;
   }
 
   async function detectAdmin(){
@@ -212,23 +154,14 @@ window.MMCDTheme = (() => {
     localStorage.setItem(LOCAL_ENABLED_KEY,JSON.stringify(state.enabled));
     const remoteTheme=await loadUserPreference();
     apply(remoteTheme);
-    state.lastRemoteSync=Date.now();
     bindThemeButtons();
-    bindRemoteSync();
     state.initialized=true;
     return state;
   }
 
   async function setTheme(id){
     const next=apply(id);
-    let synced=false;
-    try{
-      synced=await saveUserPreference(next);
-      if(synced) state.lastRemoteSync=Date.now();
-    }catch(error){
-      console.warn("Temas: não foi possível sincronizar a preferência.",error);
-      window.MMCDUI?.toast?.("Tema aplicado neste aparelho, mas a sincronização entre dispositivos falhou.",3600);
-    }
+    try{await saveUserPreference(next);}catch(error){console.warn("Temas: não foi possível sincronizar a preferência.",error);}
     closePicker();
     return next;
   }
@@ -313,5 +246,5 @@ window.MMCDTheme = (() => {
   state.enabled=readLocalEnabled();
   apply(localStorage.getItem(LOCAL_THEME_KEY)||"claro",{persistLocal:false});
 
-  return {init,apply,setTheme,saveEnabled,syncThemeFromRemote,bindThemeButtons,getCatalog,getEnabled,getCurrent,isAdmin,isDark,governanceMode};
+  return {init,apply,setTheme,saveEnabled,bindThemeButtons,getCatalog,getEnabled,getCurrent,isAdmin,isDark,governanceMode};
 })();

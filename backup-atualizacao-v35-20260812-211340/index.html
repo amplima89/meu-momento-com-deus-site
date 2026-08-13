@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
     <!-- LS_FAVICON_START -->
@@ -11,7 +11,7 @@
     <!-- LS_FAVICON_END -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>MeditaÃ§Ã£o â€” Meu Momento com Deus</title>
+  <title>Meditação — Meu Momento com Deus</title>
   <link rel="stylesheet" href="painel.css?v=">
   <link rel="stylesheet" href="style.css?v=20260803-50">
 </head>
@@ -20,12 +20,12 @@
     <header class="app-topbar">
       <div class="app-topbar__inner">
         <div>
-          <span class="app-topbar__title">â† MEU MOMENTO COM DEUS</span>
+          <span class="app-topbar__title">← MEU MOMENTO COM DEUS</span>
           <span class="app-topbar__subtitle">Livro digital devocional</span>
         </div>
         <div class="topbar-actions">
           <label class="date-select"><span>Data</span><select id="seletor-data"></select></label>
-          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">â˜¾</button>
+          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
           <button id="botao-tema" hidden><span id="icone-tema"></span></button>
         </div>
       </div>
@@ -50,37 +50,37 @@
 
               <section class="music-box">
                 <div>
-                  <p class="eyebrow">Prepare seu coraÃ§Ã£o</p>
-                  <p class="muted">A mÃºsica permanece ao lado sem mover o ponto da leitura.</p>
+                  <p class="eyebrow">Prepare seu coração</p>
+                  <p class="muted">A música permanece ao lado sem mover o ponto da leitura.</p>
                 </div>
                 <iframe
                   class="youtube-player"
                   src="https://www.youtube-nocookie.com/embed/lqsHuZ4A7xM?rel=0&amp;loop=1&amp;playlist=lqsHuZ4A7xM&amp;playsinline=1"
-                  title="MÃºsica para o momento com Deus"
+                  title="Música para o momento com Deus"
                   loading="eager"
                   referrerpolicy="strict-origin-when-cross-origin"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowfullscreen
                 ></iframe>
-                <a class="music-box__link" href="https://www.youtube.com/watch?v=lqsHuZ4A7xM" target="_blank" rel="noopener noreferrer">Abrir no YouTube â†—</a>
+                <a class="music-box__link" href="https://www.youtube.com/watch?v=lqsHuZ4A7xM" target="_blank" rel="noopener noreferrer">Abrir no YouTube ↗</a>
               </section>
 
               <section class="narration-box" aria-labelledby="titulo-narracao">
                 <div>
-                  <p class="eyebrow" id="titulo-narracao">Ouvir a meditaÃ§Ã£o</p>
-                  <p class="muted">NarraÃ§Ã£o opcional com preferÃªncia por uma voz masculina, grave e serena.</p>
+                  <p class="eyebrow" id="titulo-narracao">Ouvir a meditação</p>
+                  <p class="muted">Narração opcional com preferência por uma voz masculina, grave e serena.</p>
                 </div>
 
-                <div class="narration-controls" role="group" aria-label="Controles da narraÃ§Ã£o">
-                  <button id="narracao-ouvir" class="btn primary" type="button">â–¶ Ouvir</button>
-                  <button id="narracao-pausar" class="btn" type="button" disabled>â¸ Pausar</button>
-                  <button id="narracao-parar" class="btn" type="button" disabled>â–  Parar</button>
+                <div class="narration-controls" role="group" aria-label="Controles da narração">
+                  <button id="narracao-ouvir" class="btn primary" type="button">▶ Ouvir</button>
+                  <button id="narracao-pausar" class="btn" type="button" disabled>⏸ Pausar</button>
+                  <button id="narracao-parar" class="btn" type="button" disabled>■ Parar</button>
                 </div>
 
                 <label class="narration-voice">
                   <span>Voz</span>
-                  <select id="narracao-voz" aria-label="Escolher voz da narraÃ§Ã£o">
-                    <option value="">AutomÃ¡tica â€” grave</option>
+                  <select id="narracao-voz" aria-label="Escolher voz da narração">
+                    <option value="">Automática — grave</option>
                   </select>
                 </label>
 
@@ -88,7 +88,7 @@
               </section>
 
               <div class="highlight-tools" aria-label="Destaques pessoais">
-                <button id="botao-marcar" class="btn highlight-btn" type="button">Destacar seleÃ§Ã£o</button>
+                <button id="botao-marcar" class="btn highlight-btn" type="button">Destacar seleção</button>
                 <button id="botao-limpar-marcas" class="btn" type="button">Limpar destaques</button>
                 <p class="muted">Selecione uma palavra ou frase para marcar automaticamente. Use duplo clique para marcar uma palavra ou desmarcar um destaque. Tudo fica sincronizado na sua conta.</p>
               </div>
@@ -96,16 +96,16 @@
           </aside>
 
           <div class="devotional-reading">
-            <div id="conteudo-meditacao" class="meditacao"><p class="muted">Carregando a meditaÃ§Ã£o...</p></div>
-            <footer class="book-footer"><span id="numero-pagina"></span><span>âœ¦</span></footer>
+            <div id="conteudo-meditacao" class="meditacao"><p class="muted">Carregando a meditação...</p></div>
+            <footer class="book-footer"><span id="numero-pagina"></span><span>✦</span></footer>
           </div>
         </div>
       </article>
 
       <nav class="meditation-nav">
-        <button id="botao-anterior" class="btn">â† Anterior</button>
+        <button id="botao-anterior" class="btn">← Anterior</button>
         <button id="botao-hoje" class="btn primary">Hoje</button>
-        <button id="botao-proximo" class="btn">PrÃ³xima â†’</button>
+        <button id="botao-proximo" class="btn">Próxima →</button>
       </nav>
     </main>
   </div>
@@ -118,4 +118,3 @@
   <script src="meditacao-consistencia.js?v=20260803-50"></script>
 </body>
 </html>
-

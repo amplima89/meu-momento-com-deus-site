@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SÃ©ries & filmes â€” Life Style</title>
+  <title>Séries & filmes — Life Style</title>
   <link rel="icon" href="favicon.ico?v=" sizes="any">
   <link rel="stylesheet" href="painel.css?v=">
   <link rel="stylesheet" href="style.css?v=20260803-50">
@@ -15,40 +15,40 @@
       <div class="app-topbar__inner">
         <div>
           <span class="app-topbar__title">LIFE STYLE</span>
-          <span class="app-topbar__subtitle">SÃ©ries & filmes</span>
+          <span class="app-topbar__subtitle">Séries & filmes</span>
         </div>
-        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">â˜¾</button>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
       </div>
     </header>
 
     <main class="app-main series-page">
       <section class="page-header series-hero">
         <div>
-          <p class="eyebrow">Biblioteca de exposiÃ§Ã£o ao inglÃªs</p>
-          <h1>SÃ©ries & filmes</h1>
+          <p class="eyebrow">Biblioteca de exposição ao inglês</p>
+          <h1>Séries & filmes</h1>
           <p class="muted">
-            Cadastre apenas o que vocÃª gostaria de usar no inglÃªs.
+            Cadastre apenas o que você gostaria de usar no inglês.
             A rotina Python procura uma legenda real, analisa trechos de aproximadamente
-            3 a 5 minutos e a IA escolhe a cena mais Ãºtil para o conteÃºdo do dia.
+            3 a 5 minutos e a IA escolhe a cena mais útil para o conteúdo do dia.
           </p>
         </div>
-        <button id="add-production" class="btn primary" type="button">+ ProduÃ§Ã£o</button>
+        <button id="add-production" class="btn primary" type="button">+ Produção</button>
       </section>
 
       <section class="card auto-flow-card">
         <div class="auto-flow-icon">AI</div>
         <div>
-          <p class="eyebrow">SeleÃ§Ã£o automÃ¡tica</p>
-          <h2>VocÃª escolhe a produÃ§Ã£o. A IA escolhe a cena.</h2>
+          <p class="eyebrow">Seleção automática</p>
+          <h2>Você escolhe a produção. A IA escolhe a cena.</h2>
           <p class="muted">
-            SÃ³ entram no estudo cenas encontradas em legenda inglesa e aprovadas
+            Só entram no estudo cenas encontradas em legenda inglesa e aprovadas
             pedagogicamente para o Grammar focus do dia. Se nada atingir a qualidade
-            mÃ­nima, o inglÃªs segue normalmente sem forÃ§ar uma sÃ©rie.
+            mínima, o inglês segue normalmente sem forçar uma série.
           </p>
         </div>
-        <div class="auto-flow-steps" aria-label="Fluxo automÃ¡tico">
-          <span>CatÃ¡logo</span><b>â†’</b><span>Legenda</span><b>â†’</b>
-          <span>3â€“5 min</span><b>â†’</b><span>IA valida</span><b>â†’</b><span>Aula</span>
+        <div class="auto-flow-steps" aria-label="Fluxo automático">
+          <span>Catálogo</span><b>→</b><span>Legenda</span><b>→</b>
+          <span>3–5 min</span><b>→</b><span>IA valida</span><b>→</b><span>Aula</span>
         </div>
       </section>
 
@@ -56,23 +56,23 @@
         <div class="section-head">
           <div>
             <p class="eyebrow">Cadastro</p>
-            <h2 id="production-form-title">Adicionar produÃ§Ã£o</h2>
+            <h2 id="production-form-title">Adicionar produção</h2>
           </div>
-          <button id="close-production-form" class="icon-btn" type="button" aria-label="Fechar">Ã—</button>
+          <button id="close-production-form" class="icon-btn" type="button" aria-label="Fechar">×</button>
         </div>
 
         <form id="production-form" class="series-form">
           <input id="production-id" type="hidden">
 
           <label class="field field-wide">
-            <span>TÃ­tulo</span>
+            <span>Título</span>
             <input id="production-title" type="text" required placeholder="Ex.: Suits">
           </label>
 
           <label class="field">
             <span>Tipo</span>
             <select id="production-type">
-              <option value="serie">SÃ©rie</option>
+              <option value="serie">Série</option>
               <option value="filme">Filme</option>
             </select>
           </label>
@@ -97,22 +97,22 @@
           </label>
 
           <label class="field spoiler-field" data-series-only>
-            <span>EpisÃ³dio limite dessa temporada <small>opcional</small></span>
+            <span>Episódio limite dessa temporada <small>opcional</small></span>
             <input id="production-max-episode" type="number" min="1" step="1" placeholder="Ex.: 6">
           </label>
 
           <label class="field field-wide">
-            <span>ObservaÃ§Ãµes <small>opcional</small></span>
-            <textarea id="production-notes" rows="3" placeholder="Ex.: prefiro cenas de negociaÃ§Ã£o e conversas de trabalho"></textarea>
+            <span>Observações <small>opcional</small></span>
+            <textarea id="production-notes" rows="3" placeholder="Ex.: prefiro cenas de negociação e conversas de trabalho"></textarea>
           </label>
 
           <label class="toggle-row field-wide">
             <input id="production-active" type="checkbox" checked>
-            <span>DisponÃ­vel para a IA escolher</span>
+            <span>Disponível para a IA escolher</span>
           </label>
 
           <div class="form-actions field-wide">
-            <button class="btn primary" type="submit">Salvar produÃ§Ã£o</button>
+            <button class="btn primary" type="submit">Salvar produção</button>
             <button id="cancel-production" class="btn" type="button">Cancelar</button>
           </div>
           <p id="production-form-message" class="form-message field-wide" hidden></p>
@@ -122,22 +122,22 @@
       <section class="card catalog-card">
         <div class="catalog-head">
           <div>
-            <p class="eyebrow">Seu catÃ¡logo</p>
-            <h2>ProduÃ§Ãµes disponÃ­veis para a IA</h2>
+            <p class="eyebrow">Seu catálogo</p>
+            <h2>Produções disponíveis para a IA</h2>
           </div>
           <div class="catalog-filters">
-            <input id="production-search" type="search" placeholder="Buscar produÃ§Ã£o...">
+            <input id="production-search" type="search" placeholder="Buscar produção...">
             <select id="production-filter">
               <option value="todas">Todas</option>
               <option value="ativas">Ativas</option>
-              <option value="series">SÃ©ries</option>
+              <option value="series">Séries</option>
               <option value="filmes">Filmes</option>
             </select>
           </div>
         </div>
 
         <div id="catalog-empty" class="empty" hidden>
-          Nenhuma produÃ§Ã£o encontrada.
+          Nenhuma produção encontrada.
         </div>
         <div id="production-list" class="production-list"></div>
       </section>
@@ -145,13 +145,13 @@
       <section class="card history-card">
         <div class="section-head">
           <div>
-            <p class="eyebrow">MemÃ³ria automÃ¡tica</p>
-            <h2>Cenas jÃ¡ escolhidas pela IA</h2>
-            <p class="muted">Esse histÃ³rico Ã© criado pela rotina Python depois que a meditaÃ§Ã£o Ã© publicada.</p>
+            <p class="eyebrow">Memória automática</p>
+            <h2>Cenas já escolhidas pela IA</h2>
+            <p class="muted">Esse histórico é criado pela rotina Python depois que a meditação é publicada.</p>
           </div>
         </div>
         <div id="series-history-empty" class="empty" hidden>
-          Ainda nÃ£o hÃ¡ cenas escolhidas automaticamente.
+          Ainda não há cenas escolhidas automaticamente.
         </div>
         <div id="series-history" class="series-history-list"></div>
       </section>
@@ -167,4 +167,3 @@
   <script src="series.js?v=20260808-series-auto1"></script>
 </body>
 </html>
-
