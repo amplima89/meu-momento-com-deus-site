@@ -10,7 +10,7 @@ window.MMCDShell=async function(active){
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
- const settingsActive=active==='aparencia'||active==='medidas'||active==='metas'||active==='perfil'||active==='series';
+ const settingsActive=active==='metas'||active==='series'||active==='perfil'||active==='aparencia';
  const settingsWorkout=active==='treinos-config';
  const storedSettingsOpen=localStorage.getItem('mmcd:sidebar:settings-open');
  const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
@@ -25,7 +25,7 @@ window.MMCDShell=async function(active){
   <aside class="sidebar sidebar-v24">
    <a class="sidebar-brand" href="painel.html" aria-label="Life Style — início">
     <span class="sidebar-brand__mark">
-     <img src="./logo-ls-sidebar.png?v=20260813-brand-v40" alt="Life Style">
+     <img src="./logo-ls-sidebar.png?v=20260813-brand-v39" alt="Life Style">
      <span class="sidebar-brand__fallback" aria-hidden="true">LS</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -45,23 +45,20 @@ window.MMCDShell=async function(active){
       <span class="sidebar-settings__chevron" aria-hidden="true">›</span>
      </button>
      <div class="sidebar-subnav ${settingsOpen?'open':''}" id="sidebar-settings-menu" ${settingsOpen?'':'hidden'}>
-      <a class="sidebar-subnav__link ${active==='aparencia'?'active':''}" href="aparencia.html">
-       <span class="sidebar-subnav__dot"></span><span><strong>Aparência</strong><small>Temas e cores</small></span>
-      </a>
-      <a class="sidebar-subnav__link ${active==='medidas'?'active':''}" href="medidas.html">
-       <span class="sidebar-subnav__dot"></span><span><strong>Medições corporais</strong><small>Medidas e evolução visual</small></span>
+      <a class="sidebar-subnav__link ${active==='perfil'?'active':''}" href="perfil.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Meu perfil</strong><small>Foto e identificação</small></span>
       </a>
       <a class="sidebar-subnav__link ${active==='metas'?'active':''}" href="metas.html">
        <span class="sidebar-subnav__dot"></span><span><strong>Metas</strong><small>Rotina e objetivos</small></span>
       </a>
-      <a class="sidebar-subnav__link ${active==='perfil'?'active':''}" href="perfil.html">
-       <span class="sidebar-subnav__dot"></span><span><strong>Meu perfil</strong><small>Foto e identificação</small></span>
-      </a>
-      <a class="sidebar-subnav__link ${settingsWorkout?'active':''}" href="treinos-config.html">
-       <span class="sidebar-subnav__dot"></span><span><strong>Plano de treino</strong><small>Programa e exercícios</small></span>
-      </a>
       <a class="sidebar-subnav__link ${active==='series'?'active':''}" href="series.html">
        <span class="sidebar-subnav__dot"></span><span><strong>Séries & filmes</strong><small>Biblioteca de exposição</small></span>
+      </a>
+      <a class="sidebar-subnav__link ${active==='aparencia'?'active':''}" href="aparencia.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Aparência</strong><small>Temas e cores</small></span>
+      </a>
+      <a class="sidebar-subnav__link ${settingsWorkout?'active':''}" href="treinos-config.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Plano de treino</strong><small>Programa, exercícios e medidas</small></span>
       </a>
      </div>
     </div>
@@ -79,7 +76,7 @@ window.MMCDShell=async function(active){
  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(link=>{
   try{
    const url=new URL(link.getAttribute('href'),location.href);
-   url.searchParams.set('lsv','20260813-brand-v40');
+   url.searchParams.set('lsv','20260813-brand-v39');
    link.setAttribute('href',url.pathname.split('/').pop()+url.search);
   }catch{}
  });

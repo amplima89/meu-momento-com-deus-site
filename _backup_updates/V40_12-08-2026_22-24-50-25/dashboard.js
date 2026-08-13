@@ -5,38 +5,6 @@
   const db = window.MMCDSupabase;
   const currentUser = await window.MMCDAuth.user();
 
-  async function readUserConfig(chave) {
-    try {
-      const { data, error } = await db
-        .from("configuracoes_usuario")
-        .select("valor")
-        .eq("user_id", currentUser.id)
-        .eq("chave", chave)
-        .maybeSingle();
-      if (error) throw error;
-      return data?.valor ?? null;
-    } catch (error) {
-      console.warn(`Painel: não foi possível carregar ${chave}.`, error);
-      return null;
-    }
-  }
-
-  const [
-    englishSummaryValue,
-    englishProductionsValue,
-    englishStructuresValue,
-    englishSeriesValue,
-    workoutSessionsValue,
-    workoutPlanValue
-  ] = await Promise.all([
-    readUserConfig("ingles_evolucao_v1"),
-    readUserConfig("ingles_producoes_v1"),
-    readUserConfig("ingles_estruturas_v1"),
-    readUserConfig("historico_series_ingles_v1"),
-    readUserConfig("treino_sessoes_v1"),
-    readUserConfig("treino_plano_v1")
-  ]);
-
   const today = new Date();
   today.setHours(12, 0, 0, 0);
 
@@ -172,8 +140,8 @@
   }
 
   function criarPainelDiarioRapido() {
-    const mainCards = document.querySelector("#main-cards");
-    if (!mainCards || document.querySelector("#quick-journal-card")) return;
+    const missionCard = document.querySelector("#mission-card");
+    if (!missionCard || document.querySelector("#quick-journal-card")) return;
 
     const section = document.createElement("section");
     section.id = "quick-journal-card";
@@ -218,7 +186,7 @@
         <div id="quick-journal-list" class="quick-journal-list"></div>
       </details>`;
 
-    mainCards.insertAdjacentElement("afterend", section);
+    missionCard.insertAdjacentElement("afterend", section);
 
     section.querySelectorAll("[data-quick-category]").forEach(button => {
       button.addEventListener("click", () => {
@@ -527,7 +495,12 @@
     <div>
       <p class="eyebrow">Missão de vida</p>
       <h2>${MMCDUI.esc(meta.titulo || "Defina sua missão de vida")}</h2>
-      <span class="muted">Direção principal para decisões, hábitos e prioridades.</span>
+      <span class="muted">Sua direção principal para decisões, hábitos e prioridades.</span>
+    </div>
+    <div class="mission-date">
+      <span class="eyebrow">Hoje</span>
+      <strong>${pad(today.getDate())}</strong>
+      <span>${today.toLocaleDateString("pt-BR", { month: "long" })}</span>
     </div>`;
 
   criarPainelDiarioRapido();
@@ -541,7 +514,7 @@
   }).length;
   const books = d.livros.concluidos.filter(item => (item.dataConclusao || "").startsWith(String(d.configuracoes.anoMetaLivros)));
   const medDates = Object.keys(d.meditacoes || {}).sort();
-  const latestPublishedMeditation = medDates.at(-1) || "";
+  const lastMed = medDates.at(-1) || "";
 
   function streak() {
     let count = 0;
@@ -565,65 +538,6 @@
   // A existência da meditação gerada para hoje não significa que ela foi realizada.
   // O card só fica concluído quando a atividade/meta de meditação foi efetivamente marcada.
   const medDone = !!(medMeta && MMCD.registro(d, iso, medMeta.id)?.concluida);
-  const completedMeditationDates = medMeta
-    ? Object.keys(d.registros || {})
-      .filter(date => MMCD.registro(d, date, medMeta.id)?.concluida)
-      .sort()
-    : [];
-  const lastMed = completedMeditationDates.at(-1) || "";
-
-  const englishStudyDates = new Set([
-    ...Object.keys(englishProductionsValue?.dias || {}),
-    ...Object.keys(englishStructuresValue?.itens || {}),
-    ...(Array.isArray(englishSeriesValue?.itens) ? englishSeriesValue.itens.map(item => String(item?.data || "")) : [])
-  ].filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value)));
-
-  const englishCutoffDate = new Date(today);
-  englishCutoffDate.setDate(englishCutoffDate.getDate() - 29);
-  const englishCutoff = isoDate(englishCutoffDate);
-  const englishStudyDaysFallback = [...englishStudyDates].filter(date => date >= englishCutoff && date <= iso).length;
-  const englishLatestFallback = [...englishStudyDates].sort().at(-1) || "";
-
-  const englishOverallRaw = Number(englishSummaryValue?.overall);
-  const englishOverall = Number.isFinite(englishOverallRaw) ? clamp(Math.round(englishOverallRaw), 0, 100) : null;
-  const englishStudyDays = Math.max(0, Number(englishSummaryValue?.studyDays30 ?? englishStudyDaysFallback));
-  const englishPriority = String(englishSummaryValue?.priority || "").trim();
-  const englishLatest = String(englishSummaryValue?.latestActivity || englishLatestFallback).trim();
-  const englishConsistency = clamp(Math.round((englishStudyDays / 20) * 100), 0, 100);
-
-  const workoutSessions = Array.isArray(workoutSessionsValue?.sessoes) ? workoutSessionsValue.sessoes : [];
-  const workoutPlan = workoutPlanValue && typeof workoutPlanValue === "object" ? workoutPlanValue : {};
-  const workoutCutoffDate = new Date(today);
-  workoutCutoffDate.setDate(workoutCutoffDate.getDate() - 29);
-  const workoutCutoff = isoDate(workoutCutoffDate);
-  const recentWorkoutSessions = workoutSessions
-    .filter(session => session?.data >= workoutCutoff && session?.data <= iso && ["concluido", "parcial"].includes(session?.status))
-    .sort((a, b) => String(a.data).localeCompare(String(b.data)));
-  const workoutCompleted30 = recentWorkoutSessions.filter(session => session.status === "concluido").length;
-  const workoutPartial30 = recentWorkoutSessions.filter(session => session.status === "parcial").length;
-  const latestWorkout = recentWorkoutSessions.at(-1) || null;
-
-  function plannedWorkoutsLast30() {
-    const workouts = Array.isArray(workoutPlan?.treinos) ? workoutPlan.treinos : [];
-    if (!workouts.length || workoutPlan?.programa?.status === "inativo") return 0;
-    const start = String(workoutPlan?.programa?.dataInicio || "");
-    const end = String(workoutPlan?.programa?.dataFim || "");
-    let count = 0;
-    for (let index = 0; index < 30; index += 1) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - index);
-      const value = isoDate(date);
-      if (start && value < start) continue;
-      if (end && value > end) continue;
-      if (workouts.some(item => item?.tipo !== "descanso" && Number(item.diaSemana) === date.getDay())) count += 1;
-    }
-    return count;
-  }
-
-  const workoutPlanned30 = plannedWorkoutsLast30();
-  const workoutAdherence30 = workoutPlanned30
-    ? clamp(Math.round((recentWorkoutSessions.length / workoutPlanned30) * 100), 0, 100)
-    : 0;
 
   const metrics = metaMetrics();
   let weightDetail = "Último registro";
@@ -636,14 +550,14 @@
   }
 
   const cards = [
+    ["🎯", "Missão de vida", meta.titulo || "Não definida", "Direção principal"],
+    ["📅", "Data atual", fmt(today), "Hoje"],
     ["🔥", "Sequência de dias", `${streak()} dias`, "Com algum registro"],
     ["📖", "Livro em andamento", d.livros.atual.titulo || "Nenhum", d.livros.atual.autor || "Cadastre sua leitura"],
     ["📚", "Livros concluídos", String(books.length), `Meta anual: ${d.configuracoes.metaLivrosAno}`],
-    ["🙏", "Meditação de hoje", medDone ? "Concluída" : "Pendente", lastMed ? `Última concluída: ${MMCDUI.date(lastMed)}` : (latestPublishedMeditation ? "Há meditação disponível" : "Sem registro")],
+    ["🙏", "Meditação de hoje", medDone ? "Concluída" : "Pendente", lastMed ? `Última: ${MMCDUI.date(lastMed)}` : "Sem registro"],
     ["⚖️", "Peso atual", currentWeight != null ? kg(currentWeight) : "Não informado", weightDetail],
-    ["✅", "Hábitos concluídos hoje", `${done} de ${validToday}`, excusedToday ? `${excusedToday} abonada${excusedToday === 1 ? "" : "s"} fora do cálculo` : "Metas válidas previstas"],
-    ["🇬🇧", "Inglês", englishOverall !== null ? `${englishOverall}%` : `${englishStudyDays} dia${englishStudyDays === 1 ? "" : "s"}`, englishOverall !== null ? `${englishStudyDays} dias de estudo · ${englishPriority || "linha de base"}` : (englishLatest ? `Última atividade: ${MMCDUI.date(englishLatest)}` : "Aguardando evidências")],
-    ["🏋️", "Treinos", `${recentWorkoutSessions.length} em 30 dias`, recentWorkoutSessions.length ? `${workoutCompleted30} completos · ${workoutPartial30} parciais${latestWorkout ? ` · último ${MMCDUI.date(latestWorkout.data)}` : ""}` : "Nenhum treino finalizado"]
+    ["✅", "Hábitos concluídos hoje", `${done} de ${validToday}`, excusedToday ? `${excusedToday} abonada${excusedToday === 1 ? "" : "s"} fora do cálculo` : "Metas válidas previstas"]
   ];
 
   document.querySelector("#main-cards").innerHTML = cards.map(card => `
@@ -682,8 +596,6 @@
   document.querySelector("#consistency-metrics").innerHTML = [
     ["Consistência semanal", weekly],
     ["Consistência mensal", monthly],
-    ["Treinos · 30 dias", workoutAdherence30],
-    ["Inglês · 30 dias", englishConsistency],
     ["Meta anual de livros", bookGoal]
   ].map(item => `
     <div class="metric-row">
@@ -1018,14 +930,11 @@
   drawChart();
   addEventListener("resize", drawChart);
 
-  const meditationDaysAgo = lastMed
-    ? Math.max(0, Math.round((today - parseDate(lastMed)) / 86400000))
-    : null;
   document.querySelector("#last-meditation").innerHTML = lastMed
     ? `<p class="meditation-date">${MMCDUI.date(lastMed)}</p>
-       <p class="meditation-note">${meditationDaysAgo === 0 ? "Concluída hoje." : `Há ${meditationDaysAgo} dia${meditationDaysAgo === 1 ? "" : "s"}.`} O card considera apenas meditações realmente concluídas.</p>
+       <p class="meditation-note">Seu registro espiritual mais recente. Continue transformando constância em profundidade.</p>
        <a class="text-link" href="index.html">Abrir meditação →</a>`
-    : `<div class="empty">${latestPublishedMeditation ? "Há meditação disponível, mas nenhuma foi marcada como concluída ainda." : "Nenhuma meditação registrada."}</div>`;
+    : '<div class="empty">Nenhuma meditação registrada.</div>';
 })().catch(error => {
   console.error(error);
   window.MMCDUI?.toast(error.message || "Não foi possível carregar o painel.", 6000);

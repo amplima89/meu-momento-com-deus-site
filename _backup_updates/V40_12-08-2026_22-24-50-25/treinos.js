@@ -1989,7 +1989,7 @@
           </div>`).join(""):`<div class="empty">Registre cargas para acompanhar a evolução.</div>`}</div>
       </article>
       <article class="card evolution-card">
-        <div class="section-head"><div><p class="eyebrow">Medidas</p><h2>Evolução corporal</h2></div><a class="btn small" href="medidas.html">Nova medição</a></div>
+        <div class="section-head"><div><p class="eyebrow">Medidas</p><h2>Evolução corporal</h2></div><button class="btn small" data-go-tab="configuracoes">Nova medição</button></div>
         ${measureCards(reference)||`<div class="empty">Faça pelo menos duas medições no mesmo mês para ver a comparação.</div>`}
       </article>
       <article class="card evolution-card">
@@ -2055,6 +2055,7 @@
     const root=$("#treino-settings-root");
     if (!root) return;
     const p=state.plano.programa;
+    const measureRows=state.medidas.slice().sort((a,b)=>b.data.localeCompare(a.data)).slice(0,10);
 
     root.innerHTML=`
       <article class="card settings-block">
@@ -2078,7 +2079,28 @@
         <div class="settings-actions"><button class="btn primary" data-action="save-plan">Salvar composição</button></div>
       </article>
 
-      `;
+      <article class="card settings-block" id="medidas">
+        <div class="section-head"><div><p class="eyebrow">Medidas corporais</p><h2>Nova medição</h2><p class="muted">Nenhum campo corporal é obrigatório.</p></div></div>
+        <form id="measure-form">
+          <div class="measure-form-grid">
+            ${measureInput("Data","data","date",todayIso(),true)}
+            ${measureInput("Peso corporal","peso","number","","")}
+            ${measureInput("Cintura","cintura","number","","")}
+            ${measureInput("Abdômen","abdomen","number","","")}
+            ${measureInput("Peitoral","peitoral","number","","")}
+            ${measureInput("Braço direito","bracoDireito","number","","")}
+            ${measureInput("Braço esquerdo","bracoEsquerdo","number","","")}
+            ${measureInput("Quadril","quadril","number","","")}
+            ${measureInput("Coxa direita","coxaDireita","number","","")}
+            ${measureInput("Coxa esquerda","coxaEsquerda","number","","")}
+            ${measureInput("Panturrilha direita","panturrilhaDireita","number","","")}
+            ${measureInput("Panturrilha esquerda","panturrilhaEsquerda","number","","")}
+            <label class="field full"><span>Observação</span><textarea name="observacao"></textarea></label>
+          </div>
+          <div class="settings-actions"><button class="btn primary">+ Salvar medição</button></div>
+        </form>
+        <div class="measure-history">${measureRows.map(m=>`<div class="measure-history-row"><strong>${datePt(m.data)}</strong><span>${m.peso?`${fmt(m.peso)} kg`:""}</span><span>${m.cintura?`Cintura ${fmt(m.cintura)} cm`:""}</span><button class="mini-action danger" data-action="delete-measure" data-measure-id="${esc(m.id)}">Excluir</button></div>`).join("")}</div>
+      </article>`;
   }
 
   function measureInput(label,name,type,value,required) {
@@ -2558,6 +2580,9 @@
       await reconcileFinishedWorkoutActivity();
       // Se o treino de hoje já havia sido encerrado antes desta versão, abre o check-out pendente.
       promptPendingWorkoutFeedback();
+      if (window.MMCD_TREINO_PAGE_MODE === "configuracoes" && location.hash === "#medidas") {
+        requestAnimationFrame(() => document.querySelector("#medidas")?.scrollIntoView({behavior:"smooth",block:"start"}));
+      }
       status("Dados online · Supabase","saved");
     } catch(error) {
       console.error(error);

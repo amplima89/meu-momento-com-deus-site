@@ -11,16 +11,10 @@
       document.documentElement.dataset.tema = tema;
     } catch (_) {}
   </script>
-  <title>Treinos — Life Style</title>
-  <link rel="icon" href="favicon.ico?v=20260810-treino24" sizes="any">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260810-treino24">
+  <title>Plano de treino — Configurações — Life Style</title>
+  <link rel="icon" href="favicon.ico?v=20260810-treino-v24-2" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260810-treino-v24-2">
 
-  <script>
-    // Compatibilidade com links antigos: cadastro nunca abre dentro de Treinos.
-    if (location.hash === "#configuracoes") {
-      history.replaceState(null, "", location.pathname + location.search + "#hoje");
-    }
-  </script>
   <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260812-config-nav-v32" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?v=20260812-config-nav-v32'+Date.now()">
   <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260812-pai-atleta-v30" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
 </head>
@@ -30,7 +24,7 @@
       <div class="app-topbar__inner">
         <div>
           <span class="app-topbar__title">LIFE STYLE</span>
-          <span class="app-topbar__subtitle">Plano de treino</span>
+          <span class="app-topbar__subtitle">Configurações · Plano de treino</span>
         </div>
         <div class="topbar-actions">
           <span id="treino-save-status">Carregando…</span>
@@ -38,57 +32,26 @@
         </div>
       </div>
     </header>
-
-    <main class="app-main treino-page">
-      <section class="treino-hero">
+    <main class="app-main treino-page treino-config-page">
+      <section class="treino-hero treino-config-hero">
         <div>
-          <p class="eyebrow">Treinos</p>
-          <h1 id="treino-program-name">Plano de treino</h1>
-          <p id="treino-program-objective" class="muted">Carregando seu programa…</p>
+          <p class="eyebrow">Configurações › Plano de treino</p>
+          <h1>Plano de treino</h1>
+          <p class="muted">Programa, período, composição dos treinos e medidas corporais.</p>
         </div>
-        <div class="treino-hero-side">
-          <strong id="treino-today-label">Hoje</strong>
-          <span>Abrir → treinar → registrar → fechar.</span>
-        </div>
+        <a class="btn" href="treinos.html#hoje">Abrir Treinos</a>
       </section>
-
-      <nav class="treino-tabs" aria-label="Áreas do plano de treino">
-        <button class="treino-tab active" data-tab="hoje">🏋️ Hoje</button>
-        <button class="treino-tab" data-tab="historico">📅 Histórico</button>
-        <button class="treino-tab" data-tab="evolucao">📈 Evolução</button>
-      </nav>
-
-      <section class="treino-panel" data-panel="hoje">
-        <div id="treino-today-root"></div>
+      <section class="treino-panel" data-panel="configuracoes">
+        <div id="treino-settings-root"></div>
       </section>
-
-      <section class="treino-panel" data-panel="historico" hidden>
-        <div class="history-toolbar">
-          <div><p class="eyebrow">Histórico</p><h2 id="history-month-label">Mês</h2></div>
-        </div>
-        <div id="treino-history-root"></div>
-      </section>
-
-      <section class="treino-panel" data-panel="evolucao" hidden>
-        <div class="page-header">
-          <div><p class="eyebrow">Evolução</p><h1>Seu progresso</h1><p class="muted">Frequência, cargas e medidas sem poluir a tela de treino.</p></div>
-        </div>
-        <div id="treino-evolution-root"></div>
-      </section>
-</main>
+    </main>
   </div>
-
-  <div id="finish-modal" class="finish-modal" hidden>
-    <div class="finish-modal-card">
-      <button id="finish-modal-close" class="finish-modal-close" aria-label="Fechar">×</button>
-      <div id="finish-modal-body"></div>
-    </div>
-  </div>
+  <script>window.MMCD_TREINO_PAGE_MODE="configuracoes";</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
   (async function(){
     const BASE='/meu-momento-com-deus-site/';
-    const VERSION='20260813-v40';
+    const VERSION='20260812-config-nav-v32';
 
     function loadScript(file){
       return new Promise((resolve,reject)=>{
