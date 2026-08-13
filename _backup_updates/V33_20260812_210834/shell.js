@@ -293,7 +293,6 @@ window.MMCDShell=async function(active){
  
 
  try{const session=await MMCDAuth.requireSession();const sidebar=document.querySelector('.sidebar');if(sidebar){sidebar.append(MMCDAuth.accountButton(session.user));sidebar.insertAdjacentHTML('beforeend','<div class="sync-status">Dados online · Supabase</div>')}}catch(e){console.error(e)}
- window.addEventListener('mmcd:profile-updated',()=>{window.MMCDAuth?.refreshAccountProfile?.().catch(()=>{})});
 
  // No celular, mantém a área ativa visível dentro do menu horizontal.
  if(window.matchMedia?.('(max-width:760px)').matches){

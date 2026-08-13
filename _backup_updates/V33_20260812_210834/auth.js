@@ -83,33 +83,9 @@
   }
 
   const PROFILE_KEY = "perfil_usuario_v1";
-  const PROFILE_CACHE_PREFIX = "mmcd:perfil:cache:";
-
-  function profileCacheKey(currentUser) {
-    return currentUser?.id ? `${PROFILE_CACHE_PREFIX}${currentUser.id}` : "";
-  }
-
-  function readProfileCache(currentUser) {
-    const key = profileCacheKey(currentUser);
-    if (!key) return {};
-    try {
-      const raw = localStorage.getItem(key);
-      const parsed = raw ? JSON.parse(raw) : {};
-      return parsed && typeof parsed === "object" ? parsed : {};
-    } catch {
-      return {};
-    }
-  }
-
-  function writeProfileCache(currentUser, value) {
-    const key = profileCacheKey(currentUser);
-    if (!key) return;
-    try { localStorage.setItem(key, JSON.stringify(value || {})); } catch {}
-  }
 
   async function loadProfile(currentUser) {
     if (!currentUser?.id) return {};
-    const cached = readProfileCache(currentUser);
     try {
       const { data, error } = await client
         .from("configuracoes_usuario")
@@ -119,50 +95,25 @@
         .maybeSingle();
 
       if (error) throw error;
-      const server = data?.valor && typeof data.valor === "object" ? data.valor : null;
-      if (server) {
-        writeProfileCache(currentUser, server);
-        return server;
-      }
-      return cached;
+      return data?.valor && typeof data.valor === "object" ? data.valor : {};
     } catch (error) {
-      console.warn("Perfil: usando a cópia local porque a sincronização não respondeu.", error);
-      return cached;
+      console.warn("Perfil: não foi possível carregar a foto personalizada.", error);
+      return {};
     }
   }
 
   async function saveProfile(currentUser, value) {
     if (!currentUser?.id) throw new Error("Usuário não identificado.");
-    const next = value && typeof value === "object" ? value : {};
+    const { error } = await client
+      .from("configuracoes_usuario")
+      .upsert({
+        user_id: currentUser.id,
+        chave: PROFILE_KEY,
+        valor: value || {}
+      }, { onConflict: "user_id,chave" });
 
-    // A foto aparece imediatamente neste navegador, mesmo durante a sincronização.
-    writeProfileCache(currentUser, next);
-
-    const base = client.from("configuracoes_usuario");
-    const { data: existing, error: readError } = await base
-      .select("chave")
-      .eq("user_id", currentUser.id)
-      .eq("chave", PROFILE_KEY)
-      .maybeSingle();
-    if (readError) throw new Error(`Não foi possível verificar o perfil: ${readError.message}`);
-
-    let error = null;
-    if (existing) {
-      ({ error } = await client
-        .from("configuracoes_usuario")
-        .update({ valor: next })
-        .eq("user_id", currentUser.id)
-        .eq("chave", PROFILE_KEY));
-    } else {
-      ({ error } = await client
-        .from("configuracoes_usuario")
-        .insert({ user_id: currentUser.id, chave: PROFILE_KEY, valor: next }));
-    }
-
-    if (error) throw new Error(`A foto foi aplicada neste aparelho, mas não sincronizou: ${error.message}`);
-    writeProfileCache(currentUser, next);
-    window.dispatchEvent(new CustomEvent("mmcd:profile-updated", { detail: { userId: currentUser.id } }));
-    return next;
+    if (error) throw new Error(`Não foi possível salvar o perfil: ${error.message}`);
+    return value || {};
   }
 
   function userLabel(currentUser, profile = {}) {
@@ -238,8 +189,6 @@
     loadProfile,
     saveProfile,
     refreshAccountProfile,
-    PROFILE_KEY,
-    readProfileCache,
-    writeProfileCache
+    PROFILE_KEY
   };
 })();
