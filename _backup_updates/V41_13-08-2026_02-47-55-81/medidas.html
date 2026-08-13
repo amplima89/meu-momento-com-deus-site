@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b1628">
   <title>Medições corporais — Configurações — Life Style</title>
-  <link rel="icon" href="favicon.ico?v=20260813-v41" sizes="any">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260813-v41">
-  <link rel="stylesheet" href="painel.css?v=20260813-v41">
-  <link rel="stylesheet" href="medidas.css?v=20260813-v41">
+  <link rel="icon" href="favicon.ico?v=20260813-v40" sizes="any">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260813-v40">
+  <link rel="stylesheet" href="painel.css?v=20260813-v40">
+  <link rel="stylesheet" href="medidas.css?v=20260813-v40">
 </head>
 <body>
   <div class="app-shell">
@@ -66,7 +66,7 @@
               <p class="eyebrow">Body scan</p>
               <h2>Corpo em leitura</h2>
             </div>
-            <span id="body-scan-count" class="body-scan-count">0/13</span>
+            <span id="body-scan-count" class="body-scan-count">0/11</span>
           </div>
 
           <div class="body-scan-stage">
@@ -85,10 +85,8 @@
               <rect class="body-region" x="142" y="265" width="76" height="42" rx="19" data-region="cintura"/>
               <path class="body-region" d="M137 304 Q180 325 223 304 L234 350 Q180 378 126 350 Z" data-region="quadril"/>
 
-              <path class="body-region" d="M92 116 Q103 108 118 113 L126 194 Q111 204 96 194 L88 128 Z" data-region="bicepsEsquerdo"/>
-              <path class="body-region" d="M96 196 Q111 205 126 196 L130 286 Q116 295 101 286 L95 222 Z" data-region="antebracoEsquerdo"/>
-              <path class="body-region" d="M268 116 Q257 108 242 113 L234 194 Q249 204 264 194 L272 128 Z" data-region="bicepsDireito"/>
-              <path class="body-region" d="M264 196 Q249 205 234 196 L230 286 Q244 295 259 286 L265 222 Z" data-region="antebracoDireito"/>
+              <rect class="body-region" x="88" y="112" width="37" height="175" rx="18" transform="rotate(7 106 200)" data-region="bracoEsquerdo"/>
+              <rect class="body-region" x="235" y="112" width="37" height="175" rx="18" transform="rotate(-7 254 200)" data-region="bracoDireito"/>
 
               <path class="body-region" d="M128 350 Q155 338 174 362 L166 475 Q145 493 119 470 Z" data-region="coxaEsquerda"/>
               <path class="body-region" d="M232 350 Q205 338 186 362 L194 475 Q215 493 241 470 Z" data-region="coxaDireita"/>
@@ -154,12 +152,12 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=20260813-v41"></script>
-  <script src="supabase-client.js?v=20260813-v41"></script>
-  <script src="auth.js?v=20260813-v41"></script>
-  <script src="theme-system.js?v=20260813-v41"></script>
-  <script src="shell.js?v=20260813-v41"></script>
+  <script src="supabase-config.js?v=20260813-v40"></script>
+  <script src="supabase-client.js?v=20260813-v40"></script>
+  <script src="auth.js?v=20260813-v40"></script>
+  <script src="theme-system.js?v=20260813-v40"></script>
+  <script src="shell.js?v=20260813-v40"></script>
   <script>MMCDShell('medidas')</script>
-  <script src="medidas.js?v=20260813-v41"></script>
+  <script src="medidas.js?v=20260813-v40"></script>
 </body>
 </html>

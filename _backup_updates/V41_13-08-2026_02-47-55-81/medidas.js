@@ -13,10 +13,8 @@
     { key: "cintura", label: "Cintura", unit: "cm", region: "cintura", defaultDirection: "down" },
     { key: "abdomen", label: "Abdômen", unit: "cm", region: "abdomen", defaultDirection: "down" },
     { key: "peitoral", label: "Peitoral", unit: "cm", region: "peitoral", defaultDirection: "up" },
-    { key: "bicepsDireito", label: "Bíceps direito", unit: "cm", region: "bicepsDireito", defaultDirection: "up" },
-    { key: "antebracoDireito", label: "Antebraço direito", unit: "cm", region: "antebracoDireito", defaultDirection: "up" },
-    { key: "bicepsEsquerdo", label: "Bíceps esquerdo", unit: "cm", region: "bicepsEsquerdo", defaultDirection: "up" },
-    { key: "antebracoEsquerdo", label: "Antebraço esquerdo", unit: "cm", region: "antebracoEsquerdo", defaultDirection: "up" },
+    { key: "bracoDireito", label: "Braço direito", unit: "cm", region: "bracoDireito", defaultDirection: "up" },
+    { key: "bracoEsquerdo", label: "Braço esquerdo", unit: "cm", region: "bracoEsquerdo", defaultDirection: "up" },
     { key: "quadril", label: "Quadril", unit: "cm", region: "quadril", defaultDirection: "neutral" },
     { key: "coxaDireita", label: "Coxa direita", unit: "cm", region: "coxaDireita", defaultDirection: "up" },
     { key: "coxaEsquerda", label: "Coxa esquerda", unit: "cm", region: "coxaEsquerda", defaultDirection: "up" },
@@ -46,19 +44,6 @@
     if (!normalized) return null;
     const number = Number(normalized);
     return Number.isFinite(number) ? number : null;
-  };
-  const getFieldValue = (row, field) => {
-    if (!row || !field) return null;
-    const direct = parseNumber(row[field.key]);
-    if (Number.isFinite(direct)) return direct;
-
-    if (field.key === "bicepsDireito" || field.key === "antebracoDireito") {
-      return parseNumber(row.bracoDireito);
-    }
-    if (field.key === "bicepsEsquerdo" || field.key === "antebracoEsquerdo") {
-      return parseNumber(row.bracoEsquerdo);
-    }
-    return null;
   };
   const datePt = value => value ? new Date(`${value}T12:00:00`).toLocaleDateString("pt-BR") : "—";
   const uuid = () => crypto.randomUUID ? crypto.randomUUID() : `med-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -207,7 +192,7 @@
       if (!Number.isFinite(value)) continue;
       filled += 1;
 
-      const previousValue = getFieldValue(previous, field);
+      const previousValue = parseNumber(previous?.[field.key]);
       const status = compareStatus(value, previousValue, state.direcoes[field.key] || field.defaultDirection);
 
       fieldCard?.classList.add("is-filled");
@@ -255,8 +240,8 @@
   }
 
   function comparisonItem(field, previous, current) {
-    const before = getFieldValue(previous, field);
-    const after = getFieldValue(current, field);
+    const before = parseNumber(previous?.[field.key]);
+    const after = parseNumber(current?.[field.key]);
     if (!Number.isFinite(before) || !Number.isFinite(after)) return "";
     const delta = after - before;
     const direction = state.direcoes[field.key] || field.defaultDirection;
@@ -295,7 +280,7 @@
     root.innerHTML = `<div class="measure-history-list">${rows.map(row => {
       const chips = FIELDS
         .map(field => {
-          const value = getFieldValue(row, field);
+          const value = parseNumber(row[field.key]);
           if (!Number.isFinite(value)) return "";
           return `<span class="measure-history-chip">${esc(field.label)} ${fmt(value)} ${esc(field.unit)}</span>`;
         })

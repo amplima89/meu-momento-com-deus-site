@@ -1601,15 +1601,7 @@
       });
     }
     // MMCD_ENGLISH_EXPERIENCE_RENDER_END
-    if (window.MMCDEnglishConversation?.render) {
-      await window.MMCDEnglishConversation.render({
-        data: dataAtual(),
-        db,
-        usuario,
-        nivelTexto: nivelBox?.textContent || ""
-      });
-    }
-    await prepararEspacosResposta();
+await prepararEspacosResposta();
   }
 
   function fecharTooltips(excecao = null) {
