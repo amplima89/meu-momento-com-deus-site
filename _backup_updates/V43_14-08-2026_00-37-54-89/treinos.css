@@ -1656,9 +1656,3 @@
 .treino-start-btn--excused{background:color-mix(in srgb,#22c55e 16%,var(--surface-2))!important;border-color:rgba(34,197,94,.34)!important;color:#15803d!important;cursor:not-allowed;opacity:1!important}
 .treino-excused-reason{margin:12px 0 0;padding:11px 13px;border:1px solid rgba(34,197,94,.2);border-radius:12px;background:color-mix(in srgb,#22c55e 6%,var(--surface));color:var(--muted);font-size:.78rem;line-height:1.45}
 .treino-excused-reason strong{color:var(--text)}
-
-/* V43 — abono tem prioridade sobre qualquer estado da sessão */
-.week-day.excused{background:color-mix(in srgb,#16a085 12%,var(--surface));color:#0f8a6c;border-color:color-mix(in srgb,#16a085 34%,var(--line))}
-.week-day.excused strong{font-size:.72rem;font-weight:950;letter-spacing:.04em}
-.calendar-cell.excused i,.calendar-legend i.excused,.history-status.excused{background:#16a085}
-.treino-excused-session-note{margin:10px 0 0;padding:10px 12px;border:1px dashed color-mix(in srgb,#16a085 34%,var(--line));border-radius:11px;color:var(--muted);font-size:.75rem;line-height:1.45}

@@ -871,10 +871,8 @@
       const short=day.toLocaleDateString("pt-BR",{weekday:"short"}).replace(".","");
       const number=day.getDate();
 
-      const excuse=workoutExcuseInfo(iso);
       let cls="future", symbol="○";
       if (work.tipo==="descanso") { cls="rest";symbol="—"; }
-      else if (excuse) { cls="excused";symbol="A"; }
       else if (ses?.status==="concluido") { cls="done";symbol="✓"; }
       else if (ses?.status==="parcial" || ses?.status==="em_andamento") { cls="partial";symbol=iso===today?"▶":"◐"; }
       else if (iso<today) { cls="missed";symbol="×"; }
@@ -882,7 +880,7 @@
 
       if (iso===referenceIso) cls += " selected";
 
-      return `<button class="week-day ${cls}" type="button" data-plan-date="${iso}" aria-label="${esc(dateLabel(iso))}: ${esc(work.nome)}${excuse?" — Abonado":""}">
+      return `<button class="week-day ${cls}" type="button" data-plan-date="${iso}" aria-label="${esc(dateLabel(iso))}: ${esc(work.nome)}">
         <span>${esc(short)}</span>
         <b>${number}</b>
         <strong>${symbol}</strong>
@@ -1000,9 +998,9 @@
     const workout=workoutForDate(iso);
     const session=sessionForDate(iso);
     const program=state.plano.programa;
-    const excuse=workoutExcuseInfo(iso);
+    const excuse=!session ? workoutExcuseInfo(iso) : null;
 
-    if(!excuse && session?.status==="em_andamento" && syncActiveSessionWithPlan()) {
+    if(session?.status==="em_andamento" && syncActiveSessionWithPlan()) {
       saveSessions();
     }
     const navigator=calendarNavigatorHtml();
@@ -1019,6 +1017,11 @@
           <h2>Sem treino programado</h2>
           <p class="muted">Não há treino cadastrado para ${esc(datePt(iso))}.</p>
         </article>`;
+      return;
+    }
+
+    if (!isToday && session) {
+      root.innerHTML=navigator+historicalPlanHtml(workout,session,iso);
       return;
     }
 
@@ -1054,7 +1057,7 @@
       return;
     }
 
-    if (excuse) {
+    if (!session && isToday && excuse) {
       const exercises=plannedPreviewHtml(workout);
       root.innerHTML=`
         ${navigator}
@@ -1070,17 +1073,11 @@
           <div class="today-count">Atividade justificada em Atividades</div>
           <button class="btn treino-start-btn treino-start-btn--excused" type="button" disabled>✓ TREINO ABONADO</button>
           ${excuse.motivo?`<p class="treino-excused-reason"><strong>Motivo:</strong> ${esc(excuse.motivo)}</p>`:""}
-          ${session?`<p class="treino-excused-session-note">Havia uma sessão de treino aberta nesta data. O registro foi preservado, mas ficou bloqueado porque o abono tem prioridade.</p>`:""}
           <details class="today-preview">
             <summary>Ver estrutura que estava programada</summary>
             ${exercises}
           </details>
         </article>`;
-      return;
-    }
-
-    if (!isToday && session) {
-      root.innerHTML=navigator+historicalPlanHtml(workout,session,iso);
       return;
     }
 
@@ -1490,13 +1487,13 @@
     const iso=todayIso();
     const workout=workoutForDate(iso);
     if (!workout || workout.tipo==="descanso") return;
+    if (sessionForDate(iso)) return;
     const excuse=workoutExcuseInfo(iso);
     if(excuse){
       MMCDUI?.toast?.("Este treino está abonado em Atividades e não pode ser iniciado.",3600);
       renderToday();
       return;
     }
-    if (sessionForDate(iso)) return;
     state.sessoes.push(createSession(workout));
     saveSessions();
     openExerciseId=null;
@@ -1819,7 +1816,6 @@
     const work=workoutForDate(iso);
     const ses=sessionForDate(iso);
     if (work?.tipo==="descanso") return "rest";
-    if (workoutExcuseInfo(iso)) return "excused";
     if (ses?.status==="concluido") return "done";
     if (ses?.status==="parcial" || ses?.status==="em_andamento") return "partial";
     if (work && iso<todayIso()) return "missed";
@@ -1850,7 +1846,7 @@
     root.innerHTML=`
       <article class="card calendar-card">
         <div class="calendar-legend">
-          <span><i class="done"></i>Concluído</span><span><i class="excused"></i>Abonado</span><span><i class="partial"></i>Parcial</span><span><i class="missed"></i>Não realizado</span><span><i class="rest"></i>Descanso</span>
+          <span><i class="done"></i>Concluído</span><span><i class="partial"></i>Parcial</span><span><i class="missed"></i>Não realizado</span><span><i class="rest"></i>Descanso</span>
         </div>
         <div class="calendar-weekdays">${["SEG","TER","QUA","QUI","SEX","SÁB","DOM"].map(x=>`<span>${x}</span>`).join("")}</div>
         <div class="calendar-grid">${cells.join("")}</div>
@@ -1864,11 +1860,10 @@
 
   function historyRow(s) {
     const w=state.plano.treinos.find(x=>x.id===s.treinoId);
-    const excused=!!workoutExcuseInfo(s.data);
     return `<button class="history-row" data-history-date="${s.data}">
-      <span class="history-status ${excused?"excused":s.status}"></span>
-      <div><strong>${esc(w?.nome||s.treinoSnapshot?.nome||"Treino")}</strong><small>${datePt(s.data)}${excused?" · Abonado":""}</small></div>
-      <b>${excused?"Abonado":s.duracaoMinutos?`${fmt(s.duracaoMinutos)} min`:"Ver"}</b>
+      <span class="history-status ${s.status}"></span>
+      <div><strong>${esc(w?.nome||s.treinoSnapshot?.nome||"Treino")}</strong><small>${datePt(s.data)}</small></div>
+      <b>${s.duracaoMinutos?`${fmt(s.duracaoMinutos)} min`:"Ver"}</b>
     </button>`;
   }
 
@@ -1876,15 +1871,7 @@
     const card=$("#history-detail-card");
     const session=sessionForDate(iso);
     const workout=workoutForDate(iso);
-    const excuse=workoutExcuseInfo(iso);
     if (!card) return;
-    if (excuse) {
-      card.hidden=false;
-      const preserved=session ? `<p class="muted">Existe um registro de treino preservado nesta data, mas o status efetivo do dia é Abonado.</p>` : "";
-      card.innerHTML=`<button class="detail-close" data-action="close-history">×</button><span class="treino-kicker">${datePt(iso)}</span><h2>${esc(session?.treinoSnapshot?.nome||workout?.nome||"Treino")}</h2><div class="detail-meta"><span>Abonado</span></div>${excuse.motivo?`<p><strong>Motivo:</strong> ${esc(excuse.motivo)}</p>`:""}${preserved}`;
-      card.scrollIntoView({behavior:"smooth",block:"center"});
-      return;
-    }
     if (!session) {
       card.hidden=false;
       card.innerHTML=`<button class="detail-close" data-action="close-history">×</button><span class="treino-kicker">${datePt(iso)}</span><h2>${esc(workout?.nome||"Dia")}</h2><p class="muted">${workout?.tipo==="descanso"?"Descanso programado.":"Nenhum treino registrado nesta data."}</p>`;
@@ -1907,7 +1894,6 @@
       const iso=isoFromDate(d);
       const w=workoutForDate(iso);
       if (!w || w.tipo==="descanso") continue;
-      if (workoutExcuseInfo(iso)) continue;
       const start=state.plano.programa.dataInicio;
       const end=state.plano.programa.dataFim;
       if (start && iso<start) continue;
@@ -2019,10 +2005,9 @@
     if (!root) return;
     const planned=plannedDaysInMonth(reference);
     const sessions=monthSessions(reference);
-    const eligibleSessions=sessions.filter(s=>!workoutExcuseInfo(s.data));
-    const realized=eligibleSessions.filter(s=>["concluido","parcial"].includes(s.status)).length;
-    const completed=eligibleSessions.filter(s=>s.status==="concluido").length;
-    const partial=eligibleSessions.filter(s=>s.status==="parcial").length;
+    const realized=sessions.filter(s=>["concluido","parcial"].includes(s.status)).length;
+    const completed=sessions.filter(s=>s.status==="concluido").length;
+    const partial=sessions.filter(s=>s.status==="parcial").length;
     const adherence=planned?Math.round(realized/planned*100):0;
     const loads=loadProgressRows(reference);
     const options=allExerciseOptions();
