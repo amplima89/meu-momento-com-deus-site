@@ -46,10 +46,6 @@
 
   function toggleEnabled(id,btn){
     if(!api.isAdmin())return;
-    if(id===api.getOfficialTheme?.()){
-      window.MMCDUI?.toast?.('Memory Original é o tema oficial e permanece sempre disponível.',2800);
-      return;
-    }
     const isEnabled=draftEnabled.has(id);
     if(isEnabled && draftEnabled.size===1){
       window.MMCDUI?.toast?.('Mantenha pelo menos uma cor habilitada.',2600);
@@ -73,22 +69,22 @@
       .filter(item=>enabled.includes(item.id))
       .map(item=>`<button type="button" class="appearance-choice ${current===item.id?'active':''}" data-theme-choice="${esc(item.id)}">
         <span class="appearance-swatch" style="--appearance-swatch:${esc(item.swatch)};--appearance-surface:${esc(item.surface)}"></span>
-        <span><strong>${esc(item.label)}${item.official?'<em class="memory-official-badge">Oficial</em>':''}</strong><small>${current===item.id?'Em uso':item.official?'Identidade principal do Memory':'Usar este tema'}</small></span>
+        <span><strong>${esc(item.label)}</strong><small>${current===item.id?'Em uso':'Usar este tema'}</small></span>
         <b>${current===item.id?'✓':''}</b>
       </button>`).join('');
 
     const rows=catalog.map(item=>{
       const on=draftEnabled.has(item.id);
-      return `<button type="button" class="appearance-enable ${on?'is-enabled':''}" data-theme-enabled-toggle="${esc(item.id)}" aria-pressed="${on?'true':'false'}" ${(admin&&!item.official)?'':'disabled'}>
+      return `<button type="button" class="appearance-enable ${on?'is-enabled':''}" data-theme-enabled-toggle="${esc(item.id)}" aria-pressed="${on?'true':'false'}" ${admin?'':'disabled'}>
         <span class="appearance-swatch" style="--appearance-swatch:${esc(item.swatch)};--appearance-surface:${esc(item.surface)}"></span>
-        <span class="appearance-enable__copy"><strong>${esc(item.label)}${item.official?'<em class="memory-official-badge">Oficial</em>':''}</strong><small>${item.official?'Sempre disponível':esc(item.short)}</small></span>
+        <span class="appearance-enable__copy"><strong>${esc(item.label)}</strong><small>${esc(item.short)}</small></span>
         <span class="appearance-enable__toggle" aria-label="${on?'Tema habilitado':'Tema desabilitado'}">${on?'✓':''}</span>
       </button>`;
     }).join('');
 
     root.innerHTML=`<section class="card appearance-card">
       <div class="appearance-head">
-        <div><p class="eyebrow">Temas de cores</p><h2>Sua aparência</h2><p class="muted">Memory Original é a identidade oficial. As demais paletas continuam disponíveis para você alternar quando quiser.</p></div>
+        <div><p class="eyebrow">Temas de cores</p><h2>Sua aparência</h2><p class="muted">A paleta escolhida é individual para cada usuário.</p></div>
         <span class="appearance-badge">Conta atual</span>
       </div>
       <div class="appearance-choices">${choices}</div>

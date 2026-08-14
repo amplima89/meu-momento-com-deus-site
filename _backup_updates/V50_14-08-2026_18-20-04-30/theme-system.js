@@ -8,11 +8,8 @@ window.MMCDTheme = (() => {
   const LOCAL_ENABLED_KEY = "mmcd:themes:enabled";
   const LOCAL_THEME_KEY = "mmcd:tema";
   const REMOTE_SYNC_MIN_MS = 5000;
-  const DEFAULT_THEME = "memory-original";
-  const OFFICIAL_MIGRATION_KEY = "memory:official-theme:v50";
 
   const catalog = [
-    {id:"memory-original",label:"Memory Original",short:"Tema oficial",swatch:"#a99cff",surface:"#07182f",dark:true,themeColor:"#07182f",official:true},
     {id:"claro",label:"Branco + azul",short:"Azul",swatch:"#2563eb",surface:"#ffffff",dark:false,themeColor:"#f6f7f9"},
     {id:"azul",label:"Azul profundo",short:"Azul",swatch:"#2f6fed",surface:"#dce9ff",dark:false,themeColor:"#e8f1ff"},
     {id:"rosa",label:"Rosa claro",short:"Rosa",swatch:"#c85b8e",surface:"#fff8fb",dark:false,themeColor:"#fff3f8"},
@@ -29,7 +26,7 @@ window.MMCDTheme = (() => {
   const state = {
     user:null,
     enabled:catalog.map(x=>x.id),
-    current:DEFAULT_THEME,
+    current:"claro",
     admin:false,
     systemStorage:false,
     initialized:false,
@@ -41,19 +38,18 @@ window.MMCDTheme = (() => {
   const esc = value => window.MMCDUI?.esc ? window.MMCDUI.esc(value) : String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const validTheme = id => catalog.some(x=>x.id===id);
   const uniqValid = ids => [...new Set((Array.isArray(ids)?ids:[]).filter(validTheme))];
-  const withOfficial = ids => [DEFAULT_THEME, ...uniqValid(ids).filter(id=>id!==DEFAULT_THEME)];
   const theme = id => catalog.find(x=>x.id===id) || catalog[0];
 
   function readLocalEnabled(){
     try{
       const parsed=JSON.parse(localStorage.getItem(LOCAL_ENABLED_KEY)||"null");
       const ids=uniqValid(parsed);
-      return ids.length ? withOfficial(ids) : catalog.map(x=>x.id);
+      return ids.length ? ids : catalog.map(x=>x.id);
     }catch{return catalog.map(x=>x.id);}
   }
 
   function apply(id,{persistLocal=true}={}){
-    let next=validTheme(id)?id:DEFAULT_THEME;
+    let next=validTheme(id)?id:"claro";
     if(state.enabled.length && !state.enabled.includes(next)) next=state.enabled[0];
     state.current=next;
     document.documentElement.dataset.tema=next;
@@ -85,7 +81,7 @@ window.MMCDTheme = (() => {
   }
 
   async function loadUserPreference(){
-    const local=localStorage.getItem(LOCAL_THEME_KEY)||DEFAULT_THEME;
+    const local=localStorage.getItem(LOCAL_THEME_KEY)||"claro";
     if(!db || !state.user) return local;
     try{
       return (await fetchRemoteUserPreference()) || local;
@@ -172,13 +168,13 @@ window.MMCDTheme = (() => {
         const ids=uniqValid(data?.valor?.enabled);
         if(ids.length){
           state.systemStorage=true;
-          return withOfficial(ids);
+          return ids;
         }
       }catch(error){
         console.info("Temas: catálogo da conta indisponível; usando catálogo local.");
       }
     }
-    return withOfficial(readLocalEnabled());
+    return readLocalEnabled();
   }
 
   async function init({active=""}={}){
@@ -188,8 +184,8 @@ window.MMCDTheme = (() => {
     }
     state.activePage=active;
     // Aplica imediatamente a preferência local para evitar troca visual tardia.
-    state.enabled=withOfficial(readLocalEnabled());
-    apply(localStorage.getItem(LOCAL_THEME_KEY)||DEFAULT_THEME,{persistLocal:false});
+    state.enabled=readLocalEnabled();
+    apply(localStorage.getItem(LOCAL_THEME_KEY)||"claro",{persistLocal:false});
 
     try{
       const session=await window.MMCDAuth?.requireSession?.();
@@ -199,18 +195,10 @@ window.MMCDTheme = (() => {
     }
 
     state.admin=await detectAdmin();
-    state.enabled=withOfficial(await loadEnabled());
+    state.enabled=await loadEnabled();
     localStorage.setItem(LOCAL_ENABLED_KEY,JSON.stringify(state.enabled));
-
-    const firstOfficialRun=localStorage.getItem(OFFICIAL_MIGRATION_KEY)!=="1";
-    if(firstOfficialRun){
-      apply(DEFAULT_THEME);
-      localStorage.setItem(OFFICIAL_MIGRATION_KEY,"1");
-      try{ await saveUserPreference(DEFAULT_THEME); }catch(error){ console.info("Memory Original: sincronização inicial pendente.",error); }
-    }else{
-      const remoteTheme=await loadUserPreference();
-      apply(remoteTheme);
-    }
+    const remoteTheme=await loadUserPreference();
+    apply(remoteTheme);
     state.lastRemoteSync=Date.now();
     bindThemeButtons();
     bindRemoteSync();
@@ -233,7 +221,7 @@ window.MMCDTheme = (() => {
   }
 
   async function saveEnabled(ids){
-    const next=withOfficial(ids);
+    const next=uniqValid(ids);
     if(!next.length) throw new Error("Mantenha pelo menos um tema habilitado.");
     state.enabled=next;
     localStorage.setItem(LOCAL_ENABLED_KEY,JSON.stringify(next));
@@ -315,11 +303,10 @@ window.MMCDTheme = (() => {
   function getCurrent(){ return state.current; }
   function isAdmin(){ return !!state.admin; }
   function governanceMode(){ return state.systemStorage ? "account" : "local"; }
-  function getOfficialTheme(){ return DEFAULT_THEME; }
 
   // Pré-aplicação síncrona para páginas que carregam o shell depois do CSS.
-  state.enabled=withOfficial(readLocalEnabled());
-  apply(localStorage.getItem(LOCAL_THEME_KEY)||DEFAULT_THEME,{persistLocal:false});
+  state.enabled=readLocalEnabled();
+  apply(localStorage.getItem(LOCAL_THEME_KEY)||"claro",{persistLocal:false});
 
-  return {init,apply,setTheme,saveEnabled,syncThemeFromRemote,bindThemeButtons,getCatalog,getEnabled,getCurrent,isAdmin,isDark,governanceMode,getOfficialTheme};
+  return {init,apply,setTheme,saveEnabled,syncThemeFromRemote,bindThemeButtons,getCatalog,getEnabled,getCurrent,isAdmin,isDark,governanceMode};
 })();

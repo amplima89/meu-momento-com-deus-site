@@ -1,29 +1,5 @@
 "use strict";
 window.MMCDShell=async function(active){
- // V50: carrega a identidade oficial Memory com URL nova para evitar cache antigo/PWA.
- if(!document.querySelector('link[data-memory-original-v50]')){
-  const css=document.createElement('link');
-  css.rel='stylesheet';
-  css.href='./memory-original-v50.css?v=20260814-v50';
-  css.dataset.memoryOriginalV50='1';
-  document.head.append(css);
- }
- if(!window.MMCDTheme?.getCatalog?.().some?.(item=>item.id==='memory-original')){
-  await new Promise(resolve=>{
-   const existing=document.querySelector('script[data-memory-theme-v50]');
-   if(existing){
-    if(window.MMCDTheme?.getCatalog?.().some?.(item=>item.id==='memory-original')) resolve();
-    else existing.addEventListener('load',resolve,{once:true});
-    return;
-   }
-   const script=document.createElement('script');
-   script.src='./theme-system-v50.js?v=20260814-v50';
-   script.dataset.memoryThemeV50='1';
-   script.onload=resolve;
-   script.onerror=resolve;
-   document.head.append(script);
-  });
- }
  const nav=[
   ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
   ['meditacao','meditacao.html','02','🙏','Meditação','Momento com Deus','Meditação'],
