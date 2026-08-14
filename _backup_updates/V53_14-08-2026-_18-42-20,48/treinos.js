@@ -1100,7 +1100,7 @@
             ${intensityFlames(workout.intensidade)}
           </div>
           <div class="today-count">${workout.tipo==="futebol" ? "Jogo + aquecimento" : workout.tipo==="cardio" ? "Protocolo + core" : `${(workout.exercicios||[]).length} exercícios`}</div>
-          <button class="btn treino-start-btn" type="button" data-action="start-workout" onclick="return window.MemoryStartWorkoutNow(this,event)" ontouchend="return window.MemoryStartWorkoutNow(this,event)">INICIAR TREINO</button>
+          <button class="btn treino-start-btn" type="button" data-action="start-workout">INICIAR TREINO</button>
           <details class="today-preview">
             <summary>Ver estrutura de hoje</summary>
             ${exercises}
@@ -1539,20 +1539,6 @@
       startingWorkout=false;
     }
   }
-
-  // V53 — acionamento direto e robusto para iPhone/Safari.
-  // O touchend chama o treino sem depender da delegação global de cliques.
-  // O click subsequente do iOS é ignorado por alguns milissegundos.
-  let memoryLastStartTrigger=0;
-  window.MemoryStartWorkoutNow=(button,event)=>{
-    event?.preventDefault?.();
-    event?.stopPropagation?.();
-    const now=Date.now();
-    if(now-memoryLastStartTrigger<800) return false;
-    memoryLastStartTrigger=now;
-    startWorkout(button);
-    return false;
-  };
 
   function findSessionExercise(exerciseId) {
     const session=sessionForDate(todayIso());
