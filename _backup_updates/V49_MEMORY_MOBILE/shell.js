@@ -14,13 +14,6 @@ window.MMCDShell=async function(active){
  const settingsWorkout=active==='treinos-config';
  const storedSettingsOpen=localStorage.getItem('mmcd:sidebar:settings-open');
  const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
- const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark.png?v=20260814-memory-v49" alt=""></span>
-   <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
-   <span class="sidebar-mobile-label">Memory</span>
-   <span class="sidebar-link__arrow" aria-hidden="true">›</span>
-  </a>`;
  const navHtml=nav.map(x=>`
   <a class="sidebar-link ${active===x[0]?'active':''}" href="${x[1]}">
    <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">${x[2]}</span><span class="sidebar-icon-mobile" aria-hidden="true">${x[3]}</span></span>
@@ -32,7 +25,7 @@ window.MMCDShell=async function(active){
   <aside class="sidebar sidebar-v24">
    <a class="sidebar-brand" href="memory.html" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="./memory-mark.png?v=20260814-memory-v49" alt="Memory">
+     <img src="./memory-mark.png?v=20260814-memory-v48" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -42,7 +35,6 @@ window.MMCDShell=async function(active){
    </a>
    <div class="sidebar-nav__section-label">PRINCIPAL</div>
    <nav class="sidebar-nav" aria-label="Navegação principal">
-    ${mobileMemoryHtml}
     ${navHtml}
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
     <div class="sidebar-settings ${settingsOpen?'open':''}">
@@ -109,31 +101,19 @@ window.MMCDShell=async function(active){
     text-transform:none;
     color:#8793a7;
    }
-   .sidebar-memory-mobile{display:none!important}
-   .sidebar-memory-mobile__icon{overflow:hidden;padding:0!important;background:#071a39!important;border-color:rgba(116,216,244,.22)!important}
-   .sidebar-memory-mobile__icon img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
-   .memory-topbar-brand{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none}
-   .memory-topbar-brand img{display:none;width:30px;height:30px;border-radius:9px;object-fit:cover;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:#071a39}
-   .memory-topbar-brand span{font:650 .82rem/1 Inter,"Segoe UI",Arial,sans-serif;letter-spacing:.015em;text-transform:none}
-   @media(max-width:760px){
-    .sidebar-v24 .sidebar-memory-mobile{display:grid!important}
-    .memory-topbar-brand img{display:block}
-    .app-topbar__title{letter-spacing:0!important}
-    .memory-topbar-brand span{font-size:.88rem;color:var(--text)}
-   }
   `;
   document.head.append(brandStyle);
  }
  document.body.insertAdjacentHTML('afterbegin',sidebarHtml);
  document.body.classList.add('app-body');
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html" aria-label="Abrir Memory"><img src="./memory-mark.png?v=20260814-memory-v49" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.textContent='MEMORY'});
  document.title=document.title.replace(/Life Style/gi,'Memory').replace(/Meu Momento com Deus$/i,'Memory');
 
  // Recarrega a identidade visual sem depender do cache antigo do navegador/PWA.
  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(link=>{
   try{
    const url=new URL(link.getAttribute('href'),location.href);
-   url.searchParams.set('memoryv','20260814-memory-v49');
+   url.searchParams.set('memoryv','20260814-memory-v48');
    link.setAttribute('href',url.pathname.split('/').pop()+url.search);
   }catch{}
  });
