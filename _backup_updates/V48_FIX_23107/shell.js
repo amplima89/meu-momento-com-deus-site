@@ -1,6 +1,7 @@
 "use strict";
 window.MMCDShell=async function(active){
  const nav=[
+  ['memory','memory.html','00','∞','Memory','Propósito e essência','Memory'],
   ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
   ['meditacao','meditacao.html','02','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','03','📖','Bíblia','Leitura e anotações','Bíblia'],
@@ -23,9 +24,9 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="index.html" aria-label="Abrir site do Memory" title="Abrir site do Memory">
     <span class="sidebar-brand__mark">
-     <img src="./memory-mark.png?v=20260814-memory-v48" alt="Memory">
+     <img src="./memory-mark.png?v=20260814-memory-v44" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -72,9 +73,9 @@ window.MMCDShell=async function(active){
     <small>Um dia de cada vez.</small>
    </div>
   </aside>`;
- if(!document.querySelector('#memory-brand-v48-style')){
+ if(!document.querySelector('#memory-brand-v47-style')){
   const brandStyle=document.createElement('style');
-  brandStyle.id='memory-brand-v48-style';
+  brandStyle.id='memory-brand-v47-style';
   brandStyle.textContent=`
    .sidebar-v24 .sidebar-brand{
     border-radius:13px;
@@ -113,7 +114,7 @@ window.MMCDShell=async function(active){
  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(link=>{
   try{
    const url=new URL(link.getAttribute('href'),location.href);
-   url.searchParams.set('memoryv','20260814-memory-v48');
+   url.searchParams.set('memoryv','20260814-memory-v44');
    link.setAttribute('href',url.pathname.split('/').pop()+url.search);
   }catch{}
  });
