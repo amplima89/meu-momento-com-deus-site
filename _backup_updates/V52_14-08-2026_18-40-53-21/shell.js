@@ -150,61 +150,6 @@ window.MMCDShell=async function(active){
  }
  document.body.insertAdjacentHTML('afterbegin',sidebarHtml);
  document.body.classList.add('app-body');
-
- // V52 — proteção global contra ghost click no mobile.
- // Em iOS/Safari, um toque em controles próximos da navegação fixa pode gerar
- // um segundo click depois que a tela foi redesenhada. Esse click não pode
- // virar navegação para outro módulo. A navegação só é liberada quando o
- // próprio gesto começou dentro do item de menu escolhido.
- if(!window.__memoryMobileNavGuardInstalled){
-  window.__memoryMobileNavGuardInstalled=true;
-  let guardUntil=0;
-  let navGestureTarget=null;
-  const mobileGuardActive=()=>window.matchMedia?.('(max-width:760px)').matches;
-  const navControl=target=>target?.closest?.('.sidebar a[href],.sidebar button,.mobile-subnav-layer a[href],.mobile-subnav-layer button');
-  const appContent=target=>target?.closest?.('.app-main,main,.app-topbar');
-  const armGuard=(ms=1100)=>{if(mobileGuardActive())guardUntil=Date.now()+ms};
-  const startGesture=event=>{
-   if(!mobileGuardActive())return;
-   const nav=navControl(event.target);
-   if(nav){
-    navGestureTarget=nav;
-    guardUntil=0;
-    return;
-   }
-   navGestureTarget=null;
-   if(appContent(event.target))armGuard();
-  };
-  document.addEventListener('pointerdown',startGesture,{capture:true,passive:true});
-  document.addEventListener('touchstart',startGesture,{capture:true,passive:true});
-  document.addEventListener('click',event=>{
-   if(!mobileGuardActive())return;
-   const nav=navControl(event.target);
-   if(!nav)return;
-   const intentional=navGestureTarget===nav;
-   if(Date.now()<guardUntil&&!intentional){
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation?.();
-    guardUntil=0;
-    navGestureTarget=null;
-    return;
-   }
-   guardUntil=0;
-   navGestureTarget=null;
-  },true);
-  window.MMCDMobileNavGuard={arm:armGuard};
-
-  if(!document.querySelector('#memory-mobile-guard-v52-style')){
-   const style=document.createElement('style');
-   style.id='memory-mobile-guard-v52-style';
-   style.textContent=`@media(max-width:760px){
-    .app-main button,.app-main input,.app-main select,.app-main textarea,.app-main label,.app-main a,.app-topbar button,.app-topbar a{touch-action:manipulation}
-    .sidebar-nav{touch-action:pan-x}
-   }`;
-   document.head.append(style);
-  }
- }
  document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html" aria-label="Abrir Memory"><img src="./memory-mark.png?v=20260814-memory-v49" alt=""><span>Memory</span></a>'});
  document.title=document.title.replace(/Life Style/gi,'Memory').replace(/Meu Momento com Deus$/i,'Memory');
 

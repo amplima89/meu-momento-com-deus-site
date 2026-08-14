@@ -227,25 +227,10 @@
     });
 
     root.querySelectorAll("[data-go-step]").forEach(button => {
-      button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        window.MMCDMobileNavGuard?.arm?.(1200);
-        goStep(Number(button.dataset.goStep));
-      });
+      button.addEventListener("click", () => goStep(Number(button.dataset.goStep)));
     });
-    root.querySelector("[data-prev-step]")?.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
-      window.MMCDMobileNavGuard?.arm?.(1200);
-      goStep(state.currentStep - 1);
-    });
-    root.querySelector("[data-next-step]")?.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
-      window.MMCDMobileNavGuard?.arm?.(1200);
-      goStep(state.currentStep + 1);
-    });
+    root.querySelector("[data-prev-step]")?.addEventListener("click", () => goStep(state.currentStep - 1));
+    root.querySelector("[data-next-step]")?.addEventListener("click", () => goStep(state.currentStep + 1));
 
     updateBodyScan();
   }
@@ -273,10 +258,7 @@
     renderCurrentStep();
     renderCompletedSteps();
     const card = document.querySelector(".measure-form-card");
-    if (window.innerWidth <= 720) {
-      window.MMCDMobileNavGuard?.arm?.(1200);
-      requestAnimationFrame(() => card?.scrollIntoView({ behavior: "auto", block: "start" }));
-    }
+    if (window.innerWidth <= 720) card?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function renderCompletedSteps() {
@@ -291,12 +273,7 @@
       </button>`;
     }).join("");
     root.querySelectorAll("[data-summary-step]").forEach(button => {
-      button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        window.MMCDMobileNavGuard?.arm?.(1200);
-        goStep(Number(button.dataset.summaryStep));
-      });
+      button.addEventListener("click", () => goStep(Number(button.dataset.summaryStep)));
     });
   }
 
