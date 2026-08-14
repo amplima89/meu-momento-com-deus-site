@@ -24,7 +24,6 @@
   };
 
   let openExerciseId=null;
-  let startingWorkout=false;
 
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
@@ -1100,7 +1099,7 @@
             ${intensityFlames(workout.intensidade)}
           </div>
           <div class="today-count">${workout.tipo==="futebol" ? "Jogo + aquecimento" : workout.tipo==="cardio" ? "Protocolo + core" : `${(workout.exercicios||[]).length} exercícios`}</div>
-          <button class="btn treino-start-btn" type="button" data-action="start-workout">INICIAR TREINO</button>
+          <button class="btn treino-start-btn" data-action="start-workout">INICIAR TREINO</button>
           <details class="today-preview">
             <summary>Ver estrutura de hoje</summary>
             ${exercises}
@@ -1487,57 +1486,22 @@
     return `<label class="field"><span>${esc(label)}</span><input type="number" inputmode="decimal" min="${min}" max="${max}" step="${step}" value="${esc(value)}" data-special="${group}" data-field="${field}" ${locked?"disabled":""}></label>`;
   }
 
-  async function startWorkout(button=null) {
-    if(startingWorkout) return;
+  function startWorkout() {
     const iso=todayIso();
     const workout=workoutForDate(iso);
-
-    if (!workout || workout.tipo==="descanso") {
-      MMCDUI?.toast?.("Não há treino disponível para iniciar hoje.",3200);
-      return;
-    }
-
+    if (!workout || workout.tipo==="descanso") return;
     const excuse=workoutExcuseInfo(iso);
     if(excuse){
       MMCDUI?.toast?.("Este treino está abonado em Atividades e não pode ser iniciado.",3600);
       renderToday();
       return;
     }
-
-    const existing=sessionForDate(iso);
-    if(existing){
-      renderAll();
-      requestAnimationFrame(()=>$(".active-workout-head")?.scrollIntoView({behavior:"smooth",block:"start"}));
-      return;
-    }
-
-    startingWorkout=true;
-    if(button){
-      button.disabled=true;
-      button.dataset.originalLabel=button.textContent;
-      button.textContent="ABRINDO TREINO...";
-    }
-
-    let created=null;
-    try{
-      created=createSession(workout);
-      state.sessoes.push(created);
-      openExerciseId=null;
-
-      // Atualiza a tela imediatamente. O usuário não precisa esperar o Supabase responder.
-      renderAll();
-      requestAnimationFrame(()=>$(".active-workout-head")?.scrollIntoView({behavior:"smooth",block:"start"}));
-
-      await saveSessions();
-      status("Dados online · Supabase","saved");
-    }catch(error){
-      console.error("Falha ao iniciar treino:",error);
-      if(created) state.sessoes=state.sessoes.filter(item=>item.id!==created.id);
-      renderAll();
-      MMCDUI?.toast?.(`Não foi possível iniciar o treino${error?.message ? `: ${error.message}` : "."}`,5000);
-    }finally{
-      startingWorkout=false;
-    }
+    if (sessionForDate(iso)) return;
+    state.sessoes.push(createSession(workout));
+    saveSessions();
+    openExerciseId=null;
+    renderAll();
+    requestAnimationFrame(()=>$(".active-workout-head")?.scrollIntoView({behavior:"smooth",block:"start"}));
   }
 
   function findSessionExercise(exerciseId) {
@@ -2476,15 +2440,6 @@
   }
 
   function bindEvents() {
-    // Tratamento dedicado do botão de início. Usa capture para funcionar mesmo quando
-    // algum componente do shell/mobile interrompe a propagação normal do clique.
-    document.addEventListener("click",event=>{
-      const start=event.target?.closest?.('[data-action="start-workout"]');
-      if(!start) return;
-      event.preventDefault();
-      startWorkout(start);
-    },true);
-
     document.addEventListener("click",event=>{
       const tab=event.target.closest("[data-tab]");
       if(tab){
@@ -2533,7 +2488,7 @@
       const action=event.target.closest("[data-action]");
       if(action){
         const a=action.dataset.action;
-        if(a==="start-workout") return;
+        if(a==="start-workout") startWorkout();
         else if(a==="toggle-exercise") toggleExercisePanel(action.dataset.exerciseId);
         else if(a==="toggle-series") toggleSeries(action.dataset.exerciseId,action.dataset.series);
         else if(a==="copy-last") copyLast(action.dataset.exerciseId);
