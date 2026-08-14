@@ -1,7 +1,6 @@
 "use strict";
 window.MMCDShell=async function(active){
  const nav=[
-  ['memory','memory.html','00','∞','Memory','Propósito e essência','Memory'],
   ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
   ['meditacao','meditacao.html','02','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','03','📖','Bíblia','Leitura e anotações','Bíblia'],
@@ -24,14 +23,14 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="index.html" aria-label="Abrir site do Memory" title="Abrir site do Memory">
+   <a class="sidebar-brand" href="painel.html" aria-label="Memory — início">
     <span class="sidebar-brand__mark">
-     <img src="./memory-mark.png?v=20260814-memory-v44" alt="Memory">
+     <img src="./memory-mark.png?v=20260814-memory-v42" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
-     <strong>Memory</strong>
-     <small>cuidado e evolução</small>
+     <strong>MEMORY</strong>
+     <small>CUIDADO E EVOLUÇÃO</small>
     </div>
    </a>
    <div class="sidebar-nav__section-label">PRINCIPAL</div>
@@ -73,38 +72,6 @@ window.MMCDShell=async function(active){
     <small>Um dia de cada vez.</small>
    </div>
   </aside>`;
- if(!document.querySelector('#memory-brand-v47-style')){
-  const brandStyle=document.createElement('style');
-  brandStyle.id='memory-brand-v47-style';
-  brandStyle.textContent=`
-   .sidebar-v24 .sidebar-brand{
-    border-radius:13px;
-    transition:background .18s ease,border-color .18s ease,transform .18s ease;
-   }
-   .sidebar-v24 .sidebar-brand:hover{
-    background:rgba(255,255,255,.035);
-    border-bottom-color:rgba(116,216,244,.24);
-   }
-   .sidebar-v24 .sidebar-brand:active{transform:translateY(1px)}
-   .sidebar-v24 .sidebar-brand__copy strong{
-    font-family:Inter,"Segoe UI",Arial,sans-serif;
-    font-size:1.02rem;
-    font-weight:620;
-    letter-spacing:-.018em;
-    line-height:1.05;
-    text-transform:none;
-   }
-   .sidebar-v24 .sidebar-brand__copy small{
-    margin-top:5px;
-    font-size:.51rem;
-    font-weight:580;
-    letter-spacing:.075em;
-    text-transform:none;
-    color:#8793a7;
-   }
-  `;
-  document.head.append(brandStyle);
- }
  document.body.insertAdjacentHTML('afterbegin',sidebarHtml);
  document.body.classList.add('app-body');
  document.querySelectorAll('.app-topbar__title').forEach(el=>{el.textContent='MEMORY'});
@@ -114,7 +81,7 @@ window.MMCDShell=async function(active){
  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(link=>{
   try{
    const url=new URL(link.getAttribute('href'),location.href);
-   url.searchParams.set('memoryv','20260814-memory-v44');
+   url.searchParams.set('memoryv','20260814-memory-v42');
    link.setAttribute('href',url.pathname.split('/').pop()+url.search);
   }catch{}
  });
