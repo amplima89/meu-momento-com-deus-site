@@ -1024,7 +1024,7 @@
   document.querySelector("#last-meditation").innerHTML = lastMed
     ? `<p class="meditation-date">${MMCDUI.date(lastMed)}</p>
        <p class="meditation-note">${meditationDaysAgo === 0 ? "Concluída hoje." : `Há ${meditationDaysAgo} dia${meditationDaysAgo === 1 ? "" : "s"}.`} O card considera apenas meditações realmente concluídas.</p>
-       <a class="text-link" href="index.html">Abrir meditação →</a>`
+       <a class="text-link" href="meditacao.html">Abrir meditação →</a>`
     : `<div class="empty">${latestPublishedMeditation ? "Há meditação disponível, mas nenhuma foi marcada como concluída ainda." : "Nenhuma meditação registrada."}</div>`;
 })().catch(error => {
   console.error(error);

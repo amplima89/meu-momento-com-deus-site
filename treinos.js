@@ -998,6 +998,7 @@
     const workout=workoutForDate(iso);
     const session=sessionForDate(iso);
     const program=state.plano.programa;
+    const excuse=!session ? workoutExcuseInfo(iso) : null;
 
     if(session?.status==="em_andamento" && syncActiveSessionWithPlan()) {
       saveSessions();
@@ -1052,6 +1053,30 @@
           <div class="selected-plan-count">${workout.tipo==="futebol"?"Jogo + aquecimento":workout.tipo==="cardio"?"Protocolo + core":`${(workout.exercicios||[]).length} exercícios`}</div>
           ${plannedPreviewHtml(workout)}
           <div class="selected-plan-note">Visualização do plano. Para registrar a execução, abra o treino na data correspondente.</div>
+        </article>`;
+      return;
+    }
+
+    if (!session && isToday && excuse) {
+      const exercises=plannedPreviewHtml(workout);
+      root.innerHTML=`
+        ${navigator}
+        <article class="card today-start-card treino-excused-card">
+          <div class="today-start-card__top">
+            <div>
+              <span class="treino-kicker">TREINO ABONADO</span>
+              <h2>${esc(workout.tituloCurto)}</h2>
+              <p>${esc(workout.objetivo)}</p>
+            </div>
+            ${intensityFlames(workout.intensidade)}
+          </div>
+          <div class="today-count">Atividade justificada em Atividades</div>
+          <button class="btn treino-start-btn treino-start-btn--excused" type="button" disabled>✓ TREINO ABONADO</button>
+          ${excuse.motivo?`<p class="treino-excused-reason"><strong>Motivo:</strong> ${esc(excuse.motivo)}</p>`:""}
+          <details class="today-preview">
+            <summary>Ver estrutura que estava programada</summary>
+            ${exercises}
+          </details>
         </article>`;
       return;
     }
@@ -1463,6 +1488,12 @@
     const workout=workoutForDate(iso);
     if (!workout || workout.tipo==="descanso") return;
     if (sessionForDate(iso)) return;
+    const excuse=workoutExcuseInfo(iso);
+    if(excuse){
+      MMCDUI?.toast?.("Este treino está abonado em Atividades e não pode ser iniciado.",3600);
+      renderToday();
+      return;
+    }
     state.sessoes.push(createSession(workout));
     saveSessions();
     openExerciseId=null;
@@ -1620,6 +1651,15 @@
     return active.map(meta=>({meta,score:scoreWorkoutActivity(meta)}))
       .filter(x=>x.score>0)
       .sort((a,b)=>b.score-a.score)[0]?.meta || null;
+  }
+
+  function workoutExcuseInfo(date=todayIso()) {
+    if(!window.MMCD || !state.atividadesData) return null;
+    const meta=activityMetaForWorkout(date);
+    if(!meta) return null;
+    const row=window.MMCD.registro(state.atividadesData,date,meta.id);
+    if(!window.MMCD.estaAbonada(row)) return null;
+    return {meta,row,motivo:window.MMCD.motivoAbono(row)};
   }
 
   function workoutHadEffort(session) {

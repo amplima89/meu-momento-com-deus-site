@@ -85,14 +85,14 @@
     root.innerHTML=`<section class="card appearance-card">
       <div class="appearance-head">
         <div><p class="eyebrow">Temas de cores</p><h2>Sua aparência</h2><p class="muted">A paleta escolhida é individual para cada usuário.</p></div>
-        <span class="appearance-badge">${api.governanceMode()==='global'?'Multiusuário':'Compatível'}</span>
+        <span class="appearance-badge">Conta atual</span>
       </div>
       <div class="appearance-choices">${choices}</div>
       <div class="appearance-admin">
         <div class="appearance-admin__head"><div><strong>Administração das paletas</strong><small>${admin?'Toque em uma cor para habilitar ou desabilitar. A alteração só é aplicada ao tocar em Salvar.':'Somente administradores podem alterar o catálogo disponível.'}</small></div></div>
         <div class="appearance-enable-grid">${rows}</div>
         ${admin?'<div class="appearance-actions"><button type="button" class="btn primary" id="appearance-save">Salvar cores habilitadas</button></div>':''}
-        ${api.governanceMode()!=='global'?'<p class="appearance-note">Para a liberação de cores valer globalmente para todos os usuários, execute a migração <strong>SUPABASE_TEMAS_MULTIUSUARIO.sql</strong> incluída no projeto.</p>':''}
+        
       </div>
     </section>`;
 
@@ -136,7 +136,7 @@
         const result=await api.saveEnabled(orderedDraft());
         draftEnabled=new Set(result.enabled||api.getEnabled());
         render();
-        window.MMCDUI?.toast?.(result.savedGlobal?'Cores habilitadas para o projeto.':'Cores salvas neste ambiente.',3000);
+        window.MMCDUI?.toast?.(result.savedGlobal?'Cores sincronizadas na sua conta.':'Cores salvas neste aparelho.',3000);
       }catch(err){
         button.disabled=false;
         button.textContent='Salvar cores habilitadas';

@@ -719,15 +719,21 @@
         !== normalizarCorrecaoEstruturada(original)
     );
 
+    const equivalenteAoOriginal = Boolean(corrigido) && normalizarCorrecaoEstruturada(corrigido) === normalizarCorrecaoEstruturada(original);
+    const validada = a.correta === true || equivalenteAoOriginal;
+    const erroConfirmado = a.erroConfirmado === true || a.penalizar === true;
+    const revisar = !validada && !erroConfirmado;
+
     return `
-      <section class="english-analysis ${a.correta ? "is-good" : "needs-work"}">
+      <section class="english-analysis ${validada ? "is-good" : revisar ? "is-pending" : "needs-work"}">
         <div class="english-analysis__head">
-          <div><span>Correção da escrita</span><strong>${a.correta ? "Estrutura correta" : "Há ajustes importantes"}</strong></div>
-          <b>${a.correta ? "✓" : "✎"}</b>
+          <div><span>Correção da escrita</span><strong>${validada ? "Estrutura válida" : revisar ? "Sugestão para revisar" : "Há ajustes importantes"}</strong></div>
+          <b>${validada ? "✓" : revisar ? "?" : "✎"}</b>
         </div>
         <div class="english-analysis__row"><span>Sua resposta</span><p>${escaparHtml(original)}</p></div>
-        ${mostrarCorrecao ? `<div class="english-analysis__row"><span>Forma corrigida</span><p>${escaparHtml(corrigido)}</p></div>` : ""}
-        ${a.explicacao ? `<div class="english-analysis__row"><span>${a.correta ? "Resultado" : "O que ajustar"}</span><p>${escaparHtml(a.explicacao)}</p></div>` : ""}
+        ${mostrarCorrecao ? `<div class="english-analysis__row"><span>Alternativa sugerida</span><p>${escaparHtml(corrigido)}</p></div>` : ""}
+        ${a.explicacao ? `<div class="english-analysis__row"><span>${validada ? "Resultado" : revisar ? "Por que revisar" : "O que ajustar"}</span><p>${escaparHtml(a.explicacao)}</p></div>` : ""}
+        ${revisar ? '<p class="english-analysis__disclaimer">Uma resposta diferente do modelo pode continuar correta. Este item não reduz sua métrica de Escrita até existir confirmação de erro.</p>' : ''}
       </section>`;
   }
 

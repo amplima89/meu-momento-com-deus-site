@@ -16,12 +16,16 @@
     return data?.valor && typeof data.valor === "object" ? data.valor : {};
   }
 
-  const [producoes, estruturas, revisao, series] = await Promise.all([
+  const [producoes, estruturas, series, conversas] = await Promise.all([
     readKey("ingles_producoes_v1"),
     readKey("ingles_estruturas_v1"),
-    readKey("ingles_estruturas_revisao_v2"),
-    readKey("historico_series_ingles_v1")
+    readKey("historico_series_ingles_v1"),
+    readKey("ingles_conversas_v1")
   ]);
+
+  let appData = null;
+  try { appData = await window.MMCD?.carregar?.(); }
+  catch (error) { console.warn("Evolução do inglês: rotina configurada indisponível.", error); }
 
   const clamp = value => Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
   const percentage = (a, b) => b ? Math.round(a * 100 / b) : null;
@@ -33,12 +37,22 @@
     }
     return null;
   };
+  const normalizeSentence = value => String(value || "")
+    .toLocaleLowerCase("en-US")
+    .replace(/[.!?]+$/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const normalizeLabel = value => String(value || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR");
 
   const studyDates = new Set();
   const days = producoes?.dias && typeof producoes.dias === "object" ? producoes.dias : {};
 
   let writingTotal = 0;
-  let writingCorrect = 0;
+  let writingValidated = 0;
+  let writingReview = 0;
+  let writingConfirmedErrors = 0;
   const readingScores = [];
   const speakingScores = [];
   let speakingAnalyses = 0;
@@ -49,9 +63,19 @@
 
     const writing = day.escrita;
     if (writing?.analise && typeof writing.analise === "object") {
-      if (typeof writing.analise.correta === "boolean") {
+      const analysis = writing.analise;
+      if (typeof analysis.correta === "boolean") {
         writingTotal += 1;
-        if (writing.analise.correta) writingCorrect += 1;
+        if (analysis.correta) {
+          writingValidated += 1;
+        } else {
+          const original = normalizeSentence(writing.texto || writing.rascunho || "");
+          const corrected = normalizeSentence(analysis.textoCorrigido || "");
+          const explicitlyConfirmed = analysis.erroConfirmado === true || analysis.penalizar === true;
+          if (corrected && corrected === original) writingValidated += 1;
+          else if (explicitlyConfirmed) writingConfirmedErrors += 1;
+          else writingReview += 1;
+        }
       }
     }
 
@@ -90,18 +114,6 @@
     grammarCounts[family] = (grammarCounts[family] || 0) + 1;
   }
 
-  let remembered = 0;
-  let forgotten = 0;
-  const reviewItems = revisao?.itens && typeof revisao.itens === "object" ? revisao.itens : {};
-  for (const item of Object.values(reviewItems)) {
-    const answers = item?.respostas && typeof item.respostas === "object" ? item.respostas : {};
-    for (const [dateIso, answer] of Object.entries(answers)) {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) studyDates.add(dateIso);
-      if (answer === "sim") remembered += 1;
-      if (answer === "nao") forgotten += 1;
-    }
-  }
-
   let difficultLines = 0;
   let answeredLines = 0;
   const seriesItems = Array.isArray(series?.itens) ? series.itens : [];
@@ -116,43 +128,94 @@
     }
   }
 
-  const writingScore = percentage(writingCorrect, writingTotal);
+  let conversationAnswers = 0;
+  let conversationExpected = 0;
+  let conversationCompleted = 0;
+  let conversationStage = 0;
+  const conversationSessions = Array.isArray(conversas?.sessions) ? conversas.sessions : [];
+  for (const item of conversationSessions) {
+    const dateIso = String(item?.date || "");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) studyDates.add(dateIso);
+    const stage = Math.max(1, Math.min(4, Number(item?.stage || 1)));
+    conversationStage = Math.max(conversationStage, stage);
+    const expected = stage === 1 ? 3 : 4;
+    const answers = Array.isArray(item?.answers)
+      ? item.answers.filter(answer => String(answer?.text || "").trim())
+      : [];
+    conversationAnswers += Math.min(expected, answers.length);
+    conversationExpected += expected;
+    if (item?.completed) conversationCompleted += 1;
+  }
+
+  const writingDenominator = writingValidated + writingConfirmedErrors;
+  const writingScore = writingDenominator ? percentage(writingValidated, writingDenominator) : null;
   const readingScore = average(readingScores);
   const speakingScore = average(speakingScores);
-  const vocabularyScore = percentage(remembered, remembered + forgotten);
+  const conversationScore = conversationExpected ? percentage(conversationAnswers, conversationExpected) : null;
   const listeningScore = answeredLines ? percentage(answeredLines - difficultLines, answeredLines) : null;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const isoLocal = date => {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  };
   const last30 = [];
   for (let i = 29; i >= 0; i -= 1) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = isoLocal(d);
     last30.push({ iso, active: studyDates.has(iso) });
   }
   const activeDays = last30.filter(item => item.active).length;
-  const consistencyScore = clamp(activeDays / 20 * 100);
+
+  const studySorted = [...studyDates].filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
+  const firstStudy = studySorted[0] || isoLocal(today);
+  const thirtyStart = isoLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29));
+  const periodStart = firstStudy > thirtyStart ? firstStudy : thirtyStart;
+  const englishMetaIds = new Set((appData?.metas || []).filter(meta => {
+    const label = normalizeLabel(`${meta?.nome || ""} ${meta?.categoria || ""}`);
+    return meta?.ativa !== false && (label.includes("ingles") || label.includes("english"));
+  }).map(meta => String(meta.id)));
+
+  const expectedDates = [];
+  const cursor = new Date(`${periodStart}T12:00:00`);
+  while (cursor <= today) {
+    const iso = isoLocal(cursor);
+    let expected = true;
+    if (englishMetaIds.size && window.MMCD?.metasNaData) {
+      const activeMetas = window.MMCD.metasNaData(appData, iso) || [];
+      expected = activeMetas.some(meta => englishMetaIds.has(String(meta.id)));
+    }
+    if (expected) expectedDates.push(iso);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  const completedExpected = expectedDates.filter(iso => studyDates.has(iso)).length;
+  const consistencyScore = expectedDates.length ? percentage(completedExpected, expectedDates.length) : (activeDays ? 100 : 0);
 
   const skills = {
     reading: { label: "Leitura", score: readingScore, samples: readingScores.length,
       detail: readingScores.length ? `${readingScores.length} gravação(ões) analisada(s)` : "sem gravação analisada" },
     writing: { label: "Escrita", score: writingScore, samples: writingTotal,
-      detail: writingTotal ? `${writingCorrect}/${writingTotal} produções estruturalmente corretas` : "sem produção corrigida" },
+      detail: writingTotal
+        ? `${writingValidated} validada(s) · ${writingReview} para revisar${writingConfirmedErrors ? ` · ${writingConfirmedErrors} erro(s) confirmado(s)` : ""}`
+        : "sem produção corrigida" },
     speaking: { label: "Fala", score: speakingScore, samples: speakingAnalyses,
       detail: speakingAnalyses
         ? (speakingScores.length ? `${speakingAnalyses} análise(s) com indicador numérico` : `${speakingAnalyses} análise(s), ainda sem nota numérica`)
         : "sem fala analisada" },
-    vocabulary: { label: "Vocabulário", score: vocabularyScore, samples: remembered + forgotten,
-      detail: remembered + forgotten ? `${remembered} lembradas · ${forgotten} para reforçar` : "sem revisão respondida" },
+    conversation: { label: "Conversação", score: conversationScore, samples: conversationSessions.length,
+      detail: conversationExpected
+        ? `${conversationAnswers}/${conversationExpected} respostas · ${conversationCompleted} conversa(s) concluída(s) · estágio ${conversationStage || 1}`
+        : "sem conversa registrada" },
     listening: { label: "Compreensão em cenas", score: listeningScore, samples: answeredLines,
       detail: answeredLines ? `${difficultLines}/${answeredLines} falas marcadas como difíceis` : "sem falas avaliadas" },
-    consistency: { label: "Consistência", score: consistencyScore, samples: activeDays,
-      detail: `${activeDays} dias com estudo nos últimos 30` }
+    consistency: { label: "Consistência", score: consistencyScore, samples: completedExpected,
+      detail: expectedDates.length ? `${completedExpected}/${expectedDates.length} dias previstos cumpridos no período atual` : "sem dias previstos no período" }
   };
 
   const adaptiveSkills = Object.values(skills)
-    .filter(item => item !== skills.consistency && item.score !== null && Number.isFinite(item.score));
+    .filter(item => item !== skills.consistency && item !== skills.conversation && item.score !== null && Number.isFinite(item.score));
   const overallEvidence = adaptiveSkills.length
     ? clamp(adaptiveSkills.reduce((sum, item) => sum + item.score, 0) / adaptiveSkills.length)
     : null;
@@ -169,13 +232,15 @@
 
   const latest = [...studyDates].sort().pop() || "";
   const summary = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     atualizadoEm: new Date().toISOString(),
     overall: overallEvidence,
     decision,
     priority,
     reason,
     studyDays30: activeDays,
+    studyDaysExpected: expectedDates.length,
+    studyDaysCompletedExpected: completedExpected,
     latestActivity: latest,
     skills: Object.fromEntries(Object.entries(skills).map(([key, item]) => [key, {
       score: item.score === null ? null : clamp(item.score),
@@ -206,9 +271,10 @@
     : "Algumas habilidades precisam de reforço";
   const overallText = document.querySelector("#english-overall-text");
   if (overallText) overallText.textContent =
-    "Este índice resume evidências registradas no Life Style; não é uma nota de fluência nem uma classificação CEFR.";
-  document.querySelector("#english-study-days").textContent =
-    `${activeDays} dia${activeDays === 1 ? "" : "s"} estudado${activeDays === 1 ? "" : "s"} nos últimos 30`;
+    "Este índice resume evidências registradas no Memory; não é uma nota de fluência nem uma classificação CEFR.";
+  document.querySelector("#english-study-days").textContent = expectedDates.length
+    ? `${completedExpected}/${expectedDates.length} dias previstos cumpridos`
+    : `${activeDays} dia${activeDays === 1 ? "" : "s"} com estudo`;
   document.querySelector("#english-last-activity").textContent =
     `Última atividade: ${latest ? latest.split("-").reverse().join("/") : "—"}`;
   document.querySelector("#english-next-focus-title").textContent = priority;
@@ -230,14 +296,14 @@
   ).join("");
 
   const evidence = [];
-  if (writingTotal) evidence.push(["Escrita", `${writingCorrect}/${writingTotal} produções corrigidas como estruturalmente corretas.`]);
+  if (writingTotal) evidence.push(["Escrita", `${writingValidated} resposta(s) validada(s); ${writingReview} aguardando revisão para evitar penalizar alternativas corretas.`]);
   if (readingScores.length) evidence.push(["Leitura em voz alta", `${readingScores.length} gravação(ões), clareza média de reconhecimento ${clamp(readingScore)}%.`]);
   if (speakingAnalyses) evidence.push(["Fala", speakingScores.length
     ? `${speakingAnalyses} análise(s), indicador médio ${clamp(speakingScore)}%.`
     : `${speakingAnalyses} análise(s) concluída(s). O corretor atual ainda não grava uma nota numérica confiável para todas elas.`]);
-  if (remembered + forgotten) evidence.push(["Memória ativa", `${remembered} lembradas e ${forgotten} para reforçar.`]);
+  if (conversationExpected) evidence.push(["Conversação", `${conversationAnswers}/${conversationExpected} respostas registradas; ${conversationCompleted} conversa(s) concluída(s), estágio ${conversationStage || 1}.`]);
   if (answeredLines) evidence.push(["Séries", `${difficultLines} de ${answeredLines} falas respondidas foram marcadas como difíceis.`]);
-  evidence.push(["Consistência", `${activeDays} dias com evidência de estudo nos últimos 30.`]);
+  evidence.push(["Consistência", expectedDates.length ? `${completedExpected} de ${expectedDates.length} dias previstos cumpridos no período já transcorrido.` : `${activeDays} dias com evidência de estudo.`]);
 
   document.querySelector("#english-evidence-list").innerHTML = evidence.map(([title, text]) =>
     `<div class="english-evidence-item"><i></i><div><strong>${title}</strong><span>${text}</span></div></div>`

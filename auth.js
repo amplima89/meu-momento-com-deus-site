@@ -15,8 +15,8 @@
       overlay.innerHTML = `
         <section class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
           <p class="eyebrow">Acesso seguro</p>
-          <h1 id="auth-title">Meu Momento com Deus</h1>
-          <p>Entre com sua conta do GitHub para acessar e salvar seus dados.</p>
+          <h1 id="auth-title">Memory</h1>
+          <p>Entre com sua conta do GitHub para acessar seu espaço de cuidado, evolução e memória.</p>
           <p id="mmcd-auth-error" class="auth-error"></p>
           <button id="mmcd-login-github" class="btn primary" type="button">Entrar com GitHub</button>
         </section>`;

@@ -413,7 +413,7 @@
       <ul class="focus-action">
         <li>Defina antecipadamente o horário mínimo para executar essa atividade.</li>
         <li>Reduza a tarefa para uma versão pequena, mas concluível, nos dias de menor energia.</li>
-        <li>Marque no Life Style imediatamente após concluir para não perder o registro.</li>
+        <li>Marque no Memory imediatamente após concluir para não perder o registro.</li>
       </ul>`;
   }
 

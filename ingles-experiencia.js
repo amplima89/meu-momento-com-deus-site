@@ -442,7 +442,7 @@
           <p class="english-block-kicker">6 · Série ou filme</p>
           <h2>${esc(item?.titulo || "Série ou filme")}</h2>
           <p class="series-final-subtitle">
-            Trecho original do arquivo de legenda que você salvou no Life Style. Leia tudo aqui; não é necessário abrir o episódio.
+            Trecho original do arquivo de legenda que você salvou no Memory. Leia tudo aqui; não é necessário abrir o episódio.
           </p>
         </div>
         <div class="series-final-side">

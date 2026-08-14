@@ -1650,3 +1650,9 @@
   .finish-feedback__option{min-width:64px}
 }
 /* MMCD_TREINO_V30_THEME_CHECKOUT_HIIT_END */
+
+/* V42 — treino abonado */
+.treino-excused-card{border-color:rgba(34,197,94,.28);background:color-mix(in srgb,#22c55e 5%,var(--surface))}
+.treino-start-btn--excused{background:color-mix(in srgb,#22c55e 16%,var(--surface-2))!important;border-color:rgba(34,197,94,.34)!important;color:#15803d!important;cursor:not-allowed;opacity:1!important}
+.treino-excused-reason{margin:12px 0 0;padding:11px 13px;border:1px solid rgba(34,197,94,.2);border-radius:12px;background:color-mix(in srgb,#22c55e 6%,var(--surface));color:var(--muted);font-size:.78rem;line-height:1.45}
+.treino-excused-reason strong{color:var(--text)}

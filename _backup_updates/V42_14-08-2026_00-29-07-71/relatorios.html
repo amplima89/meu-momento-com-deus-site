@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Análise de atividades — Life Style</title>
+  <link rel="stylesheet" href="painel.css?v=20260812-themes-v32">
+  <link rel="stylesheet" href="relatorios.css?v=20260806-abono1">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div>
+          <span class="app-topbar__title">LIFE STYLE</span>
+          <span class="app-topbar__subtitle">Análise das suas atividades</span>
+        </div>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+      </div>
+    </header>
+
+    <main class="app-main activity-analysis-page">
+      <section class="page-header analysis-header">
+        <div>
+          <p class="eyebrow">Últimos 7 dias</p>
+          <h1>Análise das atividades</h1>
+          <p class="muted">
+            Uma leitura objetiva dos sete dias completos anteriores. O dia vigente não entra no cálculo.
+          </p>
+        </div>
+        <div class="analysis-period">
+          <span>Período analisado</span>
+          <strong id="analysis-period-label">Carregando...</strong>
+        </div>
+      </section>
+
+      <section id="activity-kpis" class="activity-kpis" aria-live="polite"></section>
+
+      <section class="analysis-grid">
+        <article class="card section analysis-main-card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Leitura da semana</p>
+              <h2>O que os registros mostram</h2>
+            </div>
+            <span id="weekly-status-badge" class="analysis-badge">Analisando</span>
+          </div>
+          <div id="weekly-summary" class="analysis-prose loading-copy">
+            Preparando a análise dos últimos 7 dias...
+          </div>
+        </article>
+
+        <article class="card section insight-card insight-positive">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Pontos fortes</p>
+              <h2>Onde você foi bem</h2>
+            </div>
+          </div>
+          <div id="weekly-strengths" class="insight-list"></div>
+        </article>
+
+        <article class="card section insight-card insight-warning">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Pontos fracos</p>
+              <h2>O que foi negligenciado</h2>
+            </div>
+          </div>
+          <div id="weekly-weaknesses" class="insight-list"></div>
+        </article>
+
+        <section class="radar-grid" aria-label="Gráficos de execução">
+          <article class="card section radar-card radar-card--goals">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Metas individuais</p>
+                <h2>Radar por atividade</h2>
+                <p class="muted">Cada eixo representa uma meta cadastrada.</p>
+              </div>
+              <span class="radar-scale">Centro 0% · borda 100%</span>
+            </div>
+            <div id="goal-radar-empty" class="radar-empty" hidden></div>
+            <canvas id="goal-radar" height="310" aria-label="Radar das metas individuais"></canvas>
+            <div id="goal-radar-legend" class="radar-legend"></div>
+          </article>
+
+          <article class="card section radar-card radar-card--groups">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Visão agrupada</p>
+                <h2>Radar por categoria</h2>
+                <p class="muted">As atividades são consolidadas por área.</p>
+              </div>
+              <span class="radar-scale">Centro 0% · borda 100%</span>
+            </div>
+            <div id="group-radar-empty" class="radar-empty" hidden></div>
+            <canvas id="group-radar" height="310" aria-label="Radar agrupado por categoria"></canvas>
+            <div id="group-radar-legend" class="radar-legend"></div>
+          </article>
+        </section>
+
+        <details class="card section activity-performance-card evidence-panel">
+          <summary class="evidence-summary">
+            <div>
+              <p class="eyebrow">Evidências</p>
+              <h2>Desempenho por atividade</h2>
+              <p class="muted">Abra para conferir os números que sustentam os dois radares.</p>
+            </div>
+            <div class="evidence-summary__action">
+              <span id="evidence-summary-badge" class="analysis-badge">Carregando</span>
+              <span class="evidence-chevron" aria-hidden="true">⌄</span>
+            </div>
+          </summary>
+          <div class="evidence-panel__body">
+            <p class="muted evidence-rule">Somente oportunidades válidas já encerradas. Abonos ficam visíveis, mas não contam como conclusão nem como falha.</p>
+            <div id="activity-performance" class="activity-performance"></div>
+          </div>
+        </details>
+
+        <article class="card section next-focus-card next-focus-card--wide">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Próximos 7 dias</p>
+              <h2>Foco recomendado</h2>
+              <p class="muted">Ação prioritária construída a partir das evidências da semana.</p>
+            </div>
+          </div>
+          <div id="next-focus" class="focus-content focus-content--wide"></div>
+        </article>
+
+        <article class="card section monthly-analysis-card">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Visão ampliada</p>
+              <h2 id="monthly-title">Análise mensal</h2>
+              <p id="monthly-period-label" class="muted"></p>
+            </div>
+            <span id="monthly-status-badge" class="analysis-badge">Mês</span>
+          </div>
+          <div id="monthly-summary" class="analysis-prose"></div>
+          <div id="monthly-highlights" class="monthly-highlights"></div>
+        </article>
+      </section>
+
+      <p id="analysis-footnote" class="analysis-footnote"></p>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=1"></script>
+  <script src="supabase-client.js?v=1"></script>
+  <script src="auth.js?v=1"></script>
+  <script src="dados-app.js?v=20260806-abono1"></script>
+  <script src="theme-system.js?v=20260812-themes-v37-utf8"></script><script src="shell.js?v=20260813-v40"></script>
+  <script>MMCDShell('estatisticas')</script>
+  <script src="relatorios.js?v=20260806-abono1"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 window.MMCDShell=async function(active){
  const nav=[
   ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
-  ['meditacao','index.html','02','🙏','Meditação','Momento com Deus','Meditação'],
+  ['meditacao','meditacao.html','02','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','03','📖','Bíblia','Leitura e anotações','Bíblia'],
   ['ingles','ingles.html','04','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
   ['treinos','treinos.html#hoje','05','🏋️','Treinos','Plano de treino','Treinos'],
@@ -23,14 +23,14 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="painel.html" aria-label="Life Style — início">
+   <a class="sidebar-brand" href="painel.html" aria-label="Memory — início">
     <span class="sidebar-brand__mark">
-     <img src="./logo-ls-sidebar.png?v=20260813-brand-v40" alt="Life Style">
-     <span class="sidebar-brand__fallback" aria-hidden="true">LS</span>
+     <img src="./memory-mark.png?v=20260814-memory-v42" alt="Memory">
+     <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
-     <strong>LIFE STYLE</strong>
-     <small>SISTEMA DE EVOLUÇÃO</small>
+     <strong>MEMORY</strong>
+     <small>CUIDADO E EVOLUÇÃO</small>
     </div>
    </a>
    <div class="sidebar-nav__section-label">PRINCIPAL</div>
@@ -74,12 +74,14 @@ window.MMCDShell=async function(active){
   </aside>`;
  document.body.insertAdjacentHTML('afterbegin',sidebarHtml);
  document.body.classList.add('app-body');
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.textContent='MEMORY'});
+ document.title=document.title.replace(/Life Style/gi,'Memory').replace(/Meu Momento com Deus$/i,'Memory');
 
  // Recarrega a identidade visual sem depender do cache antigo do navegador/PWA.
  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(link=>{
   try{
    const url=new URL(link.getAttribute('href'),location.href);
-   url.searchParams.set('lsv','20260813-brand-v40');
+   url.searchParams.set('memoryv','20260814-memory-v42');
    link.setAttribute('href',url.pathname.split('/').pop()+url.search);
   }catch{}
  });

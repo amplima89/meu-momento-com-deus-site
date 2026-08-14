@@ -4,6 +4,7 @@ window.MMCDTheme = (() => {
   const db = window.MMCDSupabase;
   const USER_PREF_KEY = "tema_visual_v1";
   const SYSTEM_KEY = "temas_habilitados_v1";
+  const USER_ENABLED_KEY = "temas_habilitados_usuario_v1";
   const LOCAL_ENABLED_KEY = "mmcd:themes:enabled";
   const LOCAL_THEME_KEY = "mmcd:tema";
   const REMOTE_SYNC_MIN_MS = 5000;
@@ -149,42 +150,28 @@ window.MMCDTheme = (() => {
   }
 
   async function detectAdmin(){
-    if(!db || !state.user) return false;
-    try{
-      let {data,error}=await db.from("mmcd_administradores")
-        .select("user_id")
-        .eq("user_id",state.user.id)
-        .maybeSingle();
-      if(error) throw error;
-      if(data?.user_id) return true;
-
-      // Em uma instalação nova, somente a página de Configurações tenta assumir o primeiro administrador.
-      if(state.activePage==="treinos-config" || state.activePage==="aparencia"){
-        const claim=await db.rpc("mmcd_claim_first_admin");
-        if(!claim.error && claim.data===true) return true;
-      }
-      return false;
-    }catch(error){
-      // Compatibilidade com a instalação atual, que ainda não possui as tabelas de governança.
-      console.info("Temas: governança global ainda não instalada; usando modo compatível.");
-      return state.activePage==="treinos-config" || state.activePage==="aparencia";
-    }
+    // Enquanto o projeto possui uma única conta, o usuário autenticado administra
+    // o próprio catálogo sem depender de tabelas administrativas adicionais.
+    return !!state.user;
   }
 
   async function loadEnabled(){
     state.systemStorage=false;
     if(db && state.user){
       try{
-        const {data,error}=await db.from("mmcd_configuracoes_sistema")
+        const {data,error}=await db.from("configuracoes_usuario")
           .select("valor")
-          .eq("chave",SYSTEM_KEY)
+          .eq("user_id",state.user.id)
+          .eq("chave",USER_ENABLED_KEY)
           .maybeSingle();
         if(error) throw error;
-        state.systemStorage=true;
         const ids=uniqValid(data?.valor?.enabled);
-        if(ids.length) return ids;
+        if(ids.length){
+          state.systemStorage=true;
+          return ids;
+        }
       }catch(error){
-        console.info("Temas: catálogo compartilhado indisponível; usando catálogo local.");
+        console.info("Temas: catálogo da conta indisponível; usando catálogo local.");
       }
     }
     return readLocalEnabled();
@@ -240,19 +227,27 @@ window.MMCDTheme = (() => {
     localStorage.setItem(LOCAL_ENABLED_KEY,JSON.stringify(next));
 
     let savedGlobal=false;
-    if(db && state.user && state.admin){
+    if(db && state.user){
       try{
-        const {error}=await db.from("mmcd_configuracoes_sistema").upsert({
-          chave:SYSTEM_KEY,
-          valor:{enabled:next,atualizadoEm:new Date().toISOString()},
-          atualizado_por:state.user.id,
-          atualizado_em:new Date().toISOString()
-        },{onConflict:"chave"});
-        if(error) throw error;
+        const valor={enabled:next,atualizadoEm:new Date().toISOString()};
+        const updated=await db.from("configuracoes_usuario")
+          .update({valor})
+          .eq("user_id",state.user.id)
+          .eq("chave",USER_ENABLED_KEY)
+          .select("user_id,chave");
+        if(updated.error) throw updated.error;
+        if(!Array.isArray(updated.data) || !updated.data.length){
+          const inserted=await db.from("configuracoes_usuario").insert({
+            user_id:state.user.id,
+            chave:USER_ENABLED_KEY,
+            valor
+          });
+          if(inserted.error) throw inserted.error;
+        }
         state.systemStorage=true;
         savedGlobal=true;
       }catch(error){
-        console.info("Temas: salvamento global indisponível; mantendo configuração local.");
+        console.info("Temas: sincronização do catálogo da conta indisponível; mantendo configuração local.",error);
       }
     }
 
@@ -307,7 +302,7 @@ window.MMCDTheme = (() => {
   function getEnabled(){ return [...state.enabled]; }
   function getCurrent(){ return state.current; }
   function isAdmin(){ return !!state.admin; }
-  function governanceMode(){ return state.systemStorage ? "global" : "local"; }
+  function governanceMode(){ return state.systemStorage ? "account" : "local"; }
 
   // Pré-aplicação síncrona para páginas que carregam o shell depois do CSS.
   state.enabled=readLocalEnabled();
