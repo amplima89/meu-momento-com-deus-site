@@ -4,7 +4,7 @@ window.MMCD_TREINO_PLANO_PADRAO = {
   schemaVersion: 3,
   programa: {
     id: "pai-atleta-hardcore-fase-1",
-    nome: "Hardcore | Fase 1",
+    nome: "Projeto Pai Atleta — Hardcore | Fase 1",
     objetivo: "Físico atlético + definição superior + pernas fortes + condicionamento para futebol",
     dataInicio: "2026-08-12",
     dataFim: "",

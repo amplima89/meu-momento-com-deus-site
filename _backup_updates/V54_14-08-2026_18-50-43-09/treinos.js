@@ -273,15 +273,6 @@
     ]);
 
     state.plano = normalizePlan(planValue);
-
-    // V54 — remove o nome legado "Projeto Pai Atleta" sem alterar o restante do plano.
-    const programNameBefore = String(state.plano?.programa?.nome || "");
-    const programNameAfter = programNameBefore
-      .replace(/^\s*Projeto\s+Pai\s+Atleta\s*[—–-]\s*/i, "")
-      .trim();
-    const programNameMigrated = Boolean(programNameAfter && programNameAfter !== programNameBefore);
-    if (programNameMigrated) state.plano.programa.nome = programNameAfter;
-
     const hardcorePhaseMigrated = upgradeHardcorePhasePlan(state.plano);
     const footballPlanMigrated = upgradeFootballWarmupPlan(state.plano);
 
@@ -293,7 +284,7 @@
       state.plano.programa.dataInicio = todayIso();
     }
 
-    if (!planValue || programNameMigrated || hardcorePhaseMigrated || footballPlanMigrated) {
+    if (!planValue || hardcorePhaseMigrated || footballPlanMigrated) {
       await saveKey(KEYS.plano, {...state.plano, atualizadoEm:new Date().toISOString()});
     }
     if (!sessionsValue) {
@@ -365,7 +356,7 @@
     if (ex.registro === "protocolo") {
       return {
         exercicioId:ex.id,nome:ex.nome,equipamento:ex.equipamento||"",grupo:ex.grupo||"",registro:"protocolo",
-        observacao:ex.observacao||"",planejado:planned,series:[{numero:1,concluida:false}]
+        observacao:ex.observacao||"",planejado,series:[{numero:1,concluida:false}]
       };
     }
     return {
