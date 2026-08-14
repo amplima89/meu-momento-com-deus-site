@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.ico?v=20260814-memory-v42" sizes="any">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260814-memory-v42">
   <link rel="stylesheet" href="painel.css?v=20260813-v41">
-  <link rel="stylesheet" href="medidas.css?v=20260814-v46">
+  <link rel="stylesheet" href="medidas.css?v=20260813-v41">
 </head>
 <body>
   <div class="app-shell">
@@ -40,38 +40,24 @@
             <div>
               <p class="eyebrow">Leitura corporal</p>
               <h2>Nova medição</h2>
-              <p class="muted">Siga o corpo de cima para baixo. Só a região atual fica aberta; as anteriores viram um resumo compacto.</p>
+              <p class="muted">Preencha apenas o que medir hoje. A direção desejada fica salva para as próximas comparações.</p>
             </div>
             <span class="measure-db-badge">Supabase</span>
           </div>
 
           <form id="measure-form" autocomplete="off">
-            <div class="guided-measure-date">
-              <label class="field">
-                <span>Data da medição</span>
-                <input id="measure-date" name="data" type="date" required>
-              </label>
-              <div class="guided-measure-date__note">
-                <span>Body Scan guiado</span>
-                <strong>Um grupo corporal por vez</strong>
-              </div>
-            </div>
+            <div id="measure-fields" class="measure-fields"></div>
 
-            <div id="measure-fields" class="measure-fields measure-fields--guided"></div>
-
-            <label id="measure-observation-wrap" class="field measure-observation" hidden>
-              <span>Observação final</span>
-              <textarea id="measure-observation-input" name="observacao" placeholder="Ex.: medida pela manhã, em jejum, após treino..."></textarea>
+            <label class="field measure-observation">
+              <span>Observação</span>
+              <textarea name="observacao" placeholder="Ex.: medida pela manhã, em jejum, após treino..."></textarea>
             </label>
-          </form>
 
-          <div class="guided-measure-summary">
-            <div class="guided-measure-summary__head">
-              <span>Seu percurso corporal</span>
-              <small>Toque em uma etapa para revisar.</small>
+            <div class="measure-form-actions">
+              <span id="measure-form-hint" class="muted">Campos vazios permanecem transparentes no mapa.</span>
+              <button class="btn primary" type="submit">+ Salvar medição</button>
             </div>
-            <div id="measure-step-summary"></div>
-          </div>
+          </form>
         </article>
 
         <aside class="card body-scan-card">
@@ -174,6 +160,6 @@
   <script src="theme-system.js?v=20260814-memory-v42"></script>
   <script src="shell.js?v=20260814-memory-v42"></script>
   <script>MMCDShell('medidas')</script>
-  <script src="medidas.js?v=20260814-v46"></script>
+  <script src="medidas.js?v=20260813-v41"></script>
 </body>
 </html>
