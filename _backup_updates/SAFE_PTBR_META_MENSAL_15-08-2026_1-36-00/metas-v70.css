@@ -1,9 +1,0 @@
-/* MEMORY V69 — programação semanal flexível */
-.weekly-flex-info{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:start;margin:14px 0 16px;padding:14px 15px;border:1px solid color-mix(in srgb,var(--line) 72%,#7a8cff 28%);border-radius:15px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface-2) 96%,#6d8cff 4%),var(--surface-2))}
-.weekly-flex-info__icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:20px;font-weight:900}
-.weekly-flex-info strong{display:block;margin:1px 0 4px;font-size:.9rem}.weekly-flex-info p{margin:0;color:var(--muted);font-size:.76rem;line-height:1.5}
-.weekly-flex-pill{display:inline-flex;align-items:center;width:max-content;margin-top:6px;padding:4px 8px;border-radius:999px;background:rgba(111,120,255,.12);border:1px solid rgba(111,120,255,.18);color:color-mix(in srgb,var(--accent) 80%,#fff 20%);font-size:10.5px;font-weight:850}
-#goal-frequency:disabled{opacity:.7;cursor:not-allowed}
-@media(max-width:700px){.weekly-flex-info{grid-template-columns:36px minmax(0,1fr);padding:12px}.weekly-flex-info__icon{width:34px;height:34px;border-radius:10px;font-size:18px}.weekly-flex-info p{font-size:.72rem}}
-
-.monthly-flex-info{border-color:color-mix(in srgb,var(--line) 70%,#5bb8ff 30%)}

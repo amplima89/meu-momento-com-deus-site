@@ -6,3 +6,11 @@ ATUALIZAR_SITE.ps1
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Backups e temporários — V77
+_backup_updates/
+backup-atualizacao-*/
+*.bak
+*.old
+*.tmp
+*~

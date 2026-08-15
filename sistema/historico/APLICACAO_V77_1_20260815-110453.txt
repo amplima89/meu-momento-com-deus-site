@@ -1,0 +1,6 @@
+﻿Memory V77.1 - Limpeza inicial com autodeteccao
+Aplicada em: 15/08/2026 11:04:53
+Site: C:\Users\andre\OneDrive\meu-momento-com-deus-site
+Automacao: C:\Users\andre\OneDrive\Meu Momento com Deus
+Arquivos legados removidos: 63
+Status: validacao local concluida

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1628">
+<title>Memory - Histórico de melhorias</title>
+<link rel="icon" type="image/png" href="memory-mark-v62.png">
+<link rel="stylesheet" href="painel.css?v=20260815-v77">
+<style>
+.update-list{display:grid;gap:16px;max-width:980px}.update-card{padding:22px}.update-head{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.update-version{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:700;color:var(--accent)}.update-card ul{margin:16px 0 0;padding-left:20px;display:grid;gap:8px;color:var(--muted)}.update-card li strong{color:var(--text)}.update-rule{margin-top:18px;padding:14px 16px;border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line))}
+</style>
+</head>
+<body><div class="app-shell"><header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">Memory</span><span class="app-topbar__subtitle">Histórico de melhorias</span></div><button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button></div></header>
+<main class="app-main"><section class="page-header"><div><p class="eyebrow">Evolução do projeto</p><h1>O que mudou no Memory</h1><p class="muted">Cada pacote aplicado passa a deixar um registro aqui. Assim, a evolução do projeto fica rastreável sem depender das pastas de backup.</p></div></section>
+<section class="update-list">
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Instalador com localização automática do projeto</h2></div><span class="update-version">V77.1</span></div>
+<ul>
+<li><strong>Autodetecção das pastas:</strong> o pacote agora localiza automaticamente <code>meu-momento-com-deus-site</code> e <code>Meu Momento com Deus</code>, inclusive quando estiverem no OneDrive.</li>
+<li><strong>Pacote independente:</strong> a atualização pode ser extraída em Downloads, Área de Trabalho ou outro local sem precisar ficar ao lado do projeto.</li>
+<li><strong>Validação de segurança:</strong> o instalador só aceita as pastas encontradas quando identifica arquivos estruturais esperados do Memory.</li>
+<li><strong>Extração simplificada:</strong> o BAT passa a ficar diretamente na raiz do pacote extraído, evitando a duplicação de pastas V77.</li>
+</ul></article>
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Limpeza e organização inicial</h2></div><span class="update-version">V77</span></div>
+<ul>
+<li><strong>Backups acumulados removidos:</strong> pastas antigas de atualização deixaram de ficar misturadas ao site publicado.</li>
+<li><strong>Arquivos legados removidos:</strong> versões antigas de CSS, JavaScript e páginas que não eram mais referenciadas foram retiradas da raiz.</li>
+<li><strong>URLs antigas preservadas:</strong> páginas antigas de Vida, Círculo e conteúdo institucional agora redirecionam para as telas atuais, evitando links quebrados.</li>
+<li><strong>Ícones corrigidos:</strong> referências a favicons inexistentes passaram a usar a marca oficial do Memory.</li>
+<li><strong>Ambiente Python higienizado:</strong> caches compilados e backups antigos de código foram removidos do projeto de automação.</li>
+<li><strong>Organização documental:</strong> histórico técnico e relatórios de manutenção foram agrupados em <code>sistema/historico</code>.</li>
+<li><strong>Padrão de atualização:</strong> as próximas melhorias serão entregues em pacote para extrair e executar um único BAT.</li>
+</ul><div class="update-rule"><strong>Regra do projeto:</strong> nenhuma melhoria entregue a partir desta versão deve ficar sem registro neste histórico.</div></article>
+</section></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=20260803-50"></script><script src="supabase-client.js?v=20260803-50"></script><script src="auth.js?v=20260814-memory-v42"></script><script src="theme-system.js?v=20260814-memory-v42"></script><script src="shell-v72.js?v=20260815-v77"></script><script>MMCDShell('configuracoes')</script>
+</body></html>
