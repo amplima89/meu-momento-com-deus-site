@@ -25,6 +25,7 @@
 
   let openExerciseId=null;
   let startingWorkout=false;
+  let workoutFeedbackDraft=0;
 
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
@@ -113,11 +114,15 @@
     vibration:true
   };
 
+  const restCapabilities={audio:Boolean(window.AudioContext||window.webkitAudioContext),vibration:typeof navigator.vibrate==="function"};
+  if(!restCapabilities.audio) restTimerState.sound=false;
+  if(!restCapabilities.vibration) restTimerState.vibration=false;
+
   try{
     const soundSaved=localStorage.getItem(REST_SOUND_KEY);
     const vibrationSaved=localStorage.getItem(REST_VIBRATION_KEY);
-    if(soundSaved!==null) restTimerState.sound=soundSaved!=="false";
-    if(vibrationSaved!==null) restTimerState.vibration=vibrationSaved!=="false";
+    if(soundSaved!==null && restCapabilities.audio) restTimerState.sound=soundSaved!=="false";
+    if(vibrationSaved!==null && restCapabilities.vibration) restTimerState.vibration=vibrationSaved!=="false";
   }catch(_){ }
 
   function parseRestSeconds(value) {
@@ -243,8 +248,8 @@
         </div>
 
         <div class="rest-timer-preferences" aria-label="Preferências do alarme">
-          <label><input type="checkbox" id="rest-pref-sound"> <span>🔊 Som</span></label>
-          <label><input type="checkbox" id="rest-pref-vibration"> <span>📳 Vibração</span></label>
+          <label><input type="checkbox" id="rest-pref-sound"> <span>🔊 Som <small id="rest-sound-capability"></small></span></label>
+          <label><input type="checkbox" id="rest-pref-vibration"> <span>📳 Vibração <small id="rest-vibration-capability"></small></span></label>
         </div>
       </div>`;
     document.body.appendChild(modal);
@@ -252,8 +257,12 @@
     const syncPrefs=()=>{
       const sound=modal.querySelector("#rest-pref-sound");
       const vibration=modal.querySelector("#rest-pref-vibration");
-      if(sound) sound.checked=restTimerState.sound;
-      if(vibration) vibration.checked=restTimerState.vibration;
+      if(sound){sound.checked=restTimerState.sound;sound.disabled=!restCapabilities.audio;}
+      if(vibration){vibration.checked=restTimerState.vibration;vibration.disabled=!restCapabilities.vibration;}
+      const soundNote=modal.querySelector("#rest-sound-capability");
+      const vibrationNote=modal.querySelector("#rest-vibration-capability");
+      if(soundNote) soundNote.textContent=restCapabilities.audio?"":"· indisponível neste navegador";
+      if(vibrationNote) vibrationNote.textContent=restCapabilities.vibration?"":"· indisponível neste dispositivo";
     };
     syncPrefs();
 
@@ -305,6 +314,8 @@
     });
     return modal;
   }
+
+  document.addEventListener("pointerdown",()=>{if(restTimerState.sound)ensureAlarmAudioUnlocked();},{passive:true});
 
   function closeRestTimer() {
     if(restTimerState.interval){clearInterval(restTimerState.interval);restTimerState.interval=null;}
@@ -712,24 +723,74 @@
     return state.sessoes.find(s => s.data === iso) || null;
   }
 
+  function canonicalExerciseKey(exercise){
+    const rawName=normalizeText(exercise?.nome||exercise?.titulo||"")
+      .replace(/\b(no|na|com|de|do|da)\b/g," ")
+      .replace(/\b45\s*graus?\b/g,"45")
+      .replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
+    const aliases={
+      "panturrilha leg press":"panturrilha leg press",
+      "leg press panturrilha":"panturrilha leg press",
+      "rosca polia":"rosca polia",
+      "rosca biceps polia":"rosca polia",
+      "puxada alta crossover":"puxada alta crossover",
+      "puxada alta polia":"puxada alta crossover"
+    };
+    return aliases[rawName]||rawName||normalizeText(exercise?.exercicioId||exercise?.id||"");
+  }
+
+  function currentWorkoutMeta(workoutId){ return state.plano?.treinos?.find(w=>w.id===workoutId)||null; }
+
   function priorSession(workoutId, beforeDate=todayIso()) {
-    return state.sessoes
-      .filter(s => s.treinoId === workoutId && s.data < beforeDate && ["concluido","parcial"].includes(s.status))
-      .sort((a,b) => b.data.localeCompare(a.data))[0] || null;
+    const current=currentWorkoutMeta(workoutId);
+    const currentName=normalizeText(current?.nome||"");
+    const currentType=normalizeText(current?.tipo||"");
+    const candidates=state.sessoes
+      .filter(s=>s.data<beforeDate && ["concluido","parcial"].includes(s.status))
+      .sort((a,b)=>b.data.localeCompare(a.data));
+
+    const exact=candidates.find(s=>s.treinoId===workoutId);
+    if(exact) return exact;
+
+    const sameName=candidates.find(s=>{
+      const snapName=normalizeText(s.treinoSnapshot?.nome||"");
+      const snapType=normalizeText(s.treinoSnapshot?.tipo||s.tipo||"");
+      return Boolean(currentName && snapName===currentName && (!currentType || snapType===currentType));
+    });
+    if(sameName) return sameName;
+
+    // V79 — se o plano foi recriado/renomeado, reconhece o treino anterior pelo conjunto de exercícios.
+    // Isso recupera, por exemplo, o último treino de pernas mesmo quando IDs antigos não existem mais.
+    const currentKeys=new Set((current?.exercicios||[]).map(canonicalExerciseKey).filter(Boolean));
+    if(!currentKeys.size) return null;
+    let best=null,bestScore=0;
+    for(const session of candidates){
+      const snapType=normalizeText(session.treinoSnapshot?.tipo||session.tipo||"");
+      if(currentType && snapType && snapType!==currentType) continue;
+      const historicalKeys=new Set((session.exercicios||[]).map(canonicalExerciseKey).filter(Boolean));
+      const overlap=[...currentKeys].filter(key=>historicalKeys.has(key)).length;
+      const ratio=overlap/currentKeys.size;
+      const minOverlap=currentKeys.size===1?1:2;
+      if(overlap<minOverlap || ratio<.4) continue;
+      const score=overlap*100+Math.round(ratio*20);
+      if(score>bestScore){best=session;bestScore=score;}
+    }
+    return best;
   }
 
   function exercisePrior(exerciseId, workoutId, beforeDate=todayIso()) {
-    const prior = priorSession(workoutId,beforeDate);
-    const sameWorkout = prior?.exercicios?.find(ex => ex.exercicioId === exerciseId) || null;
-    if (sameWorkout) return {...sameWorkout,_priorDate:prior.data};
-
-    const previousAnyWorkout = state.sessoes
-      .filter(s => s.data < beforeDate && ["concluido","parcial"].includes(s.status))
-      .sort((a,b) => b.data.localeCompare(a.data))
-      .find(s => s.exercicios?.some(ex => ex.exercicioId === exerciseId));
-
-    const previousExercise=previousAnyWorkout?.exercicios?.find(ex => ex.exercicioId === exerciseId) || null;
-    return previousExercise ? {...previousExercise,_priorDate:previousAnyWorkout.data} : null;
+    const currentPlanExercise=state.plano?.treinos?.flatMap(w=>w.exercicios||[]).find(ex=>ex.id===exerciseId)||{id:exerciseId};
+    const wantedKey=canonicalExerciseKey(currentPlanExercise);
+    const matchExercise=ex=>ex?.exercicioId===exerciseId || (wantedKey && canonicalExerciseKey(ex)===wantedKey);
+    const prior=priorSession(workoutId,beforeDate);
+    const sameWorkout=prior?.exercicios?.find(matchExercise)||null;
+    if(sameWorkout) return {...sameWorkout,_priorDate:prior.data};
+    const previousAnyWorkout=state.sessoes
+      .filter(s=>s.data<beforeDate&&["concluido","parcial"].includes(s.status))
+      .sort((a,b)=>b.data.localeCompare(a.data))
+      .find(s=>s.exercicios?.some(matchExercise));
+    const previousExercise=previousAnyWorkout?.exercicios?.find(matchExercise)||null;
+    return previousExercise?{...previousExercise,_priorDate:previousAnyWorkout.data}:null;
   }
 
   function repsDefault(label) {
@@ -1282,6 +1343,17 @@
       breathe:"Respire de forma curta e contínua sem soltar o abdômen.",
       feel:"Abdômen, glúteos e cintura escapular trabalhando juntos para impedir qualquer movimento.",
       avoid:"Não deixe a lombar afundar, quadril subir demais ou cabeça despencar."
+    },
+    {
+      match:/leg press.*unilateral|unilateral.*leg press|memory_leg_press_unilateral/,
+      title:"Leg Press unilateral — execução de excelência",
+      setup:"Apoie totalmente costas, lombar e quadril. Coloque apenas o pé da perna ativa na plataforma; a outra perna fica fora da plataforma e não participa do empurrão.",
+      move:"Desça a plataforma controlando joelho e quadril da perna ativa. Empurre usando o pé inteiro, sem deixar o joelho cair para dentro e sem girar a pelve.",
+      range:"Desça apenas até onde o quadril permanece colado ao banco e a lombar neutra. A amplitude deve ser simétrica entre os lados.",
+      tempo:"Desça em 2–3 s e suba forte em 1–2 s. Não use a perna livre para ajudar.",
+      breathe:"Inspire na descida; solte o ar durante o empurrão mantendo o abdômen firme.",
+      feel:"Quadríceps e glúteo da perna ativa devem produzir todo o movimento. A pelve deve permanecer estável.",
+      avoid:"Não apoie as duas pernas na plataforma, não deixe o joelho colapsar para dentro e não permita que o quadril rode ou saia do encosto."
     },
     {
       match:/leg press/,
@@ -1997,7 +2069,7 @@
     if (ex.registro==="protocolo") {
       return `<div class="series-card protocol-series ${s.concluida?"done":""}">
         <div><span>PROTOCOLO</span><strong>${esc(ex.planejado?.reps||"Concluir")}</strong></div>
-        <button class="series-check ${s.concluida?"done":""}" data-action="toggle-series" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>${s.concluida?"✓ Concluído":"✓ Concluir"}</button>
+        <div class="protocol-series__actions"><button type="button" class="btn small" data-guided-single data-guided-title="${esc(ex.nome)}" data-guided-detail="${esc(ex.planejado?.reps||ex.observacao||"Protocolo")}" data-guided-exercise-id="${esc(ex.exercicioId)}" data-guided-series="${s.numero}" ${disabled}>▶ Guiado</button><button class="series-check ${s.concluida?"done":""}" data-action="toggle-series" data-exercise-id="${esc(ex.exercicioId)}" data-series="${s.numero}" ${disabled}>${s.concluida?"✓ Concluído":"✓ Concluir"}</button></div>
       </div>`;
     }
     const time=ex.registro==="tempo";
@@ -2130,7 +2202,7 @@
     root.innerHTML=`
       ${renderSessionHeader(workout,session)}
       <article class="card special-workout-card">
-        <div class="section-head"><div><p class="eyebrow">Bicicleta</p><h2>Protocolo</h2><span class="protocol-progress-copy">${(session.protocolo||[]).filter(x=>x.concluido).length}/${(session.protocolo||[]).length} etapas concluídas</span></div>${visualButton("bike-estacionaria","Ver execução")}</div>
+        <div class="section-head"><div><p class="eyebrow">Bicicleta</p><h2>Protocolo</h2><span class="protocol-progress-copy">${(session.protocolo||[]).filter(x=>x.concluido).length}/${(session.protocolo||[]).length} etapas concluídas</span></div><div class="section-head__actions"><button type="button" class="btn primary guided-launch" data-guided-protocol ${locked?"disabled":""}>▶ Treino guiado</button>${visualButton("bike-estacionaria","Ver execução")}</div></div>
         ${checklist(session.protocolo,"protocolo",locked)}
         <div class="special-fields cardio-summary">
           ${specialNumber("Duração total (min)","duracao",session.cardio.duracao,0,180,1,"cardio",locked)}
@@ -2717,28 +2789,28 @@
 
   function workoutFeedbackHtml(session){
     if(session?.tipo==="futebol") return "";
-    const selected=workoutFeedbackValue(session);
+    const stored=workoutFeedbackValue(session);
+    const selected=workoutFeedbackDraft||stored;
+    const label=WORKOUT_RHYTHM_OPTIONS.find(x=>x.valor===selected)?.label||"";
     return `<section class="finish-feedback">
-      <div class="finish-feedback__head">
-        <span class="treino-kicker">CHECK-OUT DO TREINO</span>
-        <h3>Como foi o ritmo do treino?</h3>
-        <p>Registre sua percepção geral para comparar a evolução ao longo das semanas.</p>
-      </div>
-      <div class="finish-feedback__options">
-        ${WORKOUT_RHYTHM_OPTIONS.map(option=>`<button type="button" class="finish-feedback__option ${selected===option.valor?"active":""}" data-workout-feedback="${option.valor}" aria-pressed="${selected===option.valor?"true":"false"}"><b>${option.valor}</b><span>${esc(option.label)}</span></button>`).join("")}
-      </div>
-      <small class="finish-feedback__saved">${selected?`✓ Ritmo salvo: ${esc(WORKOUT_RHYTHM_OPTIONS.find(x=>x.valor===selected)?.label||"")}`:"Escolha uma opção. O registro é salvo automaticamente."}</small>
+      <div class="finish-feedback__head"><span class="treino-kicker">CHECK-OUT DO TREINO</span><h3>Como foi o ritmo do treino?</h3><p>Escolha sua percepção, revise se quiser e só depois salve.</p></div>
+      <div class="finish-feedback__options">${WORKOUT_RHYTHM_OPTIONS.map(option=>`<button type="button" class="finish-feedback__option ${selected===option.valor?"active":""}" data-workout-feedback="${option.valor}" aria-pressed="${selected===option.valor?"true":"false"}"><b>${option.valor}</b><span>${esc(option.label)}</span></button>`).join("")}</div>
+      <div class="finish-feedback__commit"><small class="finish-feedback__saved">${stored&&!workoutFeedbackDraft?`✓ Avaliação salva: ${esc(label)}`:selected?`Selecionado: ${esc(label)}. Confirme para salvar.`:"Selecione uma opção de 1 a 5."}</small><button type="button" class="btn primary" data-action="save-workout-feedback" ${workoutFeedbackDraft?"":"disabled"}>${workoutFeedbackDraft?"Salvar avaliação":"Avaliação salva"}</button></div>
     </section>`;
   }
 
-  async function saveWorkoutFeedback(value){
+  function selectWorkoutFeedback(value){
+    workoutFeedbackDraft=clamp(Math.round(Number(value)||0),1,5);
     const session=sessionForDate(todayIso());
-    if(!session || !["concluido","parcial"].includes(session.status) || session.tipo==="futebol") return;
-    const rating=clamp(Math.round(Number(value)||0),1,5);
+    if(session) showFinishSummary(session);
+  }
+
+  async function saveWorkoutFeedback(){
+    const session=sessionForDate(todayIso());
+    if(!session||!["concluido","parcial"].includes(session.status)||session.tipo==="futebol"||!workoutFeedbackDraft)return;
+    const rating=workoutFeedbackDraft;
     session.avaliacao={...(session.avaliacao||{}),ritmo:rating,atualizadoEm:new Date().toISOString()};
-    await saveSessions();
-    showFinishSummary(session);
-    MMCDUI?.toast?.("Ritmo do treino salvo.");
+    await saveSessions();workoutFeedbackDraft=0;showFinishSummary(session);MMCDUI?.toast?.("Avaliação salva no histórico de Treinos.");
   }
 
   function promptPendingWorkoutFeedback(){
@@ -3264,6 +3336,13 @@
     </details>`;
   }
 
+  function dedupeWorkoutExercises(workout){
+    if(!Array.isArray(workout?.exercicios))return 0;
+    const seen=new Map(),next=[];let removed=0;
+    workout.exercicios.forEach(ex=>{const canonical=canonicalExerciseKey(ex);const key=`${canonical}|${normalizeText(ex.equipamento||"")}|${normalizeText(ex.registro||"peso_reps")}`;if(!canonical||canonical==="novo exercicio"||!key.replace(/[|]/g,"").trim()){next.push(ex);return;}if(seen.has(key)){removed+=1;const kept=seen.get(key);["guiaId","imagemInicio","imagemFim","observacao"].forEach(f=>{if(!kept[f]&&ex[f])kept[f]=ex[f];});return;}seen.set(key,ex);next.push(ex);});
+    workout.exercicios=next;return removed;
+  }
+
   async function savePlanFields() {
     $$("[data-plan-field]").forEach(el=>{
       state.plano.programa[el.dataset.planField]=el.value;
@@ -3302,7 +3381,8 @@
       item[el.dataset.visualField]=el.value;
     });
 
-    await persistPlanAndSync("Plano de treino salvo.");
+    const duplicatesRemoved=(state.plano.treinos||[]).reduce((sum,w)=>sum+dedupeWorkoutExercises(w),0);
+    await persistPlanAndSync(duplicatesRemoved?`Plano salvo. ${duplicatesRemoved} duplicidade${duplicatesRemoved===1?"":"s"} removida${duplicatesRemoved===1?"":"s"} com histórico preservado.`:"Plano de treino salvo.");
   }
 
   function newPhase() {
@@ -3516,7 +3596,7 @@
 
       const workoutFeedback=event.target.closest("[data-workout-feedback]");
       if(workoutFeedback){
-        saveWorkoutFeedback(workoutFeedback.dataset.workoutFeedback);
+        selectWorkoutFeedback(workoutFeedback.dataset.workoutFeedback);
         return;
       }
 
@@ -3529,6 +3609,7 @@
         else if(a==="copy-last") copyLast(action.dataset.exerciseId);
         else if(a==="set-load-unit") setLoadUnit(action.dataset.exerciseId,action.dataset.loadUnit);
         else if(a==="finish-workout") finishWorkout();
+        else if(a==="save-workout-feedback") saveWorkoutFeedback();
         else if(a==="toggle-check") toggleCheck(action.dataset.kind,action.dataset.index);
         else if(a==="close-history") $("#history-detail-card").hidden=true;
         else if(a==="save-plan") savePlanFields();
@@ -3641,6 +3722,11 @@
     try {
       status("Carregando…");
       await loadAll();
+      const autoDuplicates=(state.plano?.treinos||[]).reduce((sum,workout)=>sum+dedupeWorkoutExercises(workout),0);
+      if(autoDuplicates>0){
+        await savePlan();
+        console.info(`Treinos V79: ${autoDuplicates} duplicidade(s) de exercício unificada(s) no plano; histórico preservado.`);
+      }
       await reconcileWorkoutLifecycleByDate();
       state.loading=false;
       state.selectedDate=todayIso();

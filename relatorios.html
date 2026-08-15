@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Análise de atividades — Memory</title>
+  <title>Estatísticas — Memory</title>
   <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
   <link rel="stylesheet" href="modulos/relatorios/relatorios.css?v=20260806-abono1">
+  <link rel="stylesheet" href="modulos/relatorios/relatorios-v79.css?v=20260815-v79">
 </head>
 <body>
   <div class="app-shell">
@@ -13,7 +14,7 @@
       <div class="app-topbar__inner">
         <div>
           <span class="app-topbar__title">MEMORY</span>
-          <span class="app-topbar__subtitle">Análise das suas atividades</span>
+          <span class="app-topbar__subtitle">Estatísticas e evolução</span>
         </div>
         <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
       </div>
@@ -22,11 +23,9 @@
     <main class="app-main activity-analysis-page">
       <section class="page-header analysis-header">
         <div>
-          <p class="eyebrow">Últimos 7 dias</p>
-          <h1>Análise das atividades</h1>
-          <p class="muted">
-            Uma leitura objetiva dos sete dias completos anteriores. O dia vigente não entra no cálculo.
-          </p>
+          <p class="eyebrow">Evolução</p>
+          <h1>Estatísticas</h1>
+          <p class="muted">Atividades mostram consistência. Treinos mostram como seu ritmo percebido evolui ao longo do tempo.</p>
         </div>
         <div class="analysis-period">
           <span>Período analisado</span>
@@ -34,6 +33,9 @@
         </div>
       </section>
 
+      <nav class="stats-tabs" aria-label="Seções de estatísticas"><button type="button" class="active" data-stats-tab="atividades">Atividades</button><button type="button" data-stats-tab="treinos">Treinos</button></nav>
+      <section id="training-statistics-view" hidden><div id="training-stats-root" aria-live="polite"><article class="card section"><p class="muted">Carregando evolução dos treinos...</p></article></div></section>
+      <div id="activity-statistics-view">
       <section id="activity-kpis" class="activity-kpis" aria-live="polite"></section>
 
       <section class="analysis-grid">
@@ -144,6 +146,7 @@
       </section>
 
       <p id="analysis-footnote" class="analysis-footnote"></p>
+      </div>
     </main>
   </div>
 
@@ -152,8 +155,10 @@
   <script src="nucleo/supabase-client.js?v=1"></script>
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
   <script src="nucleo/dados-app.js?v=20260806-abono1"></script>
-  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-7"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v79.js?v=20260815-v79"></script>
   <script>MMCDShell('estatisticas')</script>
+  <script src="modulos/memory/memory-config-v68.js?v=20260815-v79"></script>
   <script src="modulos/relatorios/relatorios.js?v=20260814-v42"></script>
+  <script src="modulos/relatorios/relatorios-treinos-v79.js?v=20260815-v79"></script>
 </body>
 </html>

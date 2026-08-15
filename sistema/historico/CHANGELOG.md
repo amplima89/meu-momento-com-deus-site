@@ -88,4 +88,19 @@
 - Validação automática de caracteres quebrados após a instalação.
 - Navegação V78.6 preservada com cache-busting V78.7.
 - Nenhum dado do Supabase é alterado.
+## V79 — 15/08/2026
+- Nova área Estatísticas > Treinos para evolução do ritmo percebido (1 Travado a 5 Excelente).
+- Médias de 7/30 dias, comparação com período anterior, gráfico semanal, distribuição de notas, percentual 4–5 e histórico por treino.
+- Check-out de treino com seleção em rascunho e persistência somente após “Salvar avaliação”.
+- Recuperação de histórico por identidade canônica de exercício, reduzindo perda de “último treino” quando IDs mudam.
+- Unificação segura e automática de duplicidades exatas do plano sem excluir sessões históricas.
+- Leg Press unilateral com ilustrações locais e coaching específico unilateral.
+- Engine de Treino Guiado para Cardio/HIIT e protocolos temporizados, com ciclos, transições automáticas, progresso, incentivos contextuais, pausa e encerramento.
+- Detecção de suporte a áudio/vibração; controles indisponíveis são desativados e explicados.
+- Seletor de data do Plano Semanal ampliado e responsivo.
+- Estado de abono reforçado em verde, sem aparência de pendência e fora da consistência.
+- Harmonização V79 de temas, especialmente Claro e Rosa, e refinamento dos indicadores do dashboard.
+- Shell físico V79 para navegação consistente e cache-busting.
+- Limpeza de versões intermediárias de Jornada, Mapa de Cuidado e Atividades que não tinham referências ativas.
+- Instalador V79 preserva UTF-8 por cópia binária/direta, sem Get-Content/Set-Content sobre HTMLs.
 

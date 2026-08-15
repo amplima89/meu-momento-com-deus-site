@@ -16,3 +16,5 @@
 .daily-group-percent.is-optional{min-width:66px;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--accent);font-size:.57rem;letter-spacing:.045em}
 .day-dot.optional{background:transparent;border-color:color-mix(in srgb,var(--accent) 72%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 8%,transparent)}
 .day-dot.done.optional{background:var(--accent);border-color:var(--accent)}
+
+.daily-check.excused{background:var(--success)!important;border-color:var(--success)!important;color:#fff!important;opacity:1!important;cursor:default!important}.daily-goal.is-excused{border-color:color-mix(in srgb,var(--success) 45%,var(--line))!important;background:color-mix(in srgb,var(--success) 8%,var(--surface))!important}.excuse-badge{background:color-mix(in srgb,var(--success) 15%,transparent)!important;color:var(--success)!important}.excuse-reason{color:var(--success)!important}

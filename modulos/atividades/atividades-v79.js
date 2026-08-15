@@ -610,7 +610,7 @@
         </div>
         <div class="daily-goal-actions">
           ${optional ? "" : `<button class="daily-excuse ${excused ? "active" : ""}" data-action="excuse" data-goal="${meta.id}" aria-label="${excused ? "Remover abono" : "Abonar"} ${MMCDUI.esc(meta.nome || "atividade")}" title="${excused ? "Remover abono" : "Registrar abono"}"><span aria-hidden="true">A</span><span>${excused ? "Abonado" : "Abonar"}</span></button>`}
-          <button class="daily-check ${done ? "done" : ""}" data-action="check" data-goal="${meta.id}" aria-label="${MMCDUI.esc(checkLabel)}" title="${MMCDUI.esc(checkLabel)}" ${excused ? "disabled" : ""}>${done ? "✓" : ""}</button>
+          <button class="daily-check ${done ? "done" : ""} ${excused ? "excused" : ""}" data-action="check" data-goal="${meta.id}" aria-label="${MMCDUI.esc(checkLabel)}" title="${MMCDUI.esc(checkLabel)}" ${excused ? "disabled" : ""}>${done ? "✓" : excused ? "A" : ""}</button>
         </div>
       </article>`;
   }

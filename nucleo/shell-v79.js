@@ -23,6 +23,14 @@ window.MMCDShell=async function(active){
   css.dataset.memoryOriginalV50='1';
   document.head.append(css);
  }
+ // V79: camada semântica comum para os temas e componentes do Memory.
+ if(!document.querySelector('link[data-memory-v79]')){
+  const css=document.createElement('link');
+  css.rel='stylesheet';
+  css.href='nucleo/memory-v79.css?v=20260815-v79';
+  css.dataset.memoryV79='1';
+  document.head.append(css);
+ }
  if(!window.MMCDTheme?.getCatalog?.().some?.(item=>item.id==='memory-original')){
   await new Promise(resolve=>{
    const existing=document.querySelector('script[data-memory-theme-v50]');
@@ -90,14 +98,14 @@ window.MMCDShell=async function(active){
       <span class="sidebar-mobile-label">Cuidado</span><span class="sidebar-settings__chevron" aria-hidden="true">›</span>
      </button>
      <div class="sidebar-subnav ${careActive?'open':''}" id="sidebar-care-menu" ${careActive?'':'hidden'}>
-      <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
-      <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
-      <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
-      <a class="sidebar-subnav__link ${active==='aniversarios'?'active':''}" href="aniversarios.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span></a>
+      <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260815-v79"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
+      <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260815-v79"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
+      <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260815-v79"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
+      <a class="sidebar-subnav__link ${active==='aniversarios'?'active':''}" href="aniversarios.html?v=20260815-v79"><span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span></a>
      </div>
     </div>
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
-    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v78-6">
+    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v79">
      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">10</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
      <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
      <span class="sidebar-mobile-label">Ajustes</span>
@@ -407,7 +415,7 @@ window.MMCDShell=async function(active){
  if(careMenu&&!careMenu.querySelector('a[href^="aniversarios.html"]')){
   const birthdayLink=document.createElement('a');
   birthdayLink.className=`sidebar-subnav__link ${active==='aniversarios'?'active':''}`;
-  birthdayLink.href='aniversarios.html?v=20260815-v78-6';
+  birthdayLink.href='aniversarios.html?v=20260815-v79';
   birthdayLink.innerHTML='<span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span>';
   careMenu.append(birthdayLink);
  }
@@ -659,26 +667,20 @@ window.MMCDShell=async function(active){
  }));
  document.addEventListener('click',event=>{if(fontPanel&&!fontPanel.hidden&&!event.target.closest('.memory-font-tool'))closeFont()});
 
- const NEWS_ID='memory-update-2026-08-15-v78-6-care-nav-consistency';
+ const NEWS_ID='memory-update-2026-08-15-v79-integrated-evolution';
  const NEWS_ITEMS=[
-  'Cuidado agora usa um shell único V78.6 em todas as páginas; Aniversariantes permanece visível ao navegar entre Mapa, Orações e Círculo de Cuidado.',
-  'Configurações não exibe mais Aniversariantes; o cadastro fica exclusivamente em Cuidado.',
-  'A escala de texto foi recalibrada: o antigo Grande virou o novo Padrão, e Grande e Extra grande agora ampliam de verdade a leitura.',
-  'Aniversariantes saiu de Configurações e agora faz parte do menu Cuidado, junto de Mapa de Cuidado, Minhas Orações e Círculo de Cuidado.',
-  'No aniversário, Atividades cria um cuidado opcional para enviar uma mensagem. Marque o check apenas se enviar; optar por não enviar não reduz o progresso do dia.',
-  'Cuidado agora é um menu principal expansível, independente de Configurações, com Mapa de Cuidado, Minhas Orações e Círculo de Cuidado.',
-  'Mapa de Cuidado ganhou um núcleo simbólico compacto: mente, corpo, relacionamentos, espiritualidade, desenvolvimento e memórias mostram presença e atenção pela própria linguagem visual.',
-  'Meditação passou a mostrar jornada temática, assunto atual, progresso dentro do tema e próximo passo sem perder o conteúdo devocional existente.',
-  'Os indicadores de Consistência, Progresso até a meta e Última meditação foram padronizados como uma mesma família de cards.',
-  'A página institucional do Memory agora preserva a identidade oficial e recalcula superfícies, contraste, sombras e destaques conforme o tema escolhido.',
-  'Mapa de Cuidado coloca o coração no centro e organiza Espiritual, Corpo, Mente, Relacionamentos, Desenvolvimento e Memórias como sinais de presença, não como uma nota.',
-  'O Memory percebeu identifica padrões com regras e estatísticas dos seus próprios registros, sem chamar IA externa.',
-  'Missões ganhou ‘O que merece sua atenção hoje?’ com até três sinais realmente relevantes do dia.',
-  'Minhas Orações guarda pedidos, categorias, pessoas e histórico; ao marcar ‘Deus respondeu’, o pedido entra em Memórias de Deus.',
-  'Modo Presença cria uma oração em tela limpa, com cronômetro e orientações progressivas sem transformar oração em pontuação.',
-  'Círculo de Cuidado acompanha pessoas importantes, frequência de contato e o registro ‘Cuidei hoje’, reconhecendo aniversários pelo nome.',
-  'Metas mensais flexíveis continuam pendentes até o fim do mês e registram progresso sem antecipar falha.',
-  'Conversa do dia em Inglês recebe avaliação de Gramática, Vocabulário, Naturalidade, Construção e Clareza; conversas concluídas sem correção são avaliadas ao reabrir e passam a alimentar a Evolução do Inglês.'
+  'Estatísticas ganhou uma área própria de Treinos com ritmo percebido, média de 7/30 dias, evolução semanal, distribuição das notas e histórico por treino.',
+  'O check-out do treino agora permite escolher e revisar a nota antes de tocar em Salvar avaliação; somente a confirmação grava no Supabase.',
+  'Históricos de carga passam a reconhecer o exercício pela identidade canônica, recuperando registros mesmo quando IDs antigos do plano mudaram.',
+  'Duplicidades exatas dentro do mesmo treino são eliminadas ao salvar o plano sem apagar sessões históricas.',
+  'Leg Press unilateral recebeu mídia e orientação realmente unilaterais, sem usar a demonstração bilateral como referência.',
+  'Cardio e protocolos temporizados ganharam Treino Guiado com timer grande, fase atual, próxima etapa, ciclos, progresso, pausa e encerramento.',
+  'Som e vibração agora informam disponibilidade real do navegador/dispositivo; recursos indisponíveis deixam de aparecer como ativos.',
+  'O seletor de data do Plano Semanal foi ampliado e ficou responsivo para saltar diretamente à data e semana desejadas.',
+  'Atividades abonadas passam a usar estado verde explícito, não aparecem como pendentes e continuam fora do denominador da consistência.',
+  'Temas claro e rosa receberam contraste e profundidade maiores; Home, cards, sidebar, divisórias, botões e campos preservam melhor a identidade do Memory.',
+  'Consistência, Peso/Meta e Última meditação foram refinados como uma mesma família visual de indicadores.',
+  'Cuidado, Mapa de Cuidado, Jornada de Meditação, Modo Presença e Aniversariantes mantêm as melhorias consolidadas das versões anteriores.'
  ];
  const NEWS_PREVIOUS_ITEMS=[
   'Central de Configurações: as opções saíram do submenu apertado da lateral e ganharam uma página própria.',

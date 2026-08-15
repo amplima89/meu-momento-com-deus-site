@@ -306,19 +306,19 @@ window.MMCD_TREINO_GUIAS = {
   },
   "leg-press-unilateral": {
     "titulo": "Leg Press unilateral",
-    "inicio": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
-    "fim": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/1.jpg",
+    "inicio": "assets/imagens/treinos/leg-press-unilateral-inicio.svg",
+    "fim": "assets/imagens/treinos/leg-press-unilateral-fim.svg",
     "estatico": false,
     "passos": [
       "Use a mesma posição segura do Leg Press.",
       "Trabalhe com uma perna por vez mantendo o quadril apoiado.",
       "Desça e empurre sem deixar o joelho cair para dentro."
     ],
-    "dica": "A referência visual mostra a mecânica do Leg Press; no seu treino, execute unilateralmente.",
-    "observacaoVisual": "A foto demonstra a mecânica e amplitude do Leg Press. No seu plano, a execução é com uma perna por vez.",
-    "fonte": "Free Exercise DB",
-    "fonteUrl": "https://github.com/yuhonas/free-exercise-db",
-    "datasetId": "Leg_Press"
+    "dica": "Apenas uma perna empurra a plataforma. A outra fica fora da plataforma e não ajuda o movimento.",
+    "observacaoVisual": "Ilustração específica do movimento unilateral para evitar confusão com o Leg Press bilateral.",
+    "fonte": "Memory — guia técnico",
+    "fonteUrl": "",
+    "datasetId": "Memory_Leg_Press_Unilateral"
   },
   "avanco-reverso-smith": {
     "titulo": "Avanço Reverso no Smith",

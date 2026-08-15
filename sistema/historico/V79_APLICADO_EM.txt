@@ -1,0 +1,6 @@
+Memory V79 - Evolucao integrada
+Aplicado em: 15/08/2026 14:57:47
+Site: C:\Users\andre\OneDrive\meu-momento-com-deus-site
+Backup externo: C:\Users\andre\AppData\Local\Memory\Backups\site_antes_V79_20260815_145744.zip
+Pacote completo aplicado por copia direta; nenhuma regravacao de HTML por Get-Content/Set-Content.
+Inclui Treinos, Estatisticas, abono, temporizadores, temas, calendario e historico de melhorias.

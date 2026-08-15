@@ -5,18 +5,18 @@
 #save-status[data-state="error"] { color: #c53030; font-weight: 700; max-width: 520px; }
 
 /* Abono por atividade */
-.day-dot.excused{background:#f59e0b;border-color:#f59e0b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.day-dot.excused{background:var(--success);border-color:var(--success);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
 .daily-goal{grid-template-columns:34px minmax(0,1fr) auto}
-.daily-goal.is-excused{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.06)}
+.daily-goal.is-excused{border-color:color-mix(in srgb,var(--success) 45%,transparent);background:color-mix(in srgb,var(--success) 8%,transparent)}
 .daily-goal.is-done{border-color:rgba(101,163,13,.32)}
 .daily-goal-copy{min-width:0}
 .daily-goal-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.excuse-badge{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:rgba(245,158,11,.14);color:#b36500;font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
-.excuse-reason{color:#9a5b00!important;font-weight:700;line-height:1.35}
+.excuse-badge{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--success) 15%,transparent);color:var(--success);font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+.excuse-reason{color:var(--success)!important;font-weight:700;line-height:1.35}
 .daily-goal-actions{display:flex;align-items:center;gap:7px}
 .daily-excuse{min-height:27px;display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);cursor:pointer;font-size:.62rem;font-weight:800;transition:.15s}
-.daily-excuse:hover{border-color:#f59e0b;color:#9a5b00;background:rgba(245,158,11,.06)}
-.daily-excuse.active{border-color:#f59e0b;background:#f59e0b;color:#fff}
+.daily-excuse:hover{border-color:var(--success);color:var(--success);background:color-mix(in srgb,var(--success) 8%,transparent)}
+.daily-excuse.active{border-color:var(--success);background:var(--success);color:#fff}
 .daily-excuse span:first-child{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;border:1px solid currentColor;font-size:.55rem;line-height:1}
 .daily-check:disabled{cursor:not-allowed;opacity:.38;background:var(--surface-2)}
 @media(max-width:430px){

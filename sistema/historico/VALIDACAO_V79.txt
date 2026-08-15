@@ -1,0 +1,19 @@
+Memory V79 — validação estática do pacote
+Data: 15/08/2026
+
+- Referências locais dos HTMLs: 0 ausentes.
+- JavaScript: todos os arquivos passaram no node --check.
+- CSS: chaves estruturais balanceadas.
+- UTF-8/mojibake: nenhum padrão quebrado encontrado em HTML/JS/CSS.
+- Shell: páginas do aplicativo apontam para shell-v79.js; camada memory-v79.css carregada pelo shell.
+- Treinos: treinos-v79.js, treinos-visuais-v79.js e treinos-guiado-v79.js presentes.
+- Check-out: avaliação só persiste por ação explícita Salvar avaliação.
+- Histórico: fallback por identidade canônica e sobreposição de exercícios para planos recriados/renomeados.
+- Duplicidades: plano deduplicado automaticamente sem remover sessões históricas.
+- Estatísticas: relatorios-treinos-v79.js ativo em Estatísticas > Treinos.
+- Abono: estado visual verde e excluído do denominador de consistência.
+- Calendário: input date funcional e responsivo.
+- Treino Guiado: ciclos, transições, incentivo, pausa, avanço e encerramento.
+- Arquivos intermediários sem referência ativa removidos do pacote.
+
+Observação: a validação é estrutural/local. Não executa consultas reais na conta Supabase do usuário.
