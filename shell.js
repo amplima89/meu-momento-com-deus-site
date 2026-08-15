@@ -30,7 +30,7 @@ window.MMCDShell=async function(active){
   ['meditacao','meditacao.html','03','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','04','📖','Bíblia','Leitura e anotações','Bíblia'],
   ['ingles','ingles.html','05','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
-  ['treinos','treinos-v66.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
+  ['treinos','treinos-v67.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
@@ -83,7 +83,7 @@ window.MMCDShell=async function(active){
       <a class="sidebar-subnav__link ${active==='medidas'?'active':''}" href="medidas.html">
        <span class="sidebar-subnav__dot"></span><span><strong>Medições corporais</strong><small>Medidas e evolução visual</small></span>
       </a>
-      <a class="sidebar-subnav__link ${active==='metas'?'active':''}" href="metas.html">
+      <a class="sidebar-subnav__link ${active==='metas'?'active':''}" href="metas.html?v=20260814-v67">
        <span class="sidebar-subnav__dot"></span><span><strong>Metas</strong><small>Rotina e objetivos</small></span>
       </a>
       <a class="sidebar-subnav__link ${active==='perfil'?'active':''}" href="perfil.html">

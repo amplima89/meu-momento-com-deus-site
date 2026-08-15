@@ -14,7 +14,7 @@
   <title>Metas — Memory</title>
   <link rel="stylesheet" href="painel.css?v=20260812-themes-v32">
   <link rel="stylesheet" href="metas.css?v=20260807-final1">
-  <link rel="stylesheet" href="metas-v67.css?v=20260814-v67">
+  <link rel="stylesheet" href="metas-v66.css?v=20260814-v66">
 </head>
 <body>
   <div class="app-shell">
@@ -66,19 +66,31 @@
             <div class="workout-integration-main">
               <div class="workout-integration-icon" aria-hidden="true">🏋️</div>
               <div class="workout-integration-copy">
-                <span class="workout-integration-kicker">Integração com musculação</span>
-                <strong id="workout-integration-title">Vincular esta meta ao meu treino de musculação</strong>
-                <p>Quando você malhar, o Memory conclui automaticamente esta meta se ela estiver programada para aquele dia.</p>
+                <span class="workout-integration-kicker">Integração com treino</span>
+                <strong id="workout-integration-title">Atualizar esta meta a partir dos meus treinos</strong>
+                <p>Você pode integrar várias metas ao Memory. Cada uma é atualizada apenas quando o tipo de atividade escolhido realmente acontecer e a meta estiver programada para aquele dia.</p>
               </div>
-              <label class="memory-switch" for="goal-workout-link" aria-label="Vincular esta meta ao treino de musculação">
+              <label class="memory-switch" for="goal-workout-link" aria-label="Integrar esta meta aos treinos">
                 <input id="goal-workout-link" type="checkbox">
                 <span class="memory-switch-track" aria-hidden="true"><span class="memory-switch-thumb"></span></span>
-                <span class="memory-switch-state"><span class="state-off">Desativado</span><span class="state-on">Vinculado</span></span>
+                <span class="memory-switch-state"><span class="state-off">Desativado</span><span class="state-on">Ativado</span></span>
+              </label>
+            </div>
+            <div class="workout-trigger-wrap" id="workout-trigger-wrap" hidden>
+              <label class="field workout-trigger-field">
+                <span>O que deve concluir esta meta?</span>
+                <select id="goal-workout-trigger">
+                  <option value="qualquer">Qualquer treino realizado</option>
+                  <option value="musculacao">Musculação / treino de força</option>
+                  <option value="cardio">Cardio realizado</option>
+                  <option value="futebol">Futebol realizado</option>
+                </select>
+                <small>Ex.: deixe “Cardio” em <strong>Cardio realizado</strong>. Em um dia sem cardio, essa meta não será marcada só porque você fez musculação.</small>
               </label>
             </div>
             <div class="workout-integration-note">
-              <span aria-hidden="true">💡</span>
-              <span><strong>Você pode vincular várias metas.</strong> Exemplo: se “Treino” estiver programado para terça e “Cardio” para quarta, cada uma será concluída apenas no seu próprio dia quando houver musculação.</span>
+              <span aria-hidden="true">ℹ️</span>
+              <span><strong>Várias metas podem ficar integradas ao mesmo tempo.</strong> O Memory usa o tipo acima + os dias programados da meta + o que foi realmente executado no treino.</span>
             </div>
           </section>
 
@@ -157,8 +169,8 @@
   <script src="supabase-client.js?v=20260803-50"></script>
   <script src="auth.js?v=20260814-memory-v42"></script>
   <script src="dados-app.js?v=20260806-abono1"></script>
-  <script src="theme-system.js?v=20260814-memory-v42"></script><script src="shell-v63.js?v=20260814-v67"></script>
+  <script src="theme-system.js?v=20260814-memory-v42"></script><script src="shell-v63.js?v=20260814-v63"></script>
   <script>MMCDShell('metas')</script>
-  <script src="metas-v67.js?v=20260814-v67"></script>
+  <script src="metas-v66.js?v=20260814-v66"></script>
 </body>
 </html>
