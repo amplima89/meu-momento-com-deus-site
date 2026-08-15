@@ -39,8 +39,10 @@ window.MMCDShell=async function(active){
    document.head.append(script);
   });
  }
+ const missionFamily=['vida','oracoes','circulo'];
+ const navActive=missionFamily.includes(active)?'missoes':active;
  const nav=[
-  ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
+  ['missoes','painel.html?v=20260815-v71','01','🎯','Missões','Visão da vida','Missões'],
   ['atividades','atividades.html','02','✅','Atividades','Rotina diária','Atividades'],
   ['meditacao','meditacao.html','03','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','04','📖','Bíblia','Leitura e anotações','Bíblia'],
@@ -59,7 +61,7 @@ window.MMCDShell=async function(active){
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
   </a>`;
  const navHtml=nav.map(x=>`
-  <a class="sidebar-link ${active===x[0]?'active':''}" href="${x[1]}">
+  <a class="sidebar-link ${navActive===x[0]?'active':''}" href="${x[1]}">
    <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">${x[2]}</span><span class="sidebar-icon-mobile" aria-hidden="true">${x[3]}</span></span>
    <div class="sidebar-link__copy"><strong>${x[4]}</strong><small>${x[5]}</small></div>
    <span class="sidebar-mobile-label">${x[6]}</span>
@@ -82,7 +84,7 @@ window.MMCDShell=async function(active){
     ${mobileMemoryHtml}
     ${navHtml}
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
-    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v70">
+    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v71">
      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
      <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
      <span class="sidebar-mobile-label">Ajustes</span>
@@ -283,7 +285,10 @@ window.MMCDShell=async function(active){
   'treinos-config':'Memory - Plano de treino',
   series:'Memory - Séries & filmes',
   aniversarios:'Memory - Aniversários',
-  'meditacao-links':'Memory - Links da meditação'
+  'meditacao-links':'Memory - Links da meditação',
+  vida:'Memory - Árvore da Vida',
+  oracoes:'Memory - Minhas Orações',
+  circulo:'Memory - Círculo de Cuidado'
  };
  if(memoryTitles[active]) document.title=memoryTitles[active];
  else document.title=document.title.replace(/Life Style/gi,'Memory').replace(/\s*[—-]\s*Memory\s*$/i,'').replace(/^Memory\s*[—-]\s*/i,'Memory - ');
@@ -492,11 +497,11 @@ window.MMCDShell=async function(active){
  // V70 — idioma global do Memory (Português / English).
  if(!window.MemoryI18n){
   await new Promise(resolve=>{
-   const existing=document.querySelector('script[data-memory-i18n-v70]');
+   const existing=document.querySelector('script[data-memory-i18n-v71]');
    if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',resolve,{once:true});return;}
    const script=document.createElement('script');
-   script.src='./memory-i18n-v70.js?v=20260815-v70';
-   script.dataset.memoryI18nV70='1';script.onload=resolve;script.onerror=resolve;document.head.append(script);
+   script.src='./memory-i18n-v71.js?v=20260815-v71';
+   script.dataset.memoryI18nV71='1';script.onload=resolve;script.onerror=resolve;document.head.append(script);
   });
  }
  if(window.MemoryI18n){
@@ -644,22 +649,22 @@ window.MMCDShell=async function(active){
  document.addEventListener('click',event=>{if(languagePanel&&!languagePanel.hidden&&!event.target.closest('.memory-language-tool'))closeLanguage()});
  window.MemoryI18n?.apply?.(window.MemoryI18n.get());
 
- const NEWS_ID='memory-update-2026-08-15-0040';
+ const NEWS_ID='memory-update-2026-08-15-0155';
  const NEWS_ITEMS=[
-  'Novo seletor de idioma no topo: escolha Português ou English e a bandeira acompanha a seleção.',
-  'O idioma escolhido fica salvo para manter a interface na sua preferência.',
-  'Novo modelo Mensal flexível: a atividade pode ser concluída em qualquer dia do mês vigente.',
-  'Metas mensais continuam pendentes enquanto ainda houver prazo; só fecham como parcial ou não concluída depois do último dia do mês.',
-  'Metas mensais também aceitam quantidade, como 0/2, 1/2 e 2/2 durante o mês.',
-  'O modelo Semanal flexível continua permitindo escolher o dia e acompanhar 0/N até N/N sem antecipar uma falha.',
-  'A Conversa do dia em Inglês agora mostra avaliação de Gramática, Vocabulário, Naturalidade, Construção e Clareza.'
+  'Nova Árvore da Vida integra espiritualidade, corpo, mente, relacionamentos, desenvolvimento e memórias sem criar uma nota de perfeição.',
+  'Novo bloco “O que merece sua atenção hoje?” em Missões destaca até três cuidados importantes usando apenas registros que já existem.',
+  'Novo “O Memory percebeu” encontra padrões por regras e estatística local, sem chamada de IA externa e sem alterar seus dados.',
+  'Minhas Orações guarda pedidos, momentos de oração e respostas em “Memórias de Deus”.',
+  'O Modo Presença cria uma tela limpa para oração guiada, sem copiar gestos ou identidade visual de outros aplicativos.',
+  'Círculo de Cuidado ajuda a lembrar de pessoas importantes e registra quando você separou tempo para elas.',
+  'As novas páginas funcionam com o mesmo Supabase já usado pelo Memory e não exigem tabela ou SQL novo.'
  ];
  const NEWS_PREVIOUS_ITEMS=[
-  'Central de Configurações: as opções saíram do submenu apertado da lateral e ganharam uma página própria.',
-  'Novo controle global de tamanho do texto com opções Padrão, Grande e Extra grande.',
-  'Cadastro de aniversários importantes, com lembrete automático em Atividades > Cuidado e card dinâmico em Missões.',
-  'Cadastro de links da meditação com ativação/desativação e escolha aleatória entre os conteúdos ativos.',
-  'Títulos das abas foram simplificados e o painel de novidades passou a marcar automaticamente o que já foi visualizado.'
+  'Seletor de idioma no topo: Português ou English, com a bandeira acompanhando a seleção.',
+  'Meta mensal flexível: a atividade pode ser concluída em qualquer dia do mês vigente, sem antecipar uma falha.',
+  'Meta semanal flexível: quantidade 0/N até N/N com prazo aberto até domingo.',
+  'Conversa do dia em Inglês com avaliação de Gramática, Vocabulário, Naturalidade, Construção e Clareza.',
+  'Central de Configurações, acessibilidade por tamanho de texto, aniversários e links aleatórios da meditação.'
  ];
  const newsButton=document.querySelector('.memory-news-btn');
  const newsDot=document.querySelector('.memory-news-dot');
@@ -692,7 +697,7 @@ window.MMCDShell=async function(active){
       <ul>${NEWS_ITEMS.map(item=>`<li>${window.MMCDUI?.esc?.(item)||item}</li>`).join('')}</ul>
      </article>
      <article class="memory-news-entry">
-      <div class="memory-news-date"><span>•</span><span>14/08/2026</span></div>
+      <div class="memory-news-date"><span>•</span><span>15/08/2026 · melhorias anteriores</span></div>
       <ul>${NEWS_PREVIOUS_ITEMS.map(item=>`<li>${window.MMCDUI?.esc?.(item)||item}</li>`).join('')}</ul>
      </article>
     </div>
