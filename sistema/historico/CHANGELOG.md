@@ -81,4 +81,11 @@
 - Aniversariantes removido definitivamente da Central de Configurações.
 - Defesa de compatibilidade recria o link de Aniversariantes caso uma estrutura antiga de menu seja carregada.
 - Configurações recebe proteção adicional contra card legado de Aniversariantes.
+## V78.7 — 15/08/2026
+- Correção global de acentuação/mojibake introduzida pelo instalador V78.6 no Windows PowerShell 5.1.
+- Restauração dos HTMLs da raiz a partir da base limpa em UTF-8.
+- Remoção do padrão de regravação de HTML com `Get-Content`/`Set-Content` sem encoding explícito.
+- Validação automática de caracteres quebrados após a instalação.
+- Navegação V78.6 preservada com cache-busting V78.7.
+- Nenhum dado do Supabase é alterado.
 

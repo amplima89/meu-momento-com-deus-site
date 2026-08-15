@@ -12,6 +12,15 @@
 <body><div class="app-shell"><header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">Memory</span><span class="app-topbar__subtitle">Histórico de melhorias</span></div><button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button></div></header>
 <main class="app-main"><section class="page-header"><div><p class="eyebrow">Evolução do projeto</p><h1>O que mudou no Memory</h1><p class="muted">Cada pacote aplicado passa a deixar um registro aqui. Assim, a evolução do projeto fica rastreável sem depender das pastas de backup.</p></div></section>
 <section class="update-list">
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Correção global de acentuação e proteção UTF-8</h2></div><span class="update-version">V78.7</span></div>
+<ul>
+<li><strong>Textos restaurados:</strong> as páginas HTML afetadas pela V78.6 foram restauradas a partir da base limpa, recuperando corretamente acentos, cedilhas, travessões e demais caracteres em português.</li>
+<li><strong>Causa eliminada:</strong> o instalador deixa de regravar HTMLs com <code>Get-Content</code>/<code>Set-Content</code> sem controle explícito de codificação, comportamento que podia interpretar UTF-8 como ANSI no Windows PowerShell 5.1.</li>
+<li><strong>UTF-8 consistente:</strong> todos os HTMLs publicados nesta correção usam <code>meta charset=&quot;utf-8&quot;</code> e são entregues diretamente em UTF-8.</li>
+<li><strong>Navegação preservada:</strong> as páginas continuam usando o shell único V78.6, agora com novo cache-busting V78.7, mantendo Aniversariantes exclusivamente dentro de Cuidado.</li>
+<li><strong>Dados preservados:</strong> a correção atua somente nos arquivos estáticos do site e não altera registros do Supabase, atividades, meditações, perfil ou demais dados pessoais.</li>
+</ul></article>
+
 <article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Navegação de Cuidado consistente em todas as páginas</h2></div><span class="update-version">V78.6</span></div>
 <ul>
 <li><strong>Shell único:</strong> todas as páginas passam a carregar <code>shell-v78-6.js</code>, eliminando a reutilização de versões antigas da navegação ao trocar de tela.</li>
@@ -105,5 +114,5 @@
 <li><strong>Padrão de atualização:</strong> as próximas melhorias serão entregues em pacote para extrair e executar um único BAT.</li>
 </ul><div class="update-rule"><strong>Regra do projeto:</strong> nenhuma melhoria entregue a partir desta versão deve ficar sem registro neste histórico.</div></article>
 </section></main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-6"></script><script>MMCDShell('configuracoes')</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-7"></script><script>MMCDShell('configuracoes')</script>
 </body></html>

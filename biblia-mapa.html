@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mapa da BÃ­blia â€” Memory</title>
+  <title>Mapa da Bíblia — Memory</title>
   <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
   <link rel="stylesheet" href="modulos/biblia/biblia.css?v=20260811-biblia-v29">
 </head>
@@ -11,52 +11,52 @@
   <div class="app-shell">
     <header class="app-topbar">
       <div class="app-topbar__inner">
-        <div><span class="app-topbar__title">MEMORY</span><span class="app-topbar__subtitle">Mapa da BÃ­blia</span></div>
-        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">â˜¾</button>
+        <div><span class="app-topbar__title">MEMORY</span><span class="app-topbar__subtitle">Mapa da Bíblia</span></div>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
       </div>
     </header>
     <main class="app-main bible-page bible-map-page">
       <section class="page-header">
         <div>
-          <p class="eyebrow">Mapa da BÃ­blia</p>
+          <p class="eyebrow">Mapa da Bíblia</p>
           <h1>Sua caminhada pelas Escrituras</h1>
-          <p class="muted">Veja o que jÃ¡ percorreu, marque livros completos e escolha o prÃ³ximo capÃ­tulo da leitura.</p>
+          <p class="muted">Veja o que já percorreu, marque livros completos e escolha o próximo capítulo da leitura.</p>
         </div>
-        <a class="btn primary" href="biblia.html">Abrir BÃ­blia</a>
+        <a class="btn primary" href="biblia.html">Abrir Bíblia</a>
       </section>
 
       <section class="bible-progress-overview">
         <article class="card bible-progress-main">
           <div class="bible-progress-ring" id="biblia-progress-ring" style="--progress:0">
-            <div><strong id="biblia-progress-percent">0%</strong><span>da BÃ­blia</span></div>
+            <div><strong id="biblia-progress-percent">0%</strong><span>da Bíblia</span></div>
           </div>
           <div class="bible-progress-main__copy">
-            <p class="eyebrow">EvoluÃ§Ã£o geral</p>
-            <h2 id="biblia-progress-title">Um capÃ­tulo de cada vez</h2>
-            <p id="biblia-progress-message" class="muted">Seu mapa serÃ¡ preenchido conforme vocÃª conclui os capÃ­tulos.</p>
+            <p class="eyebrow">Evolução geral</p>
+            <h2 id="biblia-progress-title">Um capítulo de cada vez</h2>
+            <p id="biblia-progress-message" class="muted">Seu mapa será preenchido conforme você conclui os capítulos.</p>
             <div class="bible-testament-bars">
-              <div><span><b>Antigo Testamento</b><small id="biblia-at-label">0 / 929 capÃ­tulos</small></span><div class="bible-progress-bar"><i id="biblia-at-bar" style="width:0%"></i></div></div>
-              <div><span><b>Novo Testamento</b><small id="biblia-nt-label">0 / 260 capÃ­tulos</small></span><div class="bible-progress-bar"><i id="biblia-nt-bar" style="width:0%"></i></div></div>
+              <div><span><b>Antigo Testamento</b><small id="biblia-at-label">0 / 929 capítulos</small></span><div class="bible-progress-bar"><i id="biblia-at-bar" style="width:0%"></i></div></div>
+              <div><span><b>Novo Testamento</b><small id="biblia-nt-label">0 / 260 capítulos</small></span><div class="bible-progress-bar"><i id="biblia-nt-bar" style="width:0%"></i></div></div>
             </div>
           </div>
         </article>
         <div class="bible-stat-grid">
-          <article class="card bible-stat"><span>Livros concluÃ­dos</span><strong id="biblia-stat-books">0 <small>/ 66</small></strong></article>
-          <article class="card bible-stat"><span>CapÃ­tulos concluÃ­dos</span><strong id="biblia-stat-chapters">0 <small>/ 1.189</small></strong></article>
-          <article class="card bible-stat"><span>VersÃ­culos percorridos</span><strong id="biblia-stat-verses">0 <small>/ 31.102</small></strong></article>
-          <article class="card bible-stat"><span>Livro mais avanÃ§ado</span><strong id="biblia-stat-current-book" class="textual">â€”</strong></article>
+          <article class="card bible-stat"><span>Livros concluídos</span><strong id="biblia-stat-books">0 <small>/ 66</small></strong></article>
+          <article class="card bible-stat"><span>Capítulos concluídos</span><strong id="biblia-stat-chapters">0 <small>/ 1.189</small></strong></article>
+          <article class="card bible-stat"><span>Versículos percorridos</span><strong id="biblia-stat-verses">0 <small>/ 31.102</small></strong></article>
+          <article class="card bible-stat"><span>Livro mais avançado</span><strong id="biblia-stat-current-book" class="textual">—</strong></article>
         </div>
       </section>
 
       <section class="card bible-map-section bible-map-section--standalone" id="biblia-mapa">
         <header class="bible-map-head">
-          <div><p class="eyebrow">66 livros Â· 1.189 capÃ­tulos</p><h2>Da GÃªnesis ao Apocalipse</h2><p class="muted">Cada quadrado representa um capÃ­tulo. Clique para marcar ou desmarcar sua leitura.</p></div>
-          <div class="bible-map-filters" role="group" aria-label="Filtrar mapa da BÃ­blia">
+          <div><p class="eyebrow">66 livros · 1.189 capítulos</p><h2>Da Gênesis ao Apocalipse</h2><p class="muted">Cada quadrado representa um capítulo. Clique para marcar ou desmarcar sua leitura.</p></div>
+          <div class="bible-map-filters" role="group" aria-label="Filtrar mapa da Bíblia">
             <button type="button" class="active" data-bible-filter="todos">Todos</button>
             <button type="button" data-bible-filter="AT">Antigo</button>
             <button type="button" data-bible-filter="NT">Novo</button>
             <button type="button" data-bible-filter="andamento">Em andamento</button>
-            <button type="button" data-bible-filter="concluidos">ConcluÃ­dos</button>
+            <button type="button" data-bible-filter="concluidos">Concluídos</button>
           </div>
         </header>
         <div id="biblia-map-summary" class="bible-map-summary"></div>
@@ -68,9 +68,8 @@
   <script src="nucleo/supabase-config.js?v=20260811-biblia-v29"></script>
   <script src="nucleo/supabase-client.js?v=20260811-biblia-v29"></script>
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
-  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-6"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-7"></script>
   <script>MMCDShell("biblia-mapa")</script>
   <script src="modulos/biblia/biblia-mapa.js?v=20260811-biblia-v29"></script>
 </body>
 </html>
-

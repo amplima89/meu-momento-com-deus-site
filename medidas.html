@@ -1,10 +1,10 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b1628">
-  <title>MediÃ§Ãµes corporais â€” ConfiguraÃ§Ãµes â€” Memory</title>
+  <title>Medições corporais — Configurações — Memory</title>
   <link rel="icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42" sizes="any">
   <link rel="apple-touch-icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42">
   <link rel="stylesheet" href="nucleo/painel.css?v=20260813-v41">
@@ -16,11 +16,11 @@
       <div class="app-topbar__inner">
         <div>
           <span class="app-topbar__title">MEMORY</span>
-          <span class="app-topbar__subtitle">ConfiguraÃ§Ãµes Â· MediÃ§Ãµes corporais</span>
+          <span class="app-topbar__subtitle">Configurações · Medições corporais</span>
         </div>
         <div class="topbar-actions">
-          <span id="measure-save-status" class="muted">Carregandoâ€¦</span>
-          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">â˜¾</button>
+          <span id="measure-save-status" class="muted">Carregando…</span>
+          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
         </div>
       </div>
     </header>
@@ -28,9 +28,9 @@
     <main class="app-main measure-page">
       <section class="page-header measure-page__header">
         <div>
-          <p class="eyebrow">ConfiguraÃ§Ãµes â€º MediÃ§Ãµes corporais</p>
+          <p class="eyebrow">Configurações › Medições corporais</p>
           <h1>Mapa corporal</h1>
-          <p class="muted">Registre suas medidas e veja o corpo ser preenchido em tempo real. Verde indica evoluÃ§Ã£o na direÃ§Ã£o desejada; vermelho indica movimento contrÃ¡rio.</p>
+          <p class="muted">Registre suas medidas e veja o corpo ser preenchido em tempo real. Verde indica evolução na direção desejada; vermelho indica movimento contrário.</p>
         </div>
       </section>
 
@@ -39,8 +39,8 @@
           <div class="section-head">
             <div>
               <p class="eyebrow">Leitura corporal</p>
-              <h2>Nova mediÃ§Ã£o</h2>
-              <p class="muted">Siga o corpo de cima para baixo. SÃ³ a regiÃ£o atual fica aberta; as anteriores viram um resumo compacto.</p>
+              <h2>Nova medição</h2>
+              <p class="muted">Siga o corpo de cima para baixo. Só a região atual fica aberta; as anteriores viram um resumo compacto.</p>
             </div>
             <span class="measure-db-badge">Supabase</span>
           </div>
@@ -48,7 +48,7 @@
           <form id="measure-form" autocomplete="off">
             <div class="guided-measure-date">
               <label class="field">
-                <span>Data da mediÃ§Ã£o</span>
+                <span>Data da medição</span>
                 <input id="measure-date" name="data" type="date" required>
               </label>
               <div class="guided-measure-date__note">
@@ -60,8 +60,8 @@
             <div id="measure-fields" class="measure-fields measure-fields--guided"></div>
 
             <label id="measure-observation-wrap" class="field measure-observation" hidden>
-              <span>ObservaÃ§Ã£o final</span>
-              <textarea id="measure-observation-input" name="observacao" placeholder="Ex.: medida pela manhÃ£, em jejum, apÃ³s treino..."></textarea>
+              <span>Observação final</span>
+              <textarea id="measure-observation-input" name="observacao" placeholder="Ex.: medida pela manhã, em jejum, após treino..."></textarea>
             </label>
           </form>
 
@@ -137,8 +137,8 @@
 
           <div class="body-scan-legend">
             <span><i class="legend-dot measured"></i>Medido</span>
-            <span><i class="legend-dot good"></i>EvoluÃ§Ã£o positiva</span>
-            <span><i class="legend-dot bad"></i>EvoluÃ§Ã£o negativa</span>
+            <span><i class="legend-dot good"></i>Evolução positiva</span>
+            <span><i class="legend-dot bad"></i>Evolução negativa</span>
             <span><i class="legend-dot empty"></i>Sem dado</span>
           </div>
         </aside>
@@ -147,9 +147,9 @@
       <section class="card measure-comparison-card">
         <div class="section-head">
           <div>
-            <p class="eyebrow">ComparaÃ§Ã£o</p>
-            <h2>Ãšltima evoluÃ§Ã£o registrada</h2>
-            <p class="muted">A cor respeita a lÃ³gica de cada medida: por exemplo, cintura e abdÃ´men ficam verdes quando diminuem.</p>
+            <p class="eyebrow">Comparação</p>
+            <h2>Última evolução registrada</h2>
+            <p class="muted">A cor respeita a lógica de cada medida: por exemplo, cintura e abdômen ficam verdes quando diminuem.</p>
           </div>
         </div>
         <div id="measure-comparison"></div>
@@ -158,8 +158,8 @@
       <section class="card measure-history-card">
         <div class="section-head">
           <div>
-            <p class="eyebrow">HistÃ³rico</p>
-            <h2>MediÃ§Ãµes anteriores</h2>
+            <p class="eyebrow">Histórico</p>
+            <h2>Medições anteriores</h2>
           </div>
         </div>
         <div id="measure-history"></div>
@@ -172,9 +172,8 @@
   <script src="nucleo/supabase-client.js?v=20260813-v41"></script>
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
   <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script>
-  <script src="nucleo/shell-v78-6.js?v=20260815-v78-6"></script>
+  <script src="nucleo/shell-v78-6.js?v=20260815-v78-7"></script>
   <script>MMCDShell('medidas')</script>
   <script src="modulos/medidas/medidas.js?v=20260814-v52"></script>
 </body>
 </html>
-

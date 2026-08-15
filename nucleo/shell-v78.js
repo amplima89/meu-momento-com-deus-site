@@ -90,14 +90,14 @@ window.MMCDShell=async function(active){
       <span class="sidebar-mobile-label">Cuidado</span><span class="sidebar-settings__chevron" aria-hidden="true">›</span>
      </button>
      <div class="sidebar-subnav ${careActive?'open':''}" id="sidebar-care-menu" ${careActive?'':'hidden'}>
-      <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
-      <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
-      <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
-      <a class="sidebar-subnav__link ${active==='aniversarios'?'active':''}" href="aniversarios.html?v=20260815-v78-6"><span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span></a>
+      <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
+      <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
+      <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
+      <a class="sidebar-subnav__link ${active==='aniversarios'?'active':''}" href="aniversarios.html?v=20260815-v78-4"><span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span></a>
      </div>
     </div>
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
-    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v78-6">
+    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v78">
      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">10</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
      <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
      <span class="sidebar-mobile-label">Ajustes</span>
@@ -403,20 +403,6 @@ window.MMCDShell=async function(active){
  const careGroup=document.querySelector('.sidebar-care-group');
  const careToggle=careGroup?.querySelector('.sidebar-settings__toggle');
  const careMenu=careGroup?.querySelector('#sidebar-care-menu');
- // V78.6: garante que Aniversariantes exista em Cuidado mesmo se algum HTML antigo for servido do cache.
- if(careMenu&&!careMenu.querySelector('a[href^="aniversarios.html"]')){
-  const birthdayLink=document.createElement('a');
-  birthdayLink.className=`sidebar-subnav__link ${active==='aniversarios'?'active':''}`;
-  birthdayLink.href='aniversarios.html?v=20260815-v78-6';
-  birthdayLink.innerHTML='<span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span>';
-  careMenu.append(birthdayLink);
- }
- // V78.6: defesa contra cards antigos de Aniversariantes ainda presentes em Configuracoes por cache.
- if(active==='configuracoes'){
-  document.querySelectorAll('a[href^="aniversarios.html"],a[href*="/aniversarios.html"]').forEach(link=>{
-   if(!link.closest('.sidebar-care-group')) link.remove();
-  });
- }
  const setCareOpen=(next,{persist=true}={})=>{
   if(!careGroup||!careToggle||!careMenu)return;
   // V78.2: a pagina ativa abre o grupo ao carregar, mas o usuario pode recolher manualmente.
@@ -659,10 +645,8 @@ window.MMCDShell=async function(active){
  }));
  document.addEventListener('click',event=>{if(fontPanel&&!fontPanel.hidden&&!event.target.closest('.memory-font-tool'))closeFont()});
 
- const NEWS_ID='memory-update-2026-08-15-v78-6-care-nav-consistency';
+ const NEWS_ID='memory-update-2026-08-15-v78-4-care-birthdays';
  const NEWS_ITEMS=[
-  'Cuidado agora usa um shell único V78.6 em todas as páginas; Aniversariantes permanece visível ao navegar entre Mapa, Orações e Círculo de Cuidado.',
-  'Configurações não exibe mais Aniversariantes; o cadastro fica exclusivamente em Cuidado.',
   'A escala de texto foi recalibrada: o antigo Grande virou o novo Padrão, e Grande e Extra grande agora ampliam de verdade a leitura.',
   'Aniversariantes saiu de Configurações e agora faz parte do menu Cuidado, junto de Mapa de Cuidado, Minhas Orações e Círculo de Cuidado.',
   'No aniversário, Atividades cria um cuidado opcional para enviar uma mensagem. Marque o check apenas se enviar; optar por não enviar não reduz o progresso do dia.',

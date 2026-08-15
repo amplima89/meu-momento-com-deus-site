@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>BÃ­blia online â€” Memory</title>
+  <title>Bíblia online — Memory</title>
   <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
   <link rel="stylesheet" href="modulos/biblia/biblia.css?v=20260811-biblia-v29">
 </head>
@@ -11,36 +11,36 @@
   <div class="app-shell">
     <header class="app-topbar">
       <div class="app-topbar__inner">
-        <div><span class="app-topbar__title">MEMORY</span><span class="app-topbar__subtitle">BÃ­blia online</span></div>
-        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">â˜¾</button>
+        <div><span class="app-topbar__title">MEMORY</span><span class="app-topbar__subtitle">Bíblia online</span></div>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
       </div>
     </header>
     <main class="app-main bible-page">
       <section class="page-header">
-        <div><p class="eyebrow">Palavra de Deus</p><h1>BÃ­blia online</h1><p class="muted">Leia, marque o que Deus falou com vocÃª e acompanhe visualmente o caminho percorrido pela BÃ­blia.</p></div>
+        <div><p class="eyebrow">Palavra de Deus</p><h1>Bíblia online</h1><p class="muted">Leia, marque o que Deus falou com você e acompanhe visualmente o caminho percorrido pela Bíblia.</p></div>
       </section>
       <section class="card section bible-toolbar">
         <label class="field"><span>Livro</span><select id="biblia-livro"></select></label>
-        <label class="field"><span>CapÃ­tulo</span><select id="biblia-capitulo"></select></label>
+        <label class="field"><span>Capítulo</span><select id="biblia-capitulo"></select></label>
         
       </section>
 
       <section class="bible-progress-overview" id="biblia-progresso-overview">
         <article class="card bible-progress-main">
           <div class="bible-progress-ring" id="biblia-progress-ring" style="--progress:0">
-            <div><strong id="biblia-progress-percent">0%</strong><span>da BÃ­blia</span></div>
+            <div><strong id="biblia-progress-percent">0%</strong><span>da Bíblia</span></div>
           </div>
           <div class="bible-progress-main__copy">
             <p class="eyebrow">Sua caminhada</p>
-            <h2 id="biblia-progress-title">Um capÃ­tulo de cada vez</h2>
-            <p id="biblia-progress-message" class="muted">Marque os capÃ­tulos concluÃ­dos e veja sua evoluÃ§Ã£o crescer.</p>
+            <h2 id="biblia-progress-title">Um capítulo de cada vez</h2>
+            <p id="biblia-progress-message" class="muted">Marque os capítulos concluídos e veja sua evolução crescer.</p>
             <div class="bible-testament-bars">
               <div>
-                <span><b>Antigo Testamento</b><small id="biblia-at-label">0 / 929 capÃ­tulos</small></span>
+                <span><b>Antigo Testamento</b><small id="biblia-at-label">0 / 929 capítulos</small></span>
                 <div class="bible-progress-bar"><i id="biblia-at-bar" style="width:0%"></i></div>
               </div>
               <div>
-                <span><b>Novo Testamento</b><small id="biblia-nt-label">0 / 260 capÃ­tulos</small></span>
+                <span><b>Novo Testamento</b><small id="biblia-nt-label">0 / 260 capítulos</small></span>
                 <div class="bible-progress-bar"><i id="biblia-nt-bar" style="width:0%"></i></div>
               </div>
             </div>
@@ -48,10 +48,10 @@
         </article>
 
         <div class="bible-stat-grid">
-          <article class="card bible-stat"><span>Livros concluÃ­dos</span><strong id="biblia-stat-books">0 <small>/ 66</small></strong></article>
-          <article class="card bible-stat"><span>CapÃ­tulos concluÃ­dos</span><strong id="biblia-stat-chapters">0 <small>/ 1.189</small></strong></article>
-          <article class="card bible-stat"><span>VersÃ­culos percorridos</span><strong id="biblia-stat-verses">0 <small>/ 31.102</small></strong></article>
-          <article class="card bible-stat"><span>Livro mais avanÃ§ado</span><strong id="biblia-stat-current-book" class="textual">â€”</strong></article>
+          <article class="card bible-stat"><span>Livros concluídos</span><strong id="biblia-stat-books">0 <small>/ 66</small></strong></article>
+          <article class="card bible-stat"><span>Capítulos concluídos</span><strong id="biblia-stat-chapters">0 <small>/ 1.189</small></strong></article>
+          <article class="card bible-stat"><span>Versículos percorridos</span><strong id="biblia-stat-verses">0 <small>/ 31.102</small></strong></article>
+          <article class="card bible-stat"><span>Livro mais avançado</span><strong id="biblia-stat-current-book" class="textual">—</strong></article>
         </div>
       </section>
 
@@ -59,25 +59,25 @@
         <article class="card bible-reader">
           <header class="bible-reader__head bible-reader__head--v29">
             <div class="bible-reader__identity">
-              <p class="eyebrow">JoÃ£o Ferreira de Almeida</p>
+              <p class="eyebrow">João Ferreira de Almeida</p>
               <h2 id="biblia-titulo">Carregando...</h2>
               <span id="biblia-status" class="muted"></span>
             </div>
-            <div class="bible-reader__chapter-actions" aria-label="NavegaÃ§Ã£o do capÃ­tulo">
-              <button id="biblia-anterior" class="bible-reader-nav" type="button" aria-label="CapÃ­tulo anterior"><span aria-hidden="true">â†</span><span>Anterior</span></button>
+            <div class="bible-reader__chapter-actions" aria-label="Navegação do capítulo">
+              <button id="biblia-anterior" class="bible-reader-nav" type="button" aria-label="Capítulo anterior"><span aria-hidden="true">←</span><span>Anterior</span></button>
               <button id="biblia-check-capitulo" class="bible-chapter-check" type="button" aria-pressed="false" disabled>
-                <span class="bible-chapter-check__box">â—‹</span>
-                <span><strong>CapÃ­tulo concluÃ­do?</strong><small>Marcar como lido</small></span>
+                <span class="bible-chapter-check__box">○</span>
+                <span><strong>Capítulo concluído?</strong><small>Marcar como lido</small></span>
               </button>
-              <button id="biblia-proximo" class="bible-reader-nav bible-reader-nav--next" type="button" aria-label="PrÃ³ximo capÃ­tulo"><span>PrÃ³ximo</span><span aria-hidden="true">â†’</span></button>
+              <button id="biblia-proximo" class="bible-reader-nav bible-reader-nav--next" type="button" aria-label="Próximo capítulo"><span>Próximo</span><span aria-hidden="true">→</span></button>
             </div>
           </header>
           <div id="biblia-conteudo" class="bible-content"><div class="bible-loading">Carregando...</div></div>
         </article>
         <aside class="bible-side">
-          <section class="card"><p class="eyebrow">Durante a leitura</p><h3>Marque e reflita</h3><p class="bible-help muted">Selecione uma palavra ou frase para destacar e criar uma anotaÃ§Ã£o. Para anotar o versÃ­culo inteiro, use o botÃ£o <strong>+ Anotar</strong> ao lado dele.</p><button id="biblia-limpar" class="btn small" type="button">Limpar marcaÃ§Ãµes do capÃ­tulo</button></section>
-          <section class="card"><p class="eyebrow">MarcaÃ§Ãµes do capÃ­tulo</p><div id="biblia-destaques" class="bible-highlight-list"></div></section>
-          <p class="bible-source">Texto bÃ­blico: JoÃ£o Ferreira de Almeida, domÃ­nio pÃºblico, disponibilizado por <a href="https://bible-api.com" target="_blank" rel="noopener noreferrer">bible-api.com</a>.</p>
+          <section class="card"><p class="eyebrow">Durante a leitura</p><h3>Marque e reflita</h3><p class="bible-help muted">Selecione uma palavra ou frase para destacar e criar uma anotação. Para anotar o versículo inteiro, use o botão <strong>+ Anotar</strong> ao lado dele.</p><button id="biblia-limpar" class="btn small" type="button">Limpar marcações do capítulo</button></section>
+          <section class="card"><p class="eyebrow">Marcações do capítulo</p><div id="biblia-destaques" class="bible-highlight-list"></div></section>
+          <p class="bible-source">Texto bíblico: João Ferreira de Almeida, domínio público, disponibilizado por <a href="https://bible-api.com" target="_blank" rel="noopener noreferrer">bible-api.com</a>.</p>
         </aside>
       </section>
 
@@ -85,18 +85,18 @@
       <section class="card bible-notes-section" id="biblia-anotacoes">
         <header class="bible-notes-head">
           <div>
-            <p class="eyebrow">Minhas anotaÃ§Ãµes</p>
-            <h2>O que este capÃ­tulo falou comigo?</h2>
-            <p class="muted">Os versÃ­culos ou trechos que vocÃª selecionar aparecem aqui para receber suas reflexÃµes.</p>
+            <p class="eyebrow">Minhas anotações</p>
+            <h2>O que este capítulo falou comigo?</h2>
+            <p class="muted">Os versículos ou trechos que você selecionar aparecem aqui para receber suas reflexões.</p>
           </div>
-          <span id="biblia-notes-count" class="bible-notes-count">0 anotaÃ§Ãµes</span>
+          <span id="biblia-notes-count" class="bible-notes-count">0 anotações</span>
         </header>
         <div class="bible-notes-guide">
           <span><b>1</b> Selecione um trecho ou toque em <strong>+ Anotar</strong></span>
-          <span><b>2</b> Escolha o tipo da anotaÃ§Ã£o</span>
-          <span><b>3</b> Registre sua consideraÃ§Ã£o e salve</span>
+          <span><b>2</b> Escolha o tipo da anotação</span>
+          <span><b>3</b> Registre sua consideração e salve</span>
         </div>
-        <div id="biblia-notes-list" class="bible-notes-list"><div class="bible-notes-empty">Nenhuma anotaÃ§Ã£o neste capÃ­tulo.</div></div>
+        <div id="biblia-notes-list" class="bible-notes-list"><div class="bible-notes-empty">Nenhuma anotação neste capítulo.</div></div>
       </section>
     </main>
   </div>
@@ -104,9 +104,8 @@
   <script src="nucleo/supabase-config.js?v=20260811-biblia27"></script>
   <script src="nucleo/supabase-client.js?v=20260811-biblia27"></script>
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
-  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-6"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-7"></script>
   <script>MMCDShell("biblia")</script>
   <script src="modulos/biblia/biblia.js?v=20260811-biblia-v29"></script>
 </body>
 </html>
-

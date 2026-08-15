@@ -1,0 +1,5 @@
+Memory V78.7 - Correcao global de UTF-8 e textos
+Aplicado em: 15/08/2026 12:38:16
+Site: C:\Users\andre\OneDrive\meu-momento-com-deus-site
+Backup externo: C:\Users\andre\AppData\Local\Memory\Backups\site_antes_V78_7_20260815_123814.zip
+HTMLs restaurados diretamente em UTF-8; nenhuma conversao Get-Content/Set-Content foi usada.
