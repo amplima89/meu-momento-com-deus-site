@@ -729,20 +729,28 @@ function renderizarSecoesAgrupadas(secoes = []) {
     const ordem = ["preparacao", "palavra", "resposta", "pratica", "continuidade"];
     grupos.sort((a, b) => ordem.indexOf(a.grupo.id) - ordem.indexOf(b.grupo.id));
 
-    return grupos.map(({ grupo, secoes: itens }) => `
-        <section class="meditacao-grupo meditacao-grupo--${escaparHTML(grupo.id)}">
-            <header class="meditacao-grupo__cabecalho">
+    return grupos.map(({ grupo, secoes: itens }) => {
+        const storageKey = `mmcd:meditacao:grupo:${grupo.id}:recolhido`;
+        let recolhido = false;
+        try {
+            recolhido = localStorage.getItem(storageKey) === "1";
+        } catch {}
+        const conteudoId = `meditacao-grupo-${grupo.id}`;
+        return `
+        <section class="meditacao-grupo meditacao-grupo--${escaparHTML(grupo.id)}${recolhido ? " is-collapsed" : ""}" data-meditacao-grupo="${escaparHTML(grupo.id)}">
+            <button class="meditacao-grupo__cabecalho" type="button" data-meditacao-grupo-toggle="${escaparHTML(grupo.id)}" aria-expanded="${recolhido ? "false" : "true"}" aria-controls="${escaparHTML(conteudoId)}">
                 <span class="meditacao-grupo__indice">${escaparHTML(grupo.indice)}</span>
-                <div>
+                <span class="meditacao-grupo__titulo">
                     <p>${escaparHTML(grupo.titulo)}</p>
                     <small>${escaparHTML(grupo.descricao)}</small>
-                </div>
-            </header>
-            <div class="meditacao-grupo__conteudo">
+                </span>
+                <span class="meditacao-grupo__toggle"><span>${recolhido ? "Abrir" : "Recolher"}</span><i aria-hidden="true">⌄</i></span>
+            </button>
+            <div id="${escaparHTML(conteudoId)}" class="meditacao-grupo__conteudo"${recolhido ? " hidden" : ""}>
                 ${itens.map(renderizarSecao).join("")}
             </div>
-        </section>
-    `).join("");
+        </section>`;
+    }).join("");
 }
 
 
@@ -2470,6 +2478,28 @@ window.addEventListener(
 elementos.marcar?.addEventListener(
     "click",
     () => marcarSelecao()
+);
+
+elementos.conteudo?.addEventListener(
+    "click",
+    evento => {
+        const botao = evento.target.closest?.("[data-meditacao-grupo-toggle]");
+        if (!botao || !elementos.conteudo.contains(botao)) return;
+        evento.preventDefault();
+        const id = botao.dataset.meditacaoGrupoToggle;
+        const grupo = botao.closest(".meditacao-grupo");
+        const conteudo = grupo?.querySelector(".meditacao-grupo__conteudo");
+        if (!grupo || !conteudo) return;
+        const vaiRecolher = !grupo.classList.contains("is-collapsed");
+        grupo.classList.toggle("is-collapsed", vaiRecolher);
+        conteudo.hidden = vaiRecolher;
+        botao.setAttribute("aria-expanded", vaiRecolher ? "false" : "true");
+        const rotulo = botao.querySelector(".meditacao-grupo__toggle span");
+        if (rotulo) rotulo.textContent = vaiRecolher ? "Abrir" : "Recolher";
+        try {
+            localStorage.setItem(`mmcd:meditacao:grupo:${id}:recolhido`, vaiRecolher ? "1" : "0");
+        } catch {}
+    }
 );
 
 elementos.conteudo?.addEventListener(

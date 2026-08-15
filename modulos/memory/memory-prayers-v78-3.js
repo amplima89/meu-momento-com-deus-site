@@ -57,21 +57,41 @@
   });
   $("#prayer-cancel").addEventListener("click",reset);
 
-  // Modo Presença — somente cronômetro local e mensagens fixas.
-  const layer=$("#presence-layer"), timerEl=$("#presence-timer"), guide=$("#presence-guide"), startBtn=$("#presence-start"), pauseBtn=$("#presence-pause");
-  let seconds=0,tick=null,running=false;
+  // Modo Presença V78.3 — cronômetro + orientação progressiva visível.
+  const layer=$("#presence-layer"), timerEl=$("#presence-timer"), guide=$("#presence-guide"), phaseEl=$("#presence-phase"), guideTitle=$("#presence-guide-title"), nextEl=$("#presence-next"), progressEl=$("#presence-progress"), startBtn=$("#presence-start"), pauseBtn=$("#presence-pause");
+  let seconds=0,tick=null,running=false,lastGuideIndex=-1;
   const guides=[
-    [0,"Chegue como você está. Não precisa organizar tudo antes de falar com Deus."],
-    [60,"Respire com calma. Agradeça por algo concreto deste dia."],
-    [180,"Fale sobre o que está pesado sem tentar parecer forte."],
-    [300,"Lembre das pessoas que você ama e coloque cada uma diante de Deus."],
-    [480,"Fique alguns instantes em silêncio. Nem toda oração precisa ser preenchida com palavras."],
-    [600,"Antes de terminar, escolha uma atitude simples para levar desta oração para o seu dia."]
+    {at:0,phase:"Chegada",title:"Chegue como você está",text:"Não tente organizar a oração antes de começar. Apenas reconheça que você está diante de Deus."},
+    {at:20,phase:"Respiração",title:"Diminua o ritmo",text:"Respire devagar duas ou três vezes. Solte os ombros e permita que a pressa perca força."},
+    {at:45,phase:"Gratidão",title:"Comece lembrando do que recebeu",text:"Agradeça por algo concreto deste dia — uma pessoa, uma proteção, uma oportunidade ou uma pequena alegria."},
+    {at:75,phase:"Entrega",title:"Nomeie o que está pesado",text:"Fale com Deus sobre o que está ocupando espaço demais dentro de você. Não precisa parecer forte nem ter a frase certa."},
+    {at:120,phase:"Escuta",title:"Pare de preencher todos os espaços",text:"Faça alguns segundos de silêncio. Pergunte: Senhor, o que meu coração precisa perceber agora?"},
+    {at:180,phase:"Intercessão",title:"Traga alguém para perto",text:"Lembre de uma pessoa que precisa de cuidado. Coloque o nome dela diante de Deus e ore pelo que você sabe — e pelo que não sabe."},
+    {at:240,phase:"Silêncio",title:"Permaneça sem resolver",text:"Não transforme este momento em uma lista de tarefas. Fique alguns instantes apenas presente diante de Deus."},
+    {at:330,phase:"Confiança",title:"Entregue o que você não controla",text:"Escolha uma preocupação que você vem tentando governar sozinho e diga, com suas palavras, que ela está nas mãos de Deus."},
+    {at:450,phase:"Direção",title:"Peça clareza para o próximo passo",text:"Não peça o mapa inteiro. Peça sabedoria para uma atitude concreta, fiel e possível para hoje."},
+    {at:570,phase:"Encerramento",title:"Leve uma verdade com você",text:"Antes de terminar, escolha uma frase simples para carregar no restante do dia. Termine sem pressa."}
   ];
-  function renderPresence(){timerEl.textContent=`${String(Math.floor(seconds/60)).padStart(2,"0")}:${String(seconds%60).padStart(2,"0")}`;let text=guides[0][1];for(const [at,msg] of guides)if(seconds>=at)text=msg;guide.textContent=text;startBtn.textContent=seconds?"Continuar":"Começar";pauseBtn.disabled=!running}
+  function guideIndex(){let index=0;for(let i=0;i<guides.length;i++)if(seconds>=guides[i].at)index=i;return index}
+  function formatSeconds(value){return `${String(Math.floor(value/60)).padStart(2,"0")}:${String(value%60).padStart(2,"0")}`}
+  function renderGuide(index){
+    const item=guides[index];if(!item)return;
+    if(phaseEl)phaseEl.textContent=item.phase;if(guideTitle)guideTitle.textContent=item.title;if(guide)guide.textContent=item.text;
+    if(progressEl)progressEl.innerHTML=guides.map((_,i)=>`<i class="${i<index?"done":i===index?"active":""}" aria-hidden="true"></i>`).join("");
+    layer.querySelector(".memory-presence-guidance")?.classList.remove("is-changing");
+    requestAnimationFrame(()=>layer.querySelector(".memory-presence-guidance")?.classList.add("is-visible"));
+  }
+  function renderPresence(){
+    timerEl.textContent=formatSeconds(seconds);
+    const index=guideIndex();
+    if(index!==lastGuideIndex){const box=layer.querySelector(".memory-presence-guidance");box?.classList.add("is-changing");setTimeout(()=>{renderGuide(index);lastGuideIndex=index},160)}
+    const next=guides[index+1];
+    if(nextEl)nextEl.textContent=next?`Próxima orientação em ${formatSeconds(Math.max(0,next.at-seconds))}`:"Permaneça aqui pelo tempo que fizer sentido.";
+    startBtn.textContent=seconds?(running?"Em andamento":"Continuar"):"Começar";pauseBtn.disabled=!running;
+  }
   function stopTick(){if(tick)clearInterval(tick);tick=null;running=false;renderPresence()}
-  $("#presence-open").addEventListener("click",()=>{layer.hidden=false;document.body.style.overflow="hidden";renderPresence()});
-  $("#presence-close").addEventListener("click",()=>{stopTick();layer.hidden=true;document.body.style.overflow="";seconds=0;renderPresence()});
+  $("#presence-open").addEventListener("click",()=>{layer.hidden=false;document.body.style.overflow="hidden";lastGuideIndex=-1;renderPresence()});
+  $("#presence-close").addEventListener("click",()=>{stopTick();layer.hidden=true;document.body.style.overflow="";seconds=0;lastGuideIndex=-1;renderPresence()});
   startBtn.addEventListener("click",()=>{if(running)return;running=true;pauseBtn.disabled=false;tick=setInterval(()=>{seconds++;renderPresence()},1000);renderPresence()});
   pauseBtn.addEventListener("click",stopTick);
 

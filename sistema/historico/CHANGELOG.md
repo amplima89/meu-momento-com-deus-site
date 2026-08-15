@@ -48,3 +48,12 @@
 - BAT disponibilizado diretamente na raiz do ZIP, eliminando a pasta duplicada após a extração.
 - A revisão inclui integralmente todas as melhorias funcionais da V78.2.
 
+## V78.3 — 15/08/2026
+- Minha Jornada redesenhada como trilha de temas e linha do tempo, sem porcentagens de conclusão.
+- Cards temáticos passam a mostrar quantidade real de meditações e última data registrada no assunto.
+- Agrupamentos internos da meditação transformados em acordeões recolhíveis com preferência local persistida.
+- Mapa de Cuidado passa a renderizar estrutura antes dos dados, evitando tela vazia em caso de atraso/falha de leitura.
+- Foto cadastrada no Perfil integrada ao círculo central do Mapa de Cuidado.
+- Hover/toque mantém a pessoa no centro e reage apenas no anel/badge da dimensão.
+- Modo Presença passa a exibir orientações progressivas durante o cronômetro, com fase, texto, próxima orientação e progresso visual.
+- Novos arquivos versionados para evitar cache de CSS/JS das versões anteriores.
