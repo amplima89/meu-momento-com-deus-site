@@ -625,25 +625,6 @@
     ? clamp(Math.round((recentWorkoutSessions.length / workoutPlanned30) * 100), 0, 100)
     : 0;
 
-  const currentBook = d.livros?.atual || {};
-  const currentBookStart = String(currentBook.dataInicio || "");
-  let currentBookDays = null;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(currentBookStart)) {
-    const startDate = parseDate(currentBookStart);
-    if (!Number.isNaN(startDate.getTime()) && startDate <= today) {
-      currentBookDays = Math.floor((today - startDate) / 86400000) + 1;
-    }
-  }
-
-  const currentBookDetail = currentBook.titulo
-    ? [
-        String(currentBook.autor || "").trim(),
-        currentBookDays !== null
-          ? `${currentBookDays} dia${currentBookDays === 1 ? "" : "s"} neste livro`
-          : "Data de início não informada"
-      ].filter(Boolean).join(" · ")
-    : "Cadastre sua leitura";
-
   const metrics = metaMetrics();
   let weightDetail = "Último registro";
   if (currentWeight != null && metrics) {
@@ -656,7 +637,7 @@
 
   const cards = [
     ["🔥", "Sequência de dias", `${streak()} dias`, "Com algum registro"],
-    ["📖", "Livro em andamento", currentBook.titulo || "Nenhum", currentBookDetail],
+    ["📖", "Livro em andamento", d.livros.atual.titulo || "Nenhum", d.livros.atual.autor || "Cadastre sua leitura"],
     ["📚", "Livros concluídos", String(books.length), `Meta anual: ${d.configuracoes.metaLivrosAno}`],
     ["🙏", "Meditação de hoje", medDone ? "Concluída" : "Pendente", lastMed ? `Última concluída: ${MMCDUI.date(lastMed)}` : (latestPublishedMeditation ? "Há meditação disponível" : "Sem registro")],
     ["⚖️", "Peso atual", currentWeight != null ? kg(currentWeight) : "Não informado", weightDetail],

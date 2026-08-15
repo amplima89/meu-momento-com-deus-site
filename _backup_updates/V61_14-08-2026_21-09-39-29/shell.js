@@ -26,11 +26,11 @@ window.MMCDShell=async function(active){
  }
  const nav=[
   ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
-  ['atividades','atividades.html','02','✅','Atividades','Rotina diária','Atividades'],
-  ['meditacao','meditacao.html','03','🙏','Meditação','Momento com Deus','Meditação'],
-  ['biblia','biblia.html','04','📖','Bíblia','Leitura e anotações','Bíblia'],
-  ['ingles','ingles.html','05','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
-  ['treinos','treinos-v61.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
+  ['meditacao','meditacao.html','02','🙏','Meditação','Momento com Deus','Meditação'],
+  ['biblia','biblia.html','03','📖','Bíblia','Leitura e anotações','Bíblia'],
+  ['ingles','ingles.html','04','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
+  ['treinos','treinos.html#hoje','05','🏋️','Treinos','Plano de treino','Treinos'],
+  ['atividades','atividades.html','06','✅','Atividades','Rotina diária','Atividades'],
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
@@ -39,7 +39,7 @@ window.MMCDShell=async function(active){
  const storedSettingsOpen=localStorage.getItem('mmcd:sidebar:settings-open');
  const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
  const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-v55" aria-label="Abrir Memory">
+  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html" aria-label="Abrir Memory">
    <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark.png?v=20260814-memory-v49" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
@@ -54,7 +54,7 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html?v=20260814-v55" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="memory.html" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
      <img src="./memory-mark.png?v=20260814-memory-v49" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
@@ -205,7 +205,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-v55" aria-label="Abrir Memory"><img src="./memory-mark.png?v=20260814-memory-v49" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html" aria-label="Abrir Memory"><img src="./memory-mark.png?v=20260814-memory-v49" alt=""><span>Memory</span></a>'});
  document.title=document.title.replace(/Life Style/gi,'Memory').replace(/Meu Momento com Deus$/i,'Memory');
 
  // Recarrega a identidade visual sem depender do cache antigo do navegador/PWA.

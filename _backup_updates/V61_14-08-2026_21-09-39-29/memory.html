@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR" class="memory-boot">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#06152f">
+  <title>Memory — Propósito e essência</title>
+  <link rel="icon" href="favicon.ico?v=20260814-memory-v48" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=20260814-memory-v48">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260814-memory-v48">
+  <link rel="manifest" href="site.webmanifest?v=20260814-memory-v48">
+  <link rel="stylesheet" href="painel.css?v=20260814-memory-v42">
+  <style>
+    .memory-boot body{visibility:hidden;opacity:0}
+    .memory-ready body{visibility:visible;opacity:1;transition:opacity .12s ease}
+    .memory-page{padding:0;max-width:none}
+    .memory-page-frame-wrap{position:relative;overflow:hidden;border-radius:0;background:#06152f;min-height:100vh}
+    .memory-page-frame-wrap.is-loading::before{content:"Carregando Memory…";position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.58);font:700 .78rem/1.2 Inter,ui-sans-serif,system-ui;letter-spacing:.08em;text-transform:uppercase;background:#06152f;z-index:1}
+    #memory-content-frame{display:block;width:100%;min-height:100vh;border:0;background:#06152f;opacity:1;transition:opacity .16s ease}
+    .memory-page-frame-wrap.is-loading #memory-content-frame{opacity:0}
+    @media(max-width:760px){
+      .memory-page{padding-bottom:96px}
+      .memory-page-frame-wrap{min-height:calc(100vh - 96px)}
+      #memory-content-frame{min-height:calc(100vh - 96px)}
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div>
+          <span class="app-topbar__title">MEMORY</span>
+          <span class="app-topbar__subtitle">Propósito e essência</span>
+        </div>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+      </div>
+    </header>
+
+    <main class="app-main memory-page">
+      <div class="memory-page-frame-wrap is-loading">
+        <iframe id="memory-content-frame" data-src="memory-conteudo.html#inicio" title="Sobre o Memory" loading="eager"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=20260814-memory-v42"></script>
+  <script src="supabase-client.js?v=20260814-memory-v42"></script>
+  <script src="auth.js?v=20260814-memory-v42"></script>
+  <script src="theme-system.js?v=20260814-memory-v42"></script>
+  <script src="shell.js?v=20260814-v52"></script>
+  <script>
+    (async()=>{
+      const root=document.documentElement;
+      const frame=document.querySelector('#memory-content-frame');
+      const wrap=document.querySelector('.memory-page-frame-wrap');
+
+      try{
+        await MMCDShell('memory');
+      }finally{
+        root.classList.remove('memory-boot');
+        root.classList.add('memory-ready');
+      }
+
+      if(!frame)return;
+
+      const syncHeight=()=>{
+        try{
+          const doc=frame.contentDocument;
+          if(!doc)return;
+          doc.querySelector('nav')?.remove();
+          const footer=doc.querySelector('footer');
+          if(footer) footer.style.marginBottom='24px';
+          doc.documentElement.style.overflow='hidden';
+          doc.body.style.overflow='hidden';
+          const height=Math.max(doc.body.scrollHeight,doc.documentElement.scrollHeight,700);
+          frame.style.height=`${height}px`;
+        }catch(error){
+          console.warn('Memory: não foi possível ajustar o conteúdo incorporado.',error);
+        }
+      };
+
+      frame.addEventListener('load',()=>{
+        syncHeight();
+        wrap?.classList.remove('is-loading');
+        setTimeout(syncHeight,250);
+        setTimeout(syncHeight,900);
+      },{once:true});
+
+      window.addEventListener('resize',syncHeight);
+      frame.src=frame.dataset.src||'memory-conteudo.html#inicio';
+    })();
+  </script>
+</body>
+</html>

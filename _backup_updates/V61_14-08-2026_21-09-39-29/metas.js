@@ -47,7 +47,6 @@
     $('#goal-quantity').value=m?.quantidade||1;
     $('#goal-unit').value=m?.unidade||'';
     $('#goal-active').value=String(m?.ativa??true);
-    $('#goal-workout-link').checked=Boolean(m?.associadaTreinoFisico);
     document.querySelectorAll('#weekdays input').forEach(x=>x.checked=(m?.diasSemana||[0,1,2,3,4,5,6]).includes(+x.value));
     const perDay=legacyLevels(m);
     document.querySelectorAll('[data-english-level-day]').forEach(sel=>sel.value=perDay[sel.dataset.englishLevelDay]||'facil');
@@ -135,7 +134,6 @@
         </div>
         <div class="goal-report-cell goal-category-cell" data-label="Grupo">
           <span class="category-pill">${MMCDUI.esc(categoryLabel(m.categoria))}</span>
-          ${m.associadaTreinoFisico?'<span class="category-pill" style="margin-top:6px;background:rgba(34,197,94,.12);color:#22c55e">🏋️ Treino físico</span>':''}
         </div>
         <div class="goal-report-cell goal-schedule-cell" data-label="Programação">
           <strong>${MMCDUI.esc(freq(m))}</strong>
@@ -160,7 +158,7 @@
     document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>open(d.metas.find(x=>x.id===b.dataset.edit)));
     document.querySelectorAll('[data-dup]').forEach(b=>b.onclick=async()=>{
       const x=d.metas.find(x=>x.id===b.dataset.dup);
-      d.metas.push({...x,id:crypto.randomUUID(),nome:x.nome+' (cópia)',associadaTreinoFisico:false});
+      d.metas.push({...x,id:crypto.randomUUID(),nome:x.nome+' (cópia)'});
       await MMCD.salvar(d);
       render();
       MMCDUI.toast('Meta duplicada');
@@ -214,15 +212,11 @@
       unidade:$('#goal-unit').value.trim(),
       inicioVigencia:$('#goal-start').value,
       fimVigencia:$('#goal-end').value,
-      ativa:$('#goal-active').value==='true',
-      associadaTreinoFisico:$('#goal-workout-link').checked
+      ativa:$('#goal-active').value==='true'
     };
     if(obj.fimVigencia&&obj.fimVigencia<obj.inicioVigencia){
       alert('A data final não pode ser anterior à data inicial.');
       return;
-    }
-    if(obj.associadaTreinoFisico){
-      d.metas.forEach(meta=>{ if(String(meta.id)!==String(id)) meta.associadaTreinoFisico=false; });
     }
     const i=d.metas.findIndex(x=>x.id===id);
     i>=0?d.metas[i]=obj:d.metas.push(obj);

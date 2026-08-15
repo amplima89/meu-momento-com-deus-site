@@ -15,8 +15,8 @@
   <link rel="icon" href="favicon.ico?v=20260814-memory-v42" sizes="any">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260814-memory-v42">
 
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260814-v55" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?v=20260814-v55'+Date.now()">
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260814-v55" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260812-config-nav-v32" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?v=20260812-config-nav-v32'+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260814-v42" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
 </head>
 <body>
   <div class="app-shell">
@@ -39,26 +39,7 @@
           <h1>Plano de treino</h1>
           <p class="muted">Programa, período e composição dos treinos.</p>
         </div>
-        <a class="btn" href="treinos-v61.html#hoje">Abrir Treinos</a>
-      </section>
-            <section class="card" style="margin-bottom:16px;padding:18px">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Descanso entre séries</p>
-            <h2 style="margin:.2rem 0">Alarme de descanso</h2>
-            <p class="muted">Escolha como o Memory deve avisar quando o tempo de descanso terminar.</p>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px">
-          <label class="field" style="display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)">
-            <input id="rest-setting-sound" type="checkbox" style="width:auto">
-            <span><strong>🔊 Som</strong><br><small class="muted">Bipes ao terminar o descanso</small></span>
-          </label>
-          <label class="field" style="display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)">
-            <input id="rest-setting-vibration" type="checkbox" style="width:auto">
-            <span><strong>📳 Vibração</strong><br><small class="muted">Quando o dispositivo suportar</small></span>
-          </label>
-        </div>
+        <a class="btn" href="treinos.html#hoje">Abrir Treinos</a>
       </section>
       <section class="treino-panel" data-panel="configuracoes">
         <div id="treino-settings-root"></div>
@@ -70,7 +51,7 @@
   <script>
   (async function(){
     const BASE='/meu-momento-com-deus-site/';
-    const VERSION='20260814-v61-nav-book-days';
+    const VERSION='20260814-v54-treino-fix';
 
     function loadScript(file){
       return new Promise((resolve,reject)=>{
@@ -97,9 +78,9 @@
       await loadScript("theme-system.js");
       await loadScript("shell.js");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
-      await loadScript("treinos-data-v55.js");
-      await loadScript("treinos-visuais-v55.js");
-      await loadScript("treinos-v61.js");
+      await loadScript("treinos-data.js");
+      await loadScript("treinos-visuais.js");
+      await loadScript("treinos.js");
     }catch(error){
       console.error("Falha ao iniciar Treinos:",error);
       const status=document.querySelector("#treino-save-status");
@@ -121,18 +102,5 @@
       <div id="exercise-guide-modal-body"></div>
     </div>
   </div>
-
-<script>
-(function(){
-  const sound=document.getElementById("rest-setting-sound");
-  const vibration=document.getElementById("rest-setting-vibration");
-  if(!sound||!vibration) return;
-  const read=(key,def)=>{try{const v=localStorage.getItem(key);return v===null?def:v!=="false";}catch(_){return def;}};
-  sound.checked=read("memory:rest-sound",true);
-  vibration.checked=read("memory:rest-vibration",true);
-  sound.addEventListener("change",()=>{try{localStorage.setItem("memory:rest-sound",String(sound.checked));}catch(_){}});
-  vibration.addEventListener("change",()=>{try{localStorage.setItem("memory:rest-vibration",String(vibration.checked));}catch(_){}});
-})();
-</script>
 </body>
 </html>
