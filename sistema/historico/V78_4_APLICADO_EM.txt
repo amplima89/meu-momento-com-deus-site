@@ -1,0 +1,5 @@
+﻿Memory V78.4 - Cuidado, Aniversariantes e Texto
+Aplicado em: 15/08/2026 12:15:19
+Site: C:\Users\andre\OneDrive\meu-momento-com-deus-site
+Backup externo: C:\Users\andre\AppData\Local\Memory\Backups\site_antes_V78_4_20260815_121518.zip
+Escala de texto recalibrada; Aniversariantes movido para Cuidado; mensagem de aniversario opcional em Atividades.

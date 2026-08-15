@@ -8,3 +8,11 @@
 @media(max-width:520px){.weekly-flex-section__head{align-items:flex-start;flex-direction:column}.weekly-flex-section__head small{text-align:left;max-width:none}.weekly-flex-goal__footer{align-items:flex-start;flex-direction:column}.weekly-flex-actions{width:100%}.weekly-flex-actions .btn{flex:1}.weekly-flex-goal__title{align-items:flex-start}.weekly-flex-goal{padding:11px}}
 
 .monthly-flex-section{border-color:color-mix(in srgb,var(--line) 72%,#5bb8ff 28%)}.monthly-flex-section .weekly-flex-section__head>div>span{color:#5bb8ff}.monthly-flex-goal .weekly-flex-goal__icon{background:color-mix(in srgb,var(--accent-soft) 74%,#5bb8ff 26%)}
+
+
+/* MEMORY V78.4 — cuidado opcional de aniversariantes */
+.daily-goal.is-optional{border-color:color-mix(in srgb,var(--accent) 24%,var(--line));background:color-mix(in srgb,var(--accent) 4%,var(--surface))}
+.optional-badge{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.055em}
+.daily-group-percent.is-optional{min-width:66px;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--accent);font-size:.57rem;letter-spacing:.045em}
+.day-dot.optional{background:transparent;border-color:color-mix(in srgb,var(--accent) 72%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 8%,transparent)}
+.day-dot.done.optional{background:var(--accent);border-color:var(--accent)}

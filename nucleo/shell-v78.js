@@ -49,9 +49,9 @@ window.MMCDShell=async function(active){
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
- const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links'];
+ const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','meditacao-links'];
  const settingsActive=settingsKeys.includes(active);
- const careKeys=['mapa-cuidado','arvore-da-vida','oracoes','circulo-cuidado'];
+ const careKeys=['mapa-cuidado','arvore-da-vida','oracoes','circulo-cuidado','aniversarios'];
  const careActive=careKeys.includes(active);
  const mobileMemoryHtml=`
   <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v76" aria-label="Abrir Memory">
@@ -93,6 +93,7 @@ window.MMCDShell=async function(active){
       <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
       <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
       <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
+      <a class="sidebar-subnav__link ${active==='aniversarios'?'active':''}" href="aniversarios.html?v=20260815-v78-4"><span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span></a>
      </div>
     </div>
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
@@ -557,9 +558,9 @@ window.MMCDShell=async function(active){
     <button type="button" class="icon-btn memory-font-btn" aria-label="Tamanho do texto" title="Tamanho do texto">Aa</button>
     <div class="memory-font-panel" hidden>
      <div class="memory-tool-head"><div><strong>Tamanho do texto</strong><small>Deixe o Memory confortável para você.</small></div><button type="button" data-close-font aria-label="Fechar">×</button></div>
-     <button type="button" data-font-size="padrao"><span>Aa</span><span><strong>Padrão</strong><small>Tamanho original</small></span><b>✓</b></button>
-     <button type="button" data-font-size="grande"><span class="is-large">Aa</span><span><strong>Grande</strong><small>Leitura mais confortável</small></span><b>✓</b></button>
-     <button type="button" data-font-size="extra"><span class="is-extra">Aa</span><span><strong>Extra grande</strong><small>Maior acessibilidade</small></span><b>✓</b></button>
+     <button type="button" data-font-size="padrao"><span class="is-large">Aa</span><span><strong>Padrão</strong><small>Leitura confortável</small></span><b>✓</b></button>
+     <button type="button" data-font-size="grande"><span class="is-extra">Aa</span><span><strong>Grande</strong><small>Leitura ampliada</small></span><b>✓</b></button>
+     <button type="button" data-font-size="extra"><span class="is-max">Aa</span><span><strong>Extra grande</strong><small>Maior acessibilidade</small></span><b>✓</b></button>
     </div>
    </div>
    <div class="memory-news-tool">
@@ -573,9 +574,9 @@ window.MMCDShell=async function(active){
   const style=document.createElement('style');
   style.id='memory-global-tools-v68-style';
   style.textContent=`
-   html[data-memory-font-size="padrao"]{font-size:16px}
-   html[data-memory-font-size="grande"]{font-size:18px}
-   html[data-memory-font-size="extra"]{font-size:20px}
+   html[data-memory-font-size="padrao"]{font-size:18px}
+   html[data-memory-font-size="grande"]{font-size:20px}
+   html[data-memory-font-size="extra"]{font-size:22.5px}
    .memory-global-tools{display:flex;align-items:center;gap:8px}
    .memory-font-tool,.memory-news-tool{position:relative}
    .memory-font-btn{font-weight:850;font-size:.72rem;letter-spacing:-.04em}
@@ -587,7 +588,7 @@ window.MMCDShell=async function(active){
    .memory-font-panel>[data-font-size]:hover{background:var(--surface-2)}
    .memory-font-panel>[data-font-size].active{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
    .memory-font-panel>[data-font-size]>span:first-child{display:grid;place-items:center;height:40px;border-radius:10px;background:var(--surface-2);font-size:.72rem;font-weight:850}
-   .memory-font-panel>[data-font-size]>span:first-child.is-large{font-size:.88rem}.memory-font-panel>[data-font-size]>span:first-child.is-extra{font-size:1.03rem}
+   .memory-font-panel>[data-font-size]>span:first-child.is-large{font-size:.88rem}.memory-font-panel>[data-font-size]>span:first-child.is-extra{font-size:1.03rem}.memory-font-panel>[data-font-size]>span:first-child.is-max{font-size:1.18rem}
    .memory-font-panel>[data-font-size]>span:nth-child(2){display:grid;gap:2px}.memory-font-panel>[data-font-size] strong{font-size:.75rem}.memory-font-panel>[data-font-size] small{font-size:.61rem;color:var(--muted)}
    .memory-font-panel>[data-font-size] b{visibility:hidden;color:var(--accent)}.memory-font-panel>[data-font-size].active b{visibility:visible}
    .memory-news-btn{position:relative}.memory-news-dot{position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#ff4d67;border:2px solid var(--surface);box-sizing:content-box}
@@ -604,7 +605,7 @@ window.MMCDShell=async function(active){
    .memory-news-date{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:.68rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
    .memory-news-entry ul{margin:11px 0 0;padding-left:20px;display:grid;gap:8px}.memory-news-entry li{font-size:.78rem;line-height:1.5;color:var(--text)}
    @media(max-width:760px){
-    html[data-memory-font-size="padrao"]{font-size:16px}html[data-memory-font-size="grande"]{font-size:17.5px}html[data-memory-font-size="extra"]{font-size:19px}
+    html[data-memory-font-size="padrao"]{font-size:17.5px}html[data-memory-font-size="grande"]{font-size:19.5px}html[data-memory-font-size="extra"]{font-size:21.5px}
     .memory-global-tools{gap:4px}.memory-global-tools .icon-btn{width:34px;min-height:36px;padding:0}
     .app-topbar__inner{gap:8px}.app-topbar .topbar-actions{gap:5px;min-width:0}.app-topbar #today-label{display:none}
     .memory-font-panel{position:fixed;left:12px;right:12px;top:72px;width:auto}
@@ -644,8 +645,11 @@ window.MMCDShell=async function(active){
  }));
  document.addEventListener('click',event=>{if(fontPanel&&!fontPanel.hidden&&!event.target.closest('.memory-font-tool'))closeFont()});
 
- const NEWS_ID='memory-update-2026-08-15-v78-experience';
+ const NEWS_ID='memory-update-2026-08-15-v78-4-care-birthdays';
  const NEWS_ITEMS=[
+  'A escala de texto foi recalibrada: o antigo Grande virou o novo Padrão, e Grande e Extra grande agora ampliam de verdade a leitura.',
+  'Aniversariantes saiu de Configurações e agora faz parte do menu Cuidado, junto de Mapa de Cuidado, Minhas Orações e Círculo de Cuidado.',
+  'No aniversário, Atividades cria um cuidado opcional para enviar uma mensagem. Marque o check apenas se enviar; optar por não enviar não reduz o progresso do dia.',
   'Cuidado agora é um menu principal expansível, independente de Configurações, com Mapa de Cuidado, Minhas Orações e Círculo de Cuidado.',
   'Mapa de Cuidado ganhou um núcleo simbólico compacto: mente, corpo, relacionamentos, espiritualidade, desenvolvimento e memórias mostram presença e atenção pela própria linguagem visual.',
   'Meditação passou a mostrar jornada temática, assunto atual, progresso dentro do tema e próximo passo sem perder o conteúdo devocional existente.',

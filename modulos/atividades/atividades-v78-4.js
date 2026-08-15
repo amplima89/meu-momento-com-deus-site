@@ -91,8 +91,10 @@
       .filter(item => item?.ativo !== false && Number(item?.dia) === day && Number(item?.mes) === month && item?.nome)
       .map(item => ({
         id: birthdayGoalId(item.id),
-        nome: `Dê feliz aniversário para ${item.nome}`,
-        descricao: item.relacao ? `Aniversário hoje · ${item.relacao}.` : "Aniversário hoje.",
+        nome: `Enviar uma mensagem para ${item.nome}`,
+        descricao: item.relacao
+          ? `Aniversário hoje · ${item.relacao}. Cuidado opcional: marque somente se você enviar uma mensagem.`
+          : "Aniversário hoje. Cuidado opcional: marque somente se você enviar uma mensagem.",
         categoria: "Cuidado",
         tipo: "check",
         unidade: "",
@@ -104,7 +106,8 @@
         inicioVigencia: "",
         fimVigencia: "",
         ativa: true,
-        memoryBirthday: true
+        memoryBirthday: true,
+        memoryOptional: true
       }));
   }
 
@@ -375,21 +378,31 @@
 
   function stats(date) {
     const goals = goalsFor(date);
+    const requiredGoals = goals.filter(meta => !meta?.memoryOptional);
+    const optionalGoals = goals.filter(meta => !!meta?.memoryOptional);
     let done = 0;
     let excused = 0;
+    let optionalDone = 0;
 
-    for (const meta of goals) {
+    for (const meta of requiredGoals) {
       const row = MMCD.registro(d, date, meta.id);
       if (MMCD.estaAbonada(row)) excused += 1;
       else if (row?.concluida) done += 1;
     }
+    for (const meta of optionalGoals) {
+      const row = MMCD.registro(d, date, meta.id);
+      if (row?.concluida) optionalDone += 1;
+    }
 
-    const valid = Math.max(0, goals.length - excused);
+    const valid = Math.max(0, requiredGoals.length - excused);
     return {
       goals,
       done,
       excused,
       valid,
+      requiredTotal: requiredGoals.length,
+      optionalTotal: optionalGoals.length,
+      optionalDone,
       pct: valid ? Math.round((done / valid) * 100) : null
     };
   }
@@ -411,14 +424,17 @@
       const outside = date.getMonth() !== month;
       const dots = dayStats.goals.slice(0, 8).map(meta => {
         const row = MMCD.registro(d, key, meta.id);
-        const state = MMCD.estaAbonada(row) ? "excused" : row?.concluida ? "done" : "";
-        const title = state === "excused" ? "Abonada" : state === "done" ? "Concluída" : "Pendente";
+        const optional = !!meta?.memoryOptional;
+        const state = optional ? (row?.concluida ? "done optional" : "optional") : MMCD.estaAbonada(row) ? "excused" : row?.concluida ? "done" : "";
+        const title = optional ? (row?.concluida ? "Cuidado opcional realizado" : "Cuidado opcional") : state === "excused" ? "Abonada" : state === "done" ? "Concluída" : "Pendente";
         return `<i class="day-dot ${state}" title="${title}"></i>`;
       }).join("");
 
       let dayLabel = "Sem atividades";
-      if (dayStats.goals.length && dayStats.valid === 0) dayLabel = "Tudo abonado";
-      else if (dayStats.goals.length) {
+      if (dayStats.requiredTotal === 0 && dayStats.optionalTotal > 0) {
+        dayLabel = `${dayStats.optionalDone}/${dayStats.optionalTotal} cuidado${dayStats.optionalTotal === 1 ? "" : "s"}`;
+      } else if (dayStats.requiredTotal > 0 && dayStats.valid === 0) dayLabel = "Tudo abonado";
+      else if (dayStats.requiredTotal > 0) {
         dayLabel = `${dayStats.pct}%${dayStats.excused ? ` · ${dayStats.excused} abono${dayStats.excused === 1 ? "" : "s"}` : ""}`;
       }
 
@@ -482,10 +498,13 @@
       valor: nextValue ? 1 : 0,
       texto: "",
       observacao: "",
-      origem: "manual"
+      origem: isBirthdayGoalId(goalId) ? "aniversario" : "manual"
     });
 
-    await saveGoalChange(goalId, previousState, "Atividade salva no banco");
+    const successMessage = isBirthdayGoalId(goalId)
+      ? (nextValue ? "Mensagem marcada como enviada" : "Mensagem desmarcada")
+      : "Atividade salva no banco";
+    await saveGoalChange(goalId, previousState, successMessage);
   }
 
   async function toggleExcuse(button) {
@@ -569,26 +588,29 @@
 
   function renderGoal(meta) {
     const row = MMCD.registro(d, selected, meta.id);
-    const excused = MMCD.estaAbonada(row);
+    const optional = !!meta?.memoryOptional;
+    const excused = optional ? false : MMCD.estaAbonada(row);
     const done = !excused && !!row?.concluida;
     const reason = excused ? MMCD.motivoAbono(row) : "";
     const color = meta.cor || "#2563eb";
+    const checkLabel = meta?.memoryBirthday
+      ? (done ? "Desmarcar mensagem enviada" : "Marcar mensagem como enviada")
+      : (done ? "Desmarcar" : "Marcar atividade");
     return `
-      <article class="daily-goal ${done ? "is-done" : ""} ${excused ? "is-excused" : ""}">
+      <article class="daily-goal ${done ? "is-done" : ""} ${excused ? "is-excused" : ""} ${optional ? "is-optional" : ""}">
         <span class="daily-goal-icon" style="color:${color};background:${color}14">${MMCDUI.esc(meta.icone || "✓")}</span>
         <div class="daily-goal-copy">
           <div class="daily-goal-title">
             <strong>${MMCDUI.esc(meta.nome || "Atividade")}</strong>
+            ${optional ? '<span class="optional-badge">Opcional</span>' : ""}
             ${excused ? '<span class="excuse-badge">Abonada</span>' : ""}
           </div>
           <small>${MMCDUI.esc(meta.descricao || "Marque somente quando realmente cumprir.")}</small>
           ${reason ? `<small class="excuse-reason">Motivo: ${MMCDUI.esc(reason)}</small>` : ""}
         </div>
         <div class="daily-goal-actions">
-          <button class="daily-excuse ${excused ? "active" : ""}" data-action="excuse" data-goal="${meta.id}" aria-label="${excused ? "Remover abono" : "Abonar"} ${MMCDUI.esc(meta.nome || "atividade")}" title="${excused ? "Remover abono" : "Registrar abono"}">
-            <span aria-hidden="true">A</span><span>${excused ? "Abonado" : "Abonar"}</span>
-          </button>
-          <button class="daily-check ${done ? "done" : ""}" data-action="check" data-goal="${meta.id}" aria-label="${done ? "Desmarcar" : "Marcar"} atividade" ${excused ? "disabled" : ""}>${done ? "✓" : ""}</button>
+          ${optional ? "" : `<button class="daily-excuse ${excused ? "active" : ""}" data-action="excuse" data-goal="${meta.id}" aria-label="${excused ? "Remover abono" : "Abonar"} ${MMCDUI.esc(meta.nome || "atividade")}" title="${excused ? "Remover abono" : "Registrar abono"}"><span aria-hidden="true">A</span><span>${excused ? "Abonado" : "Abonar"}</span></button>`}
+          <button class="daily-check ${done ? "done" : ""}" data-action="check" data-goal="${meta.id}" aria-label="${MMCDUI.esc(checkLabel)}" title="${MMCDUI.esc(checkLabel)}" ${excused ? "disabled" : ""}>${done ? "✓" : ""}</button>
         </div>
       </article>`;
   }
@@ -600,10 +622,15 @@
     $("#selected-weekday").textContent = weekFmt.format(date);
 
     let progressLabel = "0%";
-    if (dayStats.goals.length && dayStats.valid === 0) progressLabel = "Tudo abonado";
+    if (dayStats.requiredTotal === 0 && dayStats.optionalTotal > 0) {
+      progressLabel = `${dayStats.optionalDone} de ${dayStats.optionalTotal} cuidado${dayStats.optionalTotal === 1 ? "" : "s"} opcional${dayStats.optionalTotal === 1 ? "" : "is"}`;
+    } else if (dayStats.requiredTotal > 0 && dayStats.valid === 0) progressLabel = "Tudo abonado";
     else if (dayStats.valid) progressLabel = `${dayStats.pct}%`;
     if (dayStats.excused && dayStats.valid) {
       progressLabel += ` · ${dayStats.excused} abonada${dayStats.excused === 1 ? "" : "s"}`;
+    }
+    if (dayStats.requiredTotal > 0 && dayStats.optionalTotal > 0) {
+      progressLabel += ` · ${dayStats.optionalDone}/${dayStats.optionalTotal} cuidado${dayStats.optionalTotal === 1 ? "" : "s"} opcional${dayStats.optionalTotal === 1 ? "" : "is"}`;
     }
 
     $("#day-progress-label").textContent = progressLabel;
@@ -634,20 +661,29 @@
 
     const regularHtml = gruposOrdenados.map(([grupo, metas]) => {
       const metasOrdenadas = [...metas].sort((a, b) => compararTexto(a.nome, b.nome));
-      const concluidas = metasOrdenadas.filter(meta => {
+      const obrigatorias = metasOrdenadas.filter(meta => !meta?.memoryOptional);
+      const opcionais = metasOrdenadas.filter(meta => !!meta?.memoryOptional);
+      const concluidas = obrigatorias.filter(meta => {
         const row = MMCD.registro(d, selected, meta.id);
         return !MMCD.estaAbonada(row) && !!row?.concluida;
       }).length;
-      const abonadas = metasOrdenadas.filter(meta => MMCD.estaAbonada(MMCD.registro(d, selected, meta.id))).length;
-      const validas = metasOrdenadas.length - abonadas;
+      const abonadas = obrigatorias.filter(meta => MMCD.estaAbonada(MMCD.registro(d, selected, meta.id))).length;
+      const opcionaisConcluidas = opcionais.filter(meta => !!MMCD.registro(d, selected, meta.id)?.concluida).length;
+      const validas = obrigatorias.length - abonadas;
       const percentual = validas > 0 ? Math.round((concluidas / validas) * 100) : null;
       const abertas = grupoAberto(grupo);
-      const status = abonadas
-        ? (validas > 0
-            ? `${concluidas} de ${validas} válidas · ${abonadas} abonada${abonadas === 1 ? "" : "s"}`
-            : `Tudo abonado · ${abonadas} atividade${abonadas === 1 ? "" : "s"}`)
-        : `${concluidas} de ${metasOrdenadas.length}`;
-      const percentualLabel = percentual === null ? "—" : `${percentual}%`;
+      let status = "";
+      if (!obrigatorias.length && opcionais.length) {
+        status = `${opcionaisConcluidas} de ${opcionais.length} cuidado${opcionais.length === 1 ? "" : "s"} opcional${opcionais.length === 1 ? "" : "is"}`;
+      } else {
+        status = abonadas
+          ? (validas > 0
+              ? `${concluidas} de ${validas} válidas · ${abonadas} abonada${abonadas === 1 ? "" : "s"}`
+              : `Tudo abonado · ${abonadas} atividade${abonadas === 1 ? "" : "s"}`)
+          : `${concluidas} de ${obrigatorias.length}`;
+        if (opcionais.length) status += ` · ${opcionaisConcluidas}/${opcionais.length} opcional${opcionais.length === 1 ? "" : "is"}`;
+      }
+      const percentualLabel = !obrigatorias.length && opcionais.length ? "OPCIONAL" : percentual === null ? "—" : `${percentual}%`;
 
       return `
         <details class="daily-group" data-daily-group="${MMCDUI.esc(grupo)}" ${abertas ? "open" : ""}>
@@ -657,7 +693,7 @@
               <small>${MMCDUI.esc(status)}</small>
             </span>
             <span class="daily-group-summary-right">
-              <span class="daily-group-percent ${percentual === 100 ? "is-complete" : ""}" title="Atingimento do grupo">${MMCDUI.esc(percentualLabel)}</span>
+              <span class="daily-group-percent ${!obrigatorias.length && opcionais.length ? "is-optional" : percentual === 100 ? "is-complete" : ""}" title="Atingimento do grupo">${MMCDUI.esc(percentualLabel)}</span>
               <span class="daily-group-chevron" aria-hidden="true">⌄</span>
             </span>
           </summary>

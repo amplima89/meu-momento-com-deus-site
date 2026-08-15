@@ -57,3 +57,14 @@
 - Hover/toque mantém a pessoa no centro e reage apenas no anel/badge da dimensão.
 - Modo Presença passa a exibir orientações progressivas durante o cronômetro, com fase, texto, próxima orientação e progresso visual.
 - Novos arquivos versionados para evitar cache de CSS/JS das versões anteriores.
+
+## V78.4 — 15/08/2026
+- Escala global de texto recalibrada: o antigo Grande passa a corresponder ao novo Padrão.
+- Novos patamares para Grande e Extra grande, com ampliação real em desktop e mobile.
+- Aniversariantes removido da Central de Configurações e incluído no menu Cuidado.
+- Aniversário do dia integrado a Atividades > Cuidado como gesto opcional de mensagem.
+- Check de aniversário registra mensagem enviada; ausência de check não reduz o progresso do dia e não exige abono.
+- Script de aniversariantes movido para `modulos/memory/memory-birthdays-v78-4.js`.
+- Atividades versionadas em `atividades-v78-4.js/css`.
+- Treinos passam a carregar o shell V78 atual em vez de referência antiga ao shell V69.
+
