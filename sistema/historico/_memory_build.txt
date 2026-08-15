@@ -1,1 +1,1 @@
-V79 | 2026-08-15 | Evolução integrada de Treinos, Estatísticas, temas e confiabilidade
+V79.2 | 2026-08-15 | Treinos: abono semanal, Leg Press padronizado e compartilhamento persistente

@@ -112,3 +112,10 @@
 - Card compartilhável pós-treino com treino realizado, grupos trabalhados, duração, sequência de treinos concluídos e mensagem motivacional.
 - Motor comum `MemorySocialCard` para geração de cards sociais em PNG, reutilizável por outros módulos.
 
+## V79.2 — 15/08/2026
+- Leg Press unilateral padronizado com referência fotográfica de início/fim no mesmo formato visual dos demais exercícios.
+- Abono habilitado também nas metas semanais flexíveis, com motivo, remoção e estado verde.
+- Abonos semanais passam a reduzir o denominador válido sem contar como conclusão nem falha.
+- Card de treino concluído permanece acessível após o fechamento e também no histórico do dia.
+- Compartilhamento de qualquer treino concluído passa a usar a data correta da sessão selecionada.
+- Card social destaca “Treino concluído” e dias de constância.
