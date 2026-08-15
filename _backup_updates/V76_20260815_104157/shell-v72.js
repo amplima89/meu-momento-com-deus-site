@@ -49,11 +49,11 @@ window.MMCDShell=async function(active){
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
- const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links'];
+ const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links','arvore-da-vida','mapa-cuidado','oracoes','circulo-cuidado'];
  const settingsActive=settingsKeys.includes(active);
  const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v76" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260815-v76" alt=""></span>
+  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v75" aria-label="Abrir Memory">
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260815-v75" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -67,9 +67,9 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="memory.html?v=20260815-v75" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="./memory-mark-v62.png?v=20260815-v76" alt="Memory">
+     <img src="./memory-mark-v62.png?v=20260815-v75" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -81,25 +81,9 @@ window.MMCDShell=async function(active){
    <nav class="sidebar-nav" aria-label="Navegação principal">
     ${mobileMemoryHtml}
     ${navHtml}
-    <div class="sidebar-nav__section-label sidebar-nav__section-label--care">CUIDADO</div>
-    <a class="sidebar-link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260815-v76">
-     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">💗</span></span>
-     <div class="sidebar-link__copy"><strong>Mapa de Cuidado</strong><small>Visão integral</small></div>
-     <span class="sidebar-mobile-label">Mapa</span><span class="sidebar-link__arrow" aria-hidden="true">›</span>
-    </a>
-    <a class="sidebar-link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260815-v76">
-     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">10</span><span class="sidebar-icon-mobile" aria-hidden="true">🙏</span></span>
-     <div class="sidebar-link__copy"><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></div>
-     <span class="sidebar-mobile-label">Orações</span><span class="sidebar-link__arrow" aria-hidden="true">›</span>
-    </a>
-    <a class="sidebar-link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260815-v76">
-     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">11</span><span class="sidebar-icon-mobile" aria-hidden="true">❤️</span></span>
-     <div class="sidebar-link__copy"><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></div>
-     <span class="sidebar-mobile-label">Círculo</span><span class="sidebar-link__arrow" aria-hidden="true">›</span>
-    </a>
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
     <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260814-2355-v68">
-     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">12</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
+     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
      <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
      <span class="sidebar-mobile-label">Ajustes</span>
      <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -140,7 +124,6 @@ window.MMCDShell=async function(active){
     text-transform:none;
     color:#8793a7;
    }
-   .sidebar-nav__section-label--care{margin-top:12px;color:color-mix(in srgb,var(--accent) 78%,#94a3b8)}
    .sidebar-memory-mobile{display:none!important}
    .sidebar-memory-mobile__icon{overflow:hidden;padding:0!important;background:#071a39!important;border-color:rgba(116,216,244,.22)!important}
    .sidebar-memory-mobile__icon img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
@@ -279,7 +262,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260815-v76" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v75" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260815-v75" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',
