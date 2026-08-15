@@ -45,15 +45,17 @@ window.MMCDShell=async function(active){
   ['meditacao','meditacao.html','03','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','04','📖','Bíblia','Leitura e anotações','Bíblia'],
   ['ingles','ingles.html','05','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
-  ['treinos','treinos-v67.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
+  ['treinos','treinos.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
  const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links'];
  const settingsActive=settingsKeys.includes(active);
+ const careKeys=['mapa-cuidado','arvore-da-vida','oracoes','circulo-cuidado'];
+ const careActive=careKeys.includes(active);
  const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-v62.png?v=20260814-v63" alt=""></span>
+  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v76" aria-label="Abrir Memory">
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-v62.png?v=20260815-v76" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -67,9 +69,9 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="assets/imagens/memory-mark-v62.png?v=20260814-v63" alt="Memory">
+     <img src="assets/imagens/memory-mark-v62.png?v=20260815-v76" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -81,9 +83,21 @@ window.MMCDShell=async function(active){
    <nav class="sidebar-nav" aria-label="Navegação principal">
     ${mobileMemoryHtml}
     ${navHtml}
+    <div class="sidebar-settings sidebar-care-group ${careActive?'open':''}">
+     <button type="button" class="sidebar-link sidebar-settings__toggle ${careActive?'active':''}" aria-expanded="${careActive?'true':'false'}" aria-controls="sidebar-care-menu">
+      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">♡</span></span>
+      <div class="sidebar-link__copy"><strong>Cuidado</strong><small>Você por inteiro</small></div>
+      <span class="sidebar-mobile-label">Cuidado</span><span class="sidebar-settings__chevron" aria-hidden="true">›</span>
+     </button>
+     <div class="sidebar-subnav ${careActive?'open':''}" id="sidebar-care-menu" ${careActive?'':'hidden'}>
+      <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
+      <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
+      <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260815-v78"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
+     </div>
+    </div>
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
-    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260814-2355-v68">
-     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
+    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v78">
+     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">10</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
      <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
      <span class="sidebar-mobile-label">Ajustes</span>
      <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -262,7 +276,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-v62.png?v=20260815-v76" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',
@@ -283,7 +297,11 @@ window.MMCDShell=async function(active){
   'treinos-config':'Memory - Plano de treino',
   series:'Memory - Séries & filmes',
   aniversarios:'Memory - Aniversários',
-  'meditacao-links':'Memory - Links da meditação'
+  'meditacao-links':'Memory - Links da meditação',
+  'arvore-da-vida':'Memory - Mapa de Cuidado',
+  'mapa-cuidado':'Memory - Mapa de Cuidado',
+  oracoes:'Memory - Minhas Orações',
+  'circulo-cuidado':'Memory - Círculo de Cuidado'
  };
  if(memoryTitles[active]) document.title=memoryTitles[active];
  else document.title=document.title.replace(/Life Style/gi,'Memory').replace(/\s*[—-]\s*Memory\s*$/i,'').replace(/^Memory\s*[—-]\s*/i,'Memory - ');
@@ -379,6 +397,34 @@ window.MMCDShell=async function(active){
   requestAnimationFrame(()=>layer.classList.add('open'));
  };
  // MMCD_MOBILE_SUBMENU_V32_END
+
+ // MEMORY_CARE_NAV_V78_START
+ const careGroup=document.querySelector('.sidebar-care-group');
+ const careToggle=careGroup?.querySelector('.sidebar-settings__toggle');
+ const careMenu=careGroup?.querySelector('#sidebar-care-menu');
+ const setCareOpen=(next,{persist=true}={})=>{
+  if(!careGroup||!careToggle||!careMenu)return;
+  // Dentro de Cuidado o submenu permanece aberto para preservar contexto.
+  const safe=careActive?true:Boolean(next);
+  careGroup.classList.toggle('open',safe);
+  careMenu.classList.toggle('open',safe);
+  careMenu.hidden=!safe;
+  careToggle.setAttribute('aria-expanded',safe?'true':'false');
+  if(persist&&!careActive)localStorage.setItem('memory:sidebar:care-open',safe?'1':'0');
+ };
+ if(careGroup&&careToggle&&careMenu){
+  const saved=localStorage.getItem('memory:sidebar:care-open')==='1';
+  setCareOpen(careActive||saved,{persist:false});
+  careToggle.addEventListener('click',()=>{
+   if(isMobileNav()){
+    openMobileSubmenu(careMenu,'Cuidado');
+    return;
+   }
+   if(careActive){setCareOpen(true,{persist:false});return;}
+   setCareOpen(!careGroup.classList.contains('open'));
+  });
+ }
+ // MEMORY_CARE_NAV_V78_END
 
  const logo=document.querySelector('.sidebar-brand__mark img');
  if(logo){
@@ -594,13 +640,21 @@ window.MMCDShell=async function(active){
  }));
  document.addEventListener('click',event=>{if(fontPanel&&!fontPanel.hidden&&!event.target.closest('.memory-font-tool'))closeFont()});
 
- const NEWS_ID='memory-update-2026-08-15-0021';
+ const NEWS_ID='memory-update-2026-08-15-v78-experience';
  const NEWS_ITEMS=[
-  'Novo modelo Semanal flexível: a atividade fica disponível durante a semana e você escolhe em qual dia cumprir.',
-  'Metas semanais com quantidade: o Memory mostra 0/2, 1/2, 2/2 e só considera falha depois que o domingo termina.',
-  'Atividades semanais agora distinguem Pendente, Parcial, Concluída e Não concluída sem antecipar um fracasso que ainda pode ser recuperado.',
-  'Conversa do dia em Inglês agora recebe avaliação com Gramática, Vocabulário, Naturalidade, Construção e Clareza.',
-  'Conversas já concluídas e ainda sem correção são avaliadas ao abrir novamente, e a nota passa a alimentar a Evolução do Inglês.'
+  'Cuidado agora é um menu principal expansível, independente de Configurações, com Mapa de Cuidado, Minhas Orações e Círculo de Cuidado.',
+  'Mapa de Cuidado ganhou um núcleo simbólico compacto: mente, corpo, relacionamentos, espiritualidade, desenvolvimento e memórias mostram presença e atenção pela própria linguagem visual.',
+  'Meditação passou a mostrar jornada temática, assunto atual, progresso dentro do tema e próximo passo sem perder o conteúdo devocional existente.',
+  'Os indicadores de Consistência, Progresso até a meta e Última meditação foram padronizados como uma mesma família de cards.',
+  'A página institucional do Memory agora preserva a identidade oficial e recalcula superfícies, contraste, sombras e destaques conforme o tema escolhido.',
+  'Mapa de Cuidado coloca o coração no centro e organiza Espiritual, Corpo, Mente, Relacionamentos, Desenvolvimento e Memórias como sinais de presença, não como uma nota.',
+  'O Memory percebeu identifica padrões com regras e estatísticas dos seus próprios registros, sem chamar IA externa.',
+  'Missões ganhou ‘O que merece sua atenção hoje?’ com até três sinais realmente relevantes do dia.',
+  'Minhas Orações guarda pedidos, categorias, pessoas e histórico; ao marcar ‘Deus respondeu’, o pedido entra em Memórias de Deus.',
+  'Modo Presença cria uma oração em tela limpa, com cronômetro e orientações progressivas sem transformar oração em pontuação.',
+  'Círculo de Cuidado acompanha pessoas importantes, frequência de contato e o registro ‘Cuidei hoje’, reconhecendo aniversários pelo nome.',
+  'Metas mensais flexíveis continuam pendentes até o fim do mês e registram progresso sem antecipar falha.',
+  'Conversa do dia em Inglês recebe avaliação de Gramática, Vocabulário, Naturalidade, Construção e Clareza; conversas concluídas sem correção são avaliadas ao reabrir e passam a alimentar a Evolução do Inglês.'
  ];
  const NEWS_PREVIOUS_ITEMS=[
   'Central de Configurações: as opções saíram do submenu apertado da lateral e ganharam uma página própria.',

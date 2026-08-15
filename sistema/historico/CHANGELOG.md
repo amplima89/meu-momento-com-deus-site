@@ -16,3 +16,15 @@
 - Remoção de CSS, JavaScript, PNG e PowerShell da raiz.
 - Manutenção dos HTMLs públicos na raiz para preservar as URLs existentes.
 - Publicador PowerShell movido para `sistema/publicacao/` com BAT único na raiz.
+
+## V78 — 15/08/2026
+- Home raiz e página institucional adaptativas aos temas sem perder a identidade visual do Memory.
+- Cuidado transformado em menu principal expansível e independente de Configurações.
+- Padronização dos cards Consistência, Progresso até a meta e Última meditação.
+- Mapa de Cuidado redesenhado como núcleo simbólico interativo.
+- Estados visuais de presença, atenção e pouca evidência no próprio símbolo.
+- Painel lateral do Mapa com sinais recentes, observações, evidências e próxima ação.
+- Meditação reorganizada como jornada temática com contexto, progresso e próximo passo.
+- Temas iniciais: Ansiedade, Perdão, Disciplina, Propósito, Relacionamentos, Fé, Gratidão, Identidade e Obediência.
+- Preservação das funções existentes de narração, destaques e navegação por data na Meditação.
+

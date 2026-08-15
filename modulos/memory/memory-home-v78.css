@@ -1,0 +1,50 @@
+/* MEMORY HOME V78 — identidade oficial com adaptação real de tema */
+.memory-v55.memory-v78{
+  --mem-text:var(--text);
+  --mem-muted:color-mix(in srgb,var(--text) 58%,var(--muted));
+  --mem-muted2:var(--muted);
+  --mem-line:color-mix(in srgb,var(--line) 88%,var(--accent) 12%);
+  --mem-lav:color-mix(in srgb,var(--accent) 68%,#b7a8ff 32%);
+  --mem-blue:color-mix(in srgb,var(--accent) 62%,#93c6ff 38%);
+  --mem-cyan:color-mix(in srgb,var(--accent) 48%,#74d8f4 52%);
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 6%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 30%),
+    radial-gradient(circle at 88% 12%,color-mix(in srgb,var(--mem-cyan) 10%,transparent),transparent 27%),
+    linear-gradient(180deg,color-mix(in srgb,var(--bg) 97%,var(--accent) 3%),var(--bg));
+}
+.memory-v78 h1,.memory-v78 h2,.memory-v78 h3,.memory-v78 .mem-essence strong{color:var(--text)}
+.memory-v78 .mem-kicker,.memory-v78 .mem-stat a{color:color-mix(in srgb,var(--accent) 72%,var(--text) 28%)}
+.memory-v78 .mem-logo-card{
+  border-color:color-mix(in srgb,var(--nav-line) 80%,var(--accent) 20%);
+  background:
+    radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 42%),
+    linear-gradient(145deg,color-mix(in srgb,var(--nav-bg) 90%,var(--accent) 10%),var(--nav-bg));
+  box-shadow:0 28px 68px color-mix(in srgb,var(--nav-bg) 24%,transparent);
+}
+.memory-v78 .mem-logo-card:before{background:radial-gradient(circle,color-mix(in srgb,var(--mem-cyan) 22%,transparent),color-mix(in srgb,var(--mem-lav) 10%,transparent) 46%,transparent 72%)}
+.memory-v78 .mem-section{border-top-color:color-mix(in srgb,var(--line) 72%,transparent)}
+.memory-v78 .mem-quote,.memory-v78 .mem-card,.memory-v78 .mem-pillars,.memory-v78 .mem-value,.memory-v78 .mem-stat,.memory-v78 .mem-mental-position{
+  border-color:var(--mem-line);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 94%,var(--accent) 6%),color-mix(in srgb,var(--surface) 98%,var(--accent-soft) 2%));
+  box-shadow:0 18px 46px color-mix(in srgb,var(--text) 7%,transparent);
+}
+.memory-v78 .mem-quote{background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 86%,var(--mem-lav) 14%),color-mix(in srgb,var(--surface) 92%,var(--mem-cyan) 8%))}
+.memory-v78 .mem-copy,.memory-v78 .mem-card p,.memory-v78 .mem-value p,.memory-v78 .mem-pillar,.memory-v78 .mem-stat p,.memory-v78 .mem-mental-position>p,.memory-v78 .mem-essence p,.memory-v78 .mem-lead{color:var(--mem-muted)}
+.memory-v78 .mem-value i{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 18%,var(--surface)),color-mix(in srgb,var(--mem-cyan) 16%,var(--surface)));color:color-mix(in srgb,var(--accent) 72%,var(--text))}
+.memory-v78 .mem-pillar{border-color:var(--mem-line);background:color-mix(in srgb,var(--surface-2) 82%,var(--surface));color:var(--mem-muted)}
+.memory-v78 .mem-pillar b{color:var(--text)}
+.memory-v78 .mem-mental{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 3%,transparent),color-mix(in srgb,var(--mem-cyan) 2%,transparent))}
+.memory-v78 .mem-gradient,.memory-v78 h1 span{background:linear-gradient(135deg,var(--mem-lav),var(--mem-blue) 52%,var(--mem-cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-tema="memory-original"] .memory-v78{
+  --mem-text:#eef2f6;--mem-muted:#aab5c4;--mem-muted2:#7f8c9f;--mem-line:rgba(255,255,255,.10);
+  --mem-lav:#b7a8ff;--mem-blue:#93c6ff;--mem-cyan:#74d8f4;
+  color:#eef2f6;
+  background:radial-gradient(circle at 14% 5%,rgba(183,168,255,.09),transparent 27%),radial-gradient(circle at 84% 12%,rgba(116,216,244,.09),transparent 26%),linear-gradient(180deg,#07182f 0%,#06152f 46%,#041126 100%);
+}
+html[data-tema="memory-original"] .memory-v78 h1,html[data-tema="memory-original"] .memory-v78 h2,html[data-tema="memory-original"] .memory-v78 h3,html[data-tema="memory-original"] .memory-v78 .mem-essence strong{color:#eef2f6}
+html[data-tema="memory-original"] .memory-v78 .mem-lead,html[data-tema="memory-original"] .memory-v78 .mem-copy,html[data-tema="memory-original"] .memory-v78 .mem-card p,html[data-tema="memory-original"] .memory-v78 .mem-value p,html[data-tema="memory-original"] .memory-v78 .mem-stat p,html[data-tema="memory-original"] .memory-v78 .mem-mental-position>p,html[data-tema="memory-original"] .memory-v78 .mem-essence p{color:#aab5c4}
+html[data-tema="memory-original"] .memory-v78 .mem-quote,html[data-tema="memory-original"] .memory-v78 .mem-card,html[data-tema="memory-original"] .memory-v78 .mem-pillars,html[data-tema="memory-original"] .memory-v78 .mem-value,html[data-tema="memory-original"] .memory-v78 .mem-stat,html[data-tema="memory-original"] .memory-v78 .mem-mental-position{border-color:rgba(255,255,255,.10);background:rgba(255,255,255,.045);box-shadow:none}
+html[data-tema="memory-original"] .memory-v78 .mem-quote{background:linear-gradient(145deg,rgba(183,168,255,.10),rgba(116,216,244,.05)),rgba(255,255,255,.035)}
+html[data-tema="memory-original"] .memory-v78 .mem-pillar{border-color:rgba(255,255,255,.07);background:rgba(2,12,28,.30);color:#aab5c4}
+html[data-tema="memory-original"] .memory-v78 .mem-pillar b{color:#fff}

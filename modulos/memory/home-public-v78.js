@@ -1,0 +1,2 @@
+"use strict";
+(()=>{const allowed=new Set(['memory-original','claro','azul','rosa','verde','laranja','marsala','azul-bebe','lavanda','areia','turquesa','escuro']);const apply=()=>{const stored=localStorage.getItem('mmcd:tema')||'memory-original';document.documentElement.dataset.tema=allowed.has(stored)?stored:'memory-original'};apply();addEventListener('storage',event=>{if(event.key==='mmcd:tema')apply()});addEventListener('pageshow',apply)})();
