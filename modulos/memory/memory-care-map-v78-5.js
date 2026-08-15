@@ -20,20 +20,14 @@
  const state=dim=>{if(dim.loading)return{label:'Atualizando sinais',cls:'is-loading'};if(dim.score==null)return{label:'Pouca evidência',cls:'is-empty'};if(dim.score>=55)return{label:'Com sinais recentes',cls:'is-present'};return{label:'Merece atenção',cls:'is-light'}};
  dimensions.forEach(dim=>dim.loading=true);
  let lockedKey=null;
- let profileView={src:'',initial:'V',name:'Você'};
+ let profileView={src:'',initial:'V'};
 
  function profileMarkup(){return profileView.src?`<span class="memory-map-center__avatar"><img src="${C.esc(profileView.src)}" alt="Foto do perfil"></span>`:`<span class="memory-map-center__avatar memory-map-center__avatar--fallback" aria-hidden="true">${C.esc(profileView.initial)}</span>`}
  function renderCenter(dim){
   center.classList.remove('is-selected','is-present','is-light','is-empty','is-loading');
-  if(!dim){
-   center.innerHTML=`<span class="memory-map-center__portrait">${profileMarkup()}<span class="memory-map-center__badge">∞</span></span><span class="memory-map-center__eyebrow">Você no centro</span><strong>${C.esc(profileView.name)}</strong><small>Seu cuidado começa daqui. Passe o mouse em um card.</small>`;
-   center.setAttribute('aria-label','Você no centro do Mapa de Cuidado. Passe o mouse em uma área para aprofundar.');
-   return;
-  }
-  const st=state(dim);center.classList.add('is-selected',st.cls);
-  const symbol=dim.key==='relationships'?(st.cls==='is-present'?'♥':'♡'):dim.icon;
-  center.innerHTML=`<span class="memory-map-center__portrait">${profileMarkup()}<span class="memory-map-center__badge">${symbol}</span></span><span class="memory-map-center__eyebrow">${C.esc(dim.name)}</span><strong>${C.esc(st.label)}</strong><small>${C.esc(dim.question)}</small>`;
-  center.setAttribute('aria-label',`${dim.name}. ${st.label}. ${dim.question}`);
+  if(dim){const st=state(dim);center.classList.add('is-selected',st.cls);center.setAttribute('aria-label',`${dim.name}. ${st.label}. Você permanece no centro do Mapa de Cuidado.`)}
+  else center.setAttribute('aria-label','Sua foto no centro do Mapa de Cuidado. Passe o mouse em uma área para aprofundar.');
+  center.innerHTML=`<span class="memory-map-center__portrait">${profileMarkup()}</span>`;
  }
  function neutralDetail(){detail.innerHTML=`<div class="memory-map-detail__neutral"><span class="memory-map-detail__neutral-icon">∞</span><p class="memory-care-eyebrow">Leitura rápida</p><h3>Você continua no centro</h3><p>Passe o mouse em um dos seis cards. A sua foto permanece no centro e o anel muda para mostrar o estado daquela dimensão.</p><div class="memory-map-detail__legend"><span><i class="present"></i>Com sinais recentes</span><span><i class="light"></i>Merece atenção</span><span><i class="empty"></i>Pouca evidência</span></div></div>`}
  function actionHtml(action){if(action.action==='pause')return `<button type="button" class="memory-map-action ${action.primary?'primary':''}" data-care-action="pause"><span>${C.esc(action.label)}</span><b>→</b></button>`;return `<a class="memory-map-action ${action.primary?'primary':''}" href="${C.esc(action.href)}"><span>${C.esc(action.label)}</span><b>→</b></a>`}
@@ -53,7 +47,7 @@
    const user=session?.user;if(!user)return;
    const profile=await Promise.race([window.MMCDAuth.loadProfile(user),new Promise(resolve=>setTimeout(()=>resolve({}),4500))]);
    const name=String(profile?.nome||user?.user_metadata?.full_name||user?.user_metadata?.name||user?.user_metadata?.user_name||user?.email?.split('@')[0]||'Você').trim();
-   profileView={src:profile?.avatarDataUrl||user?.user_metadata?.avatar_url||user?.user_metadata?.picture||'',initial:(name[0]||'V').toUpperCase(),name};
+   profileView={src:profile?.avatarDataUrl||user?.user_metadata?.avatar_url||user?.user_metadata?.picture||'',initial:(name[0]||'V').toUpperCase()};
    renderCenter(lockedKey?dimensions.find(item=>item.key===lockedKey):null);
   }catch{renderCenter(lockedKey?dimensions.find(item=>item.key===lockedKey):null)}
  }

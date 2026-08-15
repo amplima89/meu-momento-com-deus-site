@@ -1,0 +1,5 @@
+﻿Memory V78.5 - Foto central do Mapa de Cuidado
+Aplicado em: 15/08/2026 12:18:27
+Site: C:\Users\andre\OneDrive\meu-momento-com-deus-site
+Backup externo: C:\Users\andre\AppData\Local\Memory\Backups\site_antes_V78_5_20260815_121825.zip
+A foto do Perfil preenche integralmente o circulo central; sem texto ou badge; estados aparecem no anel externo.

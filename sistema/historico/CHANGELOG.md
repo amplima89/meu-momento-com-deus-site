@@ -68,3 +68,9 @@
 - Atividades versionadas em `atividades-v78-4.js/css`.
 - Treinos passam a carregar o shell V78 atual em vez de referência antiga ao shell V69.
 
+## V78.5 — 15/08/2026
+- Foto do Perfil passa a ocupar integralmente o círculo central do Mapa de Cuidado.
+- Remoção de nome, “Você no centro”, textos auxiliares e badge sobre a foto.
+- Estados das dimensões passam a aparecer exclusivamente no anel externo do centro.
+- Centro permanece circular também no layout mobile.
+- Novos arquivos versionados `memory-care-map-v78-5.js/css` para evitar cache da versão anterior.
