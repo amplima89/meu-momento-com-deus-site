@@ -49,11 +49,11 @@ window.MMCDShell=async function(active){
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
- const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links','arvore-da-vida','mapa-cuidado','oracoes','circulo-cuidado'];
+ const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links','arvore-da-vida','oracoes','circulo-cuidado'];
  const settingsActive=settingsKeys.includes(active);
  const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v75" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260815-v75" alt=""></span>
+  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-care" aria-label="Abrir Memory">
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260815-care" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -67,9 +67,9 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html?v=20260815-v75" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="memory.html?v=20260815-care" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="./memory-mark-v62.png?v=20260815-v75" alt="Memory">
+     <img src="./memory-mark-v62.png?v=20260815-care" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -262,7 +262,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v75" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260815-v75" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-care" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260815-care" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',
@@ -284,8 +284,7 @@ window.MMCDShell=async function(active){
   series:'Memory - Séries & filmes',
   aniversarios:'Memory - Aniversários',
   'meditacao-links':'Memory - Links da meditação',
-  'arvore-da-vida':'Memory - Mapa de Cuidado',
-  'mapa-cuidado':'Memory - Mapa de Cuidado',
+  'arvore-da-vida':'Memory - Árvore da Vida',
   oracoes:'Memory - Minhas Orações',
   'circulo-cuidado':'Memory - Círculo de Cuidado'
  };
@@ -600,7 +599,7 @@ window.MMCDShell=async function(active){
 
  const NEWS_ID='memory-update-2026-08-15-care-integral';
  const NEWS_ITEMS=[
-  'Mapa de Cuidado coloca o coração no centro e organiza Espiritual, Corpo, Mente, Relacionamentos, Desenvolvimento e Memórias como sinais de presença, não como uma nota.',
+  'Árvore da Vida reúne Espiritual, Corpo, Mente, Relacionamentos, Desenvolvimento e Memórias em uma leitura de cuidado integral.',
   'O Memory percebeu identifica padrões com regras e estatísticas dos seus próprios registros, sem chamar IA externa.',
   'Missões ganhou ‘O que merece sua atenção hoje?’ com até três sinais realmente relevantes do dia.',
   'Minhas Orações guarda pedidos, categorias, pessoas e histórico; ao marcar ‘Deus respondeu’, o pedido entra em Memórias de Deus.',
