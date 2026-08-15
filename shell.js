@@ -45,14 +45,14 @@ window.MMCDShell=async function(active){
   ['meditacao','meditacao.html','03','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','04','📖','Bíblia','Leitura e anotações','Bíblia'],
   ['ingles','ingles.html','05','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
-  ['treinos','treinos-v70.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
+  ['treinos','treinos-v67.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
  const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links'];
  const settingsActive=settingsKeys.includes(active);
  const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v70" aria-label="Abrir Memory">
+  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory">
    <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
@@ -67,7 +67,7 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html?v=20260815-v70" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
      <img src="./memory-mark-v62.png?v=20260814-v63" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
@@ -82,7 +82,7 @@ window.MMCDShell=async function(active){
     ${mobileMemoryHtml}
     ${navHtml}
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
-    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v70">
+    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260814-2355-v68">
      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
      <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
      <span class="sidebar-mobile-label">Ajustes</span>
@@ -262,7 +262,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v70" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',
@@ -489,25 +489,6 @@ window.MMCDShell=async function(active){
 
  // MEMORY_GLOBAL_TOOLS_V68_START
  const memoryConfig=await window.MemoryConfigReady;
- // V70 — idioma global do Memory (Português / English).
- if(!window.MemoryI18n){
-  await new Promise(resolve=>{
-   const existing=document.querySelector('script[data-memory-i18n-v70]');
-   if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',resolve,{once:true});return;}
-   const script=document.createElement('script');
-   script.src='./memory-i18n-v70.js?v=20260815-v70';
-   script.dataset.memoryI18nV70='1';script.onload=resolve;script.onerror=resolve;document.head.append(script);
-  });
- }
- if(window.MemoryI18n){
-  window.MemoryI18n.init();
-  if(memoryConfig){
-   try{
-    const savedLanguage=await memoryConfig.read('memory_idioma_v1',{idioma:window.MemoryI18n.get()});
-    if(savedLanguage?.idioma&&savedLanguage.idioma!==window.MemoryI18n.get())window.MemoryI18n.apply(savedLanguage.idioma);
-   }catch(error){console.warn('Memory: idioma sincronizado indisponível.',error)}
-  }
- }
  const topbarInner=document.querySelector('.app-topbar__inner');
  let topbarActions=document.querySelector('.app-topbar .topbar-actions');
  const themeButton=document.querySelector('.app-topbar #theme-toggle');
@@ -531,14 +512,6 @@ window.MMCDShell=async function(active){
      <button type="button" data-font-size="extra"><span class="is-extra">Aa</span><span><strong>Extra grande</strong><small>Maior acessibilidade</small></span><b>✓</b></button>
     </div>
    </div>
-   <div class="memory-language-tool">
-    <button type="button" class="icon-btn memory-language-btn" aria-label="Idioma do Memory" title="Idioma do Memory"><span data-memory-language-flag>${window.MemoryI18n?.flag?.()||'🇧🇷'}</span></button>
-    <div class="memory-language-panel" hidden>
-     <div class="memory-tool-head"><div><strong>Idioma do Memory</strong><small>Escolha o idioma da interface.</small></div><button type="button" data-close-language aria-label="Fechar">×</button></div>
-     <button type="button" data-memory-language-choice="pt-BR"><span class="memory-language-choice__flag">🇧🇷</span><span><strong>Português</strong><small>Brasil</small></span><b>✓</b></button>
-     <button type="button" data-memory-language-choice="en"><span class="memory-language-choice__flag">🇬🇧</span><span><strong>English</strong><small>English</small></span><b>✓</b></button>
-    </div>
-   </div>
    <div class="memory-news-tool">
     <button type="button" class="icon-btn memory-news-btn" aria-label="Novidades do Memory" title="Clique para saber as atualizações do sistema"><span aria-hidden="true">✨</span><i class="memory-news-dot" aria-label="Há novidades"></i></button>
    </div>`;
@@ -554,7 +527,7 @@ window.MMCDShell=async function(active){
    html[data-memory-font-size="grande"]{font-size:18px}
    html[data-memory-font-size="extra"]{font-size:20px}
    .memory-global-tools{display:flex;align-items:center;gap:8px}
-   .memory-font-tool,.memory-language-tool,.memory-news-tool{position:relative}
+   .memory-font-tool,.memory-news-tool{position:relative}
    .memory-font-btn{font-weight:850;font-size:.72rem;letter-spacing:-.04em}
    .memory-font-panel{position:absolute;right:0;top:48px;width:min(340px,calc(100vw - 32px));padding:10px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);z-index:160}
    .memory-tool-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:5px 6px 10px}
@@ -567,12 +540,6 @@ window.MMCDShell=async function(active){
    .memory-font-panel>[data-font-size]>span:first-child.is-large{font-size:.88rem}.memory-font-panel>[data-font-size]>span:first-child.is-extra{font-size:1.03rem}
    .memory-font-panel>[data-font-size]>span:nth-child(2){display:grid;gap:2px}.memory-font-panel>[data-font-size] strong{font-size:.75rem}.memory-font-panel>[data-font-size] small{font-size:.61rem;color:var(--muted)}
    .memory-font-panel>[data-font-size] b{visibility:hidden;color:var(--accent)}.memory-font-panel>[data-font-size].active b{visibility:visible}
-   .memory-language-btn{font-size:1.05rem;line-height:1}
-   .memory-language-panel{position:absolute;right:0;top:48px;width:min(320px,calc(100vw - 32px));padding:10px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);z-index:162}
-   .memory-language-panel>[data-memory-language-choice]{display:grid;grid-template-columns:44px 1fr 22px;align-items:center;gap:10px;width:100%;padding:10px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--text);text-align:left;cursor:pointer}
-   .memory-language-panel>[data-memory-language-choice]:hover,.memory-language-panel>[data-memory-language-choice].active{background:var(--surface-2);border-color:var(--line)}
-   .memory-language-panel>[data-memory-language-choice] span:nth-child(2){display:grid;gap:3px}.memory-language-panel>[data-memory-language-choice] strong{font-size:.75rem}.memory-language-panel>[data-memory-language-choice] small{font-size:.61rem;color:var(--muted)}
-   .memory-language-choice__flag{font-size:1.5rem}.memory-language-panel>[data-memory-language-choice] b{visibility:hidden;color:var(--accent)}.memory-language-panel>[data-memory-language-choice].active b{visibility:visible}
    .memory-news-btn{position:relative}.memory-news-dot{position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#ff4d67;border:2px solid var(--surface);box-sizing:content-box}
    .memory-news-dot[hidden]{display:none}
    .memory-news-layer{position:fixed;inset:0;z-index:220;display:grid;grid-template-columns:1fr min(460px,94vw);background:rgba(4,10,22,.36);backdrop-filter:blur(3px)}
@@ -590,7 +557,7 @@ window.MMCDShell=async function(active){
     html[data-memory-font-size="padrao"]{font-size:16px}html[data-memory-font-size="grande"]{font-size:17.5px}html[data-memory-font-size="extra"]{font-size:19px}
     .memory-global-tools{gap:4px}.memory-global-tools .icon-btn{width:34px;min-height:36px;padding:0}
     .app-topbar__inner{gap:8px}.app-topbar .topbar-actions{gap:5px;min-width:0}.app-topbar #today-label{display:none}
-    .memory-font-panel,.memory-language-panel{position:fixed;left:12px;right:12px;top:72px;width:auto}
+    .memory-font-panel{position:fixed;left:12px;right:12px;top:72px;width:auto}
     .memory-news-layer{grid-template-columns:1fr;align-items:end}.memory-news-backdrop{position:absolute;inset:0}
     .memory-news-panel{position:relative;height:min(78vh,720px);border-left:0;border-top:1px solid var(--line);border-radius:22px 22px 0 0;padding:20px}
    }`;
@@ -627,32 +594,13 @@ window.MMCDShell=async function(active){
  }));
  document.addEventListener('click',event=>{if(fontPanel&&!fontPanel.hidden&&!event.target.closest('.memory-font-tool'))closeFont()});
 
- const languageButton=document.querySelector('.memory-language-btn');
- const languagePanel=document.querySelector('.memory-language-panel');
- const closeLanguage=()=>{if(languagePanel)languagePanel.hidden=true};
- languageButton?.addEventListener('click',event=>{event.stopPropagation();closeFont();if(languagePanel)languagePanel.hidden=!languagePanel.hidden});
- languagePanel?.querySelector('[data-close-language]')?.addEventListener('click',closeLanguage);
- languagePanel?.querySelectorAll('[data-memory-language-choice]').forEach(button=>button.addEventListener('click',async()=>{
-  const language=button.dataset.memoryLanguageChoice;
-  window.MemoryI18n?.apply?.(language);
-  closeLanguage();
-  if(memoryConfig){
-   try{await memoryConfig.write('memory_idioma_v1',{idioma:language,atualizadoEm:new Date().toISOString()})}
-   catch(error){console.warn('Memory: não foi possível salvar o idioma.',error)}
-  }
- }));
- document.addEventListener('click',event=>{if(languagePanel&&!languagePanel.hidden&&!event.target.closest('.memory-language-tool'))closeLanguage()});
- window.MemoryI18n?.apply?.(window.MemoryI18n.get());
-
- const NEWS_ID='memory-update-2026-08-15-0040';
+ const NEWS_ID='memory-update-2026-08-15-0021';
  const NEWS_ITEMS=[
-  'Novo seletor de idioma no topo: escolha Português ou English e a bandeira acompanha a seleção.',
-  'O idioma escolhido fica salvo para manter a interface na sua preferência.',
-  'Novo modelo Mensal flexível: a atividade pode ser concluída em qualquer dia do mês vigente.',
-  'Metas mensais continuam pendentes enquanto ainda houver prazo; só fecham como parcial ou não concluída depois do último dia do mês.',
-  'Metas mensais também aceitam quantidade, como 0/2, 1/2 e 2/2 durante o mês.',
-  'O modelo Semanal flexível continua permitindo escolher o dia e acompanhar 0/N até N/N sem antecipar uma falha.',
-  'A Conversa do dia em Inglês agora mostra avaliação de Gramática, Vocabulário, Naturalidade, Construção e Clareza.'
+  'Novo modelo Semanal flexível: a atividade fica disponível durante a semana e você escolhe em qual dia cumprir.',
+  'Metas semanais com quantidade: o Memory mostra 0/2, 1/2, 2/2 e só considera falha depois que o domingo termina.',
+  'Atividades semanais agora distinguem Pendente, Parcial, Concluída e Não concluída sem antecipar um fracasso que ainda pode ser recuperado.',
+  'Conversa do dia em Inglês agora recebe avaliação com Gramática, Vocabulário, Naturalidade, Construção e Clareza.',
+  'Conversas já concluídas e ainda sem correção são avaliadas ao abrir novamente, e a nota passa a alimentar a Evolução do Inglês.'
  ];
  const NEWS_PREVIOUS_ITEMS=[
   'Central de Configurações: as opções saíram do submenu apertado da lateral e ganharam uma página própria.',
