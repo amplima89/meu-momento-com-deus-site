@@ -1,20 +1,5 @@
 "use strict";
 window.MMCDShell=async function(active){
- window.MemoryConfigReady=window.MemoryConfigReady||new Promise(resolve=>{
-  if(window.MemoryConfig){resolve(window.MemoryConfig);return;}
-  const existing=document.querySelector('script[data-memory-config-v68]');
-  if(existing){
-   existing.addEventListener('load',()=>resolve(window.MemoryConfig||null),{once:true});
-   existing.addEventListener('error',()=>resolve(null),{once:true});
-   return;
-  }
-  const script=document.createElement('script');
-  script.src='./memory-config-v68.js?v=20260814-2355-v68';
-  script.dataset.memoryConfigV68='1';
-  script.onload=()=>resolve(window.MemoryConfig||null);
-  script.onerror=()=>resolve(null);
-  document.head.append(script);
- });
  // V50: carrega a identidade oficial Memory com URL nova para evitar cache antigo/PWA.
  if(!document.querySelector('link[data-memory-original-v50]')){
   const css=document.createElement('link');
@@ -49,10 +34,12 @@ window.MMCDShell=async function(active){
   ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
   ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
  ];
- const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','aniversarios','meditacao-links'];
- const settingsActive=settingsKeys.includes(active);
+ const settingsActive=active==='aparencia'||active==='medidas'||active==='metas'||active==='perfil'||active==='series';
+ const settingsWorkout=active==='treinos-config';
+ const storedSettingsOpen=localStorage.getItem('mmcd:sidebar:settings-open');
+ const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
  const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory">
+  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-v63" aria-label="Abrir Memory">
    <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
@@ -67,7 +54,7 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="memory.html?v=20260814-v63" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
      <img src="./memory-mark-v62.png?v=20260814-v63" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
@@ -82,12 +69,34 @@ window.MMCDShell=async function(active){
     ${mobileMemoryHtml}
     ${navHtml}
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
-    <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260814-2355-v68">
-     <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
-     <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
-     <span class="sidebar-mobile-label">Ajustes</span>
-     <span class="sidebar-link__arrow" aria-hidden="true">›</span>
-    </a>
+    <div class="sidebar-settings ${settingsOpen?'open':''}">
+     <button type="button" class="sidebar-link sidebar-settings__toggle ${settingsActive||settingsWorkout?'active':''}" id="sidebar-settings-toggle" aria-expanded="${settingsOpen?'true':'false'}" aria-controls="sidebar-settings-menu">
+      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
+      <div class="sidebar-link__copy"><strong>Configurações</strong><small>Preferências e cadastros</small></div>
+      <span class="sidebar-mobile-label">Ajustes</span>
+      <span class="sidebar-settings__chevron" aria-hidden="true">›</span>
+     </button>
+     <div class="sidebar-subnav ${settingsOpen?'open':''}" id="sidebar-settings-menu" ${settingsOpen?'':'hidden'}>
+      <a class="sidebar-subnav__link ${active==='aparencia'?'active':''}" href="aparencia.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Aparência</strong><small>Temas e cores</small></span>
+      </a>
+      <a class="sidebar-subnav__link ${active==='medidas'?'active':''}" href="medidas.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Medições corporais</strong><small>Medidas e evolução visual</small></span>
+      </a>
+      <a class="sidebar-subnav__link ${active==='metas'?'active':''}" href="metas.html?v=20260814-v67">
+       <span class="sidebar-subnav__dot"></span><span><strong>Metas</strong><small>Rotina e objetivos</small></span>
+      </a>
+      <a class="sidebar-subnav__link ${active==='perfil'?'active':''}" href="perfil.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Meu perfil</strong><small>Foto e identificação</small></span>
+      </a>
+      <a class="sidebar-subnav__link ${settingsWorkout?'active':''}" href="treinos-config.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Plano de treino</strong><small>Programa e exercícios</small></span>
+      </a>
+      <a class="sidebar-subnav__link ${active==='series'?'active':''}" href="series.html">
+       <span class="sidebar-subnav__dot"></span><span><strong>Séries & filmes</strong><small>Biblioteca de exposição</small></span>
+      </a>
+     </div>
+    </div>
    </nav>
    <div class="sidebar-summary">
     <span class="sidebar-summary__line"></span>
@@ -262,31 +271,8 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
- const memoryTitles={
-  memory:'Memory',
-  missoes:'Memory - Missões',
-  atividades:'Memory - Atividades',
-  meditacao:'Memory - Meditação',
-  biblia:'Memory - Bíblia',
-  'biblia-mapa':'Memory - Mapa da Bíblia',
-  ingles:'Memory - Inglês diário',
-  'ingles-evolucao':'Memory - Evolução do inglês',
-  treinos:'Memory - Treinos',
-  livros:'Memory - Livros',
-  estatisticas:'Memory - Estatísticas',
-  configuracoes:'Memory - Configurações',
-  aparencia:'Memory - Aparência',
-  medidas:'Memory - Medições corporais',
-  metas:'Memory - Metas',
-  perfil:'Memory - Meu perfil',
-  'treinos-config':'Memory - Plano de treino',
-  series:'Memory - Séries & filmes',
-  aniversarios:'Memory - Aniversários',
-  'meditacao-links':'Memory - Links da meditação'
- };
- if(memoryTitles[active]) document.title=memoryTitles[active];
- else document.title=document.title.replace(/Life Style/gi,'Memory').replace(/\s*[—-]\s*Memory\s*$/i,'').replace(/^Memory\s*[—-]\s*/i,'Memory - ');
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-v63" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
+ document.title=document.title.replace(/Life Style/gi,'Memory').replace(/Meu Momento com Deus$/i,'Memory');
 
  // Recarrega a identidade visual sem depender do cache antigo do navegador/PWA.
  document.querySelectorAll('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(link=>{
@@ -379,6 +365,27 @@ window.MMCDShell=async function(active){
   requestAnimationFrame(()=>layer.classList.add('open'));
  };
  // MMCD_MOBILE_SUBMENU_V32_END
+
+ const settings=document.querySelector('.sidebar-settings');
+ const settingsButton=document.querySelector('#sidebar-settings-toggle');
+ const settingsMenu=document.querySelector('#sidebar-settings-menu');
+ if(settings&&settingsButton&&settingsMenu){
+  const setSettingsOpen=(open,persist=true)=>{
+   settings.classList.toggle('open',open);
+   settingsMenu.classList.toggle('open',open);
+   settingsMenu.hidden=!open;
+   settingsButton.setAttribute('aria-expanded',open?'true':'false');
+   if(persist)localStorage.setItem('mmcd:sidebar:settings-open',open?'1':'0');
+  };
+  settingsButton.addEventListener('click',()=>{
+   if(isMobileNav()){
+    openMobileSubmenu(settingsMenu,'Configurações');
+    return;
+   }
+   setSettingsOpen(!settings.classList.contains('open'));
+  });
+  if(settingsActive||settingsWorkout)setSettingsOpen(true,false);
+ }
 
  const logo=document.querySelector('.sidebar-brand__mark img');
  if(logo){
@@ -485,180 +492,9 @@ window.MMCDShell=async function(active){
 
 
 
-
-
- // MEMORY_GLOBAL_TOOLS_V68_START
- const memoryConfig=await window.MemoryConfigReady;
- const topbarInner=document.querySelector('.app-topbar__inner');
- let topbarActions=document.querySelector('.app-topbar .topbar-actions');
- const themeButton=document.querySelector('.app-topbar #theme-toggle');
- if(topbarInner&&!topbarActions){
-  topbarActions=document.createElement('div');
-  topbarActions.className='topbar-actions';
-  if(themeButton)topbarActions.append(themeButton);
-  topbarInner.append(topbarActions);
- }
- if(topbarActions&&!document.querySelector('#memory-global-tools-v68')){
-  const tools=document.createElement('div');
-  tools.id='memory-global-tools-v68';
-  tools.className='memory-global-tools';
-  tools.innerHTML=`
-   <div class="memory-font-tool">
-    <button type="button" class="icon-btn memory-font-btn" aria-label="Tamanho do texto" title="Tamanho do texto">Aa</button>
-    <div class="memory-font-panel" hidden>
-     <div class="memory-tool-head"><div><strong>Tamanho do texto</strong><small>Deixe o Memory confortável para você.</small></div><button type="button" data-close-font aria-label="Fechar">×</button></div>
-     <button type="button" data-font-size="padrao"><span>Aa</span><span><strong>Padrão</strong><small>Tamanho original</small></span><b>✓</b></button>
-     <button type="button" data-font-size="grande"><span class="is-large">Aa</span><span><strong>Grande</strong><small>Leitura mais confortável</small></span><b>✓</b></button>
-     <button type="button" data-font-size="extra"><span class="is-extra">Aa</span><span><strong>Extra grande</strong><small>Maior acessibilidade</small></span><b>✓</b></button>
-    </div>
-   </div>
-   <div class="memory-news-tool">
-    <button type="button" class="icon-btn memory-news-btn" aria-label="Novidades do Memory" title="Clique para saber as atualizações do sistema"><span aria-hidden="true">✨</span><i class="memory-news-dot" aria-label="Há novidades"></i></button>
-   </div>`;
-  if(themeButton&&themeButton.parentElement===topbarActions)topbarActions.insertBefore(tools,themeButton);
-  else topbarActions.append(tools);
- }
-
- if(!document.querySelector('#memory-global-tools-v68-style')){
-  const style=document.createElement('style');
-  style.id='memory-global-tools-v68-style';
-  style.textContent=`
-   html[data-memory-font-size="padrao"]{font-size:16px}
-   html[data-memory-font-size="grande"]{font-size:18px}
-   html[data-memory-font-size="extra"]{font-size:20px}
-   .memory-global-tools{display:flex;align-items:center;gap:8px}
-   .memory-font-tool,.memory-news-tool{position:relative}
-   .memory-font-btn{font-weight:850;font-size:.72rem;letter-spacing:-.04em}
-   .memory-font-panel{position:absolute;right:0;top:48px;width:min(340px,calc(100vw - 32px));padding:10px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);z-index:160}
-   .memory-tool-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:5px 6px 10px}
-   .memory-tool-head>div{display:grid;gap:3px}.memory-tool-head strong{font-size:.8rem}.memory-tool-head small{font-size:.64rem;color:var(--muted)}
-   .memory-tool-head>button{width:30px;height:30px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--text);cursor:pointer}
-   .memory-font-panel>[data-font-size]{display:grid;grid-template-columns:48px 1fr 22px;align-items:center;gap:10px;width:100%;padding:10px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--text);text-align:left;cursor:pointer}
-   .memory-font-panel>[data-font-size]:hover{background:var(--surface-2)}
-   .memory-font-panel>[data-font-size].active{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
-   .memory-font-panel>[data-font-size]>span:first-child{display:grid;place-items:center;height:40px;border-radius:10px;background:var(--surface-2);font-size:.72rem;font-weight:850}
-   .memory-font-panel>[data-font-size]>span:first-child.is-large{font-size:.88rem}.memory-font-panel>[data-font-size]>span:first-child.is-extra{font-size:1.03rem}
-   .memory-font-panel>[data-font-size]>span:nth-child(2){display:grid;gap:2px}.memory-font-panel>[data-font-size] strong{font-size:.75rem}.memory-font-panel>[data-font-size] small{font-size:.61rem;color:var(--muted)}
-   .memory-font-panel>[data-font-size] b{visibility:hidden;color:var(--accent)}.memory-font-panel>[data-font-size].active b{visibility:visible}
-   .memory-news-btn{position:relative}.memory-news-dot{position:absolute;right:5px;top:5px;width:8px;height:8px;border-radius:50%;background:#ff4d67;border:2px solid var(--surface);box-sizing:content-box}
-   .memory-news-dot[hidden]{display:none}
-   .memory-news-layer{position:fixed;inset:0;z-index:220;display:grid;grid-template-columns:1fr min(460px,94vw);background:rgba(4,10,22,.36);backdrop-filter:blur(3px)}
-   .memory-news-layer[hidden]{display:none}
-   .memory-news-backdrop{border:0;background:transparent;cursor:default}
-   .memory-news-panel{height:100%;overflow:auto;padding:22px;border-left:1px solid var(--line);background:var(--surface);box-shadow:-18px 0 48px rgba(0,0,0,.18)}
-   .memory-news-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
-   .memory-news-head p{margin:5px 0 0;color:var(--muted);font-size:.78rem;line-height:1.5}.memory-news-head h2{margin:0;font-size:1.35rem}
-   .memory-news-close{width:36px;height:36px;border:1px solid var(--line);border-radius:11px;background:var(--surface-2);color:var(--text);cursor:pointer}
-   .memory-news-history{display:grid;gap:14px;padding:18px 0}
-   .memory-news-entry{padding:16px;border:1px solid var(--line);border-radius:15px;background:var(--surface-2)}
-   .memory-news-date{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:.68rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
-   .memory-news-entry ul{margin:11px 0 0;padding-left:20px;display:grid;gap:8px}.memory-news-entry li{font-size:.78rem;line-height:1.5;color:var(--text)}
-   @media(max-width:760px){
-    html[data-memory-font-size="padrao"]{font-size:16px}html[data-memory-font-size="grande"]{font-size:17.5px}html[data-memory-font-size="extra"]{font-size:19px}
-    .memory-global-tools{gap:4px}.memory-global-tools .icon-btn{width:34px;min-height:36px;padding:0}
-    .app-topbar__inner{gap:8px}.app-topbar .topbar-actions{gap:5px;min-width:0}.app-topbar #today-label{display:none}
-    .memory-font-panel{position:fixed;left:12px;right:12px;top:72px;width:auto}
-    .memory-news-layer{grid-template-columns:1fr;align-items:end}.memory-news-backdrop{position:absolute;inset:0}
-    .memory-news-panel{position:relative;height:min(78vh,720px);border-left:0;border-top:1px solid var(--line);border-radius:22px 22px 0 0;padding:20px}
-   }`;
-  document.head.append(style);
- }
-
- const validFontSizes=['padrao','grande','extra'];
- const applyFontSize=size=>{
-  const safe=validFontSizes.includes(size)?size:'padrao';
-  document.documentElement.dataset.memoryFontSize=safe;
-  localStorage.setItem('memory:font-size',safe);
-  document.querySelectorAll('[data-font-size]').forEach(btn=>btn.classList.toggle('active',btn.dataset.fontSize===safe));
-  return safe;
- };
- let currentFont=applyFontSize(localStorage.getItem('memory:font-size')||'padrao');
- if(memoryConfig){
-  try{
-   const remoteFont=await memoryConfig.read('memory_acessibilidade_v1',{tamanho:currentFont});
-   if(validFontSizes.includes(remoteFont?.tamanho))currentFont=applyFontSize(remoteFont.tamanho);
-  }catch(error){console.warn('Memory: acessibilidade indisponível.',error)}
- }
- const fontButton=document.querySelector('.memory-font-btn');
- const fontPanel=document.querySelector('.memory-font-panel');
- const closeFont=()=>{if(fontPanel)fontPanel.hidden=true};
- fontButton?.addEventListener('click',event=>{event.stopPropagation();if(fontPanel)fontPanel.hidden=!fontPanel.hidden});
- fontPanel?.querySelector('[data-close-font]')?.addEventListener('click',closeFont);
- fontPanel?.querySelectorAll('[data-font-size]').forEach(button=>button.addEventListener('click',async()=>{
-  currentFont=applyFontSize(button.dataset.fontSize);
-  closeFont();
-  if(memoryConfig){
-   try{await memoryConfig.write('memory_acessibilidade_v1',{tamanho:currentFont,atualizadoEm:new Date().toISOString()})}
-   catch(error){console.warn('Memory: não foi possível salvar o tamanho do texto.',error)}
-  }
- }));
- document.addEventListener('click',event=>{if(fontPanel&&!fontPanel.hidden&&!event.target.closest('.memory-font-tool'))closeFont()});
-
- const NEWS_ID='memory-update-2026-08-14-2355';
- const NEWS_ITEMS=[
-  'Central de Configurações: as opções saíram do submenu apertado da lateral e ganharam uma página própria.',
-  'Novo controle global de tamanho do texto com opções Padrão, Grande e Extra grande.',
-  'Cadastro de aniversários importantes, com lembrete automático em Atividades > Cuidado e card dinâmico em Missões.',
-  'Cadastro de links da meditação com ativação/desativação e escolha aleatória entre os conteúdos ativos.',
-  'Novo painel de novidades: ao abrir, o aviso é considerado visualizado e o indicador desaparece.',
-  'Títulos das abas foram simplificados para não repetir “Memory” ou “Configurações”.',
-  'Treinos e metas seguem com vínculo automático: as metas marcadas podem ser concluídas quando a musculação do dia é realizada.',
-  'Treinos mantêm alarme de descanso, som/vibração, BI-SET (conjugado), técnica detalhada e continuidade do treino até o fim do dia.'
- ];
- const newsButton=document.querySelector('.memory-news-btn');
- const newsDot=document.querySelector('.memory-news-dot');
- const localNewsSeen=localStorage.getItem('memory:news-seen')||'';
- let newsSeen=localNewsSeen===NEWS_ID;
- if(memoryConfig){
-  try{
-   const remoteNews=await memoryConfig.read('memory_novidades_lidas_v1',{ultimoId:''});
-   if(remoteNews?.ultimoId===NEWS_ID)newsSeen=true;
-  }catch(error){console.warn('Memory: histórico de novidades indisponível.',error)}
- }
- if(newsDot)newsDot.hidden=newsSeen;
-
- const ensureNewsLayer=()=>{
-  let layer=document.querySelector('.memory-news-layer');
-  if(layer)return layer;
-  layer=document.createElement('div');
-  layer.className='memory-news-layer';
-  layer.hidden=true;
-  layer.innerHTML=`
-   <button type="button" class="memory-news-backdrop" aria-label="Fechar novidades"></button>
-   <aside class="memory-news-panel" role="dialog" aria-modal="true" aria-label="Novidades do Memory">
-    <div class="memory-news-head">
-     <div><h2>Novidades do Memory</h2><p>Veja o que mudou no sistema. O histórico continua aqui mesmo depois de visualizado.</p></div>
-     <button type="button" class="memory-news-close" aria-label="Fechar">×</button>
-    </div>
-    <div class="memory-news-history">
-     <article class="memory-news-entry">
-      <div class="memory-news-date"><span>✨</span><span>14/08/2026</span></div>
-      <ul>${NEWS_ITEMS.map(item=>`<li>${window.MMCDUI?.esc?.(item)||item}</li>`).join('')}</ul>
-     </article>
-    </div>
-   </aside>`;
-  document.body.append(layer);
-  const close=()=>{layer.hidden=true};
-  layer.querySelector('.memory-news-backdrop')?.addEventListener('click',close);
-  layer.querySelector('.memory-news-close')?.addEventListener('click',close);
-  return layer;
- };
- const markNewsSeen=async()=>{
-  if(newsDot)newsDot.hidden=true;
-  localStorage.setItem('memory:news-seen',NEWS_ID);
-  if(memoryConfig){
-   try{await memoryConfig.write('memory_novidades_lidas_v1',{ultimoId:NEWS_ID,vistoEm:new Date().toISOString()})}
-   catch(error){console.warn('Memory: não foi possível registrar a leitura das novidades.',error)}
-  }
- };
- newsButton?.addEventListener('click',()=>{
-  const layer=ensureNewsLayer();
-  layer.hidden=false;
-  markNewsSeen();
- });
+ 
 
  try{const session=await MMCDAuth.requireSession();const sidebar=document.querySelector('.sidebar');if(sidebar){sidebar.append(MMCDAuth.accountButton(session.user));sidebar.insertAdjacentHTML('beforeend','<div class="sync-status">Dados online · Supabase</div>')}}catch(e){console.error(e)}
- // MEMORY_GLOBAL_TOOLS_V68_END
  window.addEventListener('mmcd:profile-updated',()=>{window.MMCDAuth?.refreshAccountProfile?.().catch(()=>{})});
 
  // No celular, mantém a área ativa visível dentro do menu horizontal.

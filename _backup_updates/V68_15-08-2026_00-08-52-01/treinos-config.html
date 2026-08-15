@@ -70,7 +70,7 @@
   <script>
   (async function(){
     const BASE='/meu-momento-com-deus-site/';
-    const VERSION="20260814-2355-v68";
+    const VERSION="20260814-v67-musculacao-meta-link";
 
     function loadScript(file){
       return new Promise((resolve,reject)=>{
@@ -95,7 +95,7 @@
       await loadScript("auth.js");
       await loadScript("dados-app.js");
       await loadScript("theme-system.js");
-      await loadScript("shell-v68.js");
+      await loadScript("shell-v63.js");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
       await loadScript("treinos-data-v62.js");
       await loadScript("treinos-visuais-v62.js");
