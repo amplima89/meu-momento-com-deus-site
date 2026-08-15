@@ -1,0 +1,5 @@
+﻿Memory V78.6 - Navegacao de Cuidado consistente
+Aplicado em: 15/08/2026 12:22:49
+Site: C:\Users\andre\OneDrive\meu-momento-com-deus-site
+Backup externo: C:\Users\andre\AppData\Local\Memory\Backups\site_antes_V78_6_20260815_122247.zip
+Todas as paginas usam shell-v78-6; Aniversariantes fica apenas em Cuidado.

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -11,7 +11,7 @@
       document.documentElement.dataset.tema = tema;
     } catch (_) {}
   </script>
-  <title>Treinos — Memory</title>
+  <title>Treinos â€” Memory</title>
   <link rel="icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42" sizes="any">
   <link rel="apple-touch-icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42">
 
@@ -39,8 +39,8 @@
           <span class="app-topbar__subtitle">Plano de treino</span>
         </div>
         <div class="topbar-actions">
-          <span id="treino-save-status">Carregando…</span>
-          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+          <span id="treino-save-status">Carregandoâ€¦</span>
+          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">â˜¾</button>
         </div>
       </div>
     </header>
@@ -50,18 +50,18 @@
         <div>
           <p class="eyebrow">Treinos</p>
           <h1 id="treino-program-name">Plano de treino</h1>
-          <p id="treino-program-objective" class="muted">Carregando seu programa…</p>
+          <p id="treino-program-objective" class="muted">Carregando seu programaâ€¦</p>
         </div>
         <div class="treino-hero-side">
           <strong id="treino-today-label">Hoje</strong>
-          <span>Abrir → treinar → registrar → fechar.</span>
+          <span>Abrir â†’ treinar â†’ registrar â†’ fechar.</span>
         </div>
       </section>
 
-      <nav class="treino-tabs" aria-label="Áreas do plano de treino">
-        <button class="treino-tab active" data-tab="hoje">🏋️ Hoje</button>
-        <button class="treino-tab" data-tab="historico">📅 Histórico</button>
-        <button class="treino-tab" data-tab="evolucao">📈 Evolução</button>
+      <nav class="treino-tabs" aria-label="Ãreas do plano de treino">
+        <button class="treino-tab active" data-tab="hoje">ðŸ‹ï¸ Hoje</button>
+        <button class="treino-tab" data-tab="historico">ðŸ“… HistÃ³rico</button>
+        <button class="treino-tab" data-tab="evolucao">ðŸ“ˆ EvoluÃ§Ã£o</button>
       </nav>
 
       <section class="treino-panel" data-panel="hoje">
@@ -70,14 +70,14 @@
 
       <section class="treino-panel" data-panel="historico" hidden>
         <div class="history-toolbar">
-          <div><p class="eyebrow">Histórico</p><h2 id="history-month-label">Mês</h2></div>
+          <div><p class="eyebrow">HistÃ³rico</p><h2 id="history-month-label">MÃªs</h2></div>
         </div>
         <div id="treino-history-root"></div>
       </section>
 
       <section class="treino-panel" data-panel="evolucao" hidden>
         <div class="page-header">
-          <div><p class="eyebrow">Evolução</p><h1>Seu progresso</h1><p class="muted">Frequência, cargas e medidas sem poluir a tela de treino.</p></div>
+          <div><p class="eyebrow">EvoluÃ§Ã£o</p><h1>Seu progresso</h1><p class="muted">FrequÃªncia, cargas e medidas sem poluir a tela de treino.</p></div>
         </div>
         <div id="treino-evolution-root"></div>
       </section>
@@ -86,7 +86,7 @@
 
   <div id="finish-modal" class="finish-modal" hidden>
     <div class="finish-modal-card">
-      <button id="finish-modal-close" class="finish-modal-close" aria-label="Fechar">×</button>
+      <button id="finish-modal-close" class="finish-modal-close" aria-label="Fechar">Ã—</button>
       <div id="finish-modal-body"></div>
     </div>
   </div>
@@ -106,7 +106,7 @@
           const fallback=document.createElement("script");
           fallback.src=BASE+file+"?retry="+Date.now();
           fallback.onload=()=>resolve();
-          fallback.onerror=()=>reject(new Error("Não foi possível carregar "+file));
+          fallback.onerror=()=>reject(new Error("NÃ£o foi possÃ­vel carregar "+file));
           document.body.appendChild(fallback);
         };
         document.body.appendChild(primary);
@@ -119,7 +119,7 @@
       await loadScript("nucleo/auth.js");
       await loadScript("nucleo/dados-app.js");
       await loadScript("nucleo/theme-system.js");
-      await loadScript("nucleo/shell-v78.js?v=20260815-v78-4");
+      await loadScript("nucleo/shell-v78-6.js?v=20260815-v78-6");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
       await loadScript("modulos/treinos/treinos-data-v62.js");
       await loadScript("modulos/treinos/treinos-visuais-v62.js");
@@ -127,20 +127,20 @@
     }catch(error){
       console.error("Falha ao iniciar Treinos:",error);
       const status=document.querySelector("#treino-save-status");
-      if(status) status.textContent="Falha ao carregar — atualize a página";
+      if(status) status.textContent="Falha ao carregar â€” atualize a pÃ¡gina";
       const root=document.querySelector("#treino-today-root") || document.querySelector("#treino-settings-root");
       if(root && !root.innerHTML.trim()){
-        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>Não foi possível carregar os arquivos do módulo Treinos.</strong><p>Atualize a página. Se persistir, feche e abra novamente o Memory.</p></article>';
+        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>NÃ£o foi possÃ­vel carregar os arquivos do mÃ³dulo Treinos.</strong><p>Atualize a pÃ¡gina. Se persistir, feche e abra novamente o Memory.</p></article>';
       }
     }
   })();
   </script>
 <div id="exercise-guide-modal" class="exercise-guide-modal" hidden>
     <div class="exercise-guide-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="exercise-guide-modal-title">
-      <button class="exercise-guide-modal__close" type="button" data-action="close-exercise-guide" aria-label="Fechar">×</button>
+      <button class="exercise-guide-modal__close" type="button" data-action="close-exercise-guide" aria-label="Fechar">Ã—</button>
       <div class="exercise-guide-modal__head">
         <span class="treino-kicker">GUIA VISUAL</span>
-        <h2 id="exercise-guide-modal-title">Execução do exercício</h2>
+        <h2 id="exercise-guide-modal-title">ExecuÃ§Ã£o do exercÃ­cio</h2>
       </div>
       <div id="exercise-guide-modal-body"></div>
     </div>

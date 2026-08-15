@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
     <!-- LS_FAVICON_START -->
@@ -11,7 +11,7 @@
     <!-- LS_FAVICON_END -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Metas — Memory</title>
+  <title>Metas â€” Memory</title>
   <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
   <link rel="stylesheet" href="modulos/metas/metas.css?v=20260807-final1">
   <link rel="stylesheet" href="modulos/metas/metas-v67.css?v=20260814-v67">
@@ -23,18 +23,18 @@
       <div class="app-topbar__inner">
         <div>
           <span class="app-topbar__title">MEMORY</span>
-          <span class="app-topbar__subtitle">Configuração das metas</span>
+          <span class="app-topbar__subtitle">ConfiguraÃ§Ã£o das metas</span>
         </div>
-        <button id="theme-toggle" class="icon-btn">☾</button>
+        <button id="theme-toggle" class="icon-btn">â˜¾</button>
       </div>
     </header>
 
     <main class="app-main">
       <section class="page-header">
         <div>
-          <p class="eyebrow">Configuração</p>
+          <p class="eyebrow">ConfiguraÃ§Ã£o</p>
           <h1>Cadastro de metas</h1>
-          <p class="muted">Defina o que deseja acompanhar. A execução acontece separadamente em Atividades Diárias.</p>
+          <p class="muted">Defina o que deseja acompanhar. A execuÃ§Ã£o acontece separadamente em Atividades DiÃ¡rias.</p>
         </div>
         <div class="page-header__actions">
           <a href="atividades.html" class="btn">Ver atividades</a>
@@ -48,39 +48,39 @@
             <p class="eyebrow">Cadastro</p>
             <h2 id="form-title">Nova meta</h2>
           </div>
-          <button id="close-form" class="icon-btn">×</button>
+          <button id="close-form" class="icon-btn">Ã—</button>
         </div>
 
         <form id="goal-form">
           <input id="goal-id" type="hidden">
           <div class="grid grid-3">
             <label class="field"><span>Nome</span><input id="goal-name" required></label>
-            <label class="field"><span>Grupo</span><input id="goal-category" placeholder="Saúde, Estudos, Espiritual..."></label>
-            <label class="field"><span>Ícone</span><input id="goal-icon" value="✓"></label>
+            <label class="field"><span>Grupo</span><input id="goal-category" placeholder="SaÃºde, Estudos, Espiritual..."></label>
+            <label class="field"><span>Ãcone</span><input id="goal-icon" value="âœ“"></label>
             <label class="field"><span>Tipo</span><select id="goal-type"><option value="check">Concluir</option><option value="valor">Registrar valor</option></select></label>
-            <label class="field"><span>Frequência</span><select id="goal-frequency"><option value="diaria">Diária</option><option value="semanal">Semanal</option><option value="mensal">Mensal</option><option value="anual">Anual</option></select></label>
-            <label class="field"><span>Como concluir</span><select id="goal-schedule-mode"><option value="dias">Em dias específicos</option><option value="semanal_flexivel">Em qualquer dia da semana</option><option value="mensal_flexivel">Em qualquer dia do mês</option></select></label>
+            <label class="field"><span>FrequÃªncia</span><select id="goal-frequency"><option value="diaria">DiÃ¡ria</option><option value="semanal">Semanal</option><option value="mensal">Mensal</option><option value="anual">Anual</option></select></label>
+            <label class="field"><span>Como concluir</span><select id="goal-schedule-mode"><option value="dias">Em dias especÃ­ficos</option><option value="semanal_flexivel">Em qualquer dia da semana</option><option value="mensal_flexivel">Em qualquer dia do mÃªs</option></select></label>
           </div>
 
-          <label class="field"><span>Descrição</span><textarea id="goal-description" placeholder="Qual é o objetivo desta meta?"></textarea></label>
+          <label class="field"><span>DescriÃ§Ã£o</span><textarea id="goal-description" placeholder="Qual Ã© o objetivo desta meta?"></textarea></label>
 
           <section class="workout-integration-card" aria-labelledby="workout-integration-title">
             <div class="workout-integration-main">
-              <div class="workout-integration-icon" aria-hidden="true">🏋️</div>
+              <div class="workout-integration-icon" aria-hidden="true">ðŸ‹ï¸</div>
               <div class="workout-integration-copy">
-                <span class="workout-integration-kicker">Integração com musculação</span>
-                <strong id="workout-integration-title">Vincular esta meta ao meu treino de musculação</strong>
-                <p>Quando você malhar, o Memory conclui automaticamente esta meta se ela estiver programada para aquele dia.</p>
+                <span class="workout-integration-kicker">IntegraÃ§Ã£o com musculaÃ§Ã£o</span>
+                <strong id="workout-integration-title">Vincular esta meta ao meu treino de musculaÃ§Ã£o</strong>
+                <p>Quando vocÃª malhar, o Memory conclui automaticamente esta meta se ela estiver programada para aquele dia.</p>
               </div>
-              <label class="memory-switch" for="goal-workout-link" aria-label="Vincular esta meta ao treino de musculação">
+              <label class="memory-switch" for="goal-workout-link" aria-label="Vincular esta meta ao treino de musculaÃ§Ã£o">
                 <input id="goal-workout-link" type="checkbox">
                 <span class="memory-switch-track" aria-hidden="true"><span class="memory-switch-thumb"></span></span>
                 <span class="memory-switch-state"><span class="state-off">Desativado</span><span class="state-on">Vinculado</span></span>
               </label>
             </div>
             <div class="workout-integration-note">
-              <span aria-hidden="true">💡</span>
-              <span><strong>Você pode vincular várias metas.</strong> Exemplo: se “Treino” estiver programado para terça e “Cardio” para quarta, cada uma será concluída apenas no seu próprio dia quando houver musculação.</span>
+              <span aria-hidden="true">ðŸ’¡</span>
+              <span><strong>VocÃª pode vincular vÃ¡rias metas.</strong> Exemplo: se â€œTreinoâ€ estiver programado para terÃ§a e â€œCardioâ€ para quarta, cada uma serÃ¡ concluÃ­da apenas no seu prÃ³prio dia quando houver musculaÃ§Ã£o.</span>
             </div>
           </section>
 
@@ -90,26 +90,26 @@
           </div>
 
           <section id="weekly-flex-info" class="weekly-flex-info" hidden>
-            <span class="weekly-flex-info__icon" aria-hidden="true">↻</span>
-            <div><strong>Meta semanal flexível</strong><p>Ela aparece em Atividades durante a semana até você atingir a quantidade. Antes de domingo, o Memory nunca trata a meta como não concluída. Ao encerrar a semana, registra 100%, parcial ou não concluída.</p></div>
+            <span class="weekly-flex-info__icon" aria-hidden="true">â†»</span>
+            <div><strong>Meta semanal flexÃ­vel</strong><p>Ela aparece em Atividades durante a semana atÃ© vocÃª atingir a quantidade. Antes de domingo, o Memory nunca trata a meta como nÃ£o concluÃ­da. Ao encerrar a semana, registra 100%, parcial ou nÃ£o concluÃ­da.</p></div>
           </section>
 
           <section id="monthly-flex-info" class="weekly-flex-info monthly-flex-info" hidden>
-            <span class="weekly-flex-info__icon" aria-hidden="true">◫</span>
-            <div><strong>Meta mensal flexível</strong><p>Ela fica disponível em qualquer dia do mês vigente. Enquanto o mês não terminou, permanece pendente. Ao encerrar o mês, o Memory registra 100%, parcial ou não concluída.</p></div>
+            <span class="weekly-flex-info__icon" aria-hidden="true">â—«</span>
+            <div><strong>Meta mensal flexÃ­vel</strong><p>Ela fica disponÃ­vel em qualquer dia do mÃªs vigente. Enquanto o mÃªs nÃ£o terminou, permanece pendente. Ao encerrar o mÃªs, o Memory registra 100%, parcial ou nÃ£o concluÃ­da.</p></div>
           </section>
 
           <section id="english-levels-card" class="english-levels-card" hidden>
             <div>
-              <span class="field-label">Dificuldade do inglês por dia</span>
-              <p class="muted">Escolha um nível diferente para cada dia marcado.</p>
+              <span class="field-label">Dificuldade do inglÃªs por dia</span>
+              <p class="muted">Escolha um nÃ­vel diferente para cada dia marcado.</p>
             </div>
             <div id="english-levels-by-day" class="english-levels-grid"></div>
           </section>
 
           <div class="grid grid-3">
-            <label class="field"><span>Início da vigência</span><input id="goal-start" type="date" required></label>
-            <label class="field"><span>Fim da vigência</span><input id="goal-end" type="date"></label>
+            <label class="field"><span>InÃ­cio da vigÃªncia</span><input id="goal-start" type="date" required></label>
+            <label class="field"><span>Fim da vigÃªncia</span><input id="goal-end" type="date"></label>
             <label class="field"><span id="goal-quantity-label">Quantidade</span><input id="goal-quantity" type="number" min="1" value="1"></label>
           </div>
 
@@ -154,10 +154,10 @@
         <div class="goals-report-head" aria-hidden="true">
           <span>Meta</span>
           <span>Grupo</span>
-          <span>Programação</span>
-          <span>Vigência</span>
+          <span>ProgramaÃ§Ã£o</span>
+          <span>VigÃªncia</span>
           <span>Status</span>
-          <span>Ações</span>
+          <span>AÃ§Ãµes</span>
         </div>
         <div id="goals-list" class="goals-list"></div>
       </section>
@@ -169,8 +169,9 @@
   <script src="nucleo/supabase-client.js?v=20260803-50"></script>
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
   <script src="nucleo/dados-app.js?v=20260806-abono1"></script>
-  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78.js?v=20260815-v78-4"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78-6.js?v=20260815-v78-6"></script>
   <script>MMCDShell('metas')</script>
   <script src="modulos/metas/metas-v74.js?v=20260815-v74"></script>
 </body>
 </html>
+

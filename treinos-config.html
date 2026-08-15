@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -11,7 +11,7 @@
       document.documentElement.dataset.tema = tema;
     } catch (_) {}
   </script>
-  <title>Plano de treino — Configurações — Memory</title>
+  <title>Plano de treino â€” ConfiguraÃ§Ãµes â€” Memory</title>
   <link rel="icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42" sizes="any">
   <link rel="apple-touch-icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42">
 
@@ -24,27 +24,27 @@
       <div class="app-topbar__inner">
         <div>
           <span class="app-topbar__title">MEMORY</span>
-          <span class="app-topbar__subtitle">Configurações · Plano de treino</span>
+          <span class="app-topbar__subtitle">ConfiguraÃ§Ãµes Â· Plano de treino</span>
         </div>
         <div class="topbar-actions">
-          <span id="treino-save-status">Carregando…</span>
-          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+          <span id="treino-save-status">Carregandoâ€¦</span>
+          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">â˜¾</button>
         </div>
       </div>
     </header>
     <main class="app-main treino-page treino-config-page">
       <section class="treino-hero treino-config-hero">
         <div>
-          <p class="eyebrow">Configurações › Plano de treino</p>
+          <p class="eyebrow">ConfiguraÃ§Ãµes â€º Plano de treino</p>
           <h1>Plano de treino</h1>
-          <p class="muted">Programa, período e composição dos treinos.</p>
+          <p class="muted">Programa, perÃ­odo e composiÃ§Ã£o dos treinos.</p>
         </div>
         <a class="btn" href="treinos-v67.html#hoje">Abrir Treinos</a>
       </section>
             <section class="card" style="margin-bottom:16px;padding:18px">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Descanso entre séries</p>
+            <p class="eyebrow">Descanso entre sÃ©ries</p>
             <h2 style="margin:.2rem 0">Alarme de descanso</h2>
             <p class="muted">Escolha como o Memory deve avisar quando o tempo de descanso terminar.</p>
           </div>
@@ -52,11 +52,11 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px">
           <label class="field" style="display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)">
             <input id="rest-setting-sound" type="checkbox" style="width:auto">
-            <span><strong>🔊 Som</strong><br><small class="muted">Bipes ao terminar o descanso</small></span>
+            <span><strong>ðŸ”Š Som</strong><br><small class="muted">Bipes ao terminar o descanso</small></span>
           </label>
           <label class="field" style="display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)">
             <input id="rest-setting-vibration" type="checkbox" style="width:auto">
-            <span><strong>📳 Vibração</strong><br><small class="muted">Quando o dispositivo suportar</small></span>
+            <span><strong>ðŸ“³ VibraÃ§Ã£o</strong><br><small class="muted">Quando o dispositivo suportar</small></span>
           </label>
         </div>
       </section>
@@ -82,7 +82,7 @@
           const fallback=document.createElement("script");
           fallback.src=BASE+file+"?retry="+Date.now();
           fallback.onload=()=>resolve();
-          fallback.onerror=()=>reject(new Error("Não foi possível carregar "+file));
+          fallback.onerror=()=>reject(new Error("NÃ£o foi possÃ­vel carregar "+file));
           document.body.appendChild(fallback);
         };
         document.body.appendChild(primary);
@@ -95,7 +95,7 @@
       await loadScript("nucleo/auth.js");
       await loadScript("nucleo/dados-app.js");
       await loadScript("nucleo/theme-system.js");
-      await loadScript("nucleo/shell-v78.js?v=20260815-v78-4");
+      await loadScript("nucleo/shell-v78-6.js?v=20260815-v78-6");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
       await loadScript("modulos/treinos/treinos-data-v62.js");
       await loadScript("modulos/treinos/treinos-visuais-v62.js");
@@ -103,20 +103,20 @@
     }catch(error){
       console.error("Falha ao iniciar Treinos:",error);
       const status=document.querySelector("#treino-save-status");
-      if(status) status.textContent="Falha ao carregar — atualize a página";
+      if(status) status.textContent="Falha ao carregar â€” atualize a pÃ¡gina";
       const root=document.querySelector("#treino-today-root") || document.querySelector("#treino-settings-root");
       if(root && !root.innerHTML.trim()){
-        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>Não foi possível carregar os arquivos do módulo Treinos.</strong><p>Atualize a página. Se persistir, execute novamente a atualização V42.</p></article>';
+        root.innerHTML='<article style="padding:20px;border:1px solid #ddd;border-radius:12px"><strong>NÃ£o foi possÃ­vel carregar os arquivos do mÃ³dulo Treinos.</strong><p>Atualize a pÃ¡gina. Se persistir, execute novamente a atualizaÃ§Ã£o V42.</p></article>';
       }
     }
   })();
   </script>
 <div id="exercise-guide-modal" class="exercise-guide-modal" hidden>
     <div class="exercise-guide-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="exercise-guide-modal-title">
-      <button class="exercise-guide-modal__close" type="button" data-action="close-exercise-guide" aria-label="Fechar">×</button>
+      <button class="exercise-guide-modal__close" type="button" data-action="close-exercise-guide" aria-label="Fechar">Ã—</button>
       <div class="exercise-guide-modal__head">
         <span class="treino-kicker">GUIA VISUAL</span>
-        <h2 id="exercise-guide-modal-title">Execução do exercício</h2>
+        <h2 id="exercise-guide-modal-title">ExecuÃ§Ã£o do exercÃ­cio</h2>
       </div>
       <div id="exercise-guide-modal-body"></div>
     </div>

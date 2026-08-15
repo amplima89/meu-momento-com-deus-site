@@ -74,3 +74,11 @@
 - Estados das dimensões passam a aparecer exclusivamente no anel externo do centro.
 - Centro permanece circular também no layout mobile.
 - Novos arquivos versionados `memory-care-map-v78-5.js/css` para evitar cache da versão anterior.
+
+## V78.6 — 15/08/2026
+- Navegação central atualizada para `nucleo/shell-v78-6.js` em todas as páginas, com nova chave de cache.
+- Aniversariantes permanece no submenu Cuidado ao navegar entre todas as páginas do módulo.
+- Aniversariantes removido definitivamente da Central de Configurações.
+- Defesa de compatibilidade recria o link de Aniversariantes caso uma estrutura antiga de menu seja carregada.
+- Configurações recebe proteção adicional contra card legado de Aniversariantes.
+
