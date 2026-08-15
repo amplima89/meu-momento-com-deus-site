@@ -104,3 +104,11 @@
 - Limpeza de versões intermediárias de Jornada, Mapa de Cuidado e Atividades que não tinham referências ativas.
 - Instalador V79 preserva UTF-8 por cópia binária/direta, sem Get-Content/Set-Content sobre HTMLs.
 
+## V79.1 — 15/08/2026
+- Botão “Concluir meditação” dentro da própria página, sincronizado com a atividade de Meditação no Supabase.
+- Consistência de meditação atualizada imediatamente após a conclusão.
+- Card compartilhável pós-meditação com versículo do dia, identidade Memory, PNG, legenda e Web Share.
+- Compartilhamento nativo compatível com Instagram/WhatsApp quando disponíveis no aparelho, sem publicação automática.
+- Card compartilhável pós-treino com treino realizado, grupos trabalhados, duração, sequência de treinos concluídos e mensagem motivacional.
+- Motor comum `MemorySocialCard` para geração de cards sociais em PNG, reutilizável por outros módulos.
+

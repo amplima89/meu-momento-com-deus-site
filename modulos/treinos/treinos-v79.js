@@ -2874,6 +2874,121 @@
     }
   }
 
+  function workoutShareGroups(session){
+    if(session?.tipo==="futebol") return "Futebol";
+    if(session?.tipo==="cardio") return "Cardio / HIIT";
+    const groups=[];
+    (session?.exercicios||[]).forEach(ex=>{
+      if(!exerciseDone(ex)) return;
+      const group=String(ex.grupo||"").trim();
+      if(group && !groups.some(item=>normalizeText(item)===normalizeText(group))) groups.push(group);
+    });
+    if(!groups.length) return "Treino de força";
+    if(groups.length<=3) return groups.join(" · ");
+    return `${groups.slice(0,3).join(" · ")} +${groups.length-3}`;
+  }
+
+  function workoutCompletedStreak(session){
+    if(!session || session.status!=="concluido") return 0;
+    const cursor=new Date(`${session.data}T12:00:00`);
+    let streak=0;
+    for(let i=0;i<210;i+=1){
+      const iso=isoFromDate(cursor);
+      const workout=workoutForDate(iso);
+      if(workout && workout.tipo!=="descanso"){
+        if(workoutExcuseInfo(iso)){
+          // Abono preserva a sequência, mas não conta como treino realizado.
+        }else{
+          const completed=sessionForDate(iso);
+          if(completed?.status==="concluido") streak+=1;
+          else break;
+        }
+      }
+      cursor.setDate(cursor.getDate()-1);
+    }
+    return Math.max(1,streak);
+  }
+
+  function workoutMotivation(streak){
+    if(streak>=12) return "A constância já virou parte de quem você está se tornando.";
+    if(streak>=8) return "Resultado não nasce de um dia perfeito. Nasce de continuar.";
+    if(streak>=4) return "Você não precisa recomeçar quando escolhe continuar.";
+    if(streak>=2) return "Uma sequência é construída treino após treino.";
+    return "O próximo resultado começa na repetição do básico.";
+  }
+
+  function workoutSocialOptions(session){
+    const workout=state.plano.treinos.find(x=>x.id===session?.treinoId);
+    const streak=workoutCompletedStreak(session);
+    const groups=workoutShareGroups(session);
+    const title=workout?.nome||session?.treinoSnapshot?.nome||"Treino";
+    const streakText=`${streak} ${streak===1?"treino seguido":"treinos seguidos"} sem falhar`;
+    const motivation=workoutMotivation(streak);
+    const caption=[
+      "Treino concluído no Memory 🔥",
+      `${title} · ${groups}`,
+      streakText,
+      `${motivation} #Memory`
+    ].join("\n\n");
+    return {
+      variant:"workout",
+      eyebrow:"Treino concluído",
+      title,
+      subtitle:groups,
+      stats:[
+        {label:"Tempo",value:`${fmt(session?.duracaoMinutos||0)} min`},
+        {label:"Sequência",value:`${streak} ${streak===1?"treino":"treinos"}`},
+        {label:"Status",value:"Concluído"}
+      ],
+      footer:motivation,
+      caption,
+      shareTitle:"Meu treino no Memory",
+      fileName:`memory-treino-${session?.data||todayIso()}`
+    };
+  }
+
+  function workoutSocialHtml(session){
+    if(!session || session.status!=="concluido") return "";
+    const options=workoutSocialOptions(session);
+    const streak=workoutCompletedStreak(session);
+    return `<div class="workout-social-block memory-share-block">
+      <div class="memory-share-preview memory-share-preview--workout">
+        <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-v62.png" alt=""><div><strong>Memory</strong><small>movimento que vira memória</small></div></div>
+        <span class="memory-share-preview__eyebrow">Treino concluído</span>
+        <h3>${esc(options.title)}</h3>
+        <p class="workout-share-groups">${esc(options.subtitle)}</p>
+        <div class="memory-share-preview__stats"><span>⏱ ${fmt(session.duracaoMinutos)} min</span><span>🔥 ${streak} ${streak===1?"treino seguido":"treinos seguidos"} sem falhar</span></div>
+        <p class="workout-share-motivation">${esc(options.footer)}</p>
+      </div>
+      <div class="memory-share-actions">
+        <button type="button" class="btn primary" data-action="share-workout-card">Compartilhar · Instagram / WhatsApp</button>
+        <button type="button" class="btn" data-action="download-workout-card">Baixar card</button>
+        <button type="button" class="btn" data-action="copy-workout-caption">Copiar legenda</button>
+      </div>
+      <p class="memory-share-note">O compartilhamento usa as opções nativas do seu aparelho. Nada é publicado sem a sua confirmação.</p>
+    </div>`;
+  }
+
+  async function handleWorkoutSocial(mode){
+    const session=sessionForDate(todayIso());
+    if(!session || session.status!=="concluido") return;
+    const api=window.MemorySocialCard;
+    if(!api){MMCDUI?.toast?.("O card ainda não ficou pronto. Atualize a página e tente novamente.",4200);return;}
+    const options=workoutSocialOptions(session);
+    try{
+      if(mode==="share"){
+        const result=await api.share(options);
+        if(result?.downloaded&&!result.shared) MMCDUI?.toast?.("Card baixado. Agora você pode publicar onde quiser.",4200);
+      }else if(mode==="download"){
+        await api.download(options);MMCDUI?.toast?.("Card do treino salvo como PNG.",3200);
+      }else if(mode==="copy"){
+        const ok=await api.copyCaption(options.caption);MMCDUI?.toast?.(ok?"Legenda copiada.":"Não foi possível copiar a legenda.",3200);
+      }
+    }catch(error){
+      if(error?.name!=="AbortError"){console.error(error);MMCDUI?.toast?.("Não foi possível preparar o compartilhamento agora.",4200)}
+    }
+  }
+
   function showFinishSummary(session) {
     const workout=state.plano.treinos.find(x=>x.id===session.treinoId);
     let increased=0,maintained=0;
@@ -2898,7 +3013,8 @@
         ${session.tipo==="musculacao"?`<div><span>Aumentos de carga</span><strong>${increased}</strong></div><div><span>Mantidos</span><strong>${maintained}</strong></div>`:""}
         <div><span>Status</span><strong>${session.status==="concluido"?"Concluído":"Parcial"}</strong></div>
       </div>
-      ${workoutFeedbackHtml(session)}`;
+      ${workoutFeedbackHtml(session)}
+      ${workoutSocialHtml(session)}`;
     modal.hidden=false;
   }
 
@@ -3610,6 +3726,9 @@
         else if(a==="set-load-unit") setLoadUnit(action.dataset.exerciseId,action.dataset.loadUnit);
         else if(a==="finish-workout") finishWorkout();
         else if(a==="save-workout-feedback") saveWorkoutFeedback();
+        else if(a==="share-workout-card") handleWorkoutSocial("share");
+        else if(a==="download-workout-card") handleWorkoutSocial("download");
+        else if(a==="copy-workout-caption") handleWorkoutSocial("copy");
         else if(a==="toggle-check") toggleCheck(action.dataset.kind,action.dataset.index);
         else if(a==="close-history") $("#history-detail-card").hidden=true;
         else if(a==="save-plan") savePlanFields();

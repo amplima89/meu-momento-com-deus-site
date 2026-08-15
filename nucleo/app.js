@@ -2333,6 +2333,10 @@ function renderizarMeditacao() {
         "ultima-data-lida",
         meditacao.data
     );
+
+    document.dispatchEvent(new CustomEvent("memory:meditation-rendered", {
+        detail: { data: meditacao.data, indice: indiceAtual }
+    }));
 }
 
 
