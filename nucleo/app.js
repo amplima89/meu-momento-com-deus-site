@@ -636,6 +636,117 @@ function renderizarSecao(secao) {
 
 
 /* =========================================================
+   AGRUPAMENTO VISUAL DA MEDITAÇÃO — V78.2
+   ========================================================= */
+
+function grupoDaSecao(titulo = "") {
+    const nome = normalizarTexto(titulo);
+
+    if (
+        nome.includes("agua")
+        || nome.includes("respiracao")
+        || nome.includes("tecnologia sutil")
+        || nome.includes("premissa existencial")
+    ) {
+        return {
+            id: "preparacao",
+            indice: "01",
+            titulo: "Preparação",
+            descricao: "Aquietar o ritmo, preparar a atenção e estabelecer a direção do dia."
+        };
+    }
+
+    if (
+        nome.includes("versiculo")
+        || nome.includes("reflexao profunda")
+        || nome.includes("formacao continua")
+        || nome.includes("palavra")
+    ) {
+        return {
+            id: "palavra",
+            indice: "02",
+            titulo: "Palavra e reflexão",
+            descricao: "Ler, compreender e aprofundar a verdade que sustenta a meditação."
+        };
+    }
+
+    if (
+        nome.includes("oracao")
+        || nome.includes("autoavaliacao")
+        || nome.includes("pergunta")
+        || nome.includes("exame")
+    ) {
+        return {
+            id: "resposta",
+            indice: "03",
+            titulo: "Resposta a Deus",
+            descricao: "Transformar a reflexão em oração, consciência e resposta pessoal."
+        };
+    }
+
+    if (
+        nome.includes("regra de vida")
+        || nome.includes("silencio")
+        || nome.includes("prioridade")
+        || nome.includes("pratica")
+        || nome.includes("compromisso")
+    ) {
+        return {
+            id: "pratica",
+            indice: "04",
+            titulo: "Levar para o dia",
+            descricao: "Traduzir a meditação em uma decisão simples para a vida real."
+        };
+    }
+
+    return {
+        id: "continuidade",
+        indice: "•",
+        titulo: "Continuidade",
+        descricao: "Outros elementos que completam a meditação deste dia."
+    };
+}
+
+function renderizarSecoesAgrupadas(secoes = []) {
+    if (!secoes.length) {
+        return "";
+    }
+
+    const grupos = [];
+
+    secoes.forEach(secao => {
+        const grupo = grupoDaSecao(secao.titulo || "");
+        let destino = grupos.find(item => item.grupo.id === grupo.id);
+
+        if (!destino) {
+            destino = { grupo, secoes: [] };
+            grupos.push(destino);
+        }
+
+        destino.secoes.push(secao);
+    });
+
+    const ordem = ["preparacao", "palavra", "resposta", "pratica", "continuidade"];
+    grupos.sort((a, b) => ordem.indexOf(a.grupo.id) - ordem.indexOf(b.grupo.id));
+
+    return grupos.map(({ grupo, secoes: itens }) => `
+        <section class="meditacao-grupo meditacao-grupo--${escaparHTML(grupo.id)}">
+            <header class="meditacao-grupo__cabecalho">
+                <span class="meditacao-grupo__indice">${escaparHTML(grupo.indice)}</span>
+                <div>
+                    <p>${escaparHTML(grupo.titulo)}</p>
+                    <small>${escaparHTML(grupo.descricao)}</small>
+                </div>
+            </header>
+            <div class="meditacao-grupo__conteudo">
+                ${itens.map(renderizarSecao).join("")}
+            </div>
+        </section>
+    `).join("");
+}
+
+
+/* =========================================================
    METADADOS VISUAIS
    ========================================================= */
 
@@ -2177,7 +2288,7 @@ function renderizarMeditacao() {
     elementos.titulo.textContent =
         titulo;
 
-    elementos.conteudo.innerHTML =
+    const secoesVisiveis =
         estrutura.secoes
             .filter(secao => {
                 const titulo = normalizarTexto(secao.titulo || "");
@@ -2188,9 +2299,10 @@ function renderizarMeditacao() {
                     && !titulo.includes("my prayer in english")
                     && !titulo.includes("english prayer")
                     && !titulo.includes("oracao em ingles");
-            })
-            .map(renderizarSecao)
-            .join("");
+            });
+
+    elementos.conteudo.innerHTML =
+        renderizarSecoesAgrupadas(secoesVisiveis);
 
     carregarDestaquesPersistidos();
 

@@ -14,7 +14,7 @@
   <title>Meditação — Memory</title>
   <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
   <link rel="stylesheet" href="nucleo/style.css?v=20260803-50">
-  <link rel="stylesheet" href="modulos/meditacao/meditacao-jornada-v78.css?v=20260815-v78">
+  <link rel="stylesheet" href="modulos/meditacao/meditacao-jornada-v78-2.css?v=20260815-v78-2">
 </head>
 <body>
   <div class="app-shell">
@@ -33,7 +33,21 @@
     </header>
 
     <main class="app-main meditation-page meditation-page-v78">
-      <section id="meditation-journey" class="card meditation-journey" aria-live="polite"><p class="muted">Organizando sua jornada temática...</p></section>
+      <section class="meditation-view-switch" aria-label="Áreas da Meditação">
+        <div class="meditation-view-switch__tabs" role="tablist">
+          <button type="button" class="active" role="tab" aria-selected="true" data-meditation-view="day">Meditação do dia</button>
+          <button type="button" role="tab" aria-selected="false" data-meditation-view="journey">Minha jornada</button>
+        </div>
+        <span class="meditation-view-switch__hint">Leia o dia ou revisite os assuntos que já apareceram nas suas meditações.</span>
+      </section>
+
+      <section id="meditation-journey" class="card meditation-journey" aria-live="polite" hidden><p class="muted">Organizando sua jornada temática...</p></section>
+
+      <div id="meditation-day-view" class="meditation-day-view">
+      <div id="meditation-journey-return" class="meditation-journey-return" hidden>
+        <button id="meditation-journey-return-button" type="button">← Voltar para Minha Jornada</button>
+        <span id="meditation-journey-return-text"></span>
+      </div>
       <section id="meditation-consistency" class="card consistency"></section>
 
       <article class="devotional-book card">
@@ -109,16 +123,17 @@
         <button id="botao-hoje" class="btn primary">Hoje</button>
         <button id="botao-proximo" class="btn">Próxima →</button>
       </nav>
+      </div>
     </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/dados-app.js?v=20260806-abono1"></script>
-  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78.js?v=20260815-v78"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78.js?v=20260815-v78-2"></script>
   <script>MMCDShell('meditacao')</script>
   
-  <script src="nucleo/app.js?v=20260812-themes-v32"></script>
+  <script src="nucleo/app.js?v=20260815-v78-2"></script>
   <script src="modulos/meditacao/meditacao-random-v68.js?v=20260814-2355-v68"></script>
-  <script src="modulos/meditacao/meditacao-jornada-v78.js?v=20260815-v78"></script>
+  <script src="modulos/meditacao/meditacao-jornada-v78-2.js?v=20260815-v78-2"></script>
   <script src="modulos/meditacao/meditacao-consistencia.js?v=20260815-v78"></script>
 </body>
 </html>

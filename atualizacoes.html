@@ -12,6 +12,33 @@
 <body><div class="app-shell"><header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">Memory</span><span class="app-topbar__subtitle">Histórico de melhorias</span></div><button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button></div></header>
 <main class="app-main"><section class="page-header"><div><p class="eyebrow">Evolução do projeto</p><h1>O que mudou no Memory</h1><p class="muted">Cada pacote aplicado passa a deixar um registro aqui. Assim, a evolução do projeto fica rastreável sem depender das pastas de backup.</p></div></section>
 <section class="update-list">
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Correção técnica do instalador da V78.2</h2></div><span class="update-version">V78.2.1</span></div>
+<ul>
+<li><strong>Instalador corrigido:</strong> removido o escape incompatível que impedia o PowerShell de interpretar a validação da Jornada.</li>
+<li><strong>Pacote simplificado:</strong> o BAT passa a ficar diretamente na raiz do ZIP, sem uma segunda pasta V78.2 duplicada após a extração.</li>
+<li><strong>Mesmas melhorias funcionais:</strong> esta revisão já inclui integralmente a Meditação e a navegação previstas na V78.2; não é necessário aplicar a V78.2 anterior.</li>
+</ul></article>
+
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Meditação organizada por conteúdo e jornada revisada</h2></div><span class="update-version">V78.2</span></div>
+<ul>
+<li><strong>Agrupamento dentro da meditação:</strong> os títulos já existentes — como Água e Respiração, Tecnologia Sutil, Premissa Existencial, Versículo do Dia, Reflexão Profunda, Oração e Regra de Vida — agora são organizados em blocos de Preparação, Palavra e reflexão, Resposta a Deus e Levar para o dia, sem alterar o texto das meditações.</li>
+<li><strong>Jornada como subtópico:</strong> a jornada temática deixou de ocupar a abertura obrigatória da página e passou a ficar em uma aba própria dentro de Meditação.</li>
+<li><strong>Sem porcentagem incorreta:</strong> foram removidos os indicadores de “percorridas” e qualquer tentativa de inferir conclusão por outro módulo. Cada assunto agora mostra apenas quantas meditações publicadas pertencem a ele.</li>
+<li><strong>Histórico por assunto:</strong> ao abrir um tema, o Memory mostra as datas e um foco resumido de cada meditação para lembrar o que foi trabalhado naquele dia.</li>
+<li><strong>Ir ao dia e voltar:</strong> cada registro do histórico abre diretamente a meditação correspondente e exibe um botão “Voltar para Minha Jornada”.</li>
+<li><strong>Cuidado recolhível:</strong> o menu Cuidado pode ser fechado manualmente mesmo quando uma página do módulo está ativa; o duplo clique também força o recolhimento no desktop.</li>
+</ul></article>
+
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Correção da interação do Mapa de Cuidado</h2></div><span class="update-version">V78.1</span></div>
+<ul>
+<li><strong>Cards preservados:</strong> os seis cards de Espiritual, Corpo, Mente, Relacionamentos, Desenvolvimento e Memórias voltaram ao desenho e às posições anteriores do mapa.</li>
+<li><strong>Bola central dinâmica:</strong> ao passar o mouse, navegar pelo teclado ou tocar em um card, somente a bola no centro muda para representar aquela área.</li>
+<li><strong>Estado dentro do centro:</strong> a bola mostra a dimensão selecionada e o sinal recente — em dia, atenção ou pouca evidência — sem transformar os cards em símbolos soltos.</li>
+<li><strong>Relacionamentos:</strong> o coração central aparece preenchido quando os registros indicam presença recente e contornado quando a área merece atenção ou tem pouca evidência.</li>
+<li><strong>Detalhamento mantido:</strong> o painel lateral continua mostrando observações, evidências e próxima ação; nenhuma funcionalidade de cuidado foi removida.</li>
+<li><strong>Correção de escopo:</strong> esta versão corrige a interpretação visual da V78. A intenção era evoluir o elemento central, não substituir os cards do mapa.</li>
+</ul></article>
+
 <article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Experiência integrada do Memory</h2></div><span class="update-version">V78</span></div>
 <ul>
 <li><strong>Home adaptativa:</strong> a página raiz e a página de propósito preservam a identidade oficial do Memory e passam a recalcular superfícies, contraste, sombras, divisórias e destaques conforme o tema escolhido.</li>
@@ -44,5 +71,5 @@
 <li><strong>Padrão de atualização:</strong> as próximas melhorias serão entregues em pacote para extrair e executar um único BAT.</li>
 </ul><div class="update-rule"><strong>Regra do projeto:</strong> nenhuma melhoria entregue a partir desta versão deve ficar sem registro neste histórico.</div></article>
 </section></main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78.js?v=20260815-v78"></script><script>MMCDShell('configuracoes')</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v78.js?v=20260815-v78-2"></script><script>MMCDShell('configuracoes')</script>
 </body></html>

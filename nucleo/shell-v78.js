@@ -404,13 +404,13 @@ window.MMCDShell=async function(active){
  const careMenu=careGroup?.querySelector('#sidebar-care-menu');
  const setCareOpen=(next,{persist=true}={})=>{
   if(!careGroup||!careToggle||!careMenu)return;
-  // Dentro de Cuidado o submenu permanece aberto para preservar contexto.
-  const safe=careActive?true:Boolean(next);
+  // V78.2: a pagina ativa abre o grupo ao carregar, mas o usuario pode recolher manualmente.
+  const safe=Boolean(next);
   careGroup.classList.toggle('open',safe);
   careMenu.classList.toggle('open',safe);
   careMenu.hidden=!safe;
   careToggle.setAttribute('aria-expanded',safe?'true':'false');
-  if(persist&&!careActive)localStorage.setItem('memory:sidebar:care-open',safe?'1':'0');
+  if(persist)localStorage.setItem('memory:sidebar:care-open',safe?'1':'0');
  };
  if(careGroup&&careToggle&&careMenu){
   const saved=localStorage.getItem('memory:sidebar:care-open')==='1';
@@ -420,8 +420,12 @@ window.MMCDShell=async function(active){
     openMobileSubmenu(careMenu,'Cuidado');
     return;
    }
-   if(careActive){setCareOpen(true,{persist:false});return;}
    setCareOpen(!careGroup.classList.contains('open'));
+  });
+  careToggle.addEventListener('dblclick',(event)=>{
+   if(isMobileNav())return;
+   event.preventDefault();
+   setCareOpen(false);
   });
  }
  // MEMORY_CARE_NAV_V78_END

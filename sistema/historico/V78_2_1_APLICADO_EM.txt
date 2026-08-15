@@ -1,0 +1,5 @@
+﻿Memory V78.2.1 - Correcao do instalador da V78.2
+Aplicado em: 15/08/2026 11:50:41
+Site: C:\Users\andre\OneDrive\meu-momento-com-deus-site
+Backup externo: C:\Users\andre\AppData\Local\Memory\Backups\site_antes_V78_2_1_20260815_115039.zip
+Inclui todas as melhorias funcionais da V78.2 e corrige o parser do instalador.
