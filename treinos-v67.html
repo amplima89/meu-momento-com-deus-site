@@ -12,8 +12,8 @@
     } catch (_) {}
   </script>
   <title>Treinos — Memory</title>
-  <link rel="icon" href="memory-mark-v62.png?v=20260814-memory-v42" sizes="any">
-  <link rel="apple-touch-icon" href="memory-mark-v62.png?v=20260814-memory-v42">
+  <link rel="icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42" sizes="any">
+  <link rel="apple-touch-icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42">
 
   <script>
     // Compatibilidade com links antigos: cadastro nunca abre dentro de Treinos.
@@ -21,10 +21,10 @@
       history.replaceState(null, "", location.pathname + location.search + "#hoje");
     }
   </script>
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/painel.css?v=20260814-v59" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/painel.css?v=20260814-v59'+Date.now()">
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos.css?v=20260814-v59" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/treinos.css?retry='+Date.now()">
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos-rest-v62.css?v=20260814-v66">
-  <link rel="stylesheet" href="/meu-momento-com-deus-site/treinos-tecnica-v62.css?v=20260814-v66">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/nucleo/painel.css?v=20260814-v59" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/nucleo/painel.css?v=20260814-v59'+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/modulos/treinos/treinos.css?v=20260814-v59" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/modulos/treinos/treinos.css?retry='+Date.now()">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/modulos/treinos/treinos-rest-v62.css?v=20260814-v66">
+  <link rel="stylesheet" href="/meu-momento-com-deus-site/modulos/treinos/treinos-tecnica-v62.css?v=20260814-v66">
 
 <style>
 .integration-summary-list{display:grid;gap:8px;margin-top:14px}.integration-summary-row{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--surface-1) 76%,transparent 24%)}.integration-summary-row>span{font-size:20px}.integration-summary-row div{display:grid;gap:2px}.integration-summary-row strong{font-size:13px}.integration-summary-row small{color:var(--muted);font-size:11px}
@@ -114,16 +114,16 @@
     }
 
     try{
-      await loadScript("supabase-config.js");
-      await loadScript("supabase-client.js");
-      await loadScript("auth.js");
-      await loadScript("dados-app.js");
-      await loadScript("theme-system.js");
-      await loadScript("shell-v69.js");
+      await loadScript("nucleo/supabase-config.js");
+      await loadScript("nucleo/supabase-client.js");
+      await loadScript("nucleo/auth.js");
+      await loadScript("nucleo/dados-app.js");
+      await loadScript("nucleo/theme-system.js");
+      await loadScript("nucleo/shell-v69.js");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
-      await loadScript("treinos-data-v62.js");
-      await loadScript("treinos-visuais-v62.js");
-      await loadScript("treinos-v69.js");
+      await loadScript("modulos/treinos/treinos-data-v62.js");
+      await loadScript("modulos/treinos/treinos-visuais-v62.js");
+      await loadScript("modulos/treinos/treinos-v69.js");
     }catch(error){
       console.error("Falha ao iniciar Treinos:",error);
       const status=document.querySelector("#treino-save-status");

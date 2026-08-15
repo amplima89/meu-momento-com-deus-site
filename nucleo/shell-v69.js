@@ -9,7 +9,7 @@ window.MMCDShell=async function(active){
    return;
   }
   const script=document.createElement('script');
-  script.src='./memory-config-v68.js?v=20260814-2355-v68';
+  script.src='modulos/memory/memory-config-v68.js?v=20260814-2355-v68';
   script.dataset.memoryConfigV68='1';
   script.onload=()=>resolve(window.MemoryConfig||null);
   script.onerror=()=>resolve(null);
@@ -19,7 +19,7 @@ window.MMCDShell=async function(active){
  if(!document.querySelector('link[data-memory-original-v50]')){
   const css=document.createElement('link');
   css.rel='stylesheet';
-  css.href='./memory-original-v50.css?v=20260814-v50';
+  css.href='modulos/memory/memory-original-v50.css?v=20260814-v50';
   css.dataset.memoryOriginalV50='1';
   document.head.append(css);
  }
@@ -32,7 +32,7 @@ window.MMCDShell=async function(active){
     return;
    }
    const script=document.createElement('script');
-   script.src='./theme-system-v50.js?v=20260814-v50';
+   script.src='nucleo/theme-system-v50.js?v=20260814-v50';
    script.dataset.memoryThemeV50='1';
    script.onload=resolve;
    script.onerror=resolve;
@@ -53,7 +53,7 @@ window.MMCDShell=async function(active){
  const settingsActive=settingsKeys.includes(active);
  const mobileMemoryHtml=`
   <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""></span>
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-v62.png?v=20260814-v63" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -69,7 +69,7 @@ window.MMCDShell=async function(active){
   <aside class="sidebar sidebar-v24">
    <a class="sidebar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="./memory-mark-v62.png?v=20260814-v63" alt="Memory">
+     <img src="assets/imagens/memory-mark-v62.png?v=20260814-v63" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -262,7 +262,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-2355-v68" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',

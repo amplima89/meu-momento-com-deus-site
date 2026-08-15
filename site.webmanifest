@@ -10,7 +10,7 @@
   "theme_color": "#06152f",
   "icons": [
     {
-      "src": "memory-mark-v62.png",
+      "src": "assets/imagens/memory-mark-v62.png",
       "sizes": "900x900",
       "type": "image/png",
       "purpose": "any maskable"

@@ -1,19 +1,12 @@
-# Meu Momento com Deus — Site
+# Memory — estrutura do site
 
-Aplicação web do Memory, publicada no GitHub Pages.
+A partir da V77.2 a raiz contém apenas páginas públicas e arquivos essenciais.
 
-## Estrutura atual
-
-- Arquivos `.html`, `.css` e `.js` na raiz: runtime atual do site. Nesta etapa eles foram mantidos na raiz para preservar as referências relativas existentes.
+- `nucleo/`: autenticação, tema, Supabase, shell e estilos compartilhados.
+- `modulos/`: código separado por assunto (Bíblia, Inglês, Treinos, Memory, etc.).
+- `assets/imagens/`: imagens e identidade visual.
 - `dados/`: dados estáticos usados pelo site.
-- `configuracao-banco/`: scripts e instruções do Supabase.
-- `sistema/historico/`: changelog e relatórios técnicos que não fazem parte do runtime.
-- `ATUALIZAR_SITE.bat` / `ATUALIZAR_SITE.ps1`: publicação do site.
+- `configuracao-banco/`: scripts SQL e configuração do banco.
+- `sistema/`: histórico, documentação e publicação.
 
-## Histórico de melhorias
-
-A página `atualizacoes.html` registra as melhorias aplicadas ao projeto. A partir da V77, o histórico funcional deve ser mantido ali em vez de acumular cópias e backups na raiz.
-
-## Publicação
-
-Execute `ATUALIZAR_SITE.bat`. O script prepara os arquivos, cria o commit e envia a versão atual para o GitHub Pages.
+Os HTMLs públicos permanecem na raiz para preservar as URLs já usadas pelo site.
