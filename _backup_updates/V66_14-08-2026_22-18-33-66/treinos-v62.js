@@ -2507,26 +2507,33 @@
     return score;
   }
 
-  const WORKOUT_ACTIVITY_TYPES={
-    qualquer:{label:"Qualquer treino",icon:"🏃"},
-    musculacao:{label:"Musculação",icon:"🏋️"},
-    cardio:{label:"Cardio",icon:"🚴"},
-    futebol:{label:"Futebol",icon:"⚽"}
-  };
+  function activityMetaForWorkout(date=todayIso()) {
+    const data=state.atividadesData;
+    if(!data || !window.MMCD) return null;
+    const active=window.MMCD.metasNaData(data,date) || [];
 
-  function workoutIntegrationType(meta){
-    const saved=String(meta?.associacaoTreinoTipo||"").trim();
-    if(WORKOUT_ACTIVITY_TYPES[saved]) return saved;
-    const text=normalizeText(`${meta?.nome||""} ${meta?.descricao||""}`);
-    if(text.includes("cardio") || text.includes("bicicleta") || text.includes("bike") || text.includes("esteira")) return "cardio";
-    if(text.includes("futebol")) return "futebol";
-    if(text.includes("treino") || text.includes("muscul") || text.includes("academia") || text.includes("forca")) return "musculacao";
-    return "qualquer";
+    // V60 — a flag cadastrada na própria meta é a fonte principal da associação.
+    const flagged=active.find(meta=>meta?.associadaTreinoFisico===true);
+    if(flagged) return flagged;
+
+    // Mantém compatibilidade com a integração antiga do plano de treino.
+    const configured=String(state.plano?.programa?.atividadeMetaId||"").trim();
+    if(configured){
+      const exact=active.find(meta=>String(meta.id)===configured);
+      if(exact) return exact;
+    }
+    return active.map(meta=>({meta,score:scoreWorkoutActivity(meta)}))
+      .filter(x=>x.score>0)
+      .sort((a,b)=>b.score-a.score)[0]?.meta || null;
   }
 
-  function isCardioExercise(ex){
-    const text=normalizeText(`${ex?.id||""} ${ex?.nome||""} ${ex?.grupo||""} ${ex?.equipamento||""} ${ex?.observacao||""}`);
-    return text.includes("cardio") || text.includes("bike") || text.includes("bicicleta") || text.includes("esteira") || text.includes("ergometr") || text.includes("condicionamento");
+  function workoutExcuseInfo(date=todayIso()) {
+    if(!window.MMCD || !state.atividadesData) return null;
+    const meta=activityMetaForWorkout(date);
+    if(!meta) return null;
+    const row=window.MMCD.registro(state.atividadesData,date,meta.id);
+    if(!window.MMCD.estaAbonada(row)) return null;
+    return {meta,row,motivo:window.MMCD.motivoAbono(row)};
   }
 
   function workoutHadEffort(session) {
@@ -2536,114 +2543,18 @@
     return (session.exercicios||[]).some(ex=>(ex.series||[]).some(series=>series.concluida));
   }
 
-  function workoutEvidence(session){
-    const any=workoutHadEffort(session);
-    const exercises=session?.exercicios||[];
-    const cardio=session?.tipo==="cardio"
-      ? any
-      : exercises.some(ex=>isCardioExercise(ex) && exerciseDone(ex));
-    const musculacao=session?.tipo==="musculacao" && exercises.some(ex=>
-      !isCardioExercise(ex) && (ex.series||[]).some(series=>series.concluida)
-    );
-    const futebol=session?.tipo==="futebol" && (num(session.futebol?.duracao)>0 || (session.aquecimento||[]).some(x=>x.concluido));
-    return {qualquer:any,musculacao,cardio,futebol};
-  }
-
-  function metaMatchesWorkout(meta,session){
-    const evidence=workoutEvidence(session);
-    return Boolean(evidence[workoutIntegrationType(meta)]);
-  }
-
-  function activeActivityMetas(date=todayIso()){
-    const data=state.atividadesData;
-    if(!data || !window.MMCD) return [];
-    return window.MMCD.metasNaData(data,date) || [];
-  }
-
-  function linkedActivityMetasForWorkout(session){
-    if(!session) return [];
-    const active=activeActivityMetas(session.data);
-    const linkedActive=active.filter(meta=>meta?.associadaTreinoFisico===true);
-    if(linkedActive.length) return linkedActive.filter(meta=>metaMatchesWorkout(meta,session));
-
-    // Compatibilidade com integrações antigas enquanto o usuário não configura as novas flags.
-    const configured=String(state.plano?.programa?.atividadeMetaId||"").trim();
-    if(configured){
-      const exact=active.find(meta=>String(meta.id)===configured);
-      if(exact && workoutHadEffort(session)) return [exact];
-    }
-    const fallback=active.map(meta=>({meta,score:scoreWorkoutActivity(meta)}))
-      .filter(x=>x.score>0)
-      .sort((a,b)=>b.score-a.score)[0]?.meta;
-    return fallback && workoutHadEffort(session) ? [fallback] : [];
-  }
-
-  function primaryActivityMetasForWorkout(date=todayIso()){
-    const active=activeActivityMetas(date);
-    const workout=workoutForDate(date);
-    const type=String(workout?.tipo||"");
-    const linkedActive=active.filter(meta=>meta?.associadaTreinoFisico===true);
-    if(linkedActive.length){
-      return linkedActive.filter(meta=>{
-        const trigger=workoutIntegrationType(meta);
-        return trigger==="qualquer" || trigger===type;
-      });
-    }
-
-    const configured=String(state.plano?.programa?.atividadeMetaId||"").trim();
-    if(configured){
-      const exact=active.find(meta=>String(meta.id)===configured);
-      if(exact) return [exact];
-    }
-    const fallback=active.map(meta=>({meta,score:scoreWorkoutActivity(meta)}))
-      .filter(x=>x.score>0)
-      .sort((a,b)=>b.score-a.score)[0]?.meta;
-    return fallback?[fallback]:[];
-  }
-
-  function activityMetaForWorkout(date=todayIso()) {
-    return primaryActivityMetasForWorkout(date)[0] || null;
-  }
-
-  function workoutExcuseInfo(date=todayIso()) {
-    if(!window.MMCD || !state.atividadesData) return null;
-    const metas=primaryActivityMetasForWorkout(date);
-    for(const meta of metas){
-      const row=window.MMCD.registro(state.atividadesData,date,meta.id);
-      if(window.MMCD.estaAbonada(row)) return {meta,row,motivo:window.MMCD.motivoAbono(row)};
-    }
-    return null;
-  }
-
   async function markWorkoutActivity(session) {
-    if(!workoutHadEffort(session) || !window.MMCD || !state.atividadesData) return {ok:false,reason:"sem-integracao",metas:[],newlyMarked:[]};
-    const metas=linkedActivityMetasForWorkout(session);
-    if(!metas.length) return {ok:false,reason:"sem-meta",metas:[],newlyMarked:[]};
-
-    const newlyMarked=[];
-    const alreadyMarked=[];
-    for(const meta of metas){
-      const previous=window.MMCD.registro(state.atividadesData,session.data,meta.id);
-      if(previous?.concluida && !window.MMCD.estaAbonada(previous)){
-        alreadyMarked.push(meta);
-        continue;
-      }
-      window.MMCD.setRegistro(state.atividadesData,session.data,meta.id,{
-        concluida:true,abonada:false,valor:1,texto:"",observacao:previous?.observacao||"",origem:"treino"
-      });
-      state.atividadesData=await window.MMCD.salvarRegistroAtividade(state.atividadesData,session.data,meta.id);
-      window.dispatchEvent(new CustomEvent("mmcd:atividade-atualizada",{detail:{data:session.data,metaId:meta.id,origem:"treino"}}));
-      newlyMarked.push(meta);
-    }
-    return {ok:true,meta:metas[0],metas,newlyMarked,alreadyMarked,already:newlyMarked.length===0};
-  }
-
-  function workoutActivityUpdateText(activity){
-    const names=(activity?.newlyMarked||[]).map(meta=>meta.nome).filter(Boolean);
-    if(!names.length) return "";
-    if(names.length===1) return `${names[0]} atualizada a partir do treino de hoje.`;
-    if(names.length===2) return `${names[0]} e ${names[1]} atualizadas a partir do treino de hoje.`;
-    return `${names.slice(0,-1).join(", ")} e ${names.at(-1)} atualizadas a partir do treino de hoje.`;
+    if(!workoutHadEffort(session) || !window.MMCD || !state.atividadesData) return {ok:false,reason:"sem-integracao"};
+    const meta=activityMetaForWorkout(session.data);
+    if(!meta) return {ok:false,reason:"sem-meta"};
+    const previous=window.MMCD.registro(state.atividadesData,session.data,meta.id);
+    if(previous?.concluida && !window.MMCD.estaAbonada(previous)) return {ok:true,already:true,meta};
+    window.MMCD.setRegistro(state.atividadesData,session.data,meta.id,{
+      concluida:true,abonada:false,valor:1,texto:"",observacao:previous?.observacao||"",origem:"treino"
+    });
+    state.atividadesData=await window.MMCD.salvarRegistroAtividade(state.atividadesData,session.data,meta.id);
+    window.dispatchEvent(new CustomEvent("mmcd:atividade-atualizada",{detail:{data:session.data,metaId:meta.id,origem:"treino"}}));
+    return {ok:true,meta};
   }
 
   async function reconcileWorkoutLifecycleByDate() {
@@ -2689,7 +2600,7 @@
     try{
       const activity=await markWorkoutActivity(session);
       if(activity.ok && !activity.already){
-        MMCDUI?.toast?.(workoutActivityUpdateText(activity),3600);
+        MMCDUI?.toast?.(`${activity.meta.nome} atualizada a partir do treino de hoje.`,3200);
       }
     }catch(error){
       console.warn("Treinos: não foi possível reconciliar a atividade do treino finalizado.",error);
@@ -2773,8 +2684,8 @@
 
     try{
       const activity=await markWorkoutActivity(session);
-      if(activity.ok && !activity.already) MMCDUI?.toast?.(`Treino concluído · ${workoutActivityUpdateText(activity)}`,4200);
-      else if(activity.reason==="sem-meta") MMCDUI?.toast?.("Treino concluído. Configure em Metas quais atividades devem ser atualizadas pelos seus treinos.",4200);
+      if(activity.ok && !activity.already) MMCDUI?.toast?.(`Treino concluído · ${activity.meta.nome} marcada automaticamente.`);
+      else if(activity.reason==="sem-meta") MMCDUI?.toast?.("Treino concluído. Marque em Metas qual atividade representa seus treinos físicos.",4200);
     }catch(error){
       console.error("Treinos: falha ao atualizar a atividade diária.",error);
       MMCDUI?.toast?.("Treino concluído, mas não consegui atualizar a atividade física.",4200);
@@ -3078,21 +2989,19 @@
 
   function activityIntegrationHtml() {
     const metas=state.atividadesData?.metas || [];
+    const configured=String(state.plano?.programa?.atividadeMetaId||"");
+    const detected=activityMetaForWorkout(todayIso());
     if(!metas.length){
       return `<article class="card settings-block"><div class="section-head"><div><p class="eyebrow">Integração</p><h2>Treino → Atividades</h2></div></div><p class="muted">As atividades diárias não puderam ser carregadas agora. O treino continua funcionando normalmente.</p></article>`;
     }
-    const linked=metas.filter(meta=>meta?.associadaTreinoFisico===true)
-      .sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||""),"pt-BR"));
-    const rows=linked.length?linked.map(meta=>{
-      const type=workoutIntegrationType(meta);
-      const info=WORKOUT_ACTIVITY_TYPES[type]||WORKOUT_ACTIVITY_TYPES.qualquer;
-      return `<div class="integration-summary-row"><span>${info.icon}</span><div><strong>${esc(meta.nome)}</strong><small>${esc(info.label)} · respeita os dias programados da meta</small></div></div>`;
-    }).join(""):`<div class="empty">Nenhuma meta integrada ainda.</div>`;
+    const options=metas.slice().sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||""),"pt-BR")).map(meta=>`<option value="${esc(meta.id)}" ${configured===String(meta.id)?"selected":""}>${esc(meta.nome)}</option>`).join("");
     return `<article class="card settings-block">
-      <div class="section-head"><div><p class="eyebrow">Integração automática</p><h2>Treino → Atividades</h2><p class="muted">Agora você pode vincular várias metas. Por exemplo: Treino → Musculação e Cardio → Cardio realizado. Cada uma só é marcada quando o gatilho correspondente realmente acontecer.</p></div></div>
-      <div class="integration-summary-list">${rows}</div>
-      <div class="settings-hint">A configuração é feita em <strong>Configurações → Metas</strong>, dentro de cada meta.</div>
-      <div class="settings-actions"><a class="btn primary" href="metas.html">Abrir Metas</a></div>
+      <div class="section-head"><div><p class="eyebrow">Integração automática</p><h2>Treino → Atividades</h2><p class="muted">A associação principal agora é feita no cadastro da própria meta. Marque “Associar esta meta aos treinos de atividade física” em Configurações → Metas.</p></div></div>
+      <div class="settings-grid">
+        <label class="field full"><span>Indicador de atividade</span><select data-plan-field="atividadeMetaId"><option value="" ${!configured?"selected":""}>Detectar automaticamente${detected?` — ${esc(detected.nome)}`:""}</option>${options}</select></label>
+      </div>
+      <div class="settings-hint">${detected?`Atividade física associada: <strong>${esc(detected.nome)}</strong>.` : "Nenhuma meta de atividade física está associada. Vá em Configurações → Metas e marque a flag de integração."}</div>
+      <div class="settings-actions"><button class="btn primary" data-action="save-plan">Salvar integração</button></div>
     </article>`;
   }
 
