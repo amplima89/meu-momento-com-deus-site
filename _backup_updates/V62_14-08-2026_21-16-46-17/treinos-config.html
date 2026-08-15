@@ -39,7 +39,7 @@
           <h1>Plano de treino</h1>
           <p class="muted">Programa, período e composição dos treinos.</p>
         </div>
-        <a class="btn" href="treinos-v62.html#hoje">Abrir Treinos</a>
+        <a class="btn" href="treinos-v61.html#hoje">Abrir Treinos</a>
       </section>
             <section class="card" style="margin-bottom:16px;padding:18px">
         <div class="section-head">
@@ -70,7 +70,7 @@
   <script>
   (async function(){
     const BASE='/meu-momento-com-deus-site/';
-    const VERSION="20260814-v62-load-logo-fix";
+    const VERSION='20260814-v61-nav-book-days';
 
     function loadScript(file){
       return new Promise((resolve,reject)=>{
@@ -95,11 +95,11 @@
       await loadScript("auth.js");
       await loadScript("dados-app.js");
       await loadScript("theme-system.js");
-      await loadScript("shell-v62.js");
+      await loadScript("shell.js");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
-      await loadScript("treinos-data-v62.js");
-      await loadScript("treinos-visuais-v62.js");
-      await loadScript("treinos-v62.js");
+      await loadScript("treinos-data-v55.js");
+      await loadScript("treinos-visuais-v55.js");
+      await loadScript("treinos-v61.js");
     }catch(error){
       console.error("Falha ao iniciar Treinos:",error);
       const status=document.querySelector("#treino-save-status");
