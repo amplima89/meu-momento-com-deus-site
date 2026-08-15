@@ -38,6 +38,7 @@
     $('#goal-name').value=m?.nome||'';
     $('#goal-category').value=m?.categoria||'';
     $('#goal-icon').value=m?.icone||'✓';
+    $('#goal-color').value=m?.cor||'#2563eb';
     $('#goal-type').value=m?.tipo||'check';
     $('#goal-frequency').value=m?.frequencia||'diaria';
     $('#goal-description').value=m?.descricao||'';
@@ -126,7 +127,7 @@
       const levelDetails=levelsText(m);
       return `<article class="goal-item ${m.ativa?'':'inactive'}">
         <div class="goal-main-cell" data-label="Meta">
-          <span class="goal-icon memory-goal-icon">${MMCDUI.esc(m.icone)}</span>
+          <span class="goal-icon" style="color:${m.cor};background:${m.cor}14">${MMCDUI.esc(m.icone)}</span>
           <div class="goal-info">
             <strong>${MMCDUI.esc(m.nome)}</strong>
             ${m.descricao?`<p>${MMCDUI.esc(m.descricao)}</p>`:'<p class="goal-empty-description">Sem descrição</p>'}
@@ -203,6 +204,7 @@
       nome:$('#goal-name').value.trim(),
       categoria:$('#goal-category').value.trim(),
       icone:$('#goal-icon').value.trim()||'✓',
+      cor:$('#goal-color').value,
       tipo:$('#goal-type').value,
       frequencia:$('#goal-frequency').value,
       nivelInglesPorDia,
