@@ -594,20 +594,16 @@ window.MMCDShell=async function(active){
  }));
  document.addEventListener('click',event=>{if(fontPanel&&!fontPanel.hidden&&!event.target.closest('.memory-font-tool'))closeFont()});
 
- const NEWS_ID='memory-update-2026-08-15-0021';
+ const NEWS_ID='memory-update-2026-08-14-2355';
  const NEWS_ITEMS=[
-  'Novo modelo Semanal flexível: a atividade fica disponível durante a semana e você escolhe em qual dia cumprir.',
-  'Metas semanais com quantidade: o Memory mostra 0/2, 1/2, 2/2 e só considera falha depois que o domingo termina.',
-  'Atividades semanais agora distinguem Pendente, Parcial, Concluída e Não concluída sem antecipar um fracasso que ainda pode ser recuperado.',
-  'Conversa do dia em Inglês agora recebe avaliação com Gramática, Vocabulário, Naturalidade, Construção e Clareza.',
-  'Conversas já concluídas e ainda sem correção são avaliadas ao abrir novamente, e a nota passa a alimentar a Evolução do Inglês.'
- ];
- const NEWS_PREVIOUS_ITEMS=[
   'Central de Configurações: as opções saíram do submenu apertado da lateral e ganharam uma página própria.',
   'Novo controle global de tamanho do texto com opções Padrão, Grande e Extra grande.',
   'Cadastro de aniversários importantes, com lembrete automático em Atividades > Cuidado e card dinâmico em Missões.',
   'Cadastro de links da meditação com ativação/desativação e escolha aleatória entre os conteúdos ativos.',
-  'Títulos das abas foram simplificados e o painel de novidades passou a marcar automaticamente o que já foi visualizado.'
+  'Novo painel de novidades: ao abrir, o aviso é considerado visualizado e o indicador desaparece.',
+  'Títulos das abas foram simplificados para não repetir “Memory” ou “Configurações”.',
+  'Treinos e metas seguem com vínculo automático: as metas marcadas podem ser concluídas quando a musculação do dia é realizada.',
+  'Treinos mantêm alarme de descanso, som/vibração, BI-SET (conjugado), técnica detalhada e continuidade do treino até o fim do dia.'
  ];
  const newsButton=document.querySelector('.memory-news-btn');
  const newsDot=document.querySelector('.memory-news-dot');
@@ -636,12 +632,8 @@ window.MMCDShell=async function(active){
     </div>
     <div class="memory-news-history">
      <article class="memory-news-entry">
-      <div class="memory-news-date"><span>✨</span><span>15/08/2026</span></div>
+      <div class="memory-news-date"><span>✨</span><span>14/08/2026</span></div>
       <ul>${NEWS_ITEMS.map(item=>`<li>${window.MMCDUI?.esc?.(item)||item}</li>`).join('')}</ul>
-     </article>
-     <article class="memory-news-entry">
-      <div class="memory-news-date"><span>•</span><span>14/08/2026</span></div>
-      <ul>${NEWS_PREVIOUS_ITEMS.map(item=>`<li>${window.MMCDUI?.esc?.(item)||item}</li>`).join('')}</ul>
      </article>
     </div>
    </aside>`;

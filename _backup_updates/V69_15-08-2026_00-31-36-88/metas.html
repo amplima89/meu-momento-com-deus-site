@@ -15,7 +15,6 @@
   <link rel="stylesheet" href="painel.css?v=20260812-themes-v32">
   <link rel="stylesheet" href="metas.css?v=20260807-final1">
   <link rel="stylesheet" href="metas-v67.css?v=20260814-v67">
-  <link rel="stylesheet" href="metas-v69.css?v=20260815-v69">
 </head>
 <body>
   <div class="app-shell">
@@ -59,7 +58,6 @@
             <label class="field"><span>Ícone</span><input id="goal-icon" value="✓"></label>
             <label class="field"><span>Tipo</span><select id="goal-type"><option value="check">Concluir</option><option value="valor">Registrar valor</option></select></label>
             <label class="field"><span>Frequência</span><select id="goal-frequency"><option value="diaria">Diária</option><option value="semanal">Semanal</option><option value="mensal">Mensal</option><option value="anual">Anual</option></select></label>
-            <label class="field"><span>Como concluir</span><select id="goal-schedule-mode"><option value="dias">Em dias específicos</option><option value="semanal_flexivel">Em qualquer dia da semana</option></select></label>
           </div>
 
           <label class="field"><span>Descrição</span><textarea id="goal-description" placeholder="Qual é o objetivo desta meta?"></textarea></label>
@@ -84,15 +82,10 @@
             </div>
           </section>
 
-          <div id="fixed-days-card">
+          <div>
             <span class="field-label">Dias programados</span>
             <div id="weekdays" class="weekday-picker"></div>
           </div>
-
-          <section id="weekly-flex-info" class="weekly-flex-info" hidden>
-            <span class="weekly-flex-info__icon" aria-hidden="true">↻</span>
-            <div><strong>Meta semanal flexível</strong><p>Ela aparece em Atividades durante a semana até você atingir a quantidade. Antes de domingo, o Memory nunca trata a meta como não concluída. Ao encerrar a semana, registra 100%, parcial ou não concluída.</p></div>
-          </section>
 
           <section id="english-levels-card" class="english-levels-card" hidden>
             <div>
@@ -105,7 +98,7 @@
           <div class="grid grid-3">
             <label class="field"><span>Início da vigência</span><input id="goal-start" type="date" required></label>
             <label class="field"><span>Fim da vigência</span><input id="goal-end" type="date"></label>
-            <label class="field"><span id="goal-quantity-label">Quantidade</span><input id="goal-quantity" type="number" min="1" value="1"></label>
+            <label class="field"><span>Quantidade</span><input id="goal-quantity" type="number" min="1" value="1"></label>
           </div>
 
           <div class="grid grid-2">
@@ -164,8 +157,8 @@
   <script src="supabase-client.js?v=20260803-50"></script>
   <script src="auth.js?v=20260814-memory-v42"></script>
   <script src="dados-app.js?v=20260806-abono1"></script>
-  <script src="theme-system.js?v=20260814-memory-v42"></script><script src="shell-v69.js?v=20260815-v69"></script>
+  <script src="theme-system.js?v=20260814-memory-v42"></script><script src="shell-v68.js?v=20260814-2355-v68"></script>
   <script>MMCDShell('metas')</script>
-  <script src="metas-v69.js?v=20260815-v69"></script>
+  <script src="metas-v67.js?v=20260814-v67"></script>
 </body>
 </html>
