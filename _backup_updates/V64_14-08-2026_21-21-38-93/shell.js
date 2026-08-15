@@ -39,8 +39,8 @@ window.MMCDShell=async function(active){
  const storedSettingsOpen=localStorage.getItem('mmcd:sidebar:settings-open');
  const settingsOpen=settingsActive||settingsWorkout||storedSettingsOpen==='1';
  const mobileMemoryHtml=`
-  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-v63" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""></span>
+  <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260814-v62" aria-label="Abrir Memory">
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="./memory-mark-v62.png?v=20260814-v62" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -54,9 +54,9 @@ window.MMCDShell=async function(active){
   </a>`).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
-   <a class="sidebar-brand" href="memory.html?v=20260814-v63" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
+   <a class="sidebar-brand" href="memory.html?v=20260814-v62" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="./memory-mark-v62.png?v=20260814-v63" alt="Memory">
+     <img src="./memory-mark-v62.png?v=20260814-v62" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -151,127 +151,61 @@ window.MMCDShell=async function(active){
  document.body.insertAdjacentHTML('afterbegin',sidebarHtml);
  document.body.classList.add('app-body');
 
- // V63 — isolamento forte de gestos no mobile.
- // A navegacao so pode acontecer se o MESMO gesto tiver comecado e terminado
- // no proprio item de menu. Cliques sinteticos/"ghost clicks" gerados depois
- // de tocar em botoes, inputs, selects, labels ou controles das Configuracoes
- // nao recebem autorizacao para navegar.
- if(!window.__memoryMobileNavGuardV63Installed){
-  window.__memoryMobileNavGuardV63Installed=true;
+ // V52 — proteção global contra ghost click no mobile.
+ // Em iOS/Safari, um toque em controles próximos da navegação fixa pode gerar
+ // um segundo click depois que a tela foi redesenhada. Esse click não pode
+ // virar navegação para outro módulo. A navegação só é liberada quando o
+ // próprio gesto começou dentro do item de menu escolhido.
+ if(!window.__memoryMobileNavGuardInstalled){
+  window.__memoryMobileNavGuardInstalled=true;
+  let guardUntil=0;
+  let navGestureTarget=null;
   const mobileGuardActive=()=>window.matchMedia?.('(max-width:760px)').matches;
   const navControl=target=>target?.closest?.('.sidebar a[href],.sidebar button,.mobile-subnav-layer a[href],.mobile-subnav-layer button');
   const appContent=target=>target?.closest?.('.app-main,main,.app-topbar');
-  let gesture=null;
-  let sequence=0;
-
-  const pointFromEvent=event=>{
-   const touch=event.changedTouches?.[0]||event.touches?.[0];
-   return {
-    x:Number(touch?.clientX ?? event.clientX ?? 0),
-    y:Number(touch?.clientY ?? event.clientY ?? 0)
-   };
-  };
-  const hitNav=(x,y)=>{
-   try{return navControl(document.elementFromPoint(x,y));}catch(_){return null;}
-  };
-  const clearTokens=()=>{
-   document.querySelectorAll('[data-memory-nav-token]').forEach(el=>{
-    delete el.dataset.memoryNavToken;
-    delete el.dataset.memoryNavTokenUntil;
-   });
-  };
-  const beginGesture=event=>{
+  const armGuard=(ms=1100)=>{if(mobileGuardActive())guardUntil=Date.now()+ms};
+  const startGesture=event=>{
    if(!mobileGuardActive())return;
-   const point=pointFromEvent(event);
    const nav=navControl(event.target);
-   sequence+=1;
-   gesture={
-    id:String(sequence),
-    origin:nav?'nav':'content',
-    nav:nav||null,
-    startX:point.x,
-    startY:point.y,
-    startedAt:Date.now()
-   };
-   if(!nav) clearTokens();
-  };
-  const endGesture=event=>{
-   if(!mobileGuardActive()||!gesture)return;
-   const current=gesture;
-   const point=pointFromEvent(event);
-   const dx=point.x-current.startX;
-   const dy=point.y-current.startY;
-   const moved=Math.hypot(dx,dy);
-   const elapsed=Date.now()-current.startedAt;
-   if(current.origin==='nav'&&current.nav){
-    const endedOn=hitNav(point.x,point.y)||navControl(event.target);
-    if(endedOn===current.nav&&moved<=28&&elapsed<=1400){
-     clearTokens();
-     current.nav.dataset.memoryNavToken=current.id;
-     current.nav.dataset.memoryNavTokenUntil=String(Date.now()+1000);
-    }else{
-     clearTokens();
-    }
-   }else{
-    // Gesto nasceu no conteudo. Mesmo que a tela mude debaixo do dedo,
-    // nenhum item da navegacao recebe permissao para usar esse toque.
-    clearTokens();
+   if(nav){
+    navGestureTarget=nav;
+    guardUntil=0;
+    return;
    }
-   gesture=null;
+   navGestureTarget=null;
+   if(appContent(event.target))armGuard();
   };
-  const cancelGesture=()=>{gesture=null;clearTokens();};
-
-  if(window.PointerEvent){
-   document.addEventListener('pointerdown',beginGesture,{capture:true,passive:true});
-   document.addEventListener('pointerup',endGesture,{capture:true,passive:true});
-   document.addEventListener('pointercancel',cancelGesture,{capture:true,passive:true});
-  }else{
-   document.addEventListener('touchstart',beginGesture,{capture:true,passive:true});
-   document.addEventListener('touchend',endGesture,{capture:true,passive:true});
-   document.addEventListener('touchcancel',cancelGesture,{capture:true,passive:true});
-  }
-
+  document.addEventListener('pointerdown',startGesture,{capture:true,passive:true});
+  document.addEventListener('touchstart',startGesture,{capture:true,passive:true});
   document.addEventListener('click',event=>{
    if(!mobileGuardActive())return;
    const nav=navControl(event.target);
-   if(!nav){
-    if(appContent(event.target)) clearTokens();
-    return;
-   }
-   const token=nav.dataset.memoryNavToken;
-   const until=Number(nav.dataset.memoryNavTokenUntil||0);
-   const authorized=Boolean(token)&&Date.now()<=until;
-   if(!authorized){
+   if(!nav)return;
+   const intentional=navGestureTarget===nav;
+   if(Date.now()<guardUntil&&!intentional){
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation?.();
+    guardUntil=0;
+    navGestureTarget=null;
     return;
    }
-   clearTokens();
+   guardUntil=0;
+   navGestureTarget=null;
   },true);
+  window.MMCDMobileNavGuard={arm:armGuard};
 
-  window.MMCDMobileNavGuard={
-   arm:()=>clearTokens(),
-   cancel:cancelGesture,
-   version:'v63'
-  };
-
-  if(!document.querySelector('#memory-mobile-guard-v63-style')){
+  if(!document.querySelector('#memory-mobile-guard-v52-style')){
    const style=document.createElement('style');
-   style.id='memory-mobile-guard-v63-style';
+   style.id='memory-mobile-guard-v52-style';
    style.textContent=`@media(max-width:760px){
-    .app-main button,.app-main input,.app-main select,.app-main textarea,.app-main label,.app-main a,
-    .app-main [role="button"],.app-main [data-action],.app-topbar button,.app-topbar a{
-     touch-action:manipulation;
-     -webkit-tap-highlight-color:transparent;
-    }
-    .sidebar-nav{touch-action:pan-x;overscroll-behavior-x:contain}
-    .sidebar-link,.sidebar-subnav__link,.mobile-subnav-layer a,.mobile-subnav-layer button{touch-action:manipulation}
+    .app-main button,.app-main input,.app-main select,.app-main textarea,.app-main label,.app-main a,.app-topbar button,.app-topbar a{touch-action:manipulation}
+    .sidebar-nav{touch-action:pan-x}
    }`;
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-v63" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260814-v63" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260814-v62" aria-label="Abrir Memory"><img src="./memory-mark-v62.png?v=20260814-v62" alt=""><span>Memory</span></a>'});
  document.title=document.title.replace(/Life Style/gi,'Memory').replace(/Meu Momento com Deus$/i,'Memory');
 
  // Recarrega a identidade visual sem depender do cache antigo do navegador/PWA.
