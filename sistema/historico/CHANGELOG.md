@@ -257,3 +257,19 @@
 - Seta independente expande/recolhe o submenu.
 - Estado aberto/fechado persiste no localStorage.
 - Mobile usa a seta para abrir a lista de itens de Cuidado.
+
+
+## V80.7 — 16/08/2026
+- Inglês diário reduzido a três pilares: Conversa, Leitura e Prática.
+- Produza e Série/Filme removidos da rotina diária.
+- Nova prática estruturada persistida em `ingles_pratica_v2`.
+- Currículo inicial baseado nos tópicos da apostila: Class 2C, 2D, 4A, 4B, 4C, 4D e 5A–5D.
+- Banco diário de verbos com base, passado e significado.
+- Relatório de evolução alinhado aos três pilares + consistência.
+
+
+## V80.7.1 — 16/08/2026
+- Corrigido o instalador da V80.7.
+- O helper `R` colidia com o alias nativo `R`/`Invoke-History` do PowerShell.
+- Helpers renomeados para `ReadUtf8` e `WriteUtf8`.
+- Nenhuma mudança funcional foi retirada da proposta de Inglês da V80.7.
