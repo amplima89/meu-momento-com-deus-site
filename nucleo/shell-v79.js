@@ -50,7 +50,7 @@ window.MMCDShell=async function(active){
  const nav=[
   ['missoes','painel.html','01','🎯','Missões','Visão da vida','Missões'],
   ['atividades','atividades.html','02','✅','Atividades','Rotina diária','Atividades'],
-  ['meditacao','meditacao.html','03','🙏','Meditação','Momento com Deus','Meditação'],
+  ['meditacao','meditacao.html','03','🙏','Devocional','Momento com Deus','Devocional'],
   ['biblia','biblia.html','04','📖','Bíblia','Leitura e anotações','Bíblia'],
   ['ingles','ingles.html','05','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
   ['treinos','treinos.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
@@ -290,7 +290,7 @@ window.MMCDShell=async function(active){
   memory:'Memory',
   missoes:'Memory - Missões',
   atividades:'Memory - Atividades',
-  meditacao:'Memory - Meditação',
+  meditacao:'Memory - Devocional',
   biblia:'Memory - Bíblia',
   'biblia-mapa':'Memory - Mapa da Bíblia',
   ingles:'Memory - Inglês diário',
@@ -306,7 +306,7 @@ window.MMCDShell=async function(active){
   'treinos-config':'Memory - Plano de treino',
   series:'Memory - Séries & filmes',
   aniversarios:'Memory - Aniversários',
-  'meditacao-links':'Memory - Links da meditação',
+  'meditacao-links':'Memory - Links da devocional',
   'arvore-da-vida':'Memory - Mapa de Cuidado',
   'mapa-cuidado':'Memory - Mapa de Cuidado',
   oracoes:'Memory - Minhas Orações',
@@ -679,14 +679,14 @@ window.MMCDShell=async function(active){
   'O seletor de data do Plano Semanal foi ampliado e ficou responsivo para saltar diretamente à data e semana desejadas.',
   'Atividades abonadas passam a usar estado verde explícito, não aparecem como pendentes e continuam fora do denominador da consistência.',
   'Temas claro e rosa receberam contraste e profundidade maiores; Home, cards, sidebar, divisórias, botões e campos preservam melhor a identidade do Memory.',
-  'Consistência, Peso/Meta e Última meditação foram refinados como uma mesma família visual de indicadores.',
-  'Cuidado, Mapa de Cuidado, Jornada de Meditação, Modo Presença e Aniversariantes mantêm as melhorias consolidadas das versões anteriores.'
+  'Consistência, Peso/Meta e Última devocional foram refinados como uma mesma família visual de indicadores.',
+  'Cuidado, Mapa de Cuidado, Jornada de Devocional, Modo Presença e Aniversariantes mantêm as melhorias consolidadas das versões anteriores.'
  ];
  const NEWS_PREVIOUS_ITEMS=[
   'Central de Configurações: as opções saíram do submenu apertado da lateral e ganharam uma página própria.',
   'Novo controle global de tamanho do texto com opções Padrão, Grande e Extra grande.',
   'Cadastro de aniversários importantes, com lembrete automático em Atividades > Cuidado e card dinâmico em Missões.',
-  'Cadastro de links da meditação com ativação/desativação e escolha aleatória entre os conteúdos ativos.',
+  'Cadastro de links da devocional com ativação/desativação e escolha aleatória entre os conteúdos ativos.',
   'Títulos das abas foram simplificados e o painel de novidades passou a marcar automaticamente o que já foi visualizado.'
  ];
  const newsButton=document.querySelector('.memory-news-btn');

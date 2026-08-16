@@ -479,7 +479,7 @@ window.MMCD = (() => {
       .eq("chave", chave)
       .maybeSingle();
 
-    if (error) fail(error, "Falha ao carregar os destaques da meditação");
+    if (error) fail(error, "Falha ao carregar os destaques da devocional");
 
     if (!data) return null;
 
@@ -497,7 +497,7 @@ window.MMCD = (() => {
       valor: { destaques, atualizadoEm: new Date().toISOString() }
     }, { onConflict: "user_id,chave" });
 
-    if (error) fail(error, "Falha ao salvar os destaques da meditação");
+    if (error) fail(error, "Falha ao salvar os destaques da devocional");
     return destaques;
   }
 

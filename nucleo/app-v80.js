@@ -636,7 +636,7 @@ function renderizarSecao(secao) {
 
 
 /* =========================================================
-   AGRUPAMENTO VISUAL DA MEDITAÇÃO — V78.2
+   AGRUPAMENTO VISUAL DA DEVOCIONAL — V78.2
    ========================================================= */
 
 function grupoDaSecao(titulo = "") {
@@ -666,7 +666,7 @@ function grupoDaSecao(titulo = "") {
             id: "palavra",
             indice: "02",
             titulo: "Palavra e reflexão",
-            descricao: "Ler, compreender e aprofundar a verdade que sustenta a meditação."
+            descricao: "Ler, compreender e aprofundar a verdade que sustenta a devocional."
         };
     }
 
@@ -695,7 +695,7 @@ function grupoDaSecao(titulo = "") {
             id: "pratica",
             indice: "04",
             titulo: "Levar para o dia",
-            descricao: "Traduzir a meditação em uma decisão simples para a vida real."
+            descricao: "Traduzir a devocional em uma decisão simples para a vida real."
         };
     }
 
@@ -703,7 +703,7 @@ function grupoDaSecao(titulo = "") {
         id: "continuidade",
         indice: "•",
         titulo: "Complementos",
-        descricao: "Conteúdos adicionais da meditação de hoje que não fazem parte das quatro etapas principais."
+        descricao: "Conteúdos adicionais da devocional de hoje que não fazem parte das quatro etapas principais."
     };
 }
 
@@ -1896,7 +1896,7 @@ async function marcarSelecao(
     ) {
         if (!silencioso) {
             window.MMCDUI?.toast?.(
-                "Selecione primeiro uma palavra ou frase da meditação."
+                "Selecione primeiro uma palavra ou frase da devocional."
             );
         }
         return false;
@@ -1920,7 +1920,7 @@ async function marcarSelecao(
     ) {
         if (!silencioso) {
             window.MMCDUI?.toast?.(
-                "Selecione um trecho do texto da meditação."
+                "Selecione um trecho do texto da devocional."
             );
         }
         return false;
@@ -2048,7 +2048,7 @@ async function limparMarcacoes() {
 
     if (
         !window.confirm(
-            "Remover todos os destaques amarelos desta meditação?"
+            "Remover todos os destaques amarelos desta devocional?"
         )
     ) {
         return;
@@ -2146,7 +2146,7 @@ function indiceInicial() {
     }
 
     /*
-     * Abre a meditação mais recente
+     * Abre a devocional mais recente
      * anterior à data atual.
      */
 
@@ -2243,7 +2243,7 @@ function renderizarVazio() {
 
     elementos.conteudo.innerHTML = `
         <p class="estado-vazio">
-            Nenhuma meditação válida foi encontrada.
+            Nenhuma devocional válida foi encontrada.
             Execute novamente o gerador de dados do livro.
         </p>
     `;
@@ -2606,7 +2606,7 @@ try {
 
     elementos.conteudo.innerHTML = `
         <p class="estado-vazio">
-            Não foi possível interpretar esta meditação.
+            Não foi possível interpretar esta devocional.
             Consulte o console do navegador pressionando F12.
         </p>
     `;

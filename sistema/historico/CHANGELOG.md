@@ -207,3 +207,12 @@
 - A meditação passa a ter apenas Preparação, Palavra e reflexão, Resposta a Deus e Levar para o dia.
 - Cercas ` ```markdown `, ` ```md ` e ` ``` ` são eliminadas da renderização.
 - Seções legítimas não reconhecidas continuam visíveis sem criar um grupo artificial.
+
+
+## V80.3 — 16/08/2026
+- Terminologia visual passa de Meditação para Devocional.
+- Identificadores técnicos `meditacao` são preservados.
+- Card lê a paleta do tema ativo via variáveis CSS.
+- Logo oficial V80.1 usada no preview e PNG.
+- Removidos “Jornada / Com Deus” e “Feito / Hoje”.
+- Novos selos: “Devocional concluído” e “Guardado no Memory”.

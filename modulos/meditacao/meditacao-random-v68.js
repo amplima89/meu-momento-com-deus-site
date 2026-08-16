@@ -77,7 +77,7 @@
         picksState.porData[date]=chosen.id;
         const ordered=Object.keys(picksState.porData).sort().slice(-120);
         picksState.porData=Object.fromEntries(ordered.map(key=>[key,picksState.porData[key]]));
-        config.write(PICK_KEY,{...picksState,atualizadoEm:new Date().toISOString()}).catch(error=>console.warn("Memory: não foi possível salvar o sorteio da meditação.",error));
+        config.write(PICK_KEY,{...picksState,atualizadoEm:new Date().toISOString()}).catch(error=>console.warn("Memory: não foi possível salvar o sorteio da devocional.",error));
       }
     }
     renderLink(chosen);
@@ -87,13 +87,13 @@
   selector?.addEventListener("change",()=>setTimeout(apply,20));
   const dateLabel=document.querySelector("#data-meditacao");
   if(dateLabel){
-    const observer=new MutationObserver(()=>setTimeout(()=>apply().catch(error=>console.warn("Memory: link da meditação indisponível.",error)),20));
+    const observer=new MutationObserver(()=>setTimeout(()=>apply().catch(error=>console.warn("Memory: link da devocional indisponível.",error)),20));
     observer.observe(dateLabel,{childList:true,subtree:true,characterData:true});
   }
   let attempts=0;
   const wait=setInterval(()=>{
     attempts+=1;
     const ready=document.querySelector("#data-meditacao")?.textContent&&!/carregando/i.test(document.querySelector("#data-meditacao")?.textContent||"");
-    if(ready||attempts>20){clearInterval(wait);apply().catch(error=>console.warn("Memory: link da meditação indisponível.",error));}
+    if(ready||attempts>20){clearInterval(wait);apply().catch(error=>console.warn("Memory: link da devocional indisponível.",error));}
   },180);
-})().catch(error=>console.warn("Memory: seleção de conteúdo da meditação indisponível.",error));
+})().catch(error=>console.warn("Memory: seleção de conteúdo da devocional indisponível.",error));

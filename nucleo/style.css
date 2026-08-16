@@ -49,7 +49,7 @@ html[data-tema="escuro"] .devotional-sidebar{background:#17191e}html[data-tema="
   cursor:not-allowed;
 }
 
-/* Destaque pessoal da meditação: amarelo e somente local */
+/* Destaque pessoal da devocional: amarelo e somente local */
 .meditacao mark.reflection-highlight{
   background:#ffea70;
   color:#241f00;
@@ -94,5 +94,5 @@ html[data-tema="escuro"] .meditacao mark.reflection-highlight{
 }
 
 
-/* Player contínuo do YouTube para a meditação */
+/* Player contínuo do YouTube para a devocional */
 .music-box .youtube-player{width:100%;height:auto;min-height:0;aspect-ratio:16/9;border:0;border-radius:12px;background:#000}.music-box__link{justify-self:start;color:var(--accent);font-size:.74rem;font-weight:700;text-decoration:none}.music-box__link:hover{text-decoration:underline}

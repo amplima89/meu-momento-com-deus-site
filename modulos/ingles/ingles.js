@@ -213,7 +213,7 @@
 
       return glossario;
     } catch (erro) {
-      console.warn("Glossário de inglês inválido nesta meditação.", erro);
+      console.warn("Glossário de inglês inválido nesta devocional.", erro);
       return { ...GLOSSARIO_BASE };
     }
   }
@@ -477,12 +477,12 @@
 
   function renderizar(markdown = "") {
     if (!String(markdown).trim()) {
-      return '<div class="empty">A meditação desta data foi encontrada, mas o conteúdo não foi carregado.</div>';
+      return '<div class="empty">A devocional desta data foi encontrada, mas o conteúdo não foi carregado.</div>';
     }
 
     const texto = extrairSecaoIngles(markdown);
     if (!texto) {
-      return '<div class="empty">Não consegui identificar a prática de inglês desta meditação.</div>';
+      return '<div class="empty">Não consegui identificar a prática de inglês desta devocional.</div>';
     }
 
     const aula = completarAulaLegada(extrairBlocosDaAula(texto));
@@ -1625,7 +1625,7 @@
   }
 
   if (!lista.length) {
-    conteudo.innerHTML = '<div class="empty">Nenhuma meditação publicada foi encontrada.</div>';
+    conteudo.innerHTML = '<div class="empty">Nenhuma devocional publicada foi encontrada.</div>';
     nivelBox.hidden = true;
     return;
   }

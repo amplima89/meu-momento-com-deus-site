@@ -11,7 +11,7 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(stored) ? stored : new Date().toISOString().slice(0, 10);
   }
 
-  function meditationMeta(date) {
+  function devotionalMeta(date) {
     if (!data) return null;
     const candidates = (data.metas || []).filter(meta => /medita|devocional/.test(normalize(`${meta.nome} ${meta.descricao || ""}`)));
     return candidates.find(meta => window.MMCD?.ativaNaData?.(meta, date)) || candidates[0] || null;
@@ -39,23 +39,24 @@
 
   function socialData(date) {
     const verse = shortVerse(extractVerse());
-    const title = "Hoje eu parei para cuidar do que importa";
+    const title = "Hoje eu parei para cuidar do que importa.";
     const caption = [
-      "Minha devocional de hoje no Memory 🙏",
-      verse ? `“${verse}”` : "Um momento de presença, Palavra e direção.",
-      "Pequenos momentos de cuidado também constroem uma vida inteira. #Memory"
+      "Meu devocional de hoje no Memory 🙏",
+      verse ? `“${verse}”` : "Um encontro de presença, Palavra e direção.",
+      "A Palavra de hoje ficou guardada para continuar comigo. #Memory"
     ].filter(Boolean).join("\n\n");
     return {
-      variant: "meditation",
-      eyebrow: "Devocional concluída",
+      variant: "devotional",
+      eyebrow: "Devocional concluído",
       title,
       subtitle: formatDate(date),
-      quote: verse || "Um momento de presença, Palavra e direção.",
-      stats: [{ label: "Jornada", value: "Com Deus" }, { label: "Feito", value: "Hoje" }],
-      footer: "Leve a Palavra para o restante do seu dia.",
+      quote: verse || "Um encontro de presença, Palavra e direção.",
+      badges: ["✓ Devocional concluído", "Guardado no Memory"],
+      stats: [],
+      footer: "Um encontro com Deus que virou memória.",
       caption,
-      shareTitle: "Minha devocional no Memory",
-      fileName: `memory-meditacao-${date}`
+      shareTitle: "Meu devocional no Memory",
+      fileName: `memory-devocional-${date}`
     };
   }
 
@@ -74,38 +75,38 @@
     const zone = ensureZone();
     if (!zone || !data) return;
     const date = currentDate();
-    const meta = meditationMeta(date);
+    const meta = devotionalMeta(date);
     const row = meta ? MMCD.registro(data, date, meta.id) : null;
     const done = !!row?.concluida && !MMCD.estaAbonada(row);
     const verse = shortVerse(extractVerse(), 230);
 
     zone.innerHTML = `
       <div class="meditation-completion-head">
-        <div><p class="eyebrow">Feche este encontro</p><h2>${done ? "Devocional concluída" : "Concluiu sua devocional?"}</h2><p class="muted">${done ? "Este dia já está marcado nas suas Atividades." : "Ao concluir aqui, o Memory marca automaticamente a atividade de devocional desta data."}</p></div>
-        <button type="button" class="btn ${done ? "meditation-complete-done" : "primary"}" data-meditation-complete ${busy ? "disabled" : ""}>${busy ? "Salvando…" : done ? "✓ Concluída" : "Concluir devocional"}</button>
+        <div><p class="eyebrow">Feche este encontro</p><h2>${done ? "Devocional concluído" : "Concluiu seu devocional?"}</h2><p class="muted">${done ? "Este dia já está marcado nas suas Atividades." : "Ao concluir aqui, o Memory marca automaticamente a atividade de Devocional desta data."}</p></div>
+        <button type="button" class="btn ${done ? "meditation-complete-done" : "primary"}" data-meditation-complete ${busy ? "disabled" : ""}>${busy ? "Salvando…" : done ? "✓ Concluído" : "Concluir devocional"}</button>
       </div>
       ${done ? `
       <div class="memory-share-block">
         <div class="memory-share-preview memory-share-preview--meditation">
-          <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-official-v80-1.png" alt=""><div><strong>Memory</strong><small>um momento que vale lembrar</small></div></div>
-          <span class="memory-share-preview__eyebrow">Devocional concluída</span>
+          <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-official-v80-1.png" alt="Memory"><div><strong>Memory</strong><small>não esqueça do que importa</small></div></div>
+          <span class="memory-share-preview__eyebrow">Devocional concluído</span>
           <h3>Hoje eu parei para cuidar do que importa.</h3>
           ${verse ? `<div class="memory-share-preview__quote">“${esc(verse)}”</div>` : ""}
-          <div class="memory-share-preview__stats"><span>🙏 Um momento com Deus</span><span>✓ Registrado no Memory</span></div>
+          <p class="memory-share-preview__date">${esc(formatDate(date))}</p><div class="memory-share-preview__badges"><span>✓ Devocional concluído</span><span>Guardado no Memory</span></div>
         </div>
         <div class="memory-share-actions">
           <button type="button" class="btn primary" data-meditation-share>Compartilhar · Instagram / WhatsApp</button>
           <button type="button" class="btn" data-meditation-download>Baixar card</button>
           <button type="button" class="btn" data-meditation-copy>Copiar legenda</button>
         </div>
-        <p class="memory-share-note">No celular, Compartilhar abre as opções disponíveis do aparelho, incluindo Instagram ou WhatsApp quando instalados. O Memory não publica nada sem sua confirmação.</p>
+        <p class="memory-share-note">O card usa as cores do seu perfil no momento do compartilhamento. No celular, Compartilhar abre as opções disponíveis do aparelho.</p>
       </div>` : ""}`;
   }
 
   async function complete() {
     if (busy || !data) return;
     const date = currentDate();
-    const meta = meditationMeta(date);
+    const meta = devotionalMeta(date);
     if (!meta) {
       MMCDUI?.toast?.("Não encontrei uma atividade de Devocional para atualizar. Confira suas Metas/Atividades.", 5200);
       return;
@@ -125,7 +126,7 @@
         origem: "meditacao"
       });
       data = await MMCD.salvarRegistroAtividade(data, date, meta.id);
-      MMCDUI?.toast?.("Devocional concluída e Atividades atualizadas.", 3800);
+      MMCDUI?.toast?.("Devocional concluído e Atividades atualizadas.", 3800);
       document.dispatchEvent(new CustomEvent("memory:activity-updated", { detail: { date, activityId: meta.id, source: "meditation" } }));
     } catch (error) {
       console.error("Memory: não foi possível concluir a devocional.", error);

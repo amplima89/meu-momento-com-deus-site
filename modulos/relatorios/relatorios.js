@@ -718,7 +718,7 @@
   });
 
   $("#analysis-footnote").textContent =
-    "A análise semanal usa os 7 dias completos anteriores e exclui o dia vigente. Atividades abonadas permanecem no histórico, mas não contam como conclusão nem como falha e são retiradas do denominador da taxa. Livros, peso, meditação, inglês e Bíblia não entram como indicadores independentes.";
+    "A análise semanal usa os 7 dias completos anteriores e exclui o dia vigente. Atividades abonadas permanecem no histórico, mas não contam como conclusão nem como falha e são retiradas do denominador da taxa. Livros, peso, devocional, inglês e Bíblia não entram como indicadores independentes.";
 })().catch(error => {
   console.error(error);
   const page = document.querySelector(".activity-analysis-page");

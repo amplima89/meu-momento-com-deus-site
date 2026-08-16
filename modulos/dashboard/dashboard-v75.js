@@ -187,7 +187,7 @@
         <div>
           <p class="eyebrow">Memória de curto prazo</p>
           <h2>Registro rápido do dia</h2>
-          <p class="muted">Guarde em poucas linhas algo que vale lembrar. A próxima meditação poderá usar isso quando houver conexão real.</p>
+          <p class="muted">Guarde em poucas linhas algo que vale lembrar. A próxima devocional poderá usar isso quando houver conexão real.</p>
         </div>
         <span class="quick-journal-sync">Supabase</span>
       </div>
@@ -423,7 +423,7 @@
     try {
       await salvarDiarioRapido();
       if (textarea) textarea.value = "";
-      if (status) status.textContent = "Salvo. A automação poderá considerar este registro na próxima meditação.";
+      if (status) status.textContent = "Salvo. A automação poderá considerar este registro na próxima devocional.";
       renderizarDiarioRapido();
       window.MMCDUI?.toast("Registro salvo");
     } catch (error) {
@@ -577,8 +577,8 @@
   }
 
   const medMeta = d.metas.find(item => item.nome.toLowerCase().includes("medita"));
-  // A existência da meditação gerada para hoje não significa que ela foi realizada.
-  // O card só fica concluído quando a atividade/meta de meditação foi efetivamente marcada.
+  // A existência da devocional gerada para hoje não significa que ela foi realizada.
+  // O card só fica concluído quando a atividade/meta de devocional foi efetivamente marcada.
   const medDone = !!(medMeta && MMCD.registro(d, iso, medMeta.id)?.concluida);
   const completedMeditationDates = medMeta
     ? Object.keys(d.registros || {})
@@ -702,7 +702,7 @@
     ["📖", "Livro em andamento", currentBook.titulo || "Nenhum", currentBookDetail],
     ["📚", "Livros concluídos", String(books.length), `Meta anual: ${d.configuracoes.metaLivrosAno}`],
     ...(birthdayCard ? [birthdayCard] : []),
-    ["🙏", "Meditação de hoje", medDone ? "Concluída" : "Pendente", lastMed ? `Última concluída: ${MMCDUI.date(lastMed)}` : (latestPublishedMeditation ? "Há meditação disponível" : "Sem registro")],
+    ["🙏", "Devocional de hoje", medDone ? "Concluída" : "Pendente", lastMed ? `Última concluída: ${MMCDUI.date(lastMed)}` : (latestPublishedMeditation ? "Há devocional disponível" : "Sem registro")],
     ["⚖️", "Peso atual", currentWeight != null ? kg(currentWeight) : "Não informado", weightDetail],
     ["✅", "Hábitos concluídos hoje", `${doneWithBirthdays} de ${validTodayWithBirthdays}`, excusedTodayWithBirthdays ? `${excusedTodayWithBirthdays} abonada${excusedTodayWithBirthdays === 1 ? "" : "s"} fora do cálculo` : "Metas válidas previstas"],
     ["🇬🇧", "Inglês", englishOverall !== null ? `${englishOverall}%` : `${englishStudyDays} dia${englishStudyDays === 1 ? "" : "s"}`, englishOverall !== null ? `${englishStudyDays} dias de estudo · ${englishPriority || "linha de base"}` : (englishLatest ? `Última atividade: ${MMCDUI.date(englishLatest)}` : "Aguardando evidências")],
@@ -1087,8 +1087,8 @@
   document.querySelector("#last-meditation").innerHTML = lastMed
     ? `<p class="meditation-date">${MMCDUI.date(lastMed)}</p>
        <p class="meditation-note">${meditationDaysAgo === 0 ? "Concluída hoje." : `Há ${meditationDaysAgo} dia${meditationDaysAgo === 1 ? "" : "s"}.`} O card considera apenas meditações realmente concluídas.</p>
-       <a class="text-link" href="meditacao.html">Abrir meditação →</a>`
-    : `<div class="empty">${latestPublishedMeditation ? "Há meditação disponível, mas nenhuma foi marcada como concluída ainda." : "Nenhuma meditação registrada."}</div>`;
+       <a class="text-link" href="meditacao.html">Abrir devocional →</a>`
+    : `<div class="empty">${latestPublishedMeditation ? "Há devocional disponível, mas nenhuma foi marcada como concluída ainda." : "Nenhuma devocional registrada."}</div>`;
 })().catch(error => {
   console.error(error);
   window.MMCDUI?.toast(error.message || "Não foi possível carregar o painel.", 6000);

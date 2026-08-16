@@ -76,4 +76,4 @@
   });
   $("#med-link-cancel").addEventListener("click",resetForm);
   try{state=normalize(await window.MemoryConfig.read(KEY,{versao:1,itens:[]}));render();}catch(error){console.error(error);$("#med-link-list").innerHTML=`<div class="settings-empty">${esc(error.message)}</div>`;setStatus(error.message,"error");}
-})().catch(error=>{console.error(error);window.MMCDUI?.toast(error.message||"Erro ao abrir os links da meditação",5000);});
+})().catch(error=>{console.error(error);window.MMCDUI?.toast(error.message||"Erro ao abrir os links da devocional",5000);});

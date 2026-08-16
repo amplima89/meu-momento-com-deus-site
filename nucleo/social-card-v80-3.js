@@ -7,6 +7,41 @@ window.MemorySocialCard = (() => {
 
   const escFile = value => String(value || "memory").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "memory";
 
+
+  function drawImageContain(ctx, img, x, y, w, h) {
+    if (!img?.naturalWidth || !img?.naturalHeight) return;
+    const scale = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+    const dw = img.naturalWidth * scale;
+    const dh = img.naturalHeight * scale;
+    ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  }
+
+  function colorTuple(value, fallback = "#000000") {
+    const source = String(value || "").trim();
+    let match = source.match(/^#([0-9a-f]{3})$/i);
+    if (match) return [...match[1]].map(ch => parseInt(ch + ch, 16));
+    match = source.match(/^#([0-9a-f]{6})$/i);
+    if (match) return [0, 2, 4].map(i => parseInt(match[1].slice(i, i + 2), 16));
+    match = source.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+    if (match) return match.slice(1, 4).map(Number);
+    try {
+      const probe = document.createElement("canvas").getContext("2d");
+      probe.fillStyle = fallback; probe.fillStyle = source || fallback;
+      const normalized = probe.fillStyle;
+      if (normalized && normalized !== source) return colorTuple(normalized, fallback);
+    } catch {}
+    return [0,0,0];
+  }
+  function withAlpha(value, alpha) {
+    const [r,g,b]=colorTuple(value);
+    return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${alpha})`;
+  }
+  function currentProfilePalette() {
+    const style=getComputedStyle(document.documentElement);
+    const read=(name,fallback)=>style.getPropertyValue(name).trim()||fallback;
+    return {bg:read("--bg","#000717"),surface:read("--surface","#07162D"),surface2:read("--surface-2","#0C203C"),text:read("--text","#F4F6FC"),muted:read("--muted","#9CAAC0"),accent:read("--accent","#A78BFA")};
+  }
+
   function roundedRect(ctx, x, y, w, h, r) {
     const rr = Math.min(r, w / 2, h / 2);
     ctx.beginPath();
@@ -63,63 +98,53 @@ window.MemorySocialCard = (() => {
     canvas.height = HEIGHT;
     const ctx = canvas.getContext("2d");
 
-    const variant = options.variant === "workout" ? "workout" : "meditation";
-    const accent = variant === "workout" ? "#73d5c5" : "#8fc9ff";
-    const accent2 = variant === "workout" ? "#b4f0cf" : "#c8b6ff";
+    const variant = options.variant === "workout" ? "workout" : "devotional";
+    const palette = { ...currentProfilePalette(), ...(options.palette || {}) };
+    const { bg, surface, surface2, text, muted, accent } = palette;
 
     const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-    gradient.addColorStop(0, "#08182d");
-    gradient.addColorStop(.58, "#10294a");
-    gradient.addColorStop(1, "#0b1f39");
+    gradient.addColorStop(0, bg);
+    gradient.addColorStop(.58, surface);
+    gradient.addColorStop(1, surface2);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
     const glow = ctx.createRadialGradient(870, 90, 40, 870, 90, 540);
-    glow.addColorStop(0, `${accent}55`);
-    glow.addColorStop(.45, `${accent}16`);
-    glow.addColorStop(1, "transparent");
+    glow.addColorStop(0, withAlpha(accent, .36));
+    glow.addColorStop(.45, withAlpha(accent, .10));
+    glow.addColorStop(1, withAlpha(accent, 0));
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, WIDTH, 620);
 
-    ctx.strokeStyle = "rgba(255,255,255,.10)";
+    ctx.strokeStyle = withAlpha(text, .13);
     ctx.lineWidth = 2;
     roundedRect(ctx, 58, 58, WIDTH - 116, HEIGHT - 116, 44);
     ctx.stroke();
 
     const logo = await loadImage(LOGO_SRC);
-    if (logo) {
-      const size = 78;
-      roundedRect(ctx, 86, 88, 98, 98, 28);
-      ctx.fillStyle = "rgba(255,255,255,.08)";
-      ctx.fill();
-      ctx.save();
-      roundedRect(ctx, 96, 98, size, size, 22);
-      ctx.clip();
-      ctx.drawImage(logo, 96, 98, size, size);
-      ctx.restore();
-    }
+    if (logo) drawImageContain(ctx, logo, 86, 92, 104, 76);
 
-    ctx.fillStyle = "#f7fbff";
+    ctx.fillStyle = text;
     ctx.font = "700 34px Inter, Segoe UI, sans-serif";
     ctx.fillText("Memory", 210, 135);
-    ctx.fillStyle = "rgba(235,244,255,.66)";
+    ctx.fillStyle = muted;
     ctx.font = "600 19px Inter, Segoe UI, sans-serif";
-    ctx.fillText(variant === "workout" ? "movimento que vira memória" : "um momento que vale lembrar", 210, 169);
+    ctx.fillText(variant === "workout" ? "movimento que vira memória" : "não esqueça do que importa", 210, 169);
 
     ctx.fillStyle = accent;
     ctx.font = "800 20px Inter, Segoe UI, sans-serif";
     ctx.letterSpacing = "2px";
-    ctx.fillText(String(options.eyebrow || (variant === "workout" ? "TREINO CONCLUÍDO" : "DEVOCIONAL CONCLUÍDA")).toUpperCase(), 88, 300);
+    ctx.fillText(String(options.eyebrow || (variant === "workout" ? "TREINO CONCLUÍDO" : "DEVOCIONAL CONCLUÍDO")).toUpperCase(), 88, 300);
     ctx.letterSpacing = "0px";
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = text;
     ctx.font = "800 66px Inter, Segoe UI, sans-serif";
     const titleLines = linesFor(ctx, options.title || "Hoje eu cuidei do que importa", 850, 4);
     let y = drawLines(ctx, titleLines, 88, 385, 76);
 
     if (options.subtitle) {
       y += 22;
-      ctx.fillStyle = "rgba(235,244,255,.72)";
+      ctx.fillStyle = muted;
       ctx.font = "500 28px Inter, Segoe UI, sans-serif";
       y = drawLines(ctx, linesFor(ctx, options.subtitle, 850, 4), 88, y, 41);
     }
@@ -127,19 +152,37 @@ window.MemorySocialCard = (() => {
     if (options.quote) {
       y += 52;
       roundedRect(ctx, 88, y, 904, 330, 34);
-      ctx.fillStyle = "rgba(255,255,255,.065)";
+      ctx.fillStyle = withAlpha(text, .055);
       ctx.fill();
-      ctx.strokeStyle = `${accent}50`;
+      ctx.strokeStyle = withAlpha(accent, .34);
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      ctx.fillStyle = accent2;
+      ctx.fillStyle = accent;
       ctx.font = "700 54px Georgia, serif";
       ctx.fillText("“", 126, y + 78);
-      ctx.fillStyle = "#f7fbff";
+      ctx.fillStyle = text;
       ctx.font = "600 34px Georgia, serif";
       drawLines(ctx, linesFor(ctx, options.quote, 790, 7), 142, y + 112, 48);
       y += 348;
+    }
+
+    const badges = Array.isArray(options.badges) ? options.badges.filter(Boolean).slice(0, 3) : [];
+    if (badges.length) {
+      y += 30;
+      let badgeX = 88;
+      ctx.font = "700 20px Inter, Segoe UI, sans-serif";
+      for (const badge of badges) {
+        const label = String(badge);
+        const badgeW = Math.min(430, Math.max(170, ctx.measureText(label).width + 48));
+        if (badgeX + badgeW > 992) { badgeX = 88; y += 62; }
+        roundedRect(ctx, badgeX, y, badgeW, 48, 24);
+        ctx.fillStyle = withAlpha(accent, .13); ctx.fill();
+        ctx.strokeStyle = withAlpha(accent, .34); ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = text; ctx.fillText(label, badgeX + 24, y + 31);
+        badgeX += badgeW + 12;
+      }
+      y += 58;
     }
 
     const stats = Array.isArray(options.stats) ? options.stats.filter(Boolean).slice(0, 3) : [];
@@ -150,12 +193,12 @@ window.MemorySocialCard = (() => {
       stats.forEach((stat, index) => {
         const x = 88 + index * (boxW + gap);
         roundedRect(ctx, x, y, boxW, 132, 28);
-        ctx.fillStyle = "rgba(255,255,255,.055)";
+        ctx.fillStyle = withAlpha(text, .055);
         ctx.fill();
-        ctx.fillStyle = "rgba(235,244,255,.58)";
+        ctx.fillStyle = muted;
         ctx.font = "700 17px Inter, Segoe UI, sans-serif";
         ctx.fillText(String(stat.label || "").toUpperCase(), x + 24, y + 40);
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = text;
         ctx.font = "800 29px Inter, Segoe UI, sans-serif";
         const value = String(stat.value || "");
         const valueLines = linesFor(ctx, value, boxW - 48, 2);
@@ -164,8 +207,8 @@ window.MemorySocialCard = (() => {
       y += 150;
     }
 
-    const footer = options.footer || (variant === "workout" ? "Constância transforma esforço em evolução." : "Leve a Palavra para o restante do seu dia.");
-    ctx.fillStyle = "rgba(235,244,255,.72)";
+    const footer = options.footer || (variant === "workout" ? "Constância transforma esforço em evolução." : "Um encontro com Deus que virou memória.");
+    ctx.fillStyle = muted;
     ctx.font = "600 24px Inter, Segoe UI, sans-serif";
     const footerY = Math.max(y + 42, HEIGHT - 158);
     drawLines(ctx, linesFor(ctx, footer, 790, 2), 88, footerY, 35);
@@ -174,7 +217,7 @@ window.MemorySocialCard = (() => {
     ctx.beginPath();
     ctx.arc(948, HEIGHT - 122, 10, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "rgba(235,244,255,.55)";
+    ctx.fillStyle = muted;
     ctx.font = "600 17px Inter, Segoe UI, sans-serif";
     ctx.textAlign = "right";
     ctx.fillText("MEMORY", 924, HEIGHT - 115);
@@ -245,5 +288,5 @@ window.MemorySocialCard = (() => {
     }
   }
 
-  return { buildCanvas, makeBlob, download, share, copyCaption };
+  return { buildCanvas, makeBlob, download, share, copyCaption, currentProfilePalette };
 })();

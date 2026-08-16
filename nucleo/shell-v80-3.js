@@ -63,7 +63,7 @@ window.MMCDShell=async function(active){
  const careActive=careKeys.includes(active);
  const mobileMemoryHtml=`
   <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v76" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt=""></span>
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -82,7 +82,7 @@ window.MMCDShell=async function(active){
   <aside class="sidebar sidebar-v24">
    <a class="sidebar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt="Memory">
+     <img src="assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -156,9 +156,11 @@ window.MMCDShell=async function(active){
    }
    .sidebar-memory-mobile{display:none!important}
    .sidebar-memory-mobile__icon{overflow:hidden;padding:0!important;background:#071a39!important;border-color:rgba(116,216,244,.22)!important}
-   .sidebar-memory-mobile__icon img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+  
+ .sidebar-v24 .sidebar-brand__mark img{object-fit:contain!important;padding:5px!important}
+ .sidebar-memory-mobile__icon img{display:block;width:100%;height:100%;object-fit:contain;border-radius:0;padding:4px}
    .memory-topbar-brand{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none}
-   .memory-topbar-brand img{display:none;width:30px;height:30px;border-radius:9px;object-fit:cover;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:#071a39}
+   .memory-topbar-brand img{display:none;width:30px;height:30px;border-radius:9px;object-fit:contain;padding:4px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:#000717}
    .memory-topbar-brand span{font:650 .82rem/1 Inter,"Segoe UI",Arial,sans-serif;letter-spacing:.015em;text-transform:none}
    @media(max-width:760px){
     .sidebar-v24 .sidebar-memory-mobile{display:grid!important}
@@ -292,7 +294,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',
@@ -458,8 +460,16 @@ window.MMCDShell=async function(active){
 
  const logo=document.querySelector('.sidebar-brand__mark img');
  if(logo){
-  const fallback=()=>{const mark=logo.closest('.sidebar-brand__mark');if(mark)mark.classList.add('has-fallback')};
-  logo.addEventListener('error',fallback,{once:true});
+  const mark=logo.closest('.sidebar-brand__mark');
+  const fallback=()=>{
+   if(logo.dataset.memoryFallbackTried!=='1'){
+    logo.dataset.memoryFallbackTried='1';
+    logo.src='assets/imagens/memory-mark-v62.png?v=20260816-v80-1';
+    return;
+   }
+   if(mark)mark.classList.add('has-fallback');
+  };
+  logo.addEventListener('error',fallback);
   if(logo.complete&&logo.naturalWidth===0)fallback();
  }
 
@@ -768,3 +778,41 @@ window.MMCDShell=async function(active){
  }
 };
 window.MMCDUI={esc:s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),date:s=>s?new Date(s+'T12:00:00').toLocaleDateString('pt-BR'):'—',toast(msg,duration=2200){let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.append(t)}clearTimeout(t._timer);t.textContent=msg;t.classList.add('show');t._timer=setTimeout(()=>t.classList.remove('show'),duration)}};
+
+
+/* V80.3 — terminologia visual Devocional para nomes persistidos antigos. */
+(()=>{
+ const replaceTerms=value=>String(value||"")
+  .replace(/DEVOCIONAL/g,"DEVOCIONAL")
+  .replace(/Devocional/g,"Devocional")
+  .replace(/devocional/g,"devocional");
+ const allowedSelector=[
+  ".sidebar",".app-topbar",".page-header",".settings-card",".dashboard-bottom",
+  ".daily-card",".goal-list",".goals-list",".goals-table",".mission-card",
+  ".meditation-view-switch",".meditation-journey",".meditation-completion-zone",
+  "#meditation-consistency",".devotional-sidebar",".meditation-nav"
+ ].join(",");
+ const excludedSelector=["#conteudo-meditacao","textarea","input","script","style","code","pre",".testimony-row__text",".quick-journal-entry__text"].join(",");
+ function translateNode(node){
+  if(!node?.parentElement)return;
+  const parent=node.parentElement;
+  if(parent.closest(excludedSelector)||!parent.closest(allowedSelector))return;
+  const next=replaceTerms(node.nodeValue);
+  if(next!==node.nodeValue)node.nodeValue=next;
+ }
+ function scan(root=document.body){
+  if(!root)return;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  let node;while((node=walker.nextNode()))translateNode(node);
+ }
+ const observer=new MutationObserver(mutations=>{
+  for(const mutation of mutations){
+   mutation.addedNodes.forEach(node=>{
+    if(node.nodeType===Node.TEXT_NODE)translateNode(node);
+    else if(node.nodeType===Node.ELEMENT_NODE)scan(node);
+   });
+  }
+ });
+ const start=()=>{scan();observer.observe(document.body,{childList:true,subtree:true})};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();

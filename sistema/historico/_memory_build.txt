@@ -1,1 +1,1 @@
-V80.2 | 2026-08-16 | Meditacao sem Complementos e limpeza de markdown
+V80.3 | 2026-08-16 | Devocional + card na cor do perfil

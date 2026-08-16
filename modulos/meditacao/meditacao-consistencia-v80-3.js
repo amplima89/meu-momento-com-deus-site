@@ -10,7 +10,7 @@
     rendering=true;
     try{
       const d=await MMCD.carregar();
-      const meta=d.metas.find(m=>(m.nome||'').toLocaleLowerCase('pt-BR').includes('medita'));
+      const meta=d.metas.find(m=>/(medita|devocional)/.test((m.nome||'').toLocaleLowerCase('pt-BR')));
       const hoje=iso(new Date());
       const concluida=date=>!!(meta&&MMCD.registro(d,date,meta.id)?.concluida&&!MMCD.estaAbonada(MMCD.registro(d,date,meta.id)));
       const ultimos30=[];
