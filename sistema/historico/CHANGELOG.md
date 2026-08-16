@@ -243,3 +243,17 @@
   - existe remoção defensiva de `#quick-journal-card`;
   - `painel.html` aponta para o dashboard correto.
 - Nenhuma regra funcional de Cuidado foi revertida.
+
+
+## V80.5.2 — 16/08/2026
+- Pacote corrigido com nome e banner próprios para evitar execução acidental da V80.5 antiga.
+- Validação do instalador verifica comportamento real, não comentários de código.
+- Mantém Registro rápido fora de Missões e Cuidado na ordem definida.
+
+
+## V80.6 — 16/08/2026
+- Cuidado volta a funcionar como grupo/accordion real.
+- Nome Cuidado abre o Mapa de Cuidado.
+- Seta independente expande/recolhe o submenu.
+- Estado aberto/fechado persiste no localStorage.
+- Mobile usa a seta para abrir a lista de itens de Cuidado.
