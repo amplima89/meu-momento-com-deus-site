@@ -1,1 +1,1 @@
-V80.7.1 | 2026-08-16 | Correcao do instalador de Ingles - conflito com alias R do PowerShell
+V80.6.1 | 2026-08-16 | Agrupamento do Cuidado corrigido e persistente
