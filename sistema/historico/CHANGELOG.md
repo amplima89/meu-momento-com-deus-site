@@ -137,3 +137,18 @@
 - Medições corporais ampliadas para ombros, bíceps relaxado/contraído bilateral e coxa superior/média/inferior bilateral.
 - Body Scan passa de 13 para 20 campos corporais e mantém compatibilidade de leitura com registros antigos.
 - V79.4 inclui cumulativamente as correções V79.3 de constância protegida por abono e card social.
+
+
+## V79.5 — 16/08/2026
+- Entrada decimal mobile aceita vírgula e ponto para peso e medidas.
+- Peso mantém até duas casas decimais.
+- Comparação ganha Body Scan colorido por região: verde, vermelho e neutro.
+- Resumo visual da evolução corporal incluído.
+
+
+## V79.6 — 16/08/2026
+- Histórico de medições ganha botão Editar.
+- Edição carrega data, medidas e observação no formulário.
+- Salvar alterações atualiza o mesmo ID e não cria duplicata.
+- Cancelamento de edição sem perda do registro original.
+- Mantidas as correções de decimal mobile e Body Scan da V79.5.

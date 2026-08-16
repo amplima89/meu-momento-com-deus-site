@@ -1,1 +1,1 @@
-V79.4 | 2026-08-16 | Cuidado Boas Acoes + Biblia livro atual/check igreja + Body Scan 20 medidas
+V79.6 | 2026-08-16 | Editar medições já salvas
