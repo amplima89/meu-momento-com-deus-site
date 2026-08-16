@@ -200,3 +200,10 @@
 - `memory-mark-v62.png` é mantido como alias retrocompatível.
 - Imagens da marca usam `object-fit: contain`.
 - Favicon usa `memory-icon-official-v80-1.png`.
+
+
+## V80.2 — 16/08/2026
+- Removido definitivamente o quinto agrupador visual Continuidade/Complementos.
+- A meditação passa a ter apenas Preparação, Palavra e reflexão, Resposta a Deus e Levar para o dia.
+- Cercas ` ```markdown `, ` ```md ` e ` ``` ` são eliminadas da renderização.
+- Seções legítimas não reconhecidas continuam visíveis sem criar um grupo artificial.

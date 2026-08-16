@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1628">
 <title>Memory - Histórico de melhorias</title>
-<link rel="icon" type="image/png" href="assets/imagens/memory-mark-official-v80-1.png">
+<link rel="icon" type="image/png" href="assets/imagens/memory-mark-v62.png">
 <link rel="stylesheet" href="nucleo/painel.css?v=20260815-v77">
 <style>
 .update-list{display:grid;gap:16px;max-width:980px}.update-card{padding:22px}.update-head{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.update-version{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:700;color:var(--accent)}.update-card ul{margin:16px 0 0;padding-left:20px;display:grid;gap:8px;color:var(--muted)}.update-card li strong{color:var(--text)}.update-rule{margin-top:18px;padding:14px 16px;border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line))}
@@ -12,6 +12,14 @@
 <body><div class="app-shell"><header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">Memory</span><span class="app-topbar__subtitle">Histórico de melhorias</span></div><button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button></div></header>
 <main class="app-main"><section class="page-header"><div><p class="eyebrow">Evolução do projeto</p><h1>O que mudou no Memory</h1><p class="muted">Cada pacote aplicado passa a deixar um registro aqui. Assim, a evolução do projeto fica rastreável sem depender das pastas de backup.</p></div></section>
 <section class="update-list">
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">16 de agosto de 2026</p><h2>Meditação volta a ter somente quatro etapas</h2></div><span class="update-version">V80.2</span></div>
+<ul>
+<li><strong>Complementos removido:</strong> o agrupador deixou de existir; a meditação volta a apresentar somente as quatro etapas principais.</li>
+<li><strong>Markdown:</strong> resíduos como <code>```markdown</code> deixam de aparecer como conteúdo na tela.</li>
+<li><strong>Conteúdo preservado:</strong> uma seção real que não seja reconhecida pelo agrupamento continua visível, mas sem receber uma quinta etapa artificial.</li>
+<li><strong>Compatibilidade:</strong> nenhuma informação salva de meditação é alterada no banco.</li>
+</ul></article>
+
 <article class="card update-card"><div class="update-head"><div><p class="eyebrow">16 de agosto de 2026</p><h2>Logo oficial restaurada sem distorção</h2></div><span class="update-version">V80.1</span></div>
 <ul>
 <li><strong>Marca oficial:</strong> o símbolo passa a usar diretamente a proporção da identidade visual aprovada, sem redesenho por SVG.</li>
@@ -220,5 +228,5 @@
 <li><strong>Padrão de atualização:</strong> as próximas melhorias serão entregues em pacote para extrair e executar um único BAT.</li>
 </ul><div class="update-rule"><strong>Regra do projeto:</strong> nenhuma melhoria entregue a partir desta versão deve ficar sem registro neste histórico.</div></article>
 </section></main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v80-1.js?v=20260816-v80-1"></script><script>MMCDShell('configuracoes')</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v79-4.js?v=20260816-v79-4"></script><script>MMCDShell('configuracoes')</script>
 </body></html>
