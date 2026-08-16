@@ -1,0 +1,63 @@
+
+.testimonies-page{display:grid;gap:18px}
+.testimonies-hero{background:
+ linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--surface)),var(--surface)),
+ radial-gradient(circle at 85% 20%,rgba(115,213,197,.13),transparent 36%)}
+.testimonies-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.75fr);gap:16px}
+.testimony-form-card,.testimony-guide-card,.testimony-history-card{border-radius:18px}
+.testimony-form{display:grid;gap:16px}
+.testimony-form__top{display:grid;grid-template-columns:minmax(160px,.34fr) 1fr;gap:12px}
+.testimony-form .field{display:grid;gap:7px}
+.testimony-form .field>span,.testimony-privacy legend{font-size:.72rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.testimony-form input,.testimony-form textarea{
+ width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;
+ background:var(--surface-2);color:var(--text);padding:12px 13px;font:inherit;outline:none
+}
+.testimony-form input:focus,.testimony-form textarea:focus{border-color:color-mix(in srgb,var(--accent) 65%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 10%,transparent)}
+.testimony-form textarea{resize:vertical;min-height:210px;line-height:1.55}
+.testimony-form .field small{text-align:right;color:var(--muted);font-size:.68rem}
+.testimony-privacy{display:grid;gap:9px;margin:0;padding:0;border:0}
+.testimony-privacy legend{margin-bottom:4px}
+.testimony-privacy__option{
+ position:relative;display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:center;
+ min-height:66px;padding:10px 12px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2);cursor:pointer
+}
+.testimony-privacy__option:has(input:checked){border-color:color-mix(in srgb,var(--accent) 65%,var(--line));background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.testimony-privacy__option input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.testimony-privacy__icon{font-size:1.15rem}
+.testimony-privacy__option strong{display:block;font-size:.85rem}
+.testimony-privacy__option small{display:block;margin-top:3px;color:var(--muted);font-size:.7rem;line-height:1.35}
+.testimony-privacy-preview{
+ min-height:56px;padding:11px 13px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);
+ background:color-mix(in srgb,var(--surface-2) 86%,transparent);font-size:.74rem;line-height:1.45
+}
+.testimony-privacy-preview strong{color:var(--text)}
+.testimony-form__actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+.testimony-guide-card{align-self:start}
+.testimony-guide-card>h2{margin:.25rem 0 .55rem}
+.testimony-guide-card>p{color:var(--muted);line-height:1.55}
+.testimony-guide-card__rule{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.testimony-guide-card__rule>span{font-size:1.15rem}.testimony-guide-card__rule p{margin:0;color:var(--muted);font-size:.76rem;line-height:1.45}
+.testimony-guide-card__rule strong{color:var(--text)}
+.testimony-history{display:grid;gap:10px}
+.testimony-row{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.testimony-row.is-editing{outline:2px solid color-mix(in srgb,var(--accent) 60%,transparent)}
+.testimony-row__head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.testimony-row__head h3{margin:0;font-size:1rem}.testimony-row__head time{white-space:nowrap;color:var(--muted);font-size:.7rem}
+.testimony-row__text{margin:10px 0;color:var(--muted);white-space:pre-wrap;line-height:1.55}
+.testimony-row__meta{display:flex;gap:7px;flex-wrap:wrap}
+.testimony-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;font-size:.66rem;color:var(--muted)}
+.testimony-chip.is-private{color:#aab6cc}.testimony-chip.is-public{color:#73d5c5}.testimony-chip.is-anonymous{color:#cbb8ff}
+.testimony-row__actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:12px}
+.testimony-row__actions button{min-height:36px;padding:7px 11px;border-radius:9px}
+.testimony-row__actions .danger{color:#ef4444}
+.testimony-row__actions .share{color:var(--accent)}
+.testimony-empty{text-align:center;padding:26px;color:var(--muted)}
+@media(max-width:900px){.testimonies-layout{grid-template-columns:1fr}}
+@media(max-width:650px){
+ .testimony-form__top{grid-template-columns:1fr}
+ .testimony-form__actions{display:grid;grid-template-columns:1fr}
+ .testimony-row__head{display:grid;gap:4px}
+ .testimony-row__actions{display:grid;grid-template-columns:repeat(2,1fr)}
+ .testimony-row__actions .share{grid-column:1/-1}
+}

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1628">
+  <title>Testemunhos — Cuidado — Memory</title>
+  <link rel="icon" href="assets/imagens/memory-mark-v62.png" sizes="any">
+  <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
+  <link rel="stylesheet" href="modulos/memory/memory-care-v72.css?v=20260815-v74">
+  <link rel="stylesheet" href="modulos/memory/memory-testimonies-v79-7.css?v=20260816-v79-7">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">MEMORY</span><span class="app-topbar__subtitle">Cuidado · Testemunhos</span></div><button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button></div></header>
+    <main class="app-main testimonies-page">
+      <section class="memory-care-hero testimonies-hero">
+        <div class="memory-care-hero__row">
+          <div>
+            <p class="memory-care-eyebrow">Memórias do que Deus fez</p>
+            <h1>🕊️ Testemunhos</h1>
+            <p>Registre aquilo que você viveu e não quer esquecer. Você decide o que permanece só com você e o que está pronto para ser compartilhado.</p>
+          </div>
+          <span class="memory-care-badge">Você controla a privacidade</span>
+        </div>
+      </section>
+
+      <section class="testimonies-layout">
+        <article class="card testimony-form-card">
+          <div class="section-head">
+            <div><p class="eyebrow">Novo registro</p><h2>Meu testemunho</h2><p class="muted">Escreva com suas palavras. Você poderá editar depois.</p></div>
+            <span id="testimony-save-status" class="memory-care-status">Carregando…</span>
+          </div>
+
+          <form id="testimony-form" class="testimony-form" autocomplete="off">
+            <div class="testimony-form__top">
+              <label class="field"><span>Data</span><input id="testimony-date" type="date" required></label>
+              <label class="field"><span>Título</span><input id="testimony-title" type="text" maxlength="120" placeholder="Ex.: Uma resposta de oração" required></label>
+            </div>
+            <label class="field">
+              <span>Testemunho</span>
+              <textarea id="testimony-text" rows="10" maxlength="12000" placeholder="Conte aqui o que aconteceu, o que você sentiu e o que deseja lembrar..." required></textarea>
+              <small id="testimony-counter">0 / 12.000</small>
+            </label>
+
+            <fieldset class="testimony-privacy">
+              <legend>Quem pode ver este testemunho?</legend>
+
+              <label class="testimony-privacy__option">
+                <input type="radio" name="visibilidade" value="privado" checked>
+                <span class="testimony-privacy__icon">🔒</span>
+                <span><strong>Somente eu</strong><small>Fica guardado na sua conta.</small></span>
+              </label>
+
+              <label class="testimony-privacy__option">
+                <input type="radio" name="visibilidade" value="publico_identificado">
+                <span class="testimony-privacy__icon">🌎</span>
+                <span><strong>Público — mostrar minha identidade</strong><small>Ao compartilhar, o Memory pode mostrar seu nome.</small></span>
+              </label>
+
+              <label class="testimony-privacy__option">
+                <input type="radio" name="visibilidade" value="publico_anonimo">
+                <span class="testimony-privacy__icon">🕊️</span>
+                <span><strong>Público — publicar anonimamente</strong><small>Nome, usuário, foto e perfil não aparecem no conteúdo compartilhado.</small></span>
+              </label>
+            </fieldset>
+
+            <div id="testimony-privacy-preview" class="testimony-privacy-preview"></div>
+            <div class="testimony-form__actions">
+              <button type="button" id="testimony-cancel" class="btn" hidden>Cancelar edição</button>
+              <button type="submit" class="btn primary" id="testimony-submit">Salvar testemunho ✓</button>
+            </div>
+          </form>
+        </article>
+
+        <aside class="card testimony-guide-card">
+          <p class="eyebrow">Sua memória</p>
+          <h2>O testemunho continua sendo seu</h2>
+          <p>Mesmo quando você escolher uma opção pública, o registro continua vinculado internamente à sua conta para que você possa editar, excluir ou mudar a privacidade.</p>
+          <div class="testimony-guide-card__rule"><span>🕊️</span><p><strong>No modo anônimo</strong><br>o texto compartilhado não leva nome, usuário, foto ou link de perfil.</p></div>
+          <div class="testimony-guide-card__rule"><span>🔒</span><p><strong>No modo privado</strong><br>não aparece opção de compartilhamento.</p></div>
+        </aside>
+      </section>
+
+      <section class="card testimony-history-card">
+        <div class="section-head">
+          <div><p class="eyebrow">Minha história</p><h2>Testemunhos registrados</h2><p class="muted">Privacidade e conteúdo podem ser alterados a qualquer momento.</p></div>
+          <span id="testimony-count" class="memory-care-badge">0 registros</span>
+        </div>
+        <div id="testimony-history" class="testimony-history"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="nucleo/supabase-config.js?v=20260803-50"></script>
+  <script src="nucleo/supabase-client.js?v=20260803-50"></script>
+  <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script>
+  <script src="modulos/memory/memory-config-v68.js?v=20260815-v74"></script>
+  <script src="nucleo/shell-v79-7.js?v=20260816-v79-7"></script>
+  <script>MMCDShell('testemunhos')</script>
+  <script src="modulos/memory/memory-care-core-v72.js?v=20260815-v74"></script>
+  <script src="modulos/memory/memory-testimonies-v79-7.js?v=20260816-v79-7"></script>
+</body>
+</html>

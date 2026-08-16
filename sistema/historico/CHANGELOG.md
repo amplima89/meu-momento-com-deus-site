@@ -152,3 +152,12 @@
 - Salvar alterações atualiza o mesmo ID e não cria duplicata.
 - Cancelamento de edição sem perda do registro original.
 - Mantidas as correções de decimal mobile e Body Scan da V79.5.
+
+
+## V79.7 — 16/08/2026
+- Cuidado reposicionado imediatamente após Bíblia na navegação principal.
+- Nova área Cuidado > Testemunhos.
+- Testemunhos podem ser privados, públicos identificados ou públicos anônimos.
+- Modo anônimo não inclui nome, usuário, foto ou link de perfil no conteúdo compartilhado.
+- Registros podem ser editados, excluídos e ter a privacidade alterada.
+- Compartilhamento nativo disponível para testemunhos públicos.
