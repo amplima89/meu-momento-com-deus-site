@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1628">
+  <title>Registro rápido — Cuidado — Memory</title>
+  <link rel="icon" href="assets/imagens/memory-icon-official-v80-1.png?v=20260816-v80-1" sizes="any">
+  <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
+  <link rel="stylesheet" href="modulos/dashboard/dashboard.css?v=20260815-v76">
+  <link rel="stylesheet" href="modulos/memory/memory-quick-journal-v80-4.css?v=20260816-v80-4">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div><span class="app-topbar__title">MEMORY</span><span class="app-topbar__subtitle">Cuidado · Registro rápido</span></div>
+        <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+      </div>
+    </header>
+
+    <main class="app-main quick-journal-page">
+      <section class="card quick-journal-intro">
+        <div>
+          <p class="eyebrow">Memória de curto prazo</p>
+          <h1>📝 Registro rápido do dia</h1>
+          <p class="muted">Guarde em poucas linhas algo que vale lembrar. O registro passa a fazer parte do Cuidado e alimenta o Mapa de Cuidado conforme a categoria escolhida.</p>
+        </div>
+        <a class="btn" href="mapa-cuidado.html?v=20260816-v80-4">Ver Mapa de Cuidado →</a>
+      </section>
+
+      <section id="quick-journal-card" class="card quick-journal-card quick-journal-card--standalone">
+        <div class="section-head quick-journal-head">
+          <div>
+            <p class="eyebrow">Registro</p>
+            <h2>O que merece ser lembrado hoje?</h2>
+            <p class="muted">A próxima meditação poderá usar isso quando houver conexão real.</p>
+          </div>
+          <span id="quick-journal-sync" class="quick-journal-sync">Carregando…</span>
+        </div>
+
+        <div class="quick-journal-compose">
+          <textarea id="quick-journal-text" maxlength="900" rows="4" placeholder="Ex.: Adiei o estudo mesmo sabendo que precisava começar. / Tivemos uma conversa muito boa no jantar. / Treinei sem vontade e fiquei feliz por ter ido."></textarea>
+
+          <div class="quick-journal-voice">
+            <button id="quick-journal-mic" class="btn quick-journal-mic" type="button" aria-pressed="false">
+              <span aria-hidden="true">🎙️</span>
+              <span data-mic-label>Transcrever fala</span>
+            </button>
+            <span id="quick-journal-voice-status" class="muted">O áudio não é salvo. Apenas o texto transcrito entra no registro.</span>
+          </div>
+
+          <div id="quick-journal-categories" class="quick-journal-categories" role="group" aria-label="Categoria do registro"></div>
+
+          <div class="quick-journal-actions">
+            <span id="quick-journal-status" class="muted">Pode registrar mais de uma coisa no mesmo dia.</span>
+            <button id="quick-journal-save" class="btn primary" type="button">Salvar registro</button>
+          </div>
+        </div>
+
+        <details class="quick-journal-history" open>
+          <summary>
+            <span>Últimos registros</span>
+            <span id="quick-journal-count" class="quick-journal-count">0</span>
+            <span class="quick-journal-chevron" aria-hidden="true">⌄</span>
+          </summary>
+          <div id="quick-journal-list" class="quick-journal-list"></div>
+        </details>
+      </section>
+
+      <section class="card quick-journal-relations">
+        <p class="eyebrow">Relação com o Mapa de Cuidado</p>
+        <h2>Cada categoria conversa com uma dimensão</h2>
+        <div class="quick-journal-relations__grid">
+          <span>🙏 Fé → Espiritual + Memórias</span>
+          <span>❤️ Família → Relacionamentos + Memórias</span>
+          <span>💼 Trabalho → Desenvolvimento + Memórias</span>
+          <span>🧠 Pessoal → Mente + Memórias</span>
+          <span>🏃 Saúde → Corpo + Memórias</span>
+          <span>📚 Desenvolvimento → Desenvolvimento + Memórias</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="nucleo/supabase-config.js?v=20260803-50"></script>
+  <script src="nucleo/supabase-client.js?v=20260803-50"></script>
+  <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
+  <script src="nucleo/theme-system-v80.js?v=20260816-v80"></script>
+  <script src="modulos/memory/memory-config-v68.js?v=20260815-v74"></script>
+  <script src="nucleo/shell-v80-4.js?v=20260816-v80-4"></script>
+  <script>MMCDShell('registro-rapido')</script>
+  <script src="modulos/memory/memory-care-core-v80-4.js?v=20260816-v80-4"></script>
+  <script src="modulos/memory/memory-quick-journal-v80-4.js?v=20260816-v80-4"></script>
+</body>
+</html>

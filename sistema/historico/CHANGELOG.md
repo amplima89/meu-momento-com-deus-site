@@ -216,3 +216,12 @@
 - Logo oficial V80.1 usada no preview e PNG.
 - Removidos “Jornada / Com Deus” e “Feito / Hoje”.
 - Novos selos: “Devocional concluído” e “Guardado no Memory”.
+
+
+## V80.4 — 16/08/2026
+- “Círculo de Cuidado” passa a ser exibido como “Relacionamentos”.
+- Caminho técnico `circulo-cuidado.html` e chave de banco são preservados.
+- `registro-rapido.html` passa a ser incluído explicitamente no pacote.
+- Dependências do Registro rápido (`core`, JS e CSS) também são publicadas.
+- Mapa de Cuidado continua integrado ao Registro rápido.
+- Validação passa a confirmar que `registro-rapido.html` existe e é rastreado pelo Git após a publicação.

@@ -1,1 +1,1 @@
-V80.3 | 2026-08-16 | Devocional + card na cor do perfil
+V80.4 | 2026-08-16 | Relacionamentos + correcao 404 do Registro rapido

@@ -1,0 +1,18 @@
+
+.quick-journal-page{display:grid;gap:16px}
+.quick-journal-intro{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 22px}
+.quick-journal-intro h1{margin:.2rem 0 .45rem;font-size:clamp(1.45rem,3vw,2rem)}
+.quick-journal-intro p{max-width:780px;margin:0;line-height:1.55}
+.quick-journal-card--standalone{margin:0}
+.quick-journal-relations{padding:19px 21px}
+.quick-journal-relations h2{margin:.25rem 0 1rem}
+.quick-journal-relations__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.quick-journal-relations__grid span{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface-2);font-size:.74rem;color:var(--muted)}
+.quick-journal-entry__actions .quick-delete{color:#ef4444}
+@media(max-width:850px){
+ .quick-journal-intro{align-items:flex-start;flex-direction:column}
+ .quick-journal-relations__grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+ .quick-journal-relations__grid{grid-template-columns:1fr}
+}

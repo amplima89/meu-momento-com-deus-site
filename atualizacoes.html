@@ -12,21 +12,30 @@
 <body><div class="app-shell"><header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">Memory</span><span class="app-topbar__subtitle">Histórico de melhorias</span></div><button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button></div></header>
 <main class="app-main"><section class="page-header"><div><p class="eyebrow">Evolução do projeto</p><h1>O que mudou no Memory</h1><p class="muted">Cada pacote aplicado passa a deixar um registro aqui. Assim, a evolução do projeto fica rastreável sem depender das pastas de backup.</p></div></section>
 <section class="update-list">
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">16 de agosto de 2026</p><h2>Relacionamentos e Registro rápido corrigidos</h2></div><span class="update-version">V80.4</span></div>
+<ul>
+<li><strong>Relacionamentos:</strong> “Círculo de Cuidado” passa a aparecer como “Relacionamentos” no menu, na página e nas mensagens visíveis, mantendo os IDs técnicos para preservar os dados.</li>
+<li><strong>Registro rápido:</strong> a página <code>registro-rapido.html</code> e seus arquivos de JavaScript/CSS passam a fazer parte explicitamente do pacote de publicação.</li>
+<li><strong>404 corrigido:</strong> o instalador valida a existência física da página e das dependências antes de publicar.</li>
+<li><strong>Mapa de Cuidado:</strong> continua recebendo os registros rápidos e passa a usar a nomenclatura Relacionamentos.</li>
+<li><strong>Publicação:</strong> após o envio, o instalador confirma que <code>registro-rapido.html</code> está rastreado pelo Git.</li>
+</ul></article>
+
 <article class="card update-card"><div class="update-head"><div><p class="eyebrow">16 de agosto de 2026</p><h2>Devocional e compartilhamento alinhados ao perfil</h2></div><span class="update-version">V80.3</span></div>
 <ul>
 <li><strong>Terminologia:</strong> a interface passa a chamar o momento espiritual de Devocional. IDs técnicos permanecem intactos para preservar o histórico.</li>
 <li><strong>Card do Devocional:</strong> a imagem compartilhada lê as cores do tema/perfil ativo do usuário.</li>
 <li><strong>Logo:</strong> o post usa a marca oficial do Memory sem distorção e com a assinatura “não esqueça do que importa”.</li>
 <li><strong>Layout:</strong> “Jornada / Com Deus” e “Feito / Hoje” foram removidos e substituídos por selos mais leves.</li>
-<li><strong>Dados antigos:</strong> nomes persistidos como Devocional são traduzidos visualmente para Devocional, sem alterar IDs.</li>
+<li><strong>Dados antigos:</strong> nomes persistidos como Meditação são traduzidos visualmente para Devocional, sem alterar IDs.</li>
 </ul></article>
 
-<article class="card update-card"><div class="update-head"><div><p class="eyebrow">16 de agosto de 2026</p><h2>Devocional volta a ter somente quatro etapas</h2></div><span class="update-version">V80.2</span></div>
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">16 de agosto de 2026</p><h2>Meditação volta a ter somente quatro etapas</h2></div><span class="update-version">V80.2</span></div>
 <ul>
-<li><strong>Complementos removido:</strong> o agrupador deixou de existir; a devocional volta a apresentar somente as quatro etapas principais.</li>
+<li><strong>Complementos removido:</strong> o agrupador deixou de existir; a meditação volta a apresentar somente as quatro etapas principais.</li>
 <li><strong>Markdown:</strong> resíduos como <code>```markdown</code> deixam de aparecer como conteúdo na tela.</li>
 <li><strong>Conteúdo preservado:</strong> uma seção real que não seja reconhecida pelo agrupamento continua visível, mas sem receber uma quinta etapa artificial.</li>
-<li><strong>Compatibilidade:</strong> nenhuma informação salva de devocional é alterada no banco.</li>
+<li><strong>Compatibilidade:</strong> nenhuma informação salva de meditação é alterada no banco.</li>
 </ul></article>
 
 <article class="card update-card"><div class="update-head"><div><p class="eyebrow">16 de agosto de 2026</p><h2>Logo oficial restaurada sem distorção</h2></div><span class="update-version">V80.1</span></div>
@@ -43,7 +52,7 @@
 <li><strong>Paleta oficial:</strong> o tema Memory Oficial passa a usar violeta #A78BFA e ciano #60D5FF, com fundo azul-marinho profundo inspirado na identidade aprovada.</li>
 <li><strong>Gradiente:</strong> botões principais, navegação ativa, detalhes de marca e progressos passam a usar a transição violeta → ciano.</li>
 <li><strong>Memory institucional:</strong> a página de propósito e essência recebe a mesma paleta oficial.</li>
-<li><strong>Devocional:</strong> o bloco visual chamado “Continuidade” passa a se chamar “Complementos”, deixando claro que reúne apenas conteúdos adicionais que não entraram nas quatro etapas principais.</li>
+<li><strong>Meditação:</strong> o bloco visual chamado “Continuidade” passa a se chamar “Complementos”, deixando claro que reúne apenas conteúdos adicionais que não entraram nas quatro etapas principais.</li>
 <li><strong>Tema oficial:</strong> na primeira abertura após a V80.0, o Memory Oficial é reaplicado uma vez; depois o usuário continua livre para escolher outro tema.</li>
 </ul></article>
 
@@ -110,8 +119,8 @@
 
 <article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Conclusão integrada e cards para compartilhar</h2></div><span class="update-version">V79.1</span></div>
 <ul>
-<li><strong>Concluir devocional:</strong> a página da Devocional ganha um botão de conclusão no fim da leitura. Ao confirmar, o Memory atualiza automaticamente a atividade de devocional da mesma data.</li>
-<li><strong>Consistência sincronizada:</strong> a conclusão feita dentro da Devocional atualiza imediatamente o indicador de consistência sem exigir que o usuário abra Atividades para marcar o mesmo item.</li>
+<li><strong>Concluir meditação:</strong> a página da Meditação ganha um botão de conclusão no fim da leitura. Ao confirmar, o Memory atualiza automaticamente a atividade de meditação da mesma data.</li>
+<li><strong>Consistência sincronizada:</strong> a conclusão feita dentro da Meditação atualiza imediatamente o indicador de consistência sem exigir que o usuário abra Atividades para marcar o mesmo item.</li>
 <li><strong>Card da Palavra:</strong> depois de concluir, a própria página mostra um card com o versículo do dia, marca Memory e identidade visual pronta para compartilhamento.</li>
 <li><strong>Compartilhamento:</strong> no celular, o Memory usa o compartilhamento nativo do aparelho para permitir envio ao Instagram, WhatsApp e outros apps disponíveis; também oferece baixar o PNG e copiar a legenda.</li>
 <li><strong>Card pós-treino:</strong> ao concluir um treino, o resumo passa a incluir um card com treino realizado, grupos trabalhados, duração e sequência de treinos concluídos sem falhar.</li>
@@ -131,8 +140,8 @@
 <li><strong>Plano Semanal:</strong> seletor de data agora é visível e responsivo no mobile e permite saltar diretamente para a semana da data escolhida.</li>
 <li><strong>Abono:</strong> atividades abonadas aparecem em verde, nunca como pendentes e continuam sem prejudicar a consistência.</li>
 <li><strong>Temas e Home:</strong> temas claro e rosa ganharam contraste, profundidade e harmonização mais fortes em fundos, cards, sidebar, divisórias, campos e botões.</li>
-<li><strong>Indicadores:</strong> Consistência, Peso/Meta e Última devocional foram refinados como uma mesma família visual.</li>
-<li><strong>Continuidade:</strong> Cuidado, Mapa de Cuidado com foto central, Devocional/Jornada, Modo Presença, escala de texto e Aniversariantes permanecem preservados e integrados.</li>
+<li><strong>Indicadores:</strong> Consistência, Peso/Meta e Última meditação foram refinados como uma mesma família visual.</li>
+<li><strong>Continuidade:</strong> Cuidado, Mapa de Cuidado com foto central, Meditação/Jornada, Modo Presença, escala de texto e Aniversariantes permanecem preservados e integrados.</li>
 </ul></article>
 
 <article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Correção global de acentuação e proteção UTF-8</h2></div><span class="update-version">V78.7</span></div>
@@ -182,16 +191,16 @@
 <ul>
 <li><strong>Instalador corrigido:</strong> removido o escape incompatível que impedia o PowerShell de interpretar a validação da Jornada.</li>
 <li><strong>Pacote simplificado:</strong> o BAT passa a ficar diretamente na raiz do ZIP, sem uma segunda pasta V78.2 duplicada após a extração.</li>
-<li><strong>Mesmas melhorias funcionais:</strong> esta revisão já inclui integralmente a Devocional e a navegação previstas na V78.2; não é necessário aplicar a V78.2 anterior.</li>
+<li><strong>Mesmas melhorias funcionais:</strong> esta revisão já inclui integralmente a Meditação e a navegação previstas na V78.2; não é necessário aplicar a V78.2 anterior.</li>
 </ul></article>
 
-<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Devocional organizada por conteúdo e jornada revisada</h2></div><span class="update-version">V78.2</span></div>
+<article class="card update-card"><div class="update-head"><div><p class="eyebrow">15 de agosto de 2026</p><h2>Meditação organizada por conteúdo e jornada revisada</h2></div><span class="update-version">V78.2</span></div>
 <ul>
-<li><strong>Agrupamento dentro da devocional:</strong> os títulos já existentes — como Água e Respiração, Tecnologia Sutil, Premissa Existencial, Versículo do Dia, Reflexão Profunda, Oração e Regra de Vida — agora são organizados em blocos de Preparação, Palavra e reflexão, Resposta a Deus e Levar para o dia, sem alterar o texto das meditações.</li>
-<li><strong>Jornada como subtópico:</strong> a jornada temática deixou de ocupar a abertura obrigatória da página e passou a ficar em uma aba própria dentro de Devocional.</li>
+<li><strong>Agrupamento dentro da meditação:</strong> os títulos já existentes — como Água e Respiração, Tecnologia Sutil, Premissa Existencial, Versículo do Dia, Reflexão Profunda, Oração e Regra de Vida — agora são organizados em blocos de Preparação, Palavra e reflexão, Resposta a Deus e Levar para o dia, sem alterar o texto das meditações.</li>
+<li><strong>Jornada como subtópico:</strong> a jornada temática deixou de ocupar a abertura obrigatória da página e passou a ficar em uma aba própria dentro de Meditação.</li>
 <li><strong>Sem porcentagem incorreta:</strong> foram removidos os indicadores de “percorridas” e qualquer tentativa de inferir conclusão por outro módulo. Cada assunto agora mostra apenas quantas meditações publicadas pertencem a ele.</li>
-<li><strong>Histórico por assunto:</strong> ao abrir um tema, o Memory mostra as datas e um foco resumido de cada devocional para lembrar o que foi trabalhado naquele dia.</li>
-<li><strong>Ir ao dia e voltar:</strong> cada registro do histórico abre diretamente a devocional correspondente e exibe um botão “Voltar para Minha Jornada”.</li>
+<li><strong>Histórico por assunto:</strong> ao abrir um tema, o Memory mostra as datas e um foco resumido de cada meditação para lembrar o que foi trabalhado naquele dia.</li>
+<li><strong>Ir ao dia e voltar:</strong> cada registro do histórico abre diretamente a meditação correspondente e exibe um botão “Voltar para Minha Jornada”.</li>
 <li><strong>Cuidado recolhível:</strong> o menu Cuidado pode ser fechado manualmente mesmo quando uma página do módulo está ativa; o duplo clique também força o recolhimento no desktop.</li>
 </ul></article>
 
@@ -209,10 +218,10 @@
 <ul>
 <li><strong>Home adaptativa:</strong> a página raiz e a página de propósito preservam a identidade oficial do Memory e passam a recalcular superfícies, contraste, sombras, divisórias e destaques conforme o tema escolhido.</li>
 <li><strong>Cuidado na navegação principal:</strong> Mapa de Cuidado, Minhas Orações e Círculo de Cuidado foram reunidos em um único menu expansível, independente de Configurações e persistente dentro do módulo.</li>
-<li><strong>Indicadores padronizados:</strong> Consistência, Progresso até a meta e Última devocional passaram a usar a mesma lógica de grid, proporções, cabeçalho, espaçamento e resposta aos temas.</li>
+<li><strong>Indicadores padronizados:</strong> Consistência, Progresso até a meta e Última meditação passaram a usar a mesma lógica de grid, proporções, cabeçalho, espaçamento e resposta aos temas.</li>
 <li><strong>Mapa de Cuidado simbólico:</strong> os seis domínios deixaram de aparecer como cards espalhados e passaram a formar um núcleo compacto de símbolos com estados visuais de presença, atenção e pouca evidência.</li>
 <li><strong>Detalhamento contextual:</strong> ao interagir com um símbolo, o centro se reorganiza e a lateral mostra sinais recentes, o que o Memory observa, o que os registros mostram e a próxima ação sugerida.</li>
-<li><strong>Devocional por jornada:</strong> a tela agora classifica as meditações em temas, mostra o assunto atual, progresso, etapas próximas e próximo passo, preservando narração, destaques e navegação por data.</li>
+<li><strong>Meditação por jornada:</strong> a tela agora classifica as meditações em temas, mostra o assunto atual, progresso, etapas próximas e próximo passo, preservando narração, destaques e navegação por data.</li>
 <li><strong>Temas da jornada:</strong> Ansiedade, Perdão, Disciplina, Propósito, Relacionamentos, Fé, Gratidão, Identidade e Obediência passam a organizar a continuidade da experiência.</li>
 </ul></article>
 
@@ -237,5 +246,5 @@
 <li><strong>Padrão de atualização:</strong> as próximas melhorias serão entregues em pacote para extrair e executar um único BAT.</li>
 </ul><div class="update-rule"><strong>Regra do projeto:</strong> nenhuma melhoria entregue a partir desta versão deve ficar sem registro neste histórico.</div></article>
 </section></main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v80-3.js?v=20260816-v80-3"></script><script>MMCDShell('configuracoes')</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="nucleo/supabase-config.js?v=20260803-50"></script><script src="nucleo/supabase-client.js?v=20260803-50"></script><script src="nucleo/auth.js?v=20260814-memory-v42"></script><script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v80-4.js?v=20260816-v80-4"></script><script>MMCDShell('configuracoes')</script>
 </body></html>
