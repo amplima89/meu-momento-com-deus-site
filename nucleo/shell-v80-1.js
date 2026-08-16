@@ -15,12 +15,12 @@ window.MMCDShell=async function(active){
   script.onerror=()=>resolve(null);
   document.head.append(script);
  });
- // V50: carrega a identidade oficial Memory com URL nova para evitar cache antigo/PWA.
- if(!document.querySelector('link[data-memory-original-v50]')){
+ // V80: identidade visual oficial do Memory — #A78BFA + #60D5FF sobre azul-marinho profundo.
+ if(!document.querySelector('link[data-memory-original-v80]')){
   const css=document.createElement('link');
   css.rel='stylesheet';
-  css.href='modulos/memory/memory-original-v50.css?v=20260814-v50';
-  css.dataset.memoryOriginalV50='1';
+  css.href='modulos/memory/memory-original-v80.css?v=20260816-v80';
+  css.dataset.memoryOriginalV80='1';
   document.head.append(css);
  }
  // V79: camada semântica comum para os temas e componentes do Memory.
@@ -33,15 +33,15 @@ window.MMCDShell=async function(active){
  }
  if(!window.MMCDTheme?.getCatalog?.().some?.(item=>item.id==='memory-original')){
   await new Promise(resolve=>{
-   const existing=document.querySelector('script[data-memory-theme-v50]');
+   const existing=document.querySelector('script[data-memory-theme-v80]');
    if(existing){
     if(window.MMCDTheme?.getCatalog?.().some?.(item=>item.id==='memory-original')) resolve();
     else existing.addEventListener('load',resolve,{once:true});
     return;
    }
    const script=document.createElement('script');
-   script.src='nucleo/theme-system-v50.js?v=20260814-v50';
-   script.dataset.memoryThemeV50='1';
+   script.src='nucleo/theme-system-v80.js?v=20260816-v80';
+   script.dataset.memoryThemeV80='1';
    script.onload=resolve;
    script.onerror=resolve;
    document.head.append(script);
@@ -52,34 +52,37 @@ window.MMCDShell=async function(active){
   ['atividades','atividades.html','02','✅','Atividades','Rotina diária','Atividades'],
   ['meditacao','meditacao.html','03','🙏','Meditação','Momento com Deus','Meditação'],
   ['biblia','biblia.html','04','📖','Bíblia','Leitura e anotações','Bíblia'],
-  ['ingles','ingles.html','05','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
-  ['treinos','treinos.html#hoje','06','🏋️','Treinos','Plano de treino','Treinos'],
-  ['livros','livros.html','07','📚','Livros','Biblioteca','Livros'],
-  ['estatisticas','relatorios.html','08','📊','Estatísticas','Evolução','Evolução']
+  ['ingles','ingles.html','06','🇬🇧','Inglês diário','Aula adaptativa','Inglês'],
+  ['treinos','treinos.html#hoje','07','🏋️','Treinos','Plano de treino','Treinos'],
+  ['livros','livros.html','08','📚','Livros','Biblioteca','Livros'],
+  ['estatisticas','relatorios.html','09','📊','Estatísticas','Evolução','Evolução']
  ];
  const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','meditacao-links'];
  const settingsActive=settingsKeys.includes(active);
- const careKeys=['mapa-cuidado','arvore-da-vida','oracoes','circulo-cuidado','boas-acoes','aniversarios'];
+ const careKeys=['mapa-cuidado','arvore-da-vida','aniversarios','boas-acoes','circulo-cuidado','oracoes','registro-rapido','testemunhos'];
  const careActive=careKeys.includes(active);
  const mobileMemoryHtml=`
   <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v76" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt=""></span>
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
   </a>`;
- const navHtml=nav.map(x=>`
+ const renderNavItem=x=>`
   <a class="sidebar-link ${active===x[0]?'active':''}" href="${x[1]}">
    <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">${x[2]}</span><span class="sidebar-icon-mobile" aria-hidden="true">${x[3]}</span></span>
    <div class="sidebar-link__copy"><strong>${x[4]}</strong><small>${x[5]}</small></div>
    <span class="sidebar-mobile-label">${x[6]}</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
-  </a>`).join('');
+  </a>`;
+ const bibleIndex=nav.findIndex(item=>item[0]==='biblia');
+ const navBeforeCareHtml=nav.slice(0,bibleIndex+1).map(renderNavItem).join('');
+ const navAfterCareHtml=nav.slice(bibleIndex+1).map(renderNavItem).join('');
  const sidebarHtml=`
   <aside class="sidebar sidebar-v24">
    <a class="sidebar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt="Memory">
+     <img src="assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -90,21 +93,24 @@ window.MMCDShell=async function(active){
    <div class="sidebar-nav__section-label">PRINCIPAL</div>
    <nav class="sidebar-nav" aria-label="Navegação principal">
     ${mobileMemoryHtml}
-    ${navHtml}
+    ${navBeforeCareHtml}
     <div class="sidebar-settings sidebar-care-group ${careActive?'open':''}">
-     <button type="button" class="sidebar-link sidebar-settings__toggle ${careActive?'active':''}" aria-expanded="${careActive?'true':'false'}" aria-controls="sidebar-care-menu">
-      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">09</span><span class="sidebar-icon-mobile" aria-hidden="true">♡</span></span>
+     <a href="mapa-cuidado.html?v=20260816-v79-9" class="sidebar-link sidebar-settings__toggle ${careActive?'active':''}" aria-expanded="${careActive?'true':'false'}" aria-controls="sidebar-care-menu" title="Abrir Mapa de Cuidado">
+      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">05</span><span class="sidebar-icon-mobile" aria-hidden="true">♡</span></span>
       <div class="sidebar-link__copy"><strong>Cuidado</strong><small>Você por inteiro</small></div>
       <span class="sidebar-mobile-label">Cuidado</span><span class="sidebar-settings__chevron" aria-hidden="true">›</span>
-     </button>
+     </a>
      <div class="sidebar-subnav ${careActive?'open':''}" id="sidebar-care-menu" ${careActive?'':'hidden'}>
-      <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260816-v79-4"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
-      <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260816-v79-4"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
-      <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260816-v79-4"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
-      <a class="sidebar-subnav__link ${active==='boas-acoes'?'active':''}" href="boas-acoes.html?v=20260816-v79-4"><span class="sidebar-subnav__dot"></span><span><strong>Boas Ações</strong><small>Cuidado colocado em prática</small></span></a>
-      <a class="sidebar-subnav__link ${active==='aniversarios'?'active':''}" href="aniversarios.html?v=20260816-v79-4"><span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span></a>
+      <a class="sidebar-subnav__link ${active==='mapa-cuidado'||active==='arvore-da-vida'?'active':''}" href="mapa-cuidado.html?v=20260816-v79-9"><span class="sidebar-subnav__dot"></span><span><strong>Mapa de Cuidado</strong><small>Visão integral</small></span></a>
+      <a class="sidebar-subnav__link ${active==='aniversarios'?'active':''}" href="aniversarios.html?v=20260816-v79-9"><span class="sidebar-subnav__dot"></span><span><strong>Aniversariantes</strong><small>Datas e gestos de cuidado</small></span></a>
+      <a class="sidebar-subnav__link ${active==='boas-acoes'?'active':''}" href="boas-acoes.html?v=20260816-v79-9"><span class="sidebar-subnav__dot"></span><span><strong>Boas Ações</strong><small>Cuidado colocado em prática</small></span></a>
+      <a class="sidebar-subnav__link ${active==='circulo-cuidado'?'active':''}" href="circulo-cuidado.html?v=20260816-v79-9"><span class="sidebar-subnav__dot"></span><span><strong>Círculo de Cuidado</strong><small>Presença com quem importa</small></span></a>
+      <a class="sidebar-subnav__link ${active==='oracoes'?'active':''}" href="oracoes.html?v=20260816-v79-9"><span class="sidebar-subnav__dot"></span><span><strong>Minhas Orações</strong><small>Pedidos e Memórias de Deus</small></span></a>
+      <a class="sidebar-subnav__link ${active==='registro-rapido'?'active':''}" href="registro-rapido.html?v=20260816-v79-9"><span class="sidebar-subnav__dot"></span><span><strong>Registro rápido</strong><small>Memória de curto prazo</small></span></a>
+      <a class="sidebar-subnav__link ${active==='testemunhos'?'active':''}" href="testemunhos.html?v=20260816-v79-9"><span class="sidebar-subnav__dot"></span><span><strong>Testemunhos</strong><small>Memórias do que Deus fez</small></span></a>
      </div>
     </div>
+    ${navAfterCareHtml}
     <div class="sidebar-nav__section-label sidebar-nav__section-label--system">GESTÃO</div>
     <a class="sidebar-link ${settingsActive?'active':''}" href="configuracoes.html?v=20260815-v79">
      <span class="sidebar-link__icon"><span class="sidebar-icon-desktop">10</span><span class="sidebar-icon-mobile" aria-hidden="true">⚙️</span></span>
@@ -150,9 +156,11 @@ window.MMCDShell=async function(active){
    }
    .sidebar-memory-mobile{display:none!important}
    .sidebar-memory-mobile__icon{overflow:hidden;padding:0!important;background:#071a39!important;border-color:rgba(116,216,244,.22)!important}
-   .sidebar-memory-mobile__icon img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+  
+ .sidebar-v24 .sidebar-brand__mark img{object-fit:contain!important;padding:5px!important}
+ .sidebar-memory-mobile__icon img{display:block;width:100%;height:100%;object-fit:contain;border-radius:0;padding:4px}
    .memory-topbar-brand{display:inline-flex;align-items:center;gap:8px;color:inherit;text-decoration:none}
-   .memory-topbar-brand img{display:none;width:30px;height:30px;border-radius:9px;object-fit:cover;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:#071a39}
+   .memory-topbar-brand img{display:none;width:30px;height:30px;border-radius:9px;object-fit:contain;padding:4px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:#000717}
    .memory-topbar-brand span{font:650 .82rem/1 Inter,"Segoe UI",Arial,sans-serif;letter-spacing:.015em;text-transform:none}
    @media(max-width:760px){
     .sidebar-v24 .sidebar-memory-mobile{display:grid!important}
@@ -286,7 +294,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',
@@ -312,7 +320,9 @@ window.MMCDShell=async function(active){
   'mapa-cuidado':'Memory - Mapa de Cuidado',
   oracoes:'Memory - Minhas Orações',
   'circulo-cuidado':'Memory - Círculo de Cuidado',
-  'boas-acoes':'Memory - Boas Ações'
+  'boas-acoes':'Memory - Boas Ações',
+  'testemunhos':'Memory - Testemunhos',
+  'registro-rapido':'Memory - Registro rápido'
  };
  if(memoryTitles[active]) document.title=memoryTitles[active];
  else document.title=document.title.replace(/Life Style/gi,'Memory').replace(/\s*[—-]\s*Memory\s*$/i,'').replace(/^Memory\s*[—-]\s*/i,'Memory - ');
@@ -440,25 +450,26 @@ window.MMCDShell=async function(active){
  if(careGroup&&careToggle&&careMenu){
   const saved=localStorage.getItem('memory:sidebar:care-open')==='1';
   setCareOpen(careActive||saved,{persist:false});
+  // V79.9: Cuidado é um destino. Um clique abre diretamente o Mapa de Cuidado.
+  // O submenu permanece aberto nas páginas de Cuidado e lista os demais itens abaixo.
   careToggle.addEventListener('click',()=>{
-   if(isMobileNav()){
-    openMobileSubmenu(careMenu,'Cuidado');
-    return;
-   }
-   setCareOpen(!careGroup.classList.contains('open'));
-  });
-  careToggle.addEventListener('dblclick',(event)=>{
-   if(isMobileNav())return;
-   event.preventDefault();
-   setCareOpen(false);
+   localStorage.setItem('memory:sidebar:care-open','1');
   });
  }
  // MEMORY_CARE_NAV_V78_END
 
  const logo=document.querySelector('.sidebar-brand__mark img');
  if(logo){
-  const fallback=()=>{const mark=logo.closest('.sidebar-brand__mark');if(mark)mark.classList.add('has-fallback')};
-  logo.addEventListener('error',fallback,{once:true});
+  const mark=logo.closest('.sidebar-brand__mark');
+  const fallback=()=>{
+   if(logo.dataset.memoryFallbackTried!=='1'){
+    logo.dataset.memoryFallbackTried='1';
+    logo.src='assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1';
+    return;
+   }
+   if(mark)mark.classList.add('has-fallback');
+  };
+  logo.addEventListener('error',fallback);
   if(logo.complete&&logo.naturalWidth===0)fallback();
  }
 
@@ -672,6 +683,7 @@ window.MMCDShell=async function(active){
  const NEWS_ID='memory-update-2026-08-16-v79-4-cuidado-biblia-medidas';
  const NEWS_ITEMS=[
   'Cuidado ganhou Boas Ações: registre gestos de cuidado com data, categoria, descrição e pessoa, sem pontos ou ranking.',
+  'Cuidado agora também tem Testemunhos: registre o que Deus fez, mantenha privado ou prepare para compartilhar com sua identidade ou de forma anônima.',
   'Boas Ações já traz um relatório mensal com quantidade de registros, dias com gestos, categorias e pessoas alcançadas.',
   'A Bíblia agora separa Livro atual de Livro mais avançado e mostra também a Última leitura para representar melhor onde você está na caminhada.',
   'Cada versículo da Bíblia ganhou um check para registrar o que foi lido ou citado na igreja; essa marcação não conclui capítulos nem altera o percentual da Bíblia.',

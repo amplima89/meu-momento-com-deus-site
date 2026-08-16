@@ -191,3 +191,12 @@
 - Página institucional do Memory atualizada para a mesma identidade.
 - Na Meditação, o agrupador visual “Continuidade” passa a ser “Complementos”.
 - O ID interno `continuidade` foi mantido para preservar compatibilidade com preferências locais e CSS existentes.
+
+
+## V80.1 — 16/08/2026
+- Marca oficial extraída diretamente da identidade visual aprovada.
+- Hero institucional deixa de usar o SVG reconstruído que deformava o símbolo.
+- Sidebar, topbar e demais referências passam a usar `memory-mark-official-v80-1.png`.
+- `memory-mark-v62.png` é mantido como alias retrocompatível.
+- Imagens da marca usam `object-fit: contain`.
+- Favicon usa `memory-icon-official-v80-1.png`.

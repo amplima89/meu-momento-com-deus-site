@@ -2953,7 +2953,7 @@
     const streak=workoutCompletedStreak(session);
     return `<div class="workout-social-block memory-share-block">
       <div class="memory-share-preview memory-share-preview--workout">
-        <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-v62.png" alt=""><div><strong>Memory</strong><small>movimento que vira memória</small></div></div>
+        <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-official-v80-1.png" alt=""><div><strong>Memory</strong><small>movimento que vira memória</small></div></div>
         <span class="memory-share-preview__eyebrow">Treino concluído</span>
         <h3>${esc(options.title)}</h3>
         <p class="workout-share-groups">${esc(options.subtitle)}</p>
