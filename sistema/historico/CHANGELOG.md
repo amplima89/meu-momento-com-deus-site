@@ -161,3 +161,14 @@
 - Modo anônimo não inclui nome, usuário, foto ou link de perfil no conteúdo compartilhado.
 - Registros podem ser editados, excluídos e ter a privacidade alterada.
 - Compartilhamento nativo disponível para testemunhos públicos.
+
+
+## V79.8 — 16/08/2026
+- Mapa de Cuidado passa a ler Boas Ações, Testemunhos, Orações, Círculo de Cuidado e Aniversários.
+- MemoryCare centraliza as relações entre fontes de Cuidado e dimensões do mapa.
+- Toda escrita via MemoryCare dispara `memory:care-changed`, revisão em localStorage e BroadcastChannel.
+- Aniversários também notificam o mapa mesmo usando MemoryConfig diretamente.
+- Mapa recalcula automaticamente quando o Cuidado muda, inclusive entre abas.
+- Testemunhos: Espiritual + Memórias.
+- Boas Ações: Relacionamentos + Memórias; categoria Trabalho também alimenta Desenvolvimento.
+- Orações por pessoas alimentam Relacionamentos; atividade de oração alimenta Espiritual; respostas continuam compondo Memórias.

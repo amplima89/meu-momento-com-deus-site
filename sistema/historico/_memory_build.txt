@@ -1,1 +1,1 @@
-V79.7 | 2026-08-16 | Cuidado após Bíblia + Testemunhos com privacidade
+V79.8 | 2026-08-16 | Mapa de Cuidado conectado às relações do módulo Cuidado
