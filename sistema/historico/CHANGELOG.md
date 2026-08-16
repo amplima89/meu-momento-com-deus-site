@@ -225,3 +225,21 @@
 - Dependências do Registro rápido (`core`, JS e CSS) também são publicadas.
 - Mapa de Cuidado continua integrado ao Registro rápido.
 - Validação passa a confirmar que `registro-rapido.html` existe e é rastreado pelo Git após a publicação.
+
+
+## V80.5 — 16/08/2026
+- Registro rápido removido visualmente de Missões.
+- Dados `diario_rapido_v1` continuam sendo lidos para integrações e análises existentes.
+- Cuidado mantém Mapa de Cuidado como primeiro item.
+- Demais itens de Cuidado ordenados alfabeticamente:
+  Aniversariantes, Boas Ações, Minhas Orações, Registro rápido, Relacionamentos e Testemunhos.
+
+
+## V80.5.1 — 16/08/2026
+- Corrigida a validação do instalador V80.5.
+- A falha anterior era do próprio validador: ele procurava um comentário específico no JavaScript.
+- Agora a validação verifica o comportamento real:
+  - não existe chamada ativa `criarPainelDiarioRapido();`;
+  - existe remoção defensiva de `#quick-journal-card`;
+  - `painel.html` aponta para o dashboard correto.
+- Nenhuma regra funcional de Cuidado foi revertida.

@@ -1,1 +1,1 @@
-V80.4 | 2026-08-16 | Relacionamentos + correcao 404 do Registro rapido
+V80.5.1 | 2026-08-16 | Correcao da validacao do pacote V80.5
