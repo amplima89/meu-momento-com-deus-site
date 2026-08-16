@@ -1,1 +1,1 @@
-V79.8 | 2026-08-16 | Mapa de Cuidado conectado às relações do módulo Cuidado
+V80.0 | 2026-08-16 | Identidade oficial #A78BFA + #60D5FF e Complementos na meditacao

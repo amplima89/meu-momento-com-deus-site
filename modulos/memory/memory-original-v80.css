@@ -1,0 +1,249 @@
+/* MEMORY ORIGINAL V80 — identidade visual oficial
+   Paleta: Violeta #A78BFA | Ciano #60D5FF | Fundo #000717
+*/
+html[data-tema="memory-original"]{
+  color-scheme:dark;
+
+  --memory-violet:#A78BFA;
+  --memory-cyan:#60D5FF;
+  --memory-bg:#000717;
+  --memory-navy:#06152B;
+  --memory-navy-2:#0A1C36;
+  --memory-gradient:linear-gradient(135deg,#A78BFA 0%,#60D5FF 100%);
+  --memory-gradient-soft:linear-gradient(135deg,rgba(167,139,250,.17),rgba(96,213,255,.11));
+
+  --bg:#000717;
+  --surface:#07162D;
+  --surface-2:#0C203C;
+  --text:#F4F6FC;
+  --muted:#9CAAC0;
+  --line:rgba(96,213,255,.16);
+  --accent:#A78BFA;
+  --accent-soft:rgba(167,139,250,.14);
+  --success:#55C69A;
+  --danger:#FF7782;
+  --shadow:0 20px 58px rgba(0,0,0,.34);
+
+  --nav-bg:#00030F;
+  --nav-text:#F4F6FC;
+  --nav-muted:#8795AA;
+  --nav-line:rgba(96,213,255,.13);
+  --nav-hover:rgba(96,213,255,.065);
+  --nav-active-bg:linear-gradient(135deg,rgba(167,139,250,.19),rgba(96,213,255,.12));
+  --nav-active-line:#60D5FF;
+  --nav-icon-bg:#09182E;
+  --nav-icon:#B8E9FF;
+  --nav-sub-bg:#030D1F;
+}
+
+html[data-tema="memory-original"],
+html[data-tema="memory-original"] body{
+  background:
+    radial-gradient(circle at 13% 5%,rgba(167,139,250,.11),transparent 27%),
+    radial-gradient(circle at 87% 12%,rgba(96,213,255,.095),transparent 28%),
+    linear-gradient(180deg,#000717 0%,#031026 48%,#000717 100%);
+  color:var(--text);
+}
+html[data-tema="memory-original"] body{background-attachment:fixed}
+
+html[data-tema="memory-original"] .app-topbar{
+  border-bottom-color:rgba(96,213,255,.13);
+  background:rgba(0,7,23,.82);
+  backdrop-filter:blur(20px) saturate(128%);
+  -webkit-backdrop-filter:blur(20px) saturate(128%);
+}
+html[data-tema="memory-original"] .app-topbar__title{
+  color:#F7F8FD;
+}
+html[data-tema="memory-original"] .eyebrow,
+html[data-tema="memory-original"] .app-topbar__subtitle{
+  color:#8EDFFF;
+}
+html[data-tema="memory-original"] .memory-topbar-brand span{
+  color:#F7F8FD;
+  font-weight:650;
+}
+
+html[data-tema="memory-original"] .card{
+  background:
+    linear-gradient(145deg,rgba(167,139,250,.024),rgba(96,213,255,.018)),
+    rgba(7,22,45,.92);
+  border-color:rgba(96,213,255,.15);
+  box-shadow:0 18px 52px rgba(0,0,0,.25);
+}
+html[data-tema="memory-original"] .card:hover{
+  border-color:rgba(96,213,255,.22);
+}
+
+html[data-tema="memory-original"] .btn.primary,
+html[data-tema="memory-original"] button.primary,
+html[data-tema="memory-original"] .nav-cta{
+  background:var(--memory-gradient)!important;
+  color:#000717!important;
+  border-color:transparent!important;
+  box-shadow:0 12px 30px rgba(96,213,255,.14);
+  font-weight:850;
+}
+html[data-tema="memory-original"] .btn.primary:hover,
+html[data-tema="memory-original"] button.primary:hover{
+  filter:brightness(1.045);
+  transform:translateY(-1px);
+}
+
+html[data-tema="memory-original"] .btn,
+html[data-tema="memory-original"] .icon-btn,
+html[data-tema="memory-original"] .mini-action{
+  border-color:rgba(96,213,255,.16);
+}
+html[data-tema="memory-original"] .icon-btn{
+  background:rgba(7,22,45,.84);
+}
+
+html[data-tema="memory-original"] .progress,
+html[data-tema="memory-original"] .consistency-cell,
+html[data-tema="memory-original"] .period-filter{
+  background:rgba(255,255,255,.052);
+}
+html[data-tema="memory-original"] .progress i,
+html[data-tema="memory-original"] .consistency-cell.on{
+  background:var(--memory-gradient);
+}
+
+html[data-tema="memory-original"] .field input,
+html[data-tema="memory-original"] .field select,
+html[data-tema="memory-original"] .field textarea,
+html[data-tema="memory-original"] input,
+html[data-tema="memory-original"] select,
+html[data-tema="memory-original"] textarea{
+  background:rgba(2,13,31,.74);
+  color:var(--text);
+  border-color:rgba(96,213,255,.16);
+}
+html[data-tema="memory-original"] input:focus,
+html[data-tema="memory-original"] select:focus,
+html[data-tema="memory-original"] textarea:focus{
+  border-color:#A78BFA;
+  box-shadow:0 0 0 3px rgba(167,139,250,.14);
+}
+html[data-tema="memory-original"] select option{
+  background:#07162D;
+  color:#F4F6FC;
+}
+
+html[data-tema="memory-original"] .sidebar,
+html[data-tema="memory-original"] .sidebar.sidebar-v24{
+  background:
+    radial-gradient(circle at 10% 5%,rgba(167,139,250,.065),transparent 24%),
+    #00030F;
+  border-color:rgba(96,213,255,.12);
+}
+html[data-tema="memory-original"] .sidebar-v24 .sidebar-brand{
+  border-bottom-color:rgba(96,213,255,.12);
+}
+html[data-tema="memory-original"] .sidebar-v24 .sidebar-brand:hover{
+  background:rgba(96,213,255,.05)!important;
+}
+html[data-tema="memory-original"] .sidebar-v24 .sidebar-brand__copy strong{
+  background:var(--memory-gradient);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  font-weight:680;
+}
+html[data-tema="memory-original"] .sidebar-v24 .sidebar-brand__copy small{
+  color:#7F8EA7!important;
+}
+html[data-tema="memory-original"] .sidebar-v24 .sidebar-link:hover{
+  background:rgba(96,213,255,.06);
+}
+html[data-tema="memory-original"] .sidebar-v24 .sidebar-link.active{
+  background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(96,213,255,.11));
+  border-color:rgba(96,213,255,.28);
+  box-shadow:inset 3px 0 0 #60D5FF,0 10px 28px rgba(0,0,0,.16);
+}
+html[data-tema="memory-original"] .sidebar-v24 .sidebar-link.active .sidebar-link__icon{
+  background:linear-gradient(145deg,rgba(167,139,250,.19),rgba(96,213,255,.13));
+  color:#D5F4FF;
+}
+html[data-tema="memory-original"] .sidebar-nav__section-label{color:#66758D}
+html[data-tema="memory-original"] .sidebar-subnav__link.active{
+  background:linear-gradient(90deg,rgba(167,139,250,.11),rgba(96,213,255,.075));
+  border-color:rgba(96,213,255,.18);
+}
+
+html[data-tema="memory-original"] .theme-picker{
+  background:rgba(2,13,31,.98);
+  border-color:rgba(96,213,255,.18);
+  box-shadow:0 24px 70px rgba(0,0,0,.42);
+}
+html[data-tema="memory-original"] .theme-picker__option.active{
+  background:var(--memory-gradient-soft);
+  border-color:rgba(96,213,255,.30);
+}
+
+html[data-tema="memory-original"] .appearance-choice.active,
+html[data-tema="memory-original"] .appearance-enable.is-enabled{
+  border-color:rgba(96,213,255,.30)!important;
+  background:var(--memory-gradient-soft)!important;
+}
+html[data-tema="memory-original"] .memory-official-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-left:7px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:linear-gradient(135deg,rgba(167,139,250,.20),rgba(96,213,255,.15));
+  border:1px solid rgba(96,213,255,.24);
+  color:#D3F4FF;
+  font-size:.56rem;
+  font-weight:850;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+}
+
+html[data-tema="memory-original"] .toast{
+  background:#EFF9FF;
+  color:#000717;
+}
+html[data-tema="memory-original"] ::selection{
+  background:rgba(167,139,250,.34);
+  color:#fff;
+}
+html[data-tema="memory-original"] ::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#A78BFA,#60D5FF);
+  border-radius:999px;
+}
+
+/* detalhes de marca: o violeta inicia a ação e o ciano conclui a progressão */
+html[data-tema="memory-original"] .memory-brand-gradient,
+html[data-tema="memory-original"] .brand-gradient{
+  background:var(--memory-gradient);
+}
+html[data-tema="memory-original"] .memory-brand-text{
+  background:var(--memory-gradient);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+@media(max-width:760px){
+  html[data-tema="memory-original"] .sidebar.sidebar-v24{
+    background:rgba(0,3,15,.975)!important;
+    border-top-color:rgba(96,213,255,.15)!important;
+    box-shadow:0 -14px 44px rgba(0,0,0,.32);
+  }
+  html[data-tema="memory-original"] .sidebar-v24 .sidebar-link.active{
+    background:linear-gradient(145deg,rgba(167,139,250,.19),rgba(96,213,255,.11));
+    box-shadow:inset 0 2px 0 #60D5FF,0 8px 24px rgba(0,0,0,.22);
+  }
+}
+
+/* Preview oficial no seletor de temas */
+[data-theme-choice="memory-original"] .appearance-swatch,
+[data-theme-enabled-toggle="memory-original"] .appearance-swatch,
+.theme-picker__option[data-theme-choice="memory-original"] .theme-picker__swatch{
+  background:linear-gradient(135deg,#000717 0 45%,#A78BFA 46%,#60D5FF 100%)!important;
+  border-color:rgba(96,213,255,.36)!important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.035),0 0 22px rgba(96,213,255,.10)!important;
+}

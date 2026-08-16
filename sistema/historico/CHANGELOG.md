@@ -172,3 +172,22 @@
 - Testemunhos: Espiritual + Memórias.
 - Boas Ações: Relacionamentos + Memórias; categoria Trabalho também alimenta Desenvolvimento.
 - Orações por pessoas alimentam Relacionamentos; atividade de oração alimenta Espiritual; respostas continuam compondo Memórias.
+
+
+## V79.9 — 16/08/2026
+- Registro rápido movido do painel inicial para Cuidado > Registro rápido.
+- Clicar em Cuidado abre diretamente o Mapa de Cuidado.
+- Submenu de Cuidado: Mapa primeiro; demais itens em ordem alfabética.
+- Registro rápido passa a usar MemoryCare.write e notificar o mapa em salvar, editar e excluir.
+- Categorias do Registro rápido passam a alimentar dimensões específicas do Mapa de Cuidado.
+- O painel continua lendo o Registro rápido para sequência, mas deixa de renderizar o card.
+
+
+## V80.0 — 16/08/2026
+- Identidade oficial atualizada para a paleta #A78BFA + #60D5FF.
+- Fundo oficial passa a usar azul-marinho profundo #000717.
+- Tema `memory-original` renomeado visualmente para Memory Oficial.
+- Botões, estados ativos, navegação e detalhes de marca passam a usar o gradiente oficial violeta → ciano.
+- Página institucional do Memory atualizada para a mesma identidade.
+- Na Meditação, o agrupador visual “Continuidade” passa a ser “Complementos”.
+- O ID interno `continuidade` foi mantido para preservar compatibilidade com preferências locais e CSS existentes.
