@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1628">
+  <title>Boas Ações — Cuidado — Memory</title>
+  <link rel="icon" href="assets/imagens/memory-mark-v62.png" sizes="any">
+  <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
+  <link rel="stylesheet" href="modulos/memory/memory-care-v72.css?v=20260815-v74">
+  <link rel="stylesheet" href="modulos/memory/memory-good-deeds-v79-4.css?v=20260816-v79-4">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar"><div class="app-topbar__inner"><div><span class="app-topbar__title">MEMORY</span><span class="app-topbar__subtitle">Cuidado · Boas Ações</span></div><button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button></div></header>
+    <main class="app-main good-deeds-page">
+      <section class="memory-care-hero good-deeds-hero">
+        <div class="memory-care-hero__row"><div><p class="memory-care-eyebrow">Cuidado colocado em prática</p><h1>🤲 Boas Ações</h1><p>Registre gestos de cuidado que você realizou. O objetivo não é pontuar bondade, e sim criar memória sobre como o cuidado tem aparecido na sua vida.</p></div><span class="memory-care-badge">Sem ranking · sem score</span></div>
+      </section>
+
+      <section class="good-deeds-layout">
+        <article class="card good-deeds-form-card">
+          <div class="section-head"><div><p class="eyebrow">Registro rápido</p><h2>O que você fez de bom hoje?</h2><p class="muted">Um gesto simples já merece ser lembrado.</p></div><span id="good-deeds-save-status" class="memory-care-status">Carregando…</span></div>
+          <form id="good-deeds-form" class="good-deeds-form" autocomplete="off">
+            <div class="good-deeds-form__grid">
+              <label class="field"><span>Data</span><input id="good-deeds-date" name="data" type="date" required></label>
+              <label class="field"><span>Categoria</span><select id="good-deeds-category" name="categoria" required>
+                <option value="familia">Família / Relacionamentos</option>
+                <option value="generosidade">Generosidade</option>
+                <option value="servico">Ajuda / Serviço</option>
+                <option value="trabalho">Trabalho</option>
+                <option value="comunidade">Comunidade</option>
+                <option value="outro">Outro</option>
+              </select></label>
+            </div>
+            <label class="field"><span>Boa ação</span><textarea id="good-deeds-description" name="descricao" rows="4" maxlength="500" placeholder="Ex.: ajudei alguém que precisava, fiz uma ligação importante, ofereci apoio..." required></textarea></label>
+            <label class="field"><span>Para quem? <small>(opcional)</small></span><input id="good-deeds-person" name="pessoa" type="text" maxlength="120" placeholder="Nome ou relação, se quiser registrar"></label>
+            <div class="good-deeds-form__actions"><p class="muted">Este registro é pessoal. Ele não gera pontos nem ranking.</p><button class="btn primary" type="submit">Salvar boa ação ✓</button></div>
+          </form>
+        </article>
+
+        <aside class="card good-deeds-month-card">
+          <div class="section-head"><div><p class="eyebrow">Relatório</p><h2>Minha jornada de cuidado</h2></div><label class="good-deeds-month-filter"><span>Mês</span><input id="good-deeds-month" type="month"></label></div>
+          <div id="good-deeds-month-summary" class="good-deeds-stats"></div>
+          <div class="good-deeds-report-block"><h3>Onde o cuidado apareceu</h3><div id="good-deeds-categories" class="good-deeds-category-report"></div></div>
+          <p class="good-deeds-report-note">O relatório organiza seus registros para reflexão. Ele não mede caráter, bondade ou valor pessoal.</p>
+        </aside>
+      </section>
+
+      <section class="card good-deeds-history-card">
+        <div class="section-head"><div><p class="eyebrow">Histórico</p><h2>Boas ações registradas</h2><p class="muted">Você pode editar ou excluir um registro quando precisar.</p></div><span id="good-deeds-count" class="memory-care-badge">0 registros</span></div>
+        <div id="good-deeds-history" class="good-deeds-history"></div>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="nucleo/supabase-config.js?v=20260803-50"></script>
+  <script src="nucleo/supabase-client.js?v=20260803-50"></script>
+  <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script>
+  <script src="modulos/memory/memory-config-v68.js?v=20260815-v74"></script>
+  <script src="nucleo/shell-v79-4.js?v=20260816-v79-4"></script>
+  <script>MMCDShell('boas-acoes')</script>
+  <script src="modulos/memory/memory-care-core-v72.js?v=20260815-v74"></script>
+  <script src="modulos/memory/memory-good-deeds-v79-4.js?v=20260816-v79-4"></script>
+</body>
+</html>

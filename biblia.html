@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Bíblia online — Memory</title>
   <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
-  <link rel="stylesheet" href="modulos/biblia/biblia.css?v=20260811-biblia-v29">
+  <link rel="stylesheet" href="modulos/biblia/biblia-v79-4.css?v=20260816-v79-4">
 </head>
 <body>
   <div class="app-shell">
@@ -47,11 +47,13 @@
           </div>
         </article>
 
-        <div class="bible-stat-grid">
+        <div class="bible-stat-grid bible-stat-grid--v794">
           <article class="card bible-stat"><span>Livros concluídos</span><strong id="biblia-stat-books">0 <small>/ 66</small></strong></article>
           <article class="card bible-stat"><span>Capítulos concluídos</span><strong id="biblia-stat-chapters">0 <small>/ 1.189</small></strong></article>
           <article class="card bible-stat"><span>Versículos percorridos</span><strong id="biblia-stat-verses">0 <small>/ 31.102</small></strong></article>
-          <article class="card bible-stat"><span>Livro mais avançado</span><strong id="biblia-stat-current-book" class="textual">—</strong></article>
+          <article class="card bible-stat bible-stat--current"><span>Livro atual</span><strong id="biblia-stat-current-book" class="textual">—</strong></article>
+          <article class="card bible-stat"><span>Livro mais avançado</span><strong id="biblia-stat-most-advanced-book" class="textual">—</strong></article>
+          <article class="card bible-stat"><span>Última leitura</span><strong id="biblia-stat-last-reading" class="textual">—</strong></article>
         </div>
       </section>
 
@@ -75,7 +77,7 @@
           <div id="biblia-conteudo" class="bible-content"><div class="bible-loading">Carregando...</div></div>
         </article>
         <aside class="bible-side">
-          <section class="card"><p class="eyebrow">Durante a leitura</p><h3>Marque e reflita</h3><p class="bible-help muted">Selecione uma palavra ou frase para destacar e criar uma anotação. Para anotar o versículo inteiro, use o botão <strong>+ Anotar</strong> ao lado dele.</p><button id="biblia-limpar" class="btn small" type="button">Limpar marcações do capítulo</button></section>
+          <section class="card"><p class="eyebrow">Durante a leitura</p><h3>Marque e reflita</h3><p class="bible-help muted">Selecione uma palavra ou frase para destacar e criar uma anotação. Para anotar o versículo inteiro, use o botão <strong>+ Anotar</strong> ao lado dele.</p><div class="bible-church-help"><strong>Na igreja:</strong> use o check ao lado do número de cada versículo para registrar o que o pastor leu ou citou. Essa marcação é independente do progresso: mesmo marcando todos os versículos, o capítulo só fica concluído pelo botão <strong>Capítulo concluído</strong>.</div><button id="biblia-limpar" class="btn small" type="button">Limpar marcações do capítulo</button></section>
           <section class="card"><p class="eyebrow">Marcações do capítulo</p><div id="biblia-destaques" class="bible-highlight-list"></div></section>
           <p class="bible-source">Texto bíblico: João Ferreira de Almeida, domínio público, disponibilizado por <a href="https://bible-api.com" target="_blank" rel="noopener noreferrer">bible-api.com</a>.</p>
         </aside>
@@ -104,8 +106,8 @@
   <script src="nucleo/supabase-config.js?v=20260811-biblia27"></script>
   <script src="nucleo/supabase-client.js?v=20260811-biblia27"></script>
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
-  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v79.js?v=20260815-v79"></script>
+  <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script><script src="nucleo/shell-v79-4.js?v=20260816-v79-4"></script>
   <script>MMCDShell("biblia")</script>
-  <script src="modulos/biblia/biblia.js?v=20260811-biblia-v29"></script>
+  <script src="modulos/biblia/biblia-v79-4.js?v=20260816-v79-4"></script>
 </body>
 </html>

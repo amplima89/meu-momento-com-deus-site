@@ -8,7 +8,7 @@
   <link rel="icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42" sizes="any">
   <link rel="apple-touch-icon" href="assets/imagens/memory-mark-v62.png?v=20260814-memory-v42">
   <link rel="stylesheet" href="nucleo/painel.css?v=20260813-v41">
-  <link rel="stylesheet" href="modulos/medidas/medidas.css?v=20260814-v46">
+  <link rel="stylesheet" href="modulos/medidas/medidas-v79-4.css?v=20260816-v79-4">
 </head>
 <body>
   <div class="app-shell">
@@ -80,7 +80,7 @@
               <p class="eyebrow">Body scan</p>
               <h2>Corpo em leitura</h2>
             </div>
-            <span id="body-scan-count" class="body-scan-count">0/13</span>
+            <span id="body-scan-count" class="body-scan-count">0/20</span>
           </div>
 
           <div class="body-scan-stage">
@@ -94,7 +94,8 @@
               </defs>
 
               <circle class="body-region body-region--head" cx="180" cy="55" r="34"/>
-              <rect class="body-region" x="135" y="98" width="90" height="100" rx="40" data-region="peitoral"/>
+              <path class="body-region" d="M123 106 Q180 84 237 106 L229 139 Q180 124 131 139 Z" data-region="ombros"/>
+              <rect class="body-region" x="135" y="112" width="90" height="86" rx="35" data-region="peitoral"/>
               <rect class="body-region" x="147" y="190" width="66" height="88" rx="24" data-region="abdomen"/>
               <rect class="body-region" x="142" y="265" width="76" height="42" rx="19" data-region="cintura"/>
               <path class="body-region" d="M137 304 Q180 325 223 304 L234 350 Q180 378 126 350 Z" data-region="quadril"/>
@@ -104,8 +105,12 @@
               <path class="body-region" d="M268 116 Q257 108 242 113 L234 194 Q249 204 264 194 L272 128 Z" data-region="bicepsDireito"/>
               <path class="body-region" d="M264 196 Q249 205 234 196 L230 286 Q244 295 259 286 L265 222 Z" data-region="antebracoDireito"/>
 
-              <path class="body-region" d="M128 350 Q155 338 174 362 L166 475 Q145 493 119 470 Z" data-region="coxaEsquerda"/>
-              <path class="body-region" d="M232 350 Q205 338 186 362 L194 475 Q215 493 241 470 Z" data-region="coxaDireita"/>
+              <path class="body-region" d="M128 350 Q154 340 174 362 L171 400 Q146 410 124 397 Z" data-region="coxaSuperiorEsquerda"/>
+              <path class="body-region" d="M232 350 Q206 340 186 362 L189 400 Q214 410 236 397 Z" data-region="coxaSuperiorDireita"/>
+              <path class="body-region" d="M124 398 Q147 410 171 401 L168 438 Q145 448 121 436 Z" data-region="coxaMediaEsquerda"/>
+              <path class="body-region" d="M236 398 Q213 410 189 401 L192 438 Q215 448 239 436 Z" data-region="coxaMediaDireita"/>
+              <path class="body-region" d="M121 437 Q145 448 168 439 L166 475 Q145 493 119 470 Z" data-region="coxaInferiorEsquerda"/>
+              <path class="body-region" d="M239 437 Q215 448 192 439 L194 475 Q215 493 241 470 Z" data-region="coxaInferiorDireita"/>
 
               <path class="body-region" d="M119 467 Q145 478 166 470 L158 573 Q142 590 126 573 Z" data-region="panturrilhaEsquerda"/>
               <path class="body-region" d="M241 467 Q215 478 194 470 L202 573 Q218 590 234 573 Z" data-region="panturrilhaDireita"/>
@@ -172,8 +177,8 @@
   <script src="nucleo/supabase-client.js?v=20260813-v41"></script>
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
   <script src="nucleo/theme-system.js?v=20260814-memory-v42"></script>
-  <script src="nucleo/shell-v79.js?v=20260815-v79"></script>
+  <script src="nucleo/shell-v79-4.js?v=20260816-v79-4"></script>
   <script>MMCDShell('medidas')</script>
-  <script src="modulos/medidas/medidas.js?v=20260814-v52"></script>
+  <script src="modulos/medidas/medidas-v79-4.js?v=20260816-v79-4"></script>
 </body>
 </html>

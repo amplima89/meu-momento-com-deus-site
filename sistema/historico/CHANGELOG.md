@@ -119,3 +119,21 @@
 - Card de treino concluído permanece acessível após o fechamento e também no histórico do dia.
 - Compartilhamento de qualquer treino concluído passa a usar a data correta da sessão selecionada.
 - Card social destaca “Treino concluído” e dias de constância.
+
+
+## V79.3 — 15/08/2026
+- Abono de treino preserva explicitamente a constância sem ser contado como treino realizado.
+- Cálculo do card social passa a rastrear quantos abonos existem dentro da sequência atual.
+- Card de treino concluído ganha terceiro indicador de Abono quando aplicável.
+- Legenda compartilhável informa que o abono preservou a sequência.
+- Regra de constância passa a reconhecer metas ativas claramente ligadas ao treino ao verificar abono.
+
+
+## V79.4 — 16/08/2026
+- Nova área Cuidado > Boas Ações com persistência no Supabase, edição, exclusão e relatório mensal reflexivo.
+- Bíblia passa a separar Livro atual, Livro mais avançado e Última leitura.
+- Mensagem principal de Sua Caminhada prioriza o livro atual identificado pelas conclusões mais recentes.
+- Check por versículo registra leitura/citação na igreja sem afetar capítulo concluído ou percentual da Bíblia.
+- Medições corporais ampliadas para ombros, bíceps relaxado/contraído bilateral e coxa superior/média/inferior bilateral.
+- Body Scan passa de 13 para 20 campos corporais e mantém compatibilidade de leitura com registros antigos.
+- V79.4 inclui cumulativamente as correções V79.3 de constância protegida por abono e card social.

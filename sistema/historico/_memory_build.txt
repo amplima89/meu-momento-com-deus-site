@@ -1,1 +1,1 @@
-V79.2 | 2026-08-15 | Treinos: abono semanal, Leg Press padronizado e compartilhamento persistente
+V79.4 | 2026-08-16 | Cuidado Boas Acoes + Biblia livro atual/check igreja + Body Scan 20 medidas
