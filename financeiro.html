@@ -3,16 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <link rel="manifest" href="site.webmanifest?v=20260817-v81-2-1" />
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/imagens/pwa/memory-favicon-32.png?v=20260817-v81-2-1" />
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/imagens/pwa/memory-icon-192.png?v=20260817-v81-2-1" />
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/imagens/pwa/memory-apple-touch-180.png?v=20260817-v81-2-1" />
-  <meta name="apple-mobile-web-app-title" content="Memory" />
-  <meta name="theme-color" content="#06152f" />
-<meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#000717">
+  <meta name="robots" content="noindex,nofollow">
   <title>Financeiro — Memory</title>
-<link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
-  <link rel="stylesheet" href="modulos/financeiro/financeiro-v81.css?v=20260816-v81-0-3">
+  <link rel="icon" href="assets/imagens/memory-icon-official-v80-1.png?v=20260816-v80-1" sizes="any">
+  <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
+  <link rel="stylesheet" href="modulos/financeiro/financeiro-v81.css?v=20260817-v81-2-4">
 </head>
 <body>
   <div class="app-shell">
@@ -57,8 +53,8 @@
         <section class="finance-hero card">
           <div>
             <p class="eyebrow">Controle financeiro</p>
-            <h1>💰 Seu dinheiro, conciliado.</h1>
-            <p class="muted">Planeje, importe extrato e fatura e resolva apenas o que ficou pendente de conciliação.</p>
+            <h1>💰 Previsto → conciliado → pago.</h1>
+            <p class="muted">Controle o que pretende pagar no mês, confira o realizado na fatura e dê baixa quando o pagamento aparecer no extrato.</p>
           </div>
           <div class="finance-period-wrap">
             <label for="finance-period">Período</label>
@@ -67,11 +63,11 @@
         </section>
 
         <nav class="finance-tabs" aria-label="Áreas do Financeiro">
-          <button type="button" data-finance-tab="overview" class="active">Visão geral</button>
-          <button type="button" data-finance-tab="accounts">Contas</button>
-          <button type="button" data-finance-tab="cards">Cartões</button>
+          <button type="button" data-finance-tab="overview" class="active">Mês</button>
+          <button type="button" data-finance-tab="accounts">Previstos</button>
+          <button type="button" data-finance-tab="cards">Cartão</button>
           <button type="button" data-finance-tab="reconcile">Conciliação <span id="finance-tab-pending" class="finance-tab-count">0</span></button>
-          <button type="button" data-finance-tab="evolution">Evolução</button>
+          <button type="button" data-finance-tab="evolution">Histórico</button>
         </nav>
 
         <section data-finance-panel="overview" class="finance-panel active">
@@ -95,16 +91,24 @@
         <section data-finance-panel="accounts" class="finance-panel">
           <article class="card finance-section-card">
             <div class="section-head finance-section-head--actions">
-              <div><p class="eyebrow">Planejamento</p><h2>Contas do período</h2><p class="muted">Cadastre o valor esperado. O realizado virá da conciliação.</p></div>
-              <button id="finance-add-account" type="button" class="btn primary">+ Nova conta</button>
+              <div>
+                <p class="eyebrow">Previsto do mês</p>
+                <h2>Contas previstas para pagar</h2>
+                <p class="muted">Fixas são carregadas do mês anterior. Variáveis continuam editáveis mês a mês.</p>
+              </div>
+              <div class="finance-head-buttons">
+                <button id="finance-copy-previous" type="button" class="btn">Copiar mês anterior</button>
+                <button id="finance-add-account" type="button" class="btn primary">+ Nova conta</button>
+              </div>
             </div>
+            <div id="finance-plan-test-note" class="finance-plan-test-note" hidden></div>
             <div id="finance-accounts-list" class="finance-account-list"></div>
           </article>
         </section>
 
         <section data-finance-panel="cards" class="finance-panel">
           <article class="card finance-section-card">
-            <div class="section-head"><div><p class="eyebrow">Cartões</p><h2>Faturas importadas</h2><p class="muted">As compras contam como despesa. O pagamento da fatura é tratado como liquidação, evitando dupla contagem.</p></div></div>
+            <div class="section-head"><div><p class="eyebrow">Cartões</p><h2>Faturas importadas</h2><p class="muted">O previsto da fatura é a soma das contas marcadas como Cartão. A fatura importada vira o realizado; o extrato confirma o pagamento.</p></div></div>
             <div id="finance-cards-list" class="finance-card-list"></div>
           </article>
         </section>
@@ -127,7 +131,7 @@
 
           <article class="card finance-section-card">
             <div class="section-head finance-section-head--actions">
-              <div><p class="eyebrow">Fila de trabalho</p><h2>Pendências de conciliação</h2><p class="muted">Confirme sugestões, corrija classificações e ensine o Memory a reconhecer o próximo mês.</p></div>
+              <div><p class="eyebrow">Fila de trabalho</p><h2>Pendências de conciliação</h2><p class="muted">Classifique compras da fatura, confira contas do extrato e confirme o pagamento da fatura quando ele aparecer na conta corrente.</p></div>
               <button id="finance-reconcile-exact" type="button" class="btn">Conciliar correspondências exatas</button>
             </div>
             <div class="finance-filters">
@@ -158,8 +162,8 @@
   <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
   <script src="nucleo/theme-system-v80.js?v=20260816-v80"></script>
   <script src="modulos/memory/memory-config-v68.js?v=20260815-v74"></script>
-  <script src="nucleo/shell-v81.js?v=20260817-v81-2-3"></script>
+  <script src="nucleo/shell-v81.js?v=20260817-v81-2-4"></script>
   <script>MMCDShell('financeiro')</script>
-  <script src="modulos/financeiro/financeiro-v81.js?v=20260816-v81-0-3"></script>
+  <script src="modulos/financeiro/financeiro-v81.js?v=20260817-v81-2-4"></script>
 </body>
 </html>

@@ -1,1 +1,1 @@
-V81.2.3 | 2026-08-17 | Shell - restaura logo oficial do Memory
+V81.2.4 | 2026-08-17 | Financeiro - nova despesa visivel na conciliacao

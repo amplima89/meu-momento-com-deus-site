@@ -68,40 +68,136 @@ window.MemoryFinance = (() => {
   function formatDate(date) { try { return new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR"); } catch { return date || "—"; } }
   function periodLabel(period) { try { return new Date(`${period}-01T12:00:00`).toLocaleDateString("pt-BR", {month:"short",year:"numeric"}).replace(" de ","/"); } catch { return period; } }
 
+  function previousPeriod(period=currentPeriod()) {
+    const [year,month]=String(period||"").split("-").map(Number);
+    if(!year || !month) return "";
+    const d=new Date(year,month-2,1,12,0,0);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+  }
+
+  // V81.2 — modelo mensal de teste.
+  // O amarelo da planilha representa "previsto para pagar".
+  // Para testar com a fatura Julho/2026 enviada, o modelo cria o previsto de jul/2026.
+  // A linha geral do cartão é tratada como "demais gastos do cartão";
+  // somada às contas detalhadas do cartão, forma o previsto total da fatura.
+  const TEST_PLAN_PERIOD = "2026-07";
+  const TEST_PLAN_JUL_2026 = {
+    "cartao-outros":2396.28,
+    "combustivel":453.03,
+    "livros":150.00,
+    "seguro-carro":278.04,
+    "racao":400.00,
+    "gympass":139.90,
+    "barbeiro":139.99,
+    "gas":0,
+    "iptu":0,
+    "celular":51.75,
+    "luz-cpfl":113.60,
+    "internet":199.99,
+    "condominio":0,
+    "agua":48.70,
+    "moradia":3330.00,
+    "outras":2200.00,
+    "amortizacao":0,
+    "salario":12770.53,
+    "renda-taina":1100.00,
+    "ppr":0,
+    "13-salario":0
+  };
+
   const DEFAULT_ACCOUNTS = [
-    ["cartao","Cartão de crédito","settlement"],
-    ["combustivel","Combustível","expense"],
-    ["livros","Livros","expense"],
-    ["seguro-carro","Seguro carro","expense"],
-    ["racao","Ração","expense"],
-    ["gympass","Gympass","expense"],
-    ["barbeiro","Barbeiro","expense"],
-    ["gas","Gás","expense"],
-    ["iptu","IPTU","expense"],
-    ["celular","Celular","expense"],
-    ["luz-cpfl","Luz CPFL","expense"],
-    ["internet","Internet","expense"],
-    ["condominio","Condomínio","expense"],
-    ["agua","Água","expense"],
-    ["moradia","Casa alugada/própria","expense"],
-    ["outras","Outras despesas","expense"],
-    ["amortizacao","Amortização casa","expense"],
-    ["salario","Líquido Salário","income"],
-    ["renda-taina","Tainá","income"],
-    ["ppr","PPR","income"],
-    ["13-salario","13º salário","income"]
-  ].map(([id,name,type]) => ({id,name,type,active:true,amounts:{},createdAt:new Date().toISOString()}));
+    {id:"cartao",name:"Pagamento de fatura",type:"settlement",nature:"fixed",paymentMethod:"bank",active:true},
+    {id:"cartao-outros",name:"Cartão de crédito — demais gastos",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+
+    {id:"combustivel",name:"Combustível",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"livros",name:"Livros",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"seguro-carro",name:"Seguro carro",type:"expense",nature:"fixed",paymentMethod:"card",active:true},
+    {id:"racao",name:"Ração",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"gympass",name:"Gympass",type:"expense",nature:"fixed",paymentMethod:"card",active:true},
+    {id:"barbeiro",name:"Barbeiro",type:"expense",nature:"fixed",paymentMethod:"card",active:true},
+    {id:"gas",name:"Gás",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"iptu",name:"IPTU",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+
+    {id:"celular",name:"Celular",type:"expense",nature:"fixed",paymentMethod:"bank",active:true},
+    {id:"luz-cpfl",name:"Luz CPFL",type:"expense",nature:"variable",paymentMethod:"bank",active:true},
+    {id:"internet",name:"Internet",type:"expense",nature:"fixed",paymentMethod:"bank",active:true},
+    {id:"condominio",name:"Condomínio",type:"expense",nature:"fixed",paymentMethod:"bank",active:true},
+    {id:"agua",name:"Água",type:"expense",nature:"variable",paymentMethod:"bank",active:true},
+    {id:"moradia",name:"Casa alugada/própria",type:"expense",nature:"fixed",paymentMethod:"bank",active:true},
+    {id:"outras",name:"Outras despesas",type:"expense",nature:"variable",paymentMethod:"bank",active:true},
+    {id:"amortizacao",name:"Amortização casa",type:"expense",nature:"variable",paymentMethod:"bank",active:true},
+
+    // Categorias úteis para classificar a fatura sem inventar que são previstas.
+    {id:"assinaturas",name:"Assinaturas digitais",type:"expense",nature:"fixed",paymentMethod:"card",active:true},
+    {id:"alimentacao-fora",name:"Alimentação fora",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"pedagio-estac",name:"Pedágio e estacionamento",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"vestuario",name:"Vestuário",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"desenvolvimento",name:"Cursos e desenvolvimento",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"presentes",name:"Presentes",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+    {id:"lazer",name:"Lazer",type:"expense",nature:"variable",paymentMethod:"card",active:true},
+
+    {id:"salario",name:"Líquido Salário",type:"income",nature:"fixed",paymentMethod:"bank",active:true},
+    {id:"renda-taina",name:"Tainá",type:"income",nature:"variable",paymentMethod:"bank",active:true},
+    {id:"ppr",name:"PPR",type:"income",nature:"variable",paymentMethod:"bank",active:true},
+    {id:"13-salario",name:"13º salário",type:"income",nature:"variable",paymentMethod:"bank",active:true}
+  ].map(a => ({
+    ...a,
+    amounts:{},
+    planMeta:{},
+    createdAt:new Date().toISOString()
+  }));
 
   const DEFAULT_RULES = [
-    ["POSTO LINC","combustivel",98],["POSTO ","combustivel",82],["SHELL","combustivel",92],["IPIRANGA","combustivel",92],
-    ["WELLHUB","gympass",99],["GYMPASS","gympass",99],["CASHBARBER","barbeiro",99],["BARBER","barbeiro",86],
-    ["ZURICH","seguro-carro",99],["SAAE","agua",99],["CPFL","luz-cpfl",99],["CLARO CELULAR","celular",98],
-    ["NETTOP","internet",99],["PAGTO SALARIO","salario",99],["SALARIO","salario",90],
-    ["SPOTIFY","outras",76],["OPENAI","outras",76],["CHATGPT","outras",76],["MICROSOFT","outras",72],["GOOGLE ONE","outras",76]
-  ].map(([keyword,accountId,confidence]) => ({id:`base_${norm(keyword).replace(/ /g,"_")}`,keyword:norm(keyword),accountId,confidence,source:"base"}));
+    // Fatura real enviada — classificações fortes.
+    ["POSTO LINC","combustivel",100],
+    ["WELLHUB","gympass",100],
+    ["GYMPASS","gympass",100],
+    ["CASHBARBER","barbeiro",100],
+    ["ZURICH","seguro-carro",100],
+
+    ["EBN SPOTIFY","assinaturas",99],
+    ["OPENAI CHATGPT","assinaturas",99],
+    ["MICROSOFT","assinaturas",99],
+    ["GOOGLE ONE","assinaturas",99],
+
+    ["BENOH","alimentacao-fora",96],
+    ["BENOAH","alimentacao-fora",99],
+    ["CHURRASCARIA","alimentacao-fora",99],
+    ["CAFE E BAR","alimentacao-fora",98],
+
+    ["ESTACIONAMENTO","pedagio-estac",99],
+    ["TAGITAU","pedagio-estac",99],
+    ["BANDEIRAPARK","pedagio-estac",98],
+
+    ["FOKA STREET","vestuario",99],
+    ["RENNER","vestuario",99],
+    ["RIACHUELO","vestuario",99],
+
+    ["PROJETO MISSAO","desenvolvimento",99],
+    ["PROJETO CAVEIR","desenvolvimento",99],
+
+    ["MAG PRESENTE","presentes",96],
+    ["RACE PARK","lazer",96],
+
+    // Extrato — contas recorrentes.
+    ["SAAE SOROCAB","agua",100],
+    ["SAAE","agua",99],
+    ["CPFL PIRATI","luz-cpfl",100],
+    ["CPFL","luz-cpfl",99],
+    ["NETTOP","internet",100],
+    ["CLARO CELULAR","celular",100],
+    ["PAGTO SALARIO","salario",100],
+    ["SALARIO","salario",94]
+  ].map(([keyword,accountId,confidence]) => ({
+    id:`base_${norm(keyword).replace(/ /g,"_")}`,
+    keyword:norm(keyword),
+    accountId,
+    confidence,
+    source:"base"
+  }));
 
   function defaultState() {
-    return {version:1,accounts:structuredClone(DEFAULT_ACCOUNTS),rules:structuredClone(DEFAULT_RULES),transactions:[],invoices:[],files:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+    return {version:3,accounts:structuredClone(DEFAULT_ACCOUNTS),rules:structuredClone(DEFAULT_RULES),transactions:[],invoices:[],files:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
   }
 
   async function sha256(value) {
@@ -208,17 +304,120 @@ window.MemoryFinance = (() => {
 
     migrateState();
 
-    if (!envelope) queueSave();
+    // V81.2: reaplica as novas regras também aos arquivos que já tinham sido
+    // importados em versões anteriores. Assim não é necessário apagar ou
+    // importar novamente a fatura/extrato para aproveitar a conciliação melhorada.
+    const migratedAutoReconciled = autoReconcileImported();
+
+    if (!envelope || migratedAutoReconciled > 0) queueSave();
     return true;
+  }
+
+  function setPlanned(account, period, value, source="Manual") {
+    if(!account || !period) return;
+    account.amounts ||= {};
+    account.planMeta ||= {};
+    account.amounts[period] = Math.max(0,num(value));
+    account.planMeta[period] = source;
+  }
+
+  function ensurePeriodPlan(period=currentPeriod()) {
+    if(!state || !period) return 0;
+    let created=0;
+    const prev=previousPeriod(period);
+
+    for(const account of state.accounts) {
+      if(!account.active || account.type==="settlement") continue;
+      account.amounts ||= {};
+      account.planMeta ||= {};
+
+      if(Object.prototype.hasOwnProperty.call(account.amounts,period)) continue;
+      if(account.nature!=="fixed") continue;
+
+      if(prev && Object.prototype.hasOwnProperty.call(account.amounts,prev)) {
+        setPlanned(account,period,account.amounts[prev],"Fixo · copiado do mês anterior");
+        created++;
+      }
+    }
+    return created;
+  }
+
+  async function copyPreviousPlan() {
+    const period=currentPeriod();
+    const prev=previousPeriod(period);
+    if(!prev) return;
+
+    let copied=0;
+    for(const account of state.accounts) {
+      if(!account.active || account.type==="settlement") continue;
+      account.amounts ||= {};
+      account.planMeta ||= {};
+      if(Object.prototype.hasOwnProperty.call(account.amounts,period)) continue;
+      if(!Object.prototype.hasOwnProperty.call(account.amounts,prev)) continue;
+
+      setPlanned(account,period,account.amounts[prev],"Copiado do mês anterior");
+      copied++;
+    }
+
+    if(!copied) {
+      toast("Não encontrei valores novos para copiar do mês anterior.");
+      return;
+    }
+
+    await queueSave();
+    renderAll();
+    toast(`${copied} valor(es) copiado(s) de ${periodLabel(prev)}.`);
   }
 
   function migrateState() {
     state ||= defaultState();
     state.accounts ||= [];
-    for (const base of DEFAULT_ACCOUNTS) if (!state.accounts.some(a => a.id === base.id)) state.accounts.push(structuredClone(base));
+
+    for(const base of DEFAULT_ACCOUNTS) {
+      let existing=state.accounts.find(a=>a.id===base.id);
+
+      if(!existing) {
+        existing=structuredClone(base);
+        state.accounts.push(existing);
+      }
+
+      existing.amounts ||= {};
+      existing.planMeta ||= {};
+      existing.nature ||= base.nature || "variable";
+      existing.paymentMethod ||= base.paymentMethod || (existing.type==="income"?"bank":"mixed");
+
+      // O antigo "cartao" era usado como valor-base. Agora ele é somente liquidação.
+      if(existing.id==="cartao") {
+        existing.type="settlement";
+        existing.nature="fixed";
+        existing.paymentMethod="bank";
+        existing.baseAmount=0;
+      }
+    }
+
+    // Modelo de teste: valores amarelos da planilha em jul/2026.
+    // Não sobrescreve nenhum valor que o usuário já tenha editado.
+    for(const [accountId,value] of Object.entries(TEST_PLAN_JUL_2026)) {
+      const account=state.accounts.find(a=>a.id===accountId);
+      if(!account) continue;
+      account.amounts ||= {};
+      account.planMeta ||= {};
+      if(!Object.prototype.hasOwnProperty.call(account.amounts,TEST_PLAN_PERIOD)) {
+        setPlanned(account,TEST_PLAN_PERIOD,value,"Modelo de teste · planilha");
+      }
+    }
+
     state.rules ||= [];
-    for (const rule of DEFAULT_RULES) if (!state.rules.some(r => r.id === rule.id)) state.rules.push(structuredClone(rule));
-    state.transactions ||= []; state.invoices ||= []; state.files ||= [];
+    for(const rule of DEFAULT_RULES) {
+      const existing=state.rules.find(r=>r.keyword===rule.keyword && r.accountId===rule.accountId);
+      if(!existing) state.rules.push(structuredClone(rule));
+      else existing.confidence=Math.max(num(existing.confidence),num(rule.confidence));
+    }
+
+    state.transactions ||= [];
+    state.invoices ||= [];
+    state.files ||= [];
+    state.version = Math.max(3,num(state.version));
   }
 
   function setFinanceUnlockedUI(unlocked) {
@@ -261,7 +460,16 @@ window.MemoryFinance = (() => {
 
   function accountById(id) { return state?.accounts?.find(a => a.id === id) || null; }
   function invoiceById(id) { return state?.invoices?.find(a => a.id === id) || null; }
-  function expected(account, period=currentPeriod()) { return num(account?.amounts?.[period]); }
+  function expected(account, period=currentPeriod()) {
+    if(!account) return 0;
+    return Object.prototype.hasOwnProperty.call(account.amounts || {},period)
+      ? num(account.amounts[period])
+      : 0;
+  }
+
+  function expectedSource(account, period=currentPeriod()) {
+    return account?.planMeta?.[period] || "";
+  }
 
   function eligibleTx(tx) { return tx.kind !== "card-payment" && tx.status !== "ignored"; }
   function isExpenseTx(tx) { const a=accountById(tx.accountId); return tx.status==="reconciled" && a?.type==="expense" && eligibleTx(tx); }
@@ -271,16 +479,95 @@ window.MemoryFinance = (() => {
   function transactionsFor(period=currentPeriod()) { return state.transactions.filter(tx => tx.period === period); }
   function invoicesFor(period=currentPeriod()) { return state.invoices.filter(inv => inv.period === period); }
 
+  function actualForAccount(accountId,period=currentPeriod()) {
+    return state.transactions
+      .filter(t=>t.period===period && t.status==="reconciled" && t.accountId===accountId && eligibleTx(t))
+      .reduce((s,t)=>s+txMagnitude(t),0);
+  }
+
+  function paidForAccount(accountId,period=currentPeriod()) {
+    return state.transactions
+      .filter(t=>t.period===period && t.status==="reconciled" && t.accountId===accountId && eligibleTx(t))
+      .reduce((sum,tx)=>{
+        if(tx.source==="statement") return sum+txMagnitude(tx);
+        if(tx.source==="invoice") {
+          const inv=invoiceById(tx.invoiceId);
+          return inv?.paymentTxId ? sum+txMagnitude(tx) : sum;
+        }
+        return sum;
+      },0);
+  }
+
+  function plannedCard(period=currentPeriod()) {
+    return state.accounts
+      .filter(a=>a.active && a.type==="expense" && a.paymentMethod==="card")
+      .reduce((s,a)=>s+expected(a,period),0);
+  }
+
+  function plannedDirect(period=currentPeriod()) {
+    return state.accounts
+      .filter(a=>a.active && a.type==="expense" && a.paymentMethod!=="card")
+      .reduce((s,a)=>s+expected(a,period),0);
+  }
+
+  function invoiceActual(period=currentPeriod()) {
+    return invoicesFor(period).reduce((s,inv)=>s+num(inv.total),0);
+  }
+
+  function invoicePaid(period=currentPeriod()) {
+    return invoicesFor(period).filter(inv=>inv.paymentTxId).reduce((s,inv)=>s+num(inv.total),0);
+  }
+
+  function directRealized(period=currentPeriod()) {
+    return state.transactions
+      .filter(tx=>tx.period===period && tx.source==="statement" && isExpenseTx(tx))
+      .reduce((s,tx)=>s+txMagnitude(tx),0);
+  }
+
   function totals(period=currentPeriod()) {
-    const txs = transactionsFor(period);
-    const income = txs.filter(isIncomeTx).reduce((s,t)=>s+txMagnitude(t),0);
-    const expenses = txs.filter(isExpenseTx).reduce((s,t)=>s+txMagnitude(t),0);
-    const pending = txs.filter(t => t.status === "pending" && eligibleTx(t)).reduce((s,t)=>s+txMagnitude(t),0);
-    const eligible = txs.filter(eligibleTx);
-    const reconciled = eligible.filter(t => t.status === "reconciled").length;
-    const plannedExpense = state.accounts.filter(a=>a.active && a.type==="expense").reduce((s,a)=>s+expected(a,period),0);
-    const plannedIncome = state.accounts.filter(a=>a.active && a.type==="income").reduce((s,a)=>s+expected(a,period),0);
-    return {income,expenses,pending,balance:income-expenses,reconciled,eligible:eligible.length,plannedExpense,plannedIncome};
+    const txs=transactionsFor(period);
+    const income=txs.filter(isIncomeTx).reduce((s,t)=>s+txMagnitude(t),0);
+
+    const cardRealized=invoiceActual(period);
+    const cardPaid=invoicePaid(period);
+    const directExpense=directRealized(period);
+    const expenses=cardRealized+directExpense;
+    const paidExpense=cardPaid+directExpense;
+
+    const plannedExpense=state.accounts
+      .filter(a=>a.active && a.type==="expense")
+      .reduce((s,a)=>s+expected(a,period),0);
+
+    const plannedIncome=state.accounts
+      .filter(a=>a.active && a.type==="income")
+      .reduce((s,a)=>s+expected(a,period),0);
+
+    const eligible=txs.filter(eligibleTx);
+    const reconciled=eligible.filter(t=>t.status==="reconciled").length;
+    const pendingTxs=eligible.filter(t=>t.status==="pending");
+    const pendingConciliation=pendingTxs.reduce((s,t)=>s+txMagnitude(t),0);
+
+    const targetToPay=Math.max(plannedExpense,expenses);
+    const toPay=Math.max(0,targetToPay-paidExpense);
+
+    return {
+      income,
+      expenses,
+      paidExpense,
+      toPay,
+      pendingConciliation,
+      balance:income-expenses,
+      reconciled,
+      eligible:eligible.length,
+      plannedExpense,
+      plannedIncome,
+      cardPlanned:plannedCard(period),
+      cardRealized,
+      cardPaid,
+      directPlanned:plannedDirect(period),
+      directRealized:directExpense,
+      directPaid:directExpense
+    };
   }
 
   function defaultSuggestion(tx) {
@@ -293,7 +580,61 @@ window.MemoryFinance = (() => {
     const desc = norm(tx.description);
     const rules = [...state.rules].sort((a,b)=>num(b.confidence)-num(a.confidence));
     const rule = rules.find(r => r.keyword && desc.includes(r.keyword) && accountById(r.accountId)?.active);
-    if (rule) return {type:"account",accountId:rule.accountId,label:accountById(rule.accountId)?.name || "Conta",confidence:num(rule.confidence)};
+    if (rule) return {
+      type:"account",
+      accountId:rule.accountId,
+      label:accountById(rule.accountId)?.name || "Conta",
+      confidence:num(rule.confidence),
+      reason:"Descrição reconhecida"
+    };
+
+    // Se a descrição não resolveu, usa o valor previsto da planilha como segunda camada.
+    // Só sugere quando há uma única conta compatível para evitar baixa errada.
+    const targetType = tx.source === "statement"
+      ? (tx.amount >= 0 ? "income" : "expense")
+      : "expense";
+    const magnitude = txMagnitude(tx);
+    const candidates = state.accounts.filter(a => {
+      if(!a.active || a.type!==targetType || a.type==="settlement" || expected(a,tx.period)<=0) return false;
+      if(tx.source==="invoice") return a.paymentMethod==="card" || a.paymentMethod==="mixed";
+      if(tx.source==="statement" && targetType==="expense") return a.paymentMethod!=="card";
+      return true;
+    });
+
+    const exact = candidates.filter(a => Math.abs(expected(a, tx.period) - magnitude) <= .01);
+    if (exact.length === 1) return {
+      type:"account",
+      accountId:exact[0].id,
+      label:`${exact[0].name} · mesmo valor do previsto`,
+      confidence:96,
+      reason:"Valor previsto"
+    };
+
+    const near = candidates.filter(a => {
+      const planned = expected(a, tx.period);
+      const tolerance = Math.max(2, planned * .03);
+      return Math.abs(planned - magnitude) <= tolerance;
+    });
+    if (near.length === 1) return {
+      type:"account",
+      accountId:near[0].id,
+      label:`${near[0].name} · próximo do previsto`,
+      confidence:88,
+      reason:"Valor aproximado"
+    };
+
+    // Compra do cartão sem regra: deixa sugestão leve para Outras despesas,
+    // sem conciliá-la automaticamente.
+    if(tx.source==="invoice" && tx.kind==="card-charge") {
+      return {
+        type:"account",
+        accountId:"cartao-outros",
+        label:"Cartão — demais gastos · revisar",
+        confidence:72,
+        reason:"Compra do cartão sem regra"
+      };
+    }
+
     return null;
   }
 
@@ -411,6 +752,43 @@ window.MemoryFinance = (() => {
     return parsed;
   }
 
+  function applyHighConfidenceSuggestion(tx) {
+    const s = tx?.suggestion;
+    if (!tx || tx.status !== "pending" || !s) return false;
+
+    if (s.type === "invoice" && num(s.confidence) >= 99) {
+      const inv = invoiceById(s.invoiceId);
+      if (!inv) return false;
+      tx.status = "reconciled";
+      tx.invoiceMatchId = inv.id;
+      tx.accountId = "cartao";
+      tx.reconciledAt = new Date().toISOString();
+      inv.paymentTxId = tx.id;
+      inv.paidAt = tx.date;
+      return true;
+    }
+
+    if (s.type === "account" && num(s.confidence) >= 98 && accountById(s.accountId)?.active) {
+      tx.status = "reconciled";
+      tx.accountId = s.accountId;
+      tx.invoiceMatchId = null;
+      tx.reconciledAt = new Date().toISOString();
+      return true;
+    }
+
+    return false;
+  }
+
+  function autoReconcileImported() {
+    refreshSuggestions();
+    let count = 0;
+    for (const tx of state.transactions) {
+      if (applyHighConfidenceSuggestion(tx)) count++;
+    }
+    refreshSuggestions();
+    return count;
+  }
+
   async function importFiles(files) {
     const status=$("#finance-import-status"); status.innerHTML="";
     let added=0, duplicates=0; let lastPeriod="";
@@ -425,11 +803,26 @@ window.MemoryFinance = (() => {
         line.innerHTML=`✓ <strong>${esc(file.name)}</strong>: ${parsed.transactions.length} lançamentos lidos como ${parsed.kind==="invoice"?"fatura":"extrato"}.`;
       }catch(error){ console.error(error); line.innerHTML=`⚠ <strong>${esc(file.name)}</strong>: ${esc(error.message || "não foi possível importar")}.`; }
     }
-    refreshSuggestions(); await queueSave();
+    const autoReconciled = autoReconcileImported();
+    await queueSave();
+
     if(lastPeriod && /^\d{4}-\d{2}$/.test(lastPeriod)) $("#finance-period").value=lastPeriod;
+
+    const pendingAfter = state.transactions.filter(t => t.status === "pending" && eligibleTx(t)).length;
+    if (added) {
+      const summary = document.createElement("div");
+      summary.className = "finance-import-result finance-import-result--summary";
+      summary.innerHTML = `⚡ <strong>${autoReconciled}</strong> conciliado(s) automaticamente · <strong>${pendingAfter}</strong> pendente(s) para revisar.`;
+      status.prepend(summary);
+    }
+
     renderAll();
-    if(added) { setTab("reconcile"); toast(`${added} lançamentos importados. Revise as pendências.`); }
-    else if(duplicates) toast("Os arquivos selecionados já estavam importados.");
+    if(added) {
+      setTab("reconcile");
+      toast(`${autoReconciled} conciliado(s) automaticamente. ${pendingAfter} pendência(s) para revisar.`, 5200);
+    } else if(duplicates) {
+      toast("Os arquivos selecionados já estavam importados.");
+    }
   }
 
   function learnFrom(tx, accountId) {
@@ -460,7 +853,7 @@ window.MemoryFinance = (() => {
   async function ignoreTx(txId) { const tx=state.transactions.find(t=>t.id===txId); if(!tx)return; tx.status="ignored"; tx.suggestion=null; await queueSave(); renderAll(); }
 
   async function reconcileExact() {
-    const txs=transactionsFor().filter(t=>t.status==="pending" && num(t.suggestion?.confidence)>=95);
+    const txs=transactionsFor().filter(t=>t.status==="pending" && num(t.suggestion?.confidence)>=98);
     if(!txs.length){toast("Nenhuma correspondência exata pendente neste período.");return;}
     for(const tx of txs){ const s=tx.suggestion; if(s.type==="invoice") await reconcileTx(tx.id,`invoice:${s.invoiceId}`); else await reconcileTx(tx.id,s.accountId,false); }
     toast(`${txs.length} correspondência(s) exata(s) conciliada(s).`);
@@ -471,24 +864,44 @@ window.MemoryFinance = (() => {
   }
 
   function renderKpis() {
-    const t=totals(); const rate=t.eligible?100*t.reconciled/t.eligible:0;
+    const t=totals();
+    const rate=t.eligible?100*t.reconciled/t.eligible:0;
     $("#finance-kpis").innerHTML=`
-      <div class="finance-kpi finance-kpi--positive"><span>Entradas conciliadas</span><strong>${brl(t.income)}</strong><small>${periodLabel(currentPeriod())}</small></div>
-      <div class="finance-kpi"><span>Despesas conciliadas</span><strong>${brl(t.expenses)}</strong><small>Compras + débitos reais</small></div>
-      <div class="finance-kpi ${t.balance>=0?"finance-kpi--positive":"finance-kpi--attention"}"><span>Resultado realizado</span><strong>${brl(t.balance)}</strong><small>Entradas − despesas</small></div>
-      <div class="finance-kpi finance-kpi--attention"><span>Pendente</span><strong>${brl(t.pending)}</strong><small>Precisa de conciliação</small></div>
+      <div class="finance-kpi"><span>Previsto para pagar</span><strong>${brl(t.plannedExpense)}</strong><small>${periodLabel(currentPeriod())}</small></div>
+      <div class="finance-kpi"><span>Realizado</span><strong>${brl(t.expenses)}</strong><small>Fatura + contas identificadas</small></div>
+      <div class="finance-kpi finance-kpi--positive"><span>Pago</span><strong>${brl(t.paidExpense)}</strong><small>Baixa confirmada no extrato</small></div>
+      <div class="finance-kpi ${t.toPay>0?"finance-kpi--attention":"finance-kpi--positive"}"><span>Falta pagar</span><strong>${brl(t.toPay)}</strong><small>Maior entre previsto/realizado − pago</small></div>
       <div class="finance-kpi"><span>Conciliação</span><strong>${pct(rate)}</strong><small>${t.reconciled} de ${t.eligible} lançamentos</small></div>`;
   }
 
   function renderPlan() {
-    const t=totals(); const expenseDelta=t.plannedExpense?100*t.expenses/t.plannedExpense:0;
+    const t=totals();
+    const delta=t.plannedExpense ? 100*t.expenses/t.plannedExpense : 0;
+    const cardDelta=t.cardRealized-t.cardPlanned;
+
     $("#finance-plan-summary").innerHTML=`
-      <div class="finance-summary-line"><span>Receitas previstas</span><strong>${brl(t.plannedIncome)}</strong></div>
-      <div class="finance-summary-line"><span>Receitas realizadas</span><strong>${brl(t.income)}</strong></div>
-      <div class="finance-summary-line"><span>Despesas previstas</span><strong>${brl(t.plannedExpense)}</strong></div>
-      <div class="finance-summary-line"><span>Despesas realizadas</span><strong>${brl(t.expenses)}</strong></div>
-      <div class="finance-progress"><i style="width:${Math.min(100,expenseDelta)}%"></i></div>
-      <small class="muted">${t.plannedExpense?`${pct(expenseDelta)} do orçamento de despesas realizado.`:"Cadastre valores previstos em Contas para comparar o mês."}</small>`;
+      <div class="finance-plan-block">
+        <div class="finance-summary-line"><span>Previsto total</span><strong>${brl(t.plannedExpense)}</strong></div>
+        <div class="finance-summary-line"><span>Realizado total</span><strong>${brl(t.expenses)}</strong></div>
+        <div class="finance-summary-line"><span>Pago</span><strong>${brl(t.paidExpense)}</strong></div>
+        <div class="finance-summary-line"><span>Falta pagar</span><strong>${brl(t.toPay)}</strong></div>
+      </div>
+      <div class="finance-plan-split">
+        <div>
+          <span>💳 Cartão</span>
+          <strong>${brl(t.cardPlanned)}</strong>
+          <small>previsto da fatura</small>
+          <em>${t.cardRealized?`${brl(t.cardRealized)} realizado · ${cardDelta>=0?"+":""}${brl(cardDelta)} diferença`:"fatura ainda não importada"}</em>
+        </div>
+        <div>
+          <span>🏦 Conta corrente</span>
+          <strong>${brl(t.directPlanned)}</strong>
+          <small>previsto direto</small>
+          <em>${brl(t.directRealized)} identificado no extrato</em>
+        </div>
+      </div>
+      <div class="finance-progress"><i style="width:${Math.min(100,delta)}%"></i></div>
+      <small class="muted">${currentPeriod()===TEST_PLAN_PERIOD?"Modelo de teste carregado com os valores previstos da planilha. Todos continuam editáveis.":"Fixas podem vir do mês anterior; variáveis podem ser copiadas e ajustadas."}</small>`;
   }
 
   function renderReconcileSummary() {
@@ -512,26 +925,143 @@ window.MemoryFinance = (() => {
     $("#finance-category-summary").innerHTML=items.length?`<div class="finance-category-list">${items.map(i=>`<div class="finance-category-row"><strong>${esc(i.account.name)}</strong><div class="finance-category-row__bar"><i style="width:${100*i.value/max}%"></i></div><small>${brl(i.value)}</small></div>`).join("")}</div>`:`<div class="finance-empty">Nenhuma despesa conciliada neste período.<br>Importe extrato/fatura e use a fila de Conciliação.</div>`;
   }
 
-  function actualForAccount(accountId,period=currentPeriod()) { return transactionsFor(period).filter(t=>t.status==="reconciled"&&t.accountId===accountId&&eligibleTx(t)).reduce((s,t)=>s+txMagnitude(t),0); }
+
+  function accountStatus(account,period=currentPeriod()) {
+    const planned=expected(account,period);
+    const actual=actualForAccount(account.id,period);
+    const paid=paidForAccount(account.id,period);
+    const diff=actual-planned;
+
+    if(planned<=0 && actual>0) return {label:"Não previsto",cls:"attention",diff};
+    if(actual<=0 && planned>0) return {label:"Previsto",cls:"planned",diff};
+    if(actual>0 && paid+0.01<actual) return {label:"Conciliado",cls:"reconciled",diff};
+    if(actual>0 && paid+0.01>=actual) return {label:"Pago",cls:"paid",diff};
+    return {label:"—",cls:"neutral",diff};
+  }
 
   function renderAccounts() {
-    const period=currentPeriod(); const accounts=state.accounts.filter(a=>a.active && a.type!=="settlement").sort((a,b)=>a.name.localeCompare(b.name,"pt-BR"));
-    $("#finance-accounts-list").innerHTML=accounts.map(a=>`
-      <div class="finance-account-row" data-account-id="${esc(a.id)}">
-        <div class="finance-account-name"><strong>${esc(a.name)}</strong><small>${a.type==="income"?"Receita":"Despesa"}</small></div>
-        <select data-account-type><option value="expense" ${a.type==="expense"?"selected":""}>Despesa</option><option value="income" ${a.type==="income"?"selected":""}>Receita</option></select>
-        <input data-account-expected type="number" min="0" step="0.01" value="${expected(a,period)||""}" placeholder="Previsto">
-        <div class="finance-account-actual"><strong>${brl(actualForAccount(a.id,period))}</strong><small>realizado</small></div>
-        <div class="finance-row-actions"><button class="finance-mini-btn" data-account-rename>Renomear</button><button class="finance-mini-btn" data-account-delete>Ocultar</button></div>
-      </div>`).join("") || `<div class="finance-empty">Nenhuma conta cadastrada.</div>`;
+    const period=currentPeriod();
+    const accounts=state.accounts
+      .filter(a=>a.active && a.type!=="settlement")
+      .sort((a,b)=>{
+        if(a.type!==b.type) return a.type==="expense"?-1:1;
+        if(a.paymentMethod!==b.paymentMethod) return a.paymentMethod==="card"?-1:1;
+        return a.name.localeCompare(b.name,"pt-BR");
+      });
+
+    const note=$("#finance-plan-test-note");
+    if(note) {
+      note.hidden=period!==TEST_PLAN_PERIOD;
+      if(!note.hidden) {
+        note.innerHTML=`🧪 <strong>Modelo de teste · ${periodLabel(TEST_PLAN_PERIOD)}</strong> — os valores previstos da planilha foram carregados para testar a fatura e o extrato. Edite qualquer valor que precisar.`;
+      }
+    }
+
+    $("#finance-accounts-list").innerHTML=accounts.map(a=>{
+      const planned=expected(a,period);
+      const actual=actualForAccount(a.id,period);
+      const paid=paidForAccount(a.id,period);
+      const status=accountStatus(a,period);
+      const paymentLabel=a.paymentMethod==="card"?"💳 Cartão":a.paymentMethod==="bank"?"🏦 Conta":"↔ Misto";
+      const natureLabel=a.nature==="fixed"?"Fixa":"Variável";
+
+      return `<div class="finance-account-row" data-account-id="${esc(a.id)}">
+        <div class="finance-account-name">
+          <strong>${esc(a.name)}</strong>
+          <small>${a.type==="income"?"Receita":"Despesa"} · ${esc(natureLabel)} · ${esc(paymentLabel)}</small>
+          ${expectedSource(a,period)?`<em>${esc(expectedSource(a,period))}</em>`:""}
+        </div>
+
+        <select data-account-nature aria-label="Natureza">
+          <option value="fixed" ${a.nature==="fixed"?"selected":""}>Fixa</option>
+          <option value="variable" ${a.nature!=="fixed"?"selected":""}>Variável</option>
+        </select>
+
+        <select data-account-payment aria-label="Pagamento">
+          <option value="card" ${a.paymentMethod==="card"?"selected":""}>Cartão</option>
+          <option value="bank" ${a.paymentMethod==="bank"?"selected":""}>Conta</option>
+          <option value="mixed" ${a.paymentMethod==="mixed"?"selected":""}>Misto</option>
+        </select>
+
+        <label class="finance-account-money">
+          <span>Previsto</span>
+          <input data-account-expected type="number" min="0" step="0.01" value="${planned||""}" placeholder="0,00">
+        </label>
+
+        <div class="finance-account-money">
+          <span>Realizado</span>
+          <strong>${brl(actual)}</strong>
+        </div>
+
+        <div class="finance-account-money">
+          <span>Pago</span>
+          <strong>${brl(paid)}</strong>
+        </div>
+
+        <div class="finance-account-status">
+          <span class="finance-account-status__pill ${status.cls}">${esc(status.label)}</span>
+          ${actual>0 && planned>=0 ? `<small class="${Math.abs(status.diff)>.01?(status.diff>0?"over":"under"):""}">${status.diff>=0?"+":""}${brl(status.diff)} vs previsto</small>`:""}
+        </div>
+
+        <div class="finance-row-actions">
+          <button class="finance-mini-btn" data-account-rename>Renomear</button>
+          <button class="finance-mini-btn" data-account-delete>Ocultar</button>
+        </div>
+      </div>`;
+    }).join("") || `<div class="finance-empty">Nenhuma conta cadastrada.</div>`;
   }
 
   function renderCards() {
     const invoices=invoicesFor().sort((a,b)=>(b.dueDate||"").localeCompare(a.dueDate||""));
+
     $("#finance-cards-list").innerHTML=invoices.length?invoices.map(inv=>{
-      const charges=state.transactions.filter(t=>t.invoiceId===inv.id&&t.kind==="card-charge"), reconciled=charges.filter(t=>t.status==="reconciled"), classified=reconciled.reduce((s,t)=>s+txMagnitude(t),0), pending=charges.filter(t=>t.status==="pending").reduce((s,t)=>s+txMagnitude(t),0);
-      const groups=new Map(); for(const tx of reconciled){const a=accountById(tx.accountId);if(a)groups.set(a.name,(groups.get(a.name)||0)+txMagnitude(tx));}
-      return `<div class="finance-card-item"><div class="finance-card-item__head"><div><p class="eyebrow">Fatura ${esc(inv.cardFinal?`final ${inv.cardFinal}`:"")}</p><h3>${esc(inv.cardName||"Cartão")}</h3><div class="finance-card-item__meta">${inv.dueDate?`Vencimento ${formatDate(inv.dueDate)} · `:""}${charges.length} compra(s) importada(s)</div></div><div class="finance-card-item__total"><strong>${brl(inv.total)}</strong><span class="finance-card-status ${inv.paymentTxId?"paid":"pending"}">${inv.paymentTxId?"✓ paga e conciliada":"⏳ pagamento pendente"}</span></div></div><div class="finance-progress"><i style="width:${charges.length?100*reconciled.length/charges.length:0}%"></i></div><div class="finance-summary-line"><span>Compras classificadas</span><strong>${brl(classified)}</strong></div><div class="finance-summary-line"><span>A classificar</span><strong>${brl(pending)}</strong></div><div class="finance-card-breakdown">${[...groups.entries()].sort((a,b)=>b[1]-a[1]).slice(0,8).map(([name,val])=>`<span>${esc(name)} · ${brl(val)}</span>`).join("") || '<span>Sem categorias conciliadas ainda</span>'}</div></div>`;
+      const charges=state.transactions.filter(t=>t.invoiceId===inv.id && t.kind==="card-charge");
+      const reconciled=charges.filter(t=>t.status==="reconciled");
+      const classified=reconciled.reduce((s,t)=>s+txMagnitude(t),0);
+      const pending=Math.max(0,num(inv.total)-classified);
+      const groups=new Map();
+
+      for(const tx of reconciled) {
+        const a=accountById(tx.accountId);
+        if(a) groups.set(a.name,(groups.get(a.name)||0)+txMagnitude(tx));
+      }
+
+      const planned=plannedCard(inv.period);
+      const delta=num(inv.total)-planned;
+      const classificationRate=inv.total?100*classified/inv.total:0;
+      const paymentStatus=inv.paymentTxId
+        ? `<span class="finance-card-status paid">✓ paga no extrato</span>`
+        : `<span class="finance-card-status pending">⏳ aguardando pagamento no extrato</span>`;
+
+      return `<div class="finance-card-item">
+        <div class="finance-card-item__head">
+          <div>
+            <p class="eyebrow">Fatura ${esc(inv.cardFinal?`final ${inv.cardFinal}`:"")}</p>
+            <h3>${esc(inv.cardName||"Cartão")}</h3>
+            <div class="finance-card-item__meta">${inv.dueDate?`Vencimento ${formatDate(inv.dueDate)} · `:""}${charges.length} compra(s)</div>
+          </div>
+          <div class="finance-card-item__total">
+            <strong>${brl(inv.total)}</strong>
+            ${paymentStatus}
+          </div>
+        </div>
+
+        <div class="finance-card-comparison">
+          <div><span>Previsto da fatura</span><strong>${brl(planned)}</strong></div>
+          <div><span>Realizado</span><strong>${brl(inv.total)}</strong></div>
+          <div><span>Diferença</span><strong class="${Math.abs(delta)<=.01?"ok":delta>0?"over":"under"}">${delta>=0?"+":""}${brl(delta)}</strong></div>
+        </div>
+
+        <div class="finance-progress"><i style="width:${Math.min(100,classificationRate)}%"></i></div>
+        <div class="finance-summary-line"><span>Compras classificadas</span><strong>${brl(classified)}</strong></div>
+        <div class="finance-summary-line"><span>A classificar</span><strong>${brl(pending)}</strong></div>
+
+        <div class="finance-card-breakdown">${[...groups.entries()]
+          .sort((a,b)=>b[1]-a[1])
+          .slice(0,10)
+          .map(([name,val])=>`<span>${esc(name)} · ${brl(val)}</span>`)
+          .join("") || '<span>Sem categorias conciliadas ainda</span>'}</div>
+      </div>`;
     }).join(""):`<div class="finance-empty">Nenhuma fatura importada neste período.<br>Vá em Conciliação e importe seu XLS/XLSX.</div>`;
   }
 
@@ -539,6 +1069,71 @@ window.MemoryFinance = (() => {
     const accounts=state.accounts.filter(a=>a.active && a.type!=="settlement").sort((a,b)=>a.name.localeCompare(b.name,"pt-BR"));
     const suggestion=tx.suggestion; const suggestedValue=suggestion?.type==="account"?suggestion.accountId:"";
     return `<option value="">Escolher conta…</option>${accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===suggestedValue?"selected":""}>${esc(a.name)}</option>`).join("")}`;
+  }
+
+  function findAccountByName(name) {
+    const key=norm(name);
+    if(!key) return null;
+    return state.accounts.find(a=>a.active && a.type!=="settlement" && norm(a.name)===key) || null;
+  }
+
+  function classificationDefaults(tx) {
+    const type = tx?.source==="statement" && num(tx.amount)>0 ? "income" : "expense";
+    const paymentMethod = tx?.source==="invoice" ? "card" : "bank";
+    return {type,nature:"variable",paymentMethod};
+  }
+
+  function createClassificationFromTx(tx,name) {
+    const clean=String(name||"").trim().replace(/\s+/g," ");
+    if(!clean) return null;
+
+    const existing=findAccountByName(clean);
+    if(existing) return existing;
+
+    const defaults=classificationDefaults(tx);
+    const account={
+      id:uid("acc"),
+      name:clean,
+      type:defaults.type,
+      nature:defaults.nature,
+      paymentMethod:defaults.paymentMethod,
+      active:true,
+      amounts:{},
+      planMeta:{},
+      classificationCreated:true,
+      createdAt:new Date().toISOString()
+    };
+
+    state.accounts.push(account);
+    return account;
+  }
+
+  async function reconcileWithTypedClassification(txId, selectedAccountId, typedName, learn=false) {
+    const tx=state.transactions.find(t=>t.id===txId);
+    if(!tx) return;
+
+    const clean=String(typedName||"").trim();
+    let accountId=selectedAccountId || "";
+
+    if(clean) {
+      const account=createClassificationFromTx(tx,clean);
+      if(!account) {
+        toast("Escreva o nome da nova despesa.");
+        return;
+      }
+      accountId=account.id;
+    }
+
+    if(!accountId) {
+      toast("Escolha uma despesa existente ou escreva o nome de uma nova.");
+      return;
+    }
+
+    await reconcileTx(txId,accountId,learn);
+
+    if(clean) {
+      toast(`Nova despesa "${clean}" criada e conciliada.`);
+    }
   }
 
   function filteredReconcileTxs() {
@@ -558,7 +1153,22 @@ window.MemoryFinance = (() => {
       return `<div class="finance-reconcile-item ${tx.status==="reconciled"?"reconciled":""}" data-tx-id="${esc(tx.id)}">
         <div class="finance-reconcile-main"><div class="finance-reconcile-top"><span class="finance-source-badge">${tx.source==="invoice"?"💳 Fatura":"🏦 Extrato"}</span>${tx.status==="reconciled"?'<span class="finance-status-badge">✓ Conciliado</span>':s?`<span class="finance-confidence">${s.confidence}% · ${esc(s.label)}</span>`:""}</div><h3>${esc(tx.description)}</h3><div class="finance-reconcile-meta"><span>${formatDate(tx.date)}</span>${tx.installment?`<span>${esc(tx.installment)}</span>`:""}${tx.source==="invoice"&&tx.invoiceId?`<span>${esc(invoiceById(tx.invoiceId)?.cardFinal?`cartão ${invoiceById(tx.invoiceId).cardFinal}`:"")}</span>`:""}</div></div>
         <div class="finance-reconcile-amount ${tx.amount>=0?"credit":"debit"}">${brl(tx.amount)}</div>
-        <div class="finance-reconcile-actions">${tx.status==="reconciled"?`<span class="muted">Ligado a <strong>${esc(targetLabel||"conta")}</strong></span><button class="btn" data-reopen>Reabrir</button>`:special?`<span class="muted">Pagamento com o mesmo valor da <strong>${esc(s.label)}</strong>.</span><button class="btn primary" data-reconcile-invoice="${esc(s.invoiceId)}">Conciliar fatura</button><button class="btn" data-ignore>Ignorar</button>`:`<select class="finance-reconcile-select" data-target-account>${targetOptions(tx)}</select><label class="finance-learn-label"><input type="checkbox" data-learn-rule checked> Aprender descrição</label><button class="btn primary" data-reconcile-account>Conciliar</button><button class="btn" data-ignore>Ignorar</button>`}</div>
+        <div class="finance-reconcile-actions">${tx.status==="reconciled"?`<span class="muted">Ligado a <strong>${esc(targetLabel||"conta")}</strong></span><button class="btn" data-reopen>Reabrir</button>`:special?`<span class="muted">Pagamento com o mesmo valor da <strong>${esc(s.label)}</strong>.</span><button class="btn primary" data-reconcile-invoice="${esc(s.invoiceId)}">Conciliar fatura</button><button class="btn" data-ignore>Ignorar</button>`:`<div class="finance-classification-picker">
+          <label class="finance-existing-classification">
+            <span>Classificação existente</span>
+            <select class="finance-reconcile-select" data-target-account aria-label="Classificação existente">${targetOptions(tx)}</select>
+          </label>
+          <div class="finance-new-expense-box">
+            <div class="finance-new-expense-box__head">
+              <span class="finance-new-expense-plus">＋</span>
+              <div>
+                <strong>${tx.source==="statement" && num(tx.amount)>0 ? "Não encontrou? Criar nova receita" : "Não encontrou? Criar nova despesa"}</strong>
+                <small>Digite o nome e concilie agora. Ela ficará salva para as próximas vezes.</small>
+              </div>
+            </div>
+            <input type="text" maxlength="60" data-new-classification placeholder="${tx.source==="statement" && num(tx.amount)>0 ? "Ex.: Reembolso, Venda, Bônus…" : "Ex.: Pedágio, Farmácia, Presente, Manutenção…"}" aria-label="Nova classificação">
+          </div>
+        </div><label class="finance-learn-label"><input type="checkbox" data-learn-rule checked> Aprender descrição</label><button class="btn primary" data-reconcile-account>Conciliar</button><button class="btn" data-ignore>Ignorar</button>`}</div>
       </div>`;
     }).join(""):`<div class="finance-empty">${reconcileFilter==="reconciled"?"Nenhum lançamento conciliado neste período.":"Nenhuma pendência aqui. 🎉"}</div>`;
     const pending=transactionsFor().filter(t=>t.status==="pending"&&eligibleTx(t)).length; $("#finance-tab-pending").textContent=pending;
@@ -569,16 +1179,59 @@ window.MemoryFinance = (() => {
     $("#finance-evolution-list").innerHTML=rows.length?rows.map(r=>`<div class="finance-evolution-row"><strong>${periodLabel(r.period)}</strong><div class="finance-evolution-bars"><div class="finance-evolution-bar income"><i style="width:${100*r.income/max}%"></i></div><div class="finance-evolution-bar expense"><i style="width:${100*r.expenses/max}%"></i></div></div><div class="finance-evolution-value"><strong>${brl(r.income)}</strong><small>entradas</small></div><div class="finance-evolution-value"><strong>${brl(r.expenses)}</strong><small>despesas</small></div></div>`).join(""):`<div class="finance-empty">A evolução aparecerá depois das primeiras conciliações.</div>`;
   }
 
-  function renderAll() { if(!state)return; refreshSuggestions(); renderKpis(); renderPlan(); renderReconcileSummary(); renderCategories(); renderAccounts(); renderCards(); renderReconcile(); renderEvolution(); updateSyncBadge(); setTab(activeTab); }
+  function renderAll() { if(!state)return; ensurePeriodPlan(currentPeriod()); refreshSuggestions(); renderKpis(); renderPlan(); renderReconcileSummary(); renderCategories(); renderAccounts(); renderCards(); renderReconcile(); renderEvolution(); updateSyncBadge(); setTab(activeTab); }
 
   function showAccountModal() {
-    const modal=$("#finance-modal"); modal.hidden=false; modal.innerHTML=`<section class="finance-modal__card" role="dialog" aria-modal="true"><p class="eyebrow">Nova conta</p><h2>Adicionar ao planejamento</h2><form id="finance-account-form"><div class="finance-modal__grid"><label>Nome<input name="name" required maxlength="60" placeholder="Ex.: Escola"></label><label>Tipo<select name="type"><option value="expense">Despesa</option><option value="income">Receita</option></select></label><label>Valor previsto em ${esc(periodLabel(currentPeriod()))}<input name="amount" type="number" min="0" step="0.01" placeholder="0,00"></label></div><div class="finance-modal__actions"><button class="btn" type="button" data-modal-close>Cancelar</button><button class="btn primary" type="submit">Adicionar</button></div></form></section>`;
+    const modal=$("#finance-modal");
+    modal.hidden=false;
+    modal.innerHTML=`<section class="finance-modal__card" role="dialog" aria-modal="true">
+      <p class="eyebrow">Nova conta</p>
+      <h2>Adicionar ao previsto mensal</h2>
+      <form id="finance-account-form">
+        <div class="finance-modal__grid">
+          <label>Nome<input name="name" required maxlength="60" placeholder="Ex.: Escola"></label>
+          <label>Tipo<select name="type"><option value="expense">Despesa</option><option value="income">Receita</option></select></label>
+          <label>Natureza<select name="nature"><option value="variable">Variável</option><option value="fixed">Fixa</option></select></label>
+          <label>Pagamento<select name="paymentMethod"><option value="bank">Conta</option><option value="card">Cartão</option><option value="mixed">Misto</option></select></label>
+          <label>Previsto em ${esc(periodLabel(currentPeriod()))}<input name="amount" type="number" min="0" step="0.01" placeholder="0,00"></label>
+        </div>
+        <div class="finance-modal__actions">
+          <button class="btn" type="button" data-modal-close>Cancelar</button>
+          <button class="btn primary" type="submit">Adicionar</button>
+        </div>
+      </form>
+    </section>`;
   }
+
   function closeModal(){ $("#finance-modal").hidden=true; $("#finance-modal").innerHTML=""; }
 
   async function addAccount(form) {
-    const data=new FormData(form), name=String(data.get("name")||"").trim(), type=String(data.get("type")||"expense"), amount=num(data.get("amount")); if(!name)return;
-    const a={id:uid("acc"),name,type,active:true,amounts:{},createdAt:new Date().toISOString()}; if(amount>0)a.amounts[currentPeriod()]=amount; state.accounts.push(a); await queueSave(); closeModal(); renderAll();
+    const data=new FormData(form);
+    const name=String(data.get("name")||"").trim();
+    const type=String(data.get("type")||"expense");
+    const nature=String(data.get("nature")||"variable");
+    const paymentMethod=String(data.get("paymentMethod")||"bank");
+    const rawAmount=String(data.get("amount")||"").trim();
+
+    if(!name) return;
+
+    const a={
+      id:uid("acc"),
+      name,
+      type,
+      nature,
+      paymentMethod,
+      active:true,
+      amounts:{},
+      planMeta:{},
+      createdAt:new Date().toISOString()
+    };
+
+    if(rawAmount!=="") setPlanned(a,currentPeriod(),num(rawAmount),"Manual");
+    state.accounts.push(a);
+    await queueSave();
+    closeModal();
+    renderAll();
   }
 
   async function accountAction(row, action) {
@@ -611,9 +1264,15 @@ window.MemoryFinance = (() => {
         setFinanceUnlockedUI(true);
 
         const stored=localStorage.getItem("memory:financeiro:period");
-        $("#finance-period").value=/^\d{4}-\d{2}$/.test(stored||"")
+        const latestInvoice=[...(state.invoices||[])].map(i=>i.period).filter(Boolean).sort().at(-1);
+        const latestTx=[...(state.transactions||[])].map(t=>t.period).filter(Boolean).sort().at(-1);
+        const preferred=/^\d{4}-\d{2}$/.test(stored||"")
           ? stored
-          : new Date().toISOString().slice(0,7);
+          : (latestInvoice || latestTx || TEST_PLAN_PERIOD);
+
+        $("#finance-period").value=preferred;
+        const created=ensurePeriodPlan(preferred);
+        if(created) await queueSave();
 
         renderAll();
         requestAnimationFrame(()=>{
@@ -636,21 +1295,83 @@ window.MemoryFinance = (() => {
     });
     $("#finance-password-toggle")?.addEventListener("click",()=>{const input=$("#finance-password");input.type=input.type==="password"?"text":"password";});
     $("#finance-lock-button")?.addEventListener("click", lock);
-    $("#finance-period")?.addEventListener("change",()=>{localStorage.setItem("memory:financeiro:period",currentPeriod());renderAll();});
+    $("#finance-period")?.addEventListener("change",async()=>{localStorage.setItem("memory:financeiro:period",currentPeriod());const created=ensurePeriodPlan(currentPeriod());if(created)await queueSave();renderAll();});
     document.addEventListener("click", event=>{
       const tab=event.target.closest("[data-finance-tab]"); if(tab){setTab(tab.dataset.financeTab);return;}
       if(event.target.closest("[data-go-reconcile]")){setTab("reconcile");return;}
       const filter=event.target.closest("[data-reconcile-filter]"); if(filter){reconcileFilter=filter.dataset.reconcileFilter; $$('[data-reconcile-filter]').forEach(b=>b.classList.toggle("active",b===filter));renderReconcile();return;}
-      if(event.target.closest("#finance-add-account")){showAccountModal();return;}
+      if(event.target.closest("#finance-copy-previous")){copyPreviousPlan();return;} if(event.target.closest("#finance-add-account")){showAccountModal();return;}
       if(event.target.closest("[data-modal-close]")){closeModal();return;}
       const row=event.target.closest(".finance-account-row"); if(row&&event.target.closest("[data-account-rename]")){accountAction(row,"rename");return;} if(row&&event.target.closest("[data-account-delete]")){accountAction(row,"delete");return;}
-      const item=event.target.closest(".finance-reconcile-item"); if(item){ const id=item.dataset.txId; if(event.target.closest("[data-reconcile-account]")){const target=item.querySelector("[data-target-account]")?.value, learn=item.querySelector("[data-learn-rule]")?.checked;reconcileTx(id,target,learn);return;} const invBtn=event.target.closest("[data-reconcile-invoice]");if(invBtn){reconcileTx(id,`invoice:${invBtn.dataset.reconcileInvoice}`,false);return;}if(event.target.closest("[data-ignore]")){ignoreTx(id);return;}if(event.target.closest("[data-reopen]")){reopenTx(id);return;} }
+      const item=event.target.closest(".finance-reconcile-item"); if(item){ const id=item.dataset.txId; if(event.target.closest("[data-reconcile-account]")){
+        const target=item.querySelector("[data-target-account]")?.value;
+        const typed=item.querySelector("[data-new-classification]")?.value;
+        const learn=item.querySelector("[data-learn-rule]")?.checked;
+        reconcileWithTypedClassification(id,target,typed,learn);
+        return;
+      } const invBtn=event.target.closest("[data-reconcile-invoice]");if(invBtn){reconcileTx(id,`invoice:${invBtn.dataset.reconcileInvoice}`,false);return;}if(event.target.closest("[data-ignore]")){ignoreTx(id);return;}if(event.target.closest("[data-reopen]")){reopenTx(id);return;} }
+    });
+    $("#finance-reconcile-list")?.addEventListener("keydown",event=>{
+      if(event.key!=="Enter" || !event.target.matches("[data-new-classification]")) return;
+      event.preventDefault();
+
+      const item=event.target.closest(".finance-reconcile-item");
+      if(!item) return;
+
+      const id=item.dataset.txId;
+      const target=item.querySelector("[data-target-account]")?.value;
+      const typed=event.target.value;
+      const learn=item.querySelector("[data-learn-rule]")?.checked;
+
+      reconcileWithTypedClassification(id,target,typed,learn);
     });
     $("#finance-file-input")?.addEventListener("change",event=>{const files=[...event.target.files];event.target.value="";if(files.length)importFiles(files);});
     $("#finance-reconcile-exact")?.addEventListener("click",reconcileExact);
     $("#finance-account-form")?.addEventListener?.("submit",()=>{});
     $("#finance-modal")?.addEventListener("submit",event=>{if(event.target.id==="finance-account-form"){event.preventDefault();addAccount(event.target);}});
-    $("#finance-accounts-list")?.addEventListener("change",async event=>{const row=event.target.closest(".finance-account-row"), a=accountById(row?.dataset.accountId);if(!a)return;if(event.target.matches("[data-account-type]"))a.type=event.target.value;if(event.target.matches("[data-account-expected]")){a.amounts ||= {};const v=num(event.target.value);if(v>0)a.amounts[currentPeriod()]=v;else delete a.amounts[currentPeriod()];}await queueSave();renderAll();});
+    $("#finance-reconcile-list")?.addEventListener("input",event=>{
+      if(!event.target.matches("[data-new-classification]")) return;
+      const item=event.target.closest(".finance-reconcile-item");
+      const select=item?.querySelector("[data-target-account]");
+      if(select && String(event.target.value||"").trim()) select.value="";
+    });
+
+    $("#finance-reconcile-list")?.addEventListener("change",event=>{
+      if(!event.target.matches("[data-target-account]")) return;
+      const item=event.target.closest(".finance-reconcile-item");
+      const input=item?.querySelector("[data-new-classification]");
+      if(input && event.target.value) input.value="";
+    });
+
+    $("#finance-accounts-list")?.addEventListener("change",async event=>{
+      const row=event.target.closest(".finance-account-row");
+      const a=accountById(row?.dataset.accountId);
+      if(!a) return;
+
+      if(event.target.matches("[data-account-nature]")) {
+        a.nature=event.target.value==="fixed"?"fixed":"variable";
+      }
+
+      if(event.target.matches("[data-account-payment]")) {
+        a.paymentMethod=["card","bank","mixed"].includes(event.target.value)?event.target.value:"bank";
+      }
+
+      if(event.target.matches("[data-account-expected]")) {
+        a.amounts ||= {};
+        a.planMeta ||= {};
+        const raw=String(event.target.value??"").trim();
+
+        if(raw==="") {
+          delete a.amounts[currentPeriod()];
+          delete a.planMeta[currentPeriod()];
+        } else {
+          setPlanned(a,currentPeriod(),num(raw),"Manual");
+        }
+      }
+
+      await queueSave();
+      renderAll();
+    });
   }
 
   async function init() {
