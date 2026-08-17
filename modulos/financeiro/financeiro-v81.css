@@ -1,3 +1,16 @@
+
+/* V81.0.2 — [hidden] precisa vencer os displays do módulo.
+   Sem isso, .finance-lock{display:grid}, .finance-app{display:grid}
+   e .finance-sync-badge{display:inline-flex} podem continuar visíveis
+   mesmo depois de o JavaScript aplicar hidden=true. */
+#finance-lock[hidden],
+#finance-app[hidden],
+#finance-sync-badge[hidden],
+#finance-lock-button[hidden],
+#finance-modal[hidden]{
+  display:none!important;
+}
+
 .finance-page{max-width:1220px;margin:0 auto;padding-bottom:60px}
 .finance-top-actions{display:flex;align-items:center;gap:8px}
 .finance-sync-badge{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 11px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--muted);font-size:.68rem;font-weight:750}

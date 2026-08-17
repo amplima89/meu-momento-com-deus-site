@@ -221,15 +221,42 @@ window.MemoryFinance = (() => {
     state.transactions ||= []; state.invoices ||= []; state.files ||= [];
   }
 
+  function setFinanceUnlockedUI(unlocked) {
+    const lockView = $("#finance-lock");
+    const appView = $("#finance-app");
+    const lockButton = $("#finance-lock-button");
+    const syncBadge = $("#finance-sync-badge");
+
+    if (lockView) {
+      lockView.hidden = Boolean(unlocked);
+      lockView.style.display = unlocked ? "none" : "grid";
+    }
+    if (appView) {
+      appView.hidden = !unlocked;
+      appView.style.display = unlocked ? "grid" : "none";
+    }
+    if (lockButton) {
+      lockButton.hidden = !unlocked;
+      lockButton.style.display = unlocked ? "" : "none";
+    }
+    if (syncBadge && !unlocked) {
+      syncBadge.hidden = true;
+      syncBadge.style.display = "none";
+    }
+  }
+
   function lock() {
     password = ""; state = null; activeTab = "overview";
-    $("#finance-app").hidden = true; $("#finance-lock").hidden = false; $("#finance-lock-button").hidden = true; $("#finance-sync-badge").hidden = true;
-    $("#finance-password").value = ""; setTimeout(()=>$("#finance-password")?.focus(),50);
+    setFinanceUnlockedUI(false);
+    $("#finance-password").value = "";
+    setTimeout(()=>$("#finance-password")?.focus(),50);
   }
 
   function updateSyncBadge() {
     const badge = $("#finance-sync-badge"); if (!badge) return;
-    badge.textContent = `🔐 ${syncMode || "Criptografado"}`; badge.hidden = false;
+    badge.textContent = `🔐 ${syncMode || "Criptografado"}`;
+    badge.hidden = false;
+    badge.style.display = "inline-flex";
   }
 
   function accountById(id) { return state?.accounts?.find(a => a.id === id) || null; }
@@ -581,9 +608,7 @@ window.MemoryFinance = (() => {
         if(!input) throw new Error("Campo de senha indisponível.");
         await unlock(input.value);
 
-        $("#finance-lock").hidden=true;
-        $("#finance-app").hidden=false;
-        $("#finance-lock-button").hidden=false;
+        setFinanceUnlockedUI(true);
 
         const stored=localStorage.getItem("memory:financeiro:period");
         $("#finance-period").value=/^\d{4}-\d{2}$/.test(stored||"")
@@ -591,6 +616,10 @@ window.MemoryFinance = (() => {
           : new Date().toISOString().slice(0,7);
 
         renderAll();
+        requestAnimationFrame(()=>{
+          $("#finance-app")?.scrollIntoView({block:"start",behavior:"auto"});
+          window.scrollTo({top:0,behavior:"auto"});
+        });
         toast("Financeiro aberto.",2200);
       }catch(e){
         console.error("Financeiro: falha ao abrir.",e);
@@ -626,6 +655,7 @@ window.MemoryFinance = (() => {
 
   async function init() {
     await MMCDAuth.requireSession();
+    setFinanceUnlockedUI(false);
     bindEvents();
     $("#finance-password")?.focus();
   }
