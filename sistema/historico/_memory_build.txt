@@ -1,1 +1,1 @@
-V81.0 | 2026-08-16 | Financeiro + conciliacao + dados criptografados
+V81.0.1 | 2026-08-16 | Correcao da abertura por senha do Financeiro

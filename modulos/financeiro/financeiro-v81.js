@@ -109,6 +109,14 @@ window.MemoryFinance = (() => {
     return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2,"0")).join("");
   }
 
+  function withTimeout(promise, ms, label="operação") {
+    let timer;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`${label} demorou mais que o esperado.`)), ms);
+    });
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+  }
+
   function bytesToB64(bytes) {
     let binary = ""; const chunk = 0x8000;
     for (let i=0;i<bytes.length;i+=chunk) binary += String.fromCharCode(...bytes.subarray(i,i+chunk));
@@ -139,13 +147,26 @@ window.MemoryFinance = (() => {
   }
 
   async function readEnvelope() {
-    let remote = null;
     try {
-      remote = await MemoryConfig.read(STORE_KEY, null, {fresh:true});
-      if (remote?.data) { syncMode = "Supabase criptografado"; localStorage.setItem(LOCAL_KEY, JSON.stringify(remote)); return remote; }
-    } catch (error) { console.warn("Financeiro: usando cache local criptografado.", error); }
-    try { const local = JSON.parse(localStorage.getItem(LOCAL_KEY) || "null"); if (local?.data) { syncMode = "Local criptografado"; return local; } } catch {}
-    syncMode = "Supabase criptografado";
+      const local = JSON.parse(localStorage.getItem(LOCAL_KEY) || "null");
+      if (local?.data) { syncMode = "Local criptografado"; return local; }
+    } catch {}
+
+    try {
+      const remote = await withTimeout(
+        MemoryConfig.read(STORE_KEY, null, {fresh:true}),
+        3500,
+        "Leitura do Financeiro"
+      );
+      if (remote?.data) {
+        syncMode = "Supabase criptografado";
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(remote));
+        return remote;
+      }
+    } catch (error) {
+      console.warn("Financeiro: Supabase indisponível durante a abertura.", error);
+      syncMode = "Local criptografado";
+    }
     return null;
   }
 
@@ -165,17 +186,30 @@ window.MemoryFinance = (() => {
   }
 
   async function unlock(secret) {
-    if (await sha256(secret) !== PASSWORD_HASH) throw new Error("Senha incorreta.");
-    password = secret;
+    const normalizedSecret = String(secret ?? "").trim();
+    if (!normalizedSecret) throw new Error("Digite a senha.");
+    if (await sha256(normalizedSecret) !== PASSWORD_HASH) throw new Error("Senha incorreta.");
+
+    password = normalizedSecret;
     const envelope = await readEnvelope();
+
     if (envelope) {
-      try { state = await decryptState(envelope, secret); }
-      catch { password=""; throw new Error("Não foi possível abrir os dados com esta senha."); }
+      try {
+        state = await decryptState(envelope, normalizedSecret);
+      } catch (error) {
+        password = "";
+        state = null;
+        console.error("Financeiro: falha ao descriptografar dados existentes.", error);
+        throw new Error("A senha está correta, mas não foi possível abrir os dados financeiros salvos.");
+      }
     } else {
       state = defaultState();
-      await persist();
     }
+
     migrateState();
+
+    if (!envelope) queueSave();
+    return true;
   }
 
   function migrateState() {
@@ -528,7 +562,49 @@ window.MemoryFinance = (() => {
   }
 
   function bindEvents() {
-    $("#finance-lock-form")?.addEventListener("submit", async event=>{ event.preventDefault(); const input=$("#finance-password"), error=$("#finance-lock-error"); error.textContent=""; const button=event.submitter; button.disabled=true; button.textContent="Abrindo…"; try{await unlock(input.value); $("#finance-lock").hidden=true; $("#finance-app").hidden=false; $("#finance-lock-button").hidden=false; const stored=localStorage.getItem("memory:financeiro:period"); $("#finance-period").value=/^\d{4}-\d{2}$/.test(stored||"")?stored:new Date().toISOString().slice(0,7); renderAll();}catch(e){error.textContent=e.message||"Senha incorreta.";input.select();}finally{button.disabled=false;button.textContent="Abrir Financeiro";} });
+    const lockForm=$("#finance-lock-form");
+    const openButton=$("#finance-open-button") || lockForm?.querySelector('button[type="submit"]');
+    lockForm?.addEventListener("submit", async event=>{
+      event.preventDefault();
+
+      const input=$("#finance-password");
+      const error=$("#finance-lock-error");
+      const button=event.submitter || openButton;
+
+      error.textContent="";
+      if(button){
+        button.disabled=true;
+        button.textContent="Verificando…";
+      }
+
+      try{
+        if(!input) throw new Error("Campo de senha indisponível.");
+        await unlock(input.value);
+
+        $("#finance-lock").hidden=true;
+        $("#finance-app").hidden=false;
+        $("#finance-lock-button").hidden=false;
+
+        const stored=localStorage.getItem("memory:financeiro:period");
+        $("#finance-period").value=/^\d{4}-\d{2}$/.test(stored||"")
+          ? stored
+          : new Date().toISOString().slice(0,7);
+
+        renderAll();
+        toast("Financeiro aberto.",2200);
+      }catch(e){
+        console.error("Financeiro: falha ao abrir.",e);
+        error.textContent=e?.message||"Não foi possível abrir o Financeiro.";
+        input?.focus();
+        input?.select();
+        toast(error.textContent,3800);
+      }finally{
+        if(button){
+          button.disabled=false;
+          button.textContent="Abrir Financeiro";
+        }
+      }
+    });
     $("#finance-password-toggle")?.addEventListener("click",()=>{const input=$("#finance-password");input.type=input.type==="password"?"text":"password";});
     $("#finance-lock-button")?.addEventListener("click", lock);
     $("#finance-period")?.addEventListener("change",()=>{localStorage.setItem("memory:financeiro:period",currentPeriod());renderAll();});
