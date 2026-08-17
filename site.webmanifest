@@ -1,7 +1,7 @@
 {
   "name": "Memory",
   "short_name": "Memory",
-  "description": "Cuidado e evolucao: mente, corpo, espiritualidade e desenvolvimento.",
+  "description": "Não esqueça do que importa.",
   "id": "./painel.html",
   "start_url": "./painel.html",
   "scope": "./",
@@ -10,10 +10,28 @@
   "theme_color": "#06152f",
   "icons": [
     {
-      "src": "assets/imagens/memory-mark-v62.png",
-      "sizes": "900x900",
+      "src": "assets/imagens/pwa/memory-icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "assets/imagens/pwa/memory-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/imagens/pwa/memory-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/imagens/pwa/memory-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
