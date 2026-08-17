@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000717">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Financeiro — Memory</title>
+  <link rel="icon" href="assets/imagens/memory-icon-official-v80-1.png?v=20260816-v80-1" sizes="any">
+  <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
+  <link rel="stylesheet" href="modulos/financeiro/financeiro-v81.css?v=20260816-v81">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="app-topbar__inner">
+        <div>
+          <span class="app-topbar__title">MEMORY</span>
+          <span class="app-topbar__subtitle">Financeiro</span>
+        </div>
+        <div class="finance-top-actions">
+          <span id="finance-sync-badge" class="finance-sync-badge" hidden>Criptografado</span>
+          <button id="finance-lock-button" class="icon-btn" type="button" aria-label="Bloquear Financeiro" title="Bloquear Financeiro" hidden>🔒</button>
+          <button id="theme-toggle" class="icon-btn" aria-label="Alternar tema">☾</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main finance-page">
+      <section id="finance-lock" class="finance-lock" aria-labelledby="finance-lock-title">
+        <div class="finance-lock__card">
+          <div class="finance-lock__mark"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260816-v80-1" alt=""></div>
+          <p class="eyebrow">Área protegida</p>
+          <h1 id="finance-lock-title">Financeiro</h1>
+          <p>Digite a senha para abrir seus dados financeiros.</p>
+          <form id="finance-lock-form" class="finance-lock__form">
+            <label for="finance-password">Senha</label>
+            <div class="finance-password-field">
+              <input id="finance-password" type="password" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="••••••" required>
+              <button id="finance-password-toggle" type="button" class="finance-password-toggle" aria-label="Mostrar senha">👁</button>
+            </div>
+            <button class="btn primary" type="submit">Abrir Financeiro</button>
+            <p id="finance-lock-error" class="finance-lock__error" role="alert"></p>
+          </form>
+          <div class="finance-lock__security">
+            <span>🔐</span>
+            <span>Além do login do Memory, esta área usa uma segunda senha. Os dados normalizados são criptografados antes da sincronização.</span>
+          </div>
+        </div>
+      </section>
+
+      <div id="finance-app" class="finance-app" hidden>
+        <section class="finance-hero card">
+          <div>
+            <p class="eyebrow">Controle financeiro</p>
+            <h1>💰 Seu dinheiro, conciliado.</h1>
+            <p class="muted">Planeje, importe extrato e fatura e resolva apenas o que ficou pendente de conciliação.</p>
+          </div>
+          <div class="finance-period-wrap">
+            <label for="finance-period">Período</label>
+            <input id="finance-period" type="month">
+          </div>
+        </section>
+
+        <nav class="finance-tabs" aria-label="Áreas do Financeiro">
+          <button type="button" data-finance-tab="overview" class="active">Visão geral</button>
+          <button type="button" data-finance-tab="accounts">Contas</button>
+          <button type="button" data-finance-tab="cards">Cartões</button>
+          <button type="button" data-finance-tab="reconcile">Conciliação <span id="finance-tab-pending" class="finance-tab-count">0</span></button>
+          <button type="button" data-finance-tab="evolution">Evolução</button>
+        </nav>
+
+        <section data-finance-panel="overview" class="finance-panel active">
+          <div id="finance-kpis" class="finance-kpis"></div>
+          <div class="finance-grid finance-grid--overview">
+            <article class="card finance-section-card">
+              <div class="section-head"><div><p class="eyebrow">Mês</p><h2>Previsto × realizado</h2></div></div>
+              <div id="finance-plan-summary"></div>
+            </article>
+            <article class="card finance-section-card">
+              <div class="section-head"><div><p class="eyebrow">Situação</p><h2>Conciliação</h2></div></div>
+              <div id="finance-reconcile-summary"></div>
+            </article>
+          </div>
+          <article class="card finance-section-card">
+            <div class="section-head"><div><p class="eyebrow">Categorias</p><h2>Para onde o dinheiro foi</h2></div></div>
+            <div id="finance-category-summary"></div>
+          </article>
+        </section>
+
+        <section data-finance-panel="accounts" class="finance-panel">
+          <article class="card finance-section-card">
+            <div class="section-head finance-section-head--actions">
+              <div><p class="eyebrow">Planejamento</p><h2>Contas do período</h2><p class="muted">Cadastre o valor esperado. O realizado virá da conciliação.</p></div>
+              <button id="finance-add-account" type="button" class="btn primary">+ Nova conta</button>
+            </div>
+            <div id="finance-accounts-list" class="finance-account-list"></div>
+          </article>
+        </section>
+
+        <section data-finance-panel="cards" class="finance-panel">
+          <article class="card finance-section-card">
+            <div class="section-head"><div><p class="eyebrow">Cartões</p><h2>Faturas importadas</h2><p class="muted">As compras contam como despesa. O pagamento da fatura é tratado como liquidação, evitando dupla contagem.</p></div></div>
+            <div id="finance-cards-list" class="finance-card-list"></div>
+          </article>
+        </section>
+
+        <section data-finance-panel="reconcile" class="finance-panel">
+          <article class="card finance-import-card">
+            <div class="section-head finance-section-head--actions">
+              <div>
+                <p class="eyebrow">Importação privada</p>
+                <h2>Importar extrato ou fatura</h2>
+                <p class="muted">Aceita XLS e XLSX. O arquivo é lido no seu navegador; o original não é enviado nem publicado no GitHub.</p>
+              </div>
+              <label class="btn primary finance-file-button">
+                Importar arquivo
+                <input id="finance-file-input" type="file" accept=".xls,.xlsx" multiple hidden>
+              </label>
+            </div>
+            <div id="finance-import-status" class="finance-import-status"></div>
+          </article>
+
+          <article class="card finance-section-card">
+            <div class="section-head finance-section-head--actions">
+              <div><p class="eyebrow">Fila de trabalho</p><h2>Pendências de conciliação</h2><p class="muted">Confirme sugestões, corrija classificações e ensine o Memory a reconhecer o próximo mês.</p></div>
+              <button id="finance-reconcile-exact" type="button" class="btn">Conciliar correspondências exatas</button>
+            </div>
+            <div class="finance-filters">
+              <button type="button" class="active" data-reconcile-filter="pending">Pendentes</button>
+              <button type="button" data-reconcile-filter="suggested">Com sugestão</button>
+              <button type="button" data-reconcile-filter="reconciled">Conciliados</button>
+              <button type="button" data-reconcile-filter="all">Todos</button>
+            </div>
+            <div id="finance-reconcile-list" class="finance-reconcile-list"></div>
+          </article>
+        </section>
+
+        <section data-finance-panel="evolution" class="finance-panel">
+          <article class="card finance-section-card">
+            <div class="section-head"><div><p class="eyebrow">Histórico</p><h2>Evolução financeira</h2><p class="muted">Comparação dos meses que já possuem lançamentos conciliados.</p></div></div>
+            <div id="finance-evolution-list" class="finance-evolution-list"></div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="finance-modal" class="finance-modal" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="nucleo/supabase-config.js?v=20260803-50"></script>
+  <script src="nucleo/supabase-client.js?v=20260803-50"></script>
+  <script src="nucleo/auth.js?v=20260814-memory-v42"></script>
+  <script src="nucleo/theme-system-v80.js?v=20260816-v80"></script>
+  <script src="modulos/memory/memory-config-v68.js?v=20260815-v74"></script>
+  <script src="nucleo/shell-v81.js?v=20260816-v81"></script>
+  <script>MMCDShell('financeiro')</script>
+  <script src="modulos/financeiro/financeiro-v81.js?v=20260816-v81"></script>
+</body>
+</html>

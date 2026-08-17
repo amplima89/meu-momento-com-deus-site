@@ -265,3 +265,11 @@
 - Estado `memory:sidebar:care-open=0` passa a ser respeitado mesmo quando a página ativa pertence a Cuidado.
 - Ao acessar Cuidado vindo de outra área, o sistema abre Mapa de Cuidado e expande o grupo.
 - Removido o botão separado de disclosure da V80.6.
+
+
+## V81.0 — 16/08/2026
+- Nova guia Financeiro protegida por senha adicional.
+- Importação local de XLS/XLSX.
+- Central de Conciliação com regras e aprendizagem.
+- Dados financeiros normalizados criptografados antes do Supabase.
+- Pagamento de fatura tratado como liquidação, sem dupla contagem.
