@@ -1,1 +1,1 @@
-V81.4.1 | 2026-08-18 | Treinos - check rapido visivel + ultima carga automatica
+V81.4.2 | 2026-08-18 | Treinos - check reversivel + catalogo com fotos inicio/fim
