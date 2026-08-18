@@ -8,7 +8,7 @@
   <title>Financeiro — Memory</title>
   <link rel="icon" href="assets/imagens/memory-icon-official-v80-1.png?v=20260816-v80-1" sizes="any">
   <link rel="stylesheet" href="nucleo/painel.css?v=20260812-themes-v32">
-  <link rel="stylesheet" href="modulos/financeiro/financeiro-v81.css?v=20260817-v81-2-4">
+  <link rel="stylesheet" href="modulos/financeiro/financeiro-v81-5.css?v=20260818-v81-5">
 </head>
 <body>
   <div class="app-shell">
@@ -53,8 +53,8 @@
         <section class="finance-hero card">
           <div>
             <p class="eyebrow">Controle financeiro</p>
-            <h1>💰 Previsto → conciliado → pago.</h1>
-            <p class="muted">Controle o que pretende pagar no mês, confira o realizado na fatura e dê baixa quando o pagamento aparecer no extrato.</p>
+            <h1>💰 Seu mês financeiro, sem planilha paralela.</h1>
+            <p class="muted">Veja receitas, despesas, fatura, pagamentos e o saldo que sobra para você decidir o destino.</p>
           </div>
           <div class="finance-period-wrap">
             <label for="finance-period">Período</label>
@@ -64,8 +64,8 @@
 
         <nav class="finance-tabs" aria-label="Áreas do Financeiro">
           <button type="button" data-finance-tab="overview" class="active">Mês</button>
-          <button type="button" data-finance-tab="accounts">Previstos</button>
-          <button type="button" data-finance-tab="cards">Cartão</button>
+          <button type="button" data-finance-tab="accounts">Contas mensais</button>
+          <button type="button" data-finance-tab="cards">Fatura</button>
           <button type="button" data-finance-tab="reconcile">Conciliação <span id="finance-tab-pending" class="finance-tab-count">0</span></button>
           <button type="button" data-finance-tab="evolution">Histórico</button>
         </nav>
@@ -83,8 +83,13 @@
             </article>
           </div>
           <article class="card finance-section-card">
-            <div class="section-head"><div><p class="eyebrow">Categorias</p><h2>Para onde o dinheiro foi</h2></div></div>
+            <div class="section-head"><div><p class="eyebrow">Receitas e despesas</p><h2>O que entra e o que sai</h2><p class="muted">Previsto do mês ao lado do que já foi identificado no extrato e na fatura.</p></div></div>
             <div id="finance-category-summary"></div>
+          </article>
+
+          <article class="card finance-section-card">
+            <div class="section-head"><div><p class="eyebrow">Saldo do mês</p><h2>Decida o destino do que sobrar</h2><p class="muted">Investir, gastar, reservar, amortizar ou criar qualquer outra finalidade. A destinação não vira despesa automaticamente.</p></div></div>
+            <div id="finance-balance-allocation"></div>
           </article>
         </section>
 
@@ -92,12 +97,12 @@
           <article class="card finance-section-card">
             <div class="section-head finance-section-head--actions">
               <div>
-                <p class="eyebrow">Previsto do mês</p>
-                <h2>Contas previstas para pagar</h2>
-                <p class="muted">Fixas são carregadas do mês anterior. Variáveis continuam editáveis mês a mês.</p>
+                <p class="eyebrow">Seu controle mensal</p>
+                <h2>Receitas e contas previstas</h2>
+                <p class="muted">Os valores do mês anterior são carregados como ponto de partida. Você pode editar qualquer valor sem alterar o histórico.</p>
               </div>
               <div class="finance-head-buttons">
-                <button id="finance-copy-previous" type="button" class="btn">Copiar mês anterior</button>
+                <button id="finance-copy-previous" type="button" class="btn">Trazer mês anterior</button>
                 <button id="finance-add-account" type="button" class="btn primary">+ Nova conta</button>
               </div>
             </div>
@@ -108,7 +113,7 @@
 
         <section data-finance-panel="cards" class="finance-panel">
           <article class="card finance-section-card">
-            <div class="section-head"><div><p class="eyebrow">Cartões</p><h2>Faturas importadas</h2><p class="muted">O previsto da fatura é a soma das contas marcadas como Cartão. A fatura importada vira o realizado; o extrato confirma o pagamento.</p></div></div>
+            <div class="section-head"><div><p class="eyebrow">Cartão de crédito</p><h2>Previsto × fatura</h2><p class="muted">O Memory separa as despesas mensais que ficam dentro do cartão das demais compras. Depois, o extrato confirma se a fatura foi paga.</p></div></div>
             <div id="finance-cards-list" class="finance-card-list"></div>
           </article>
         </section>
@@ -131,7 +136,7 @@
 
           <article class="card finance-section-card">
             <div class="section-head finance-section-head--actions">
-              <div><p class="eyebrow">Fila de trabalho</p><h2>Pendências de conciliação</h2><p class="muted">Classifique compras da fatura, confira contas do extrato e confirme o pagamento da fatura quando ele aparecer na conta corrente.</p></div>
+              <div><p class="eyebrow">Só o que precisa da sua decisão</p><h2>Pendências de conciliação</h2><p class="muted">O Memory tenta reconhecer automaticamente as contas mensais. O que não for mensal fica separado para você classificar ou criar uma nova despesa.</p></div>
               <button id="finance-reconcile-exact" type="button" class="btn">Conciliar correspondências exatas</button>
             </div>
             <div class="finance-filters">
@@ -164,6 +169,6 @@
   <script src="modulos/memory/memory-config-v68.js?v=20260815-v74"></script>
   <script src="nucleo/shell-v81.js?v=20260817-v81-2-4"></script>
   <script>MMCDShell('financeiro')</script>
-  <script src="modulos/financeiro/financeiro-v81.js?v=20260817-v81-2-4"></script>
+  <script src="modulos/financeiro/financeiro-v81-5.js?v=20260818-v81-5"></script>
 </body>
 </html>
