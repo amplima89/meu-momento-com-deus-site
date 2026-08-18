@@ -1,0 +1,73 @@
+
+/* ENGLISH PRACTICE V81.3 — INTENSIVA */
+.english-practice-card{display:grid;gap:18px;padding:22px}
+.english-practice-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.english-practice-head h2{margin:5px 0 6px;font-size:clamp(1.35rem,2.4vw,1.85rem)}
+.english-practice-head p{margin:0;max-width:760px}
+.english-practice-mix{font-size:.62em;color:var(--accent);font-weight:800}
+.english-practice-progress{display:grid;justify-items:end;gap:4px;padding:11px 13px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2)}
+.english-practice-progress span{color:var(--muted);font-size:.62rem;font-weight:850}
+.english-practice-progress strong{font-size:.8rem}
+.english-practice-progress small{color:var(--accent);font-size:.6rem;font-weight:800}
+.english-practice-rule{display:grid;gap:5px;padding:14px 16px;border-left:4px solid var(--accent);border-radius:12px;background:color-mix(in srgb,var(--accent-soft) 42%,var(--surface))}
+.english-practice-rule span,.english-verb-bank__head span{display:block;color:var(--accent);font-size:.61rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.english-practice-rule p{margin:0;line-height:1.6;font-size:.83rem}
+.english-practice-rule small{color:var(--muted);font-size:.65rem;line-height:1.45}
+.english-practice-load{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.english-practice-load>div{display:grid;gap:2px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface-2)}
+.english-practice-load strong{font-size:1rem}
+.english-practice-load span{color:var(--muted);font-size:.59rem;font-weight:750}
+.english-verb-bank{display:grid;gap:10px}
+.english-verb-bank__head{display:flex;align-items:end;justify-content:space-between;gap:12px}
+.english-verb-bank__head small{color:var(--muted);font-size:.62rem}
+.english-verb-bank__grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.english-verb-bank__grid>div{display:grid;place-items:center;min-height:46px;padding:9px;border:1px solid var(--line);border-radius:11px;background:var(--surface-2)}
+.english-verb-bank__grid strong{font-size:.72rem;color:var(--text);text-align:center}
+.english-practice-list{display:grid;gap:9px}
+.english-practice-block-title{display:flex;align-items:center;gap:10px;margin:18px 0 2px;padding:0 2px}
+.english-practice-block-title:first-child{margin-top:2px}
+.english-practice-block-title>b{display:grid;place-items:center;width:31px;height:31px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-size:.72rem}
+.english-practice-block-title>div{display:grid;gap:1px}
+.english-practice-block-title strong{font-size:.8rem}
+.english-practice-block-title span{color:var(--muted);font-size:.61rem}
+.english-practice-question{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--surface)}
+.english-practice-question.is-correct{border-color:color-mix(in srgb,#39b77c 45%,var(--line));background:color-mix(in srgb,#39b77c 6%,var(--surface))}
+.english-practice-question.is-wrong{border-color:color-mix(in srgb,#e6a23c 42%,var(--line));background:color-mix(in srgb,#e6a23c 4%,var(--surface))}
+.english-practice-question__number{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--surface-2);font-size:.68rem;font-weight:900;color:var(--muted)}
+.english-practice-question__body{display:grid;gap:10px}
+.english-practice-question__body>strong{font-size:.84rem;line-height:1.5}
+.english-practice-options{display:flex;flex-wrap:wrap;gap:7px}
+.english-practice-option{min-height:36px;padding:0 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text);font:inherit;font-size:.74rem;font-weight:800;cursor:pointer}
+.english-practice-option:hover,.english-practice-option.is-selected{border-color:var(--accent);background:var(--accent-soft)}
+.english-practice-option:disabled{cursor:default;opacity:.82}
+.english-practice-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.english-practice-input-row input{min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text);font:inherit}
+.english-practice-input-row input:disabled{opacity:.7}
+.english-practice-feedback{display:grid;gap:4px;padding-top:9px;border-top:1px dashed var(--line)}
+.english-practice-feedback span{font-size:.68rem;font-weight:900}
+.english-practice-feedback p{margin:0;color:var(--muted);font-size:.68rem;line-height:1.55}
+.english-practice-feedback.is-correct span{color:#35aa73}
+.english-practice-feedback.is-wrong span{color:#d58b24}
+.english-practice-feedback.is-assisted span{color:var(--accent)}
+.english-practice-feedback p strong{color:var(--text);font-size:.72rem}
+.english-answer-reveal{justify-self:start;border:0;background:transparent;color:var(--accent);padding:2px 0;font:inherit;font-size:.64rem;font-weight:850;cursor:pointer}
+.english-practice-finish{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:8px}
+.english-practice-finish>div{display:grid;gap:4px}
+.english-practice-finish strong{font-size:.8rem}
+.english-practice-finish span{color:var(--muted);font-size:.64rem}
+.english-practice-complete{display:grid;justify-items:start;gap:10px;padding:22px;border:1px solid color-mix(in srgb,#39b77c 38%,var(--line));border-radius:16px;background:color-mix(in srgb,#39b77c 6%,var(--surface))}
+.english-practice-complete h2{margin:0;font-size:1.6rem}
+.english-practice-complete p{margin:0;color:var(--muted);font-size:.76rem}
+.english-practice-complete__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+@media(max-width:900px){
+ .english-verb-bank__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .english-practice-load{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+ .english-practice-card{padding:16px}
+ .english-practice-head,.english-practice-finish{align-items:stretch;flex-direction:column}
+ .english-practice-progress{justify-items:start}
+ .english-practice-input-row{grid-template-columns:1fr}
+ .english-practice-input-row .btn,.english-practice-finish .btn{width:100%}
+ .english-practice-complete__actions{width:100%;display:grid}
+}
