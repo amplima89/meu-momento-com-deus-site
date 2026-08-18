@@ -1,1 +1,1 @@
-V81.5 | 2026-08-18 | Financeiro mensal: receitas + despesas + fatura + destino do saldo
+V81.4.1 | 2026-08-18 | Treinos - check rapido visivel + ultima carga automatica

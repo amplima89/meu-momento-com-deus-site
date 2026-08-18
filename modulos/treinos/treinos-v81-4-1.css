@@ -1,0 +1,50 @@
+
+/* V81.4.1 — marcação rápida do treino no celular */
+.exercise-quick-check{
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  border:1px solid color-mix(in srgb,var(--accent) 42%,var(--line));
+  border-radius:13px;
+  background:color-mix(in srgb,var(--accent) 6%,var(--surface));
+  color:var(--accent);
+  font:inherit;
+  font-size:1.15rem;
+  font-weight:950;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.exercise-quick-check:active{
+  transform:scale(.96);
+}
+.exercise-quick-check.done{
+  background:rgba(52,183,123,.14);
+  border-color:rgba(52,183,123,.42);
+  color:#2eaa70;
+}
+.exercise-head-actions{
+  gap:7px;
+}
+@media(max-width:700px){
+  .exercise-state{
+    display:none;
+  }
+  .exercise-head-actions [data-action="show-exercise-guide"]{
+    display:none;
+  }
+  .exercise-quick-check{
+    width:46px;
+    height:46px;
+    flex-basis:46px;
+    border-radius:14px;
+  }
+  .exercise-expand-btn{
+    min-width:46px;
+    min-height:46px;
+  }
+  .exercise-accordion-intro span{
+    line-height:1.45;
+  }
+}
