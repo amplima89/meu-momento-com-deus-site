@@ -1,0 +1,4 @@
+/* V81.4 — futebol sem celular */
+.selected-plan-offline-action{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:12px 13px;border:1px solid color-mix(in srgb,var(--accent) 32%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.selected-plan-offline-action small{color:var(--muted);font-size:.62rem;line-height:1.45}.selected-plan-offline-action--today{margin-top:9px}
+@media(max-width:700px){.selected-plan-offline-action{align-items:stretch;flex-direction:column}.selected-plan-offline-action .btn{width:100%}}

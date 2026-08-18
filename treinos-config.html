@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="/meu-momento-com-deus-site/nucleo/painel.css?v=20260814-v55" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/nucleo/painel.css?v=20260814-v55'+Date.now()">
   <link rel="stylesheet" href="/meu-momento-com-deus-site/modulos/treinos/treinos.css?v=20260814-v55" onerror="this.onerror=null;this.href='/meu-momento-com-deus-site/modulos/treinos/treinos.css?retry='+Date.now()">
   <link rel="stylesheet" href="modulos/treinos/treinos-v79.css?v=20260815-v79">
+  <link rel="stylesheet" href="modulos/treinos/treinos-v81-4.css?v=20260818-v81-4">
 </head>
 <body>
   <div class="app-shell">
@@ -103,8 +104,8 @@
       await loadScript("nucleo/shell-v81.js?v=20260817-v81-2-4");
       await window.MMCDShell(window.MMCD_TREINO_PAGE_MODE==="configuracoes"?"treinos-config":"treinos");
       await loadScript("modulos/treinos/treinos-data-v62.js");
-      await loadScript("modulos/treinos/treinos-visuais-v79.js?v=20260815-v79");
-      await loadScript("modulos/treinos/treinos-v79.js?v=20260815-v79");
+      await loadScript("modulos/treinos/treinos-v81-4.js?v=20260818-v81-4");
+      await loadScript("modulos/treinos/treinos-v81-4.js?v=20260818-v81-4");
       await loadScript("modulos/treinos/treinos-guiado-v79.js?v=20260815-v79");
     }catch(error){
       console.error("Falha ao iniciar Treinos:",error);

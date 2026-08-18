@@ -1,0 +1,8 @@
+/* V81.4 — conclusão do Inglês */
+.english-study-step{position:relative}
+.english-study-step.is-complete{border-color:color-mix(in srgb,#34b77b 48%,var(--line));background:color-mix(in srgb,#34b77b 7%,var(--surface))}
+.english-step-check{display:grid;place-items:center;width:20px;height:20px;margin-left:4px;border-radius:999px;background:rgba(52,183,123,.14);color:#2aa36c;font-size:.72rem;font-weight:900}
+.english-reading-complete{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2)}
+.english-reading-complete>div{display:grid;gap:3px}.english-reading-complete strong{font-size:.76rem}.english-reading-complete span{color:var(--muted);font-size:.63rem}
+.english-reading-complete.is-complete{border-color:color-mix(in srgb,#34b77b 42%,var(--line));background:color-mix(in srgb,#34b77b 6%,var(--surface))}
+@media(max-width:650px){.english-reading-complete{align-items:stretch;flex-direction:column}.english-reading-complete .btn{width:100%}}
