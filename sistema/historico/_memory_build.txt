@@ -1,1 +1,1 @@
-V81.4.2 | 2026-08-18 | Treinos - check reversivel + catalogo com fotos inicio/fim
+V81.4.4 | 2026-08-18 | Treinos - reconstrucao robusta das referencias do catalogo
