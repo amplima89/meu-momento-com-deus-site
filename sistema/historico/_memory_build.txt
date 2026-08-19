@@ -1,1 +1,1 @@
-V81.9 | 2026-08-19 | Devocional - cérebros de consistência + acordeão exclusivo
+V81.9.3 | 2026-08-19 | Devocional - validação do SVG/gradiente corrigida
