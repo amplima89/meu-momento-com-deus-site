@@ -1,1 +1,1 @@
-V81.4.7 | 2026-08-18 | Treinos - abono volta ao laranja no card social
+V81.4.8 | 2026-08-19 | Logo oficial - restauracao global e cache-safe

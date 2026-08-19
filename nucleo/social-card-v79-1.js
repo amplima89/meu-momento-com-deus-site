@@ -3,7 +3,7 @@
 window.MemorySocialCard = (() => {
   const WIDTH = 1080;
   const HEIGHT = 1350;
-  const LOGO_SRC = "assets/imagens/memory-mark-official-v80-1.png";
+  const LOGO_SRC = "assets/imagens/memory-mark-official-v81-4-8.png?v=20260819-v81-4-8";
 
   const escFile = value => String(value || "memory").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "memory";
 

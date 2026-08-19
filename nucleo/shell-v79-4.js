@@ -63,7 +63,7 @@ window.MMCDShell=async function(active){
  const careActive=careKeys.includes(active);
  const mobileMemoryHtml=`
   <a class="sidebar-link sidebar-memory-mobile ${active==='memory'?'active':''}" href="memory.html?v=20260815-v76" aria-label="Abrir Memory">
-   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt=""></span>
+   <span class="sidebar-link__icon sidebar-memory-mobile__icon"><img src="assets/imagens/memory-mark-official-v81-4-8.png?v=20260819-v81-4-8" alt=""></span>
    <div class="sidebar-link__copy"><strong>Memory</strong><small>Propósito e essência</small></div>
    <span class="sidebar-mobile-label">Memory</span>
    <span class="sidebar-link__arrow" aria-hidden="true">›</span>
@@ -79,7 +79,7 @@ window.MMCDShell=async function(active){
   <aside class="sidebar sidebar-v24">
    <a class="sidebar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir propósito e essência do Memory" title="Abrir Memory">
     <span class="sidebar-brand__mark">
-     <img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt="Memory">
+     <img src="assets/imagens/memory-mark-official-v81-4-8.png?v=20260819-v81-4-8" alt="Memory">
      <span class="sidebar-brand__fallback" aria-hidden="true">M</span>
     </span>
     <div class="sidebar-brand__copy">
@@ -286,7 +286,7 @@ window.MMCDShell=async function(active){
    document.head.append(style);
   }
  }
- document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-official-v80-1.png?v=20260815-v76" alt=""><span>Memory</span></a>'});
+ document.querySelectorAll('.app-topbar__title').forEach(el=>{el.innerHTML='<a class="memory-topbar-brand" href="memory.html?v=20260815-v76" aria-label="Abrir Memory"><img src="assets/imagens/memory-mark-official-v81-4-8.png?v=20260819-v81-4-8" alt=""><span>Memory</span></a>'});
  const memoryTitles={
   memory:'Memory',
   missoes:'Memory - Missões',
