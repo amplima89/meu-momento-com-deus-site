@@ -1,0 +1,104 @@
+/* ============================================================
+   Memory V81.4.9 — Abono laranja em Atividades
+   ============================================================ */
+
+:root{
+  --memory-abono:#F59E0B;
+  --memory-abono-soft:rgba(245,158,11,.12);
+}
+
+/* Calendário: abono deixa de parecer atividade concluída (verde). */
+.day-dot.excused{
+  background:var(--memory-abono)!important;
+  border-color:var(--memory-abono)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.72)!important;
+}
+
+/* Card da atividade abonada. */
+.daily-goal.is-excused{
+  border-color:color-mix(in srgb,var(--memory-abono) 48%,var(--line))!important;
+  background:color-mix(in srgb,var(--memory-abono) 8%,var(--surface))!important;
+}
+
+.excuse-badge{
+  background:color-mix(in srgb,var(--memory-abono) 16%,transparent)!important;
+  color:var(--memory-abono)!important;
+}
+
+.excuse-reason{
+  color:var(--memory-abono)!important;
+  font-weight:750!important;
+}
+
+/* Botão A · Abonado. */
+.daily-excuse:hover{
+  border-color:var(--memory-abono)!important;
+  color:var(--memory-abono)!important;
+  background:color-mix(in srgb,var(--memory-abono) 8%,transparent)!important;
+}
+
+.daily-excuse.active{
+  border-color:var(--memory-abono)!important;
+  background:var(--memory-abono)!important;
+  color:#fff!important;
+}
+
+/* O pequeno A circular dentro do botão. */
+.daily-excuse span:first-child{
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 16px!important;
+  width:16px!important;
+  height:16px!important;
+  padding:0!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+
+/* O quadrado A da direita estava desalinhado.
+   Agora o A fica matematicamente centralizado e também laranja. */
+.daily-check.excused{
+  display:grid!important;
+  place-items:center!important;
+  width:25px!important;
+  min-width:25px!important;
+  height:25px!important;
+  padding:0!important;
+  margin:0!important;
+  border-color:var(--memory-abono)!important;
+  background:var(--memory-abono)!important;
+  color:#fff!important;
+  opacity:1!important;
+  font-size:.72rem!important;
+  font-weight:900!important;
+  line-height:1!important;
+  text-align:center!important;
+  cursor:default!important;
+  box-sizing:border-box!important;
+}
+
+/* Abono em metas semanais flexíveis. */
+.weekly-flex-goal.is-excused{
+  border-color:color-mix(in srgb,var(--memory-abono) 48%,var(--line))!important;
+  background:color-mix(in srgb,var(--memory-abono) 8%,var(--surface))!important;
+}
+
+.weekly-flex-goal.is-excused .weekly-flex-goal__icon{
+  background:color-mix(in srgb,var(--memory-abono) 16%,transparent)!important;
+  color:var(--memory-abono)!important;
+}
+
+.weekly-flex-goal.is-excused .weekly-flex-progress i{
+  background:var(--memory-abono)!important;
+}
+
+.weekly-flex-excuse.active{
+  border-color:var(--memory-abono)!important;
+  background:var(--memory-abono)!important;
+  color:#fff!important;
+}
+
+.weekly-flex-excuse-reason{
+  color:var(--memory-abono)!important;
+  font-weight:750!important;
+}
