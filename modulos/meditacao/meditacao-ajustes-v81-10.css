@@ -1,0 +1,70 @@
+
+.meditation-generation-card{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  margin:0 0 16px;
+  padding:14px;
+  border:1px solid color-mix(in srgb,#60D5FF 34%,var(--line));
+  border-radius:16px;
+  background:linear-gradient(135deg,color-mix(in srgb,#A78BFA 7%,var(--surface)),color-mix(in srgb,#60D5FF 7%,var(--surface)));
+}
+.meditation-generation-card__icon{
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  background:color-mix(in srgb,#60D5FF 10%,var(--surface-2));
+  font-size:1.15rem;
+}
+.meditation-generation-card__copy{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+.meditation-generation-card__copy>span{
+  color:#60D5FF;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.meditation-generation-card__copy>strong{
+  color:var(--text);
+  font-size:.83rem;
+}
+.meditation-generation-card__copy>p{
+  margin:0;
+  color:var(--muted);
+  font-size:.63rem;
+  line-height:1.5;
+}
+.meditation-generation-card__button{
+  min-height:38px;
+  padding:0 13px;
+  border:0;
+  border-radius:11px;
+  background:linear-gradient(135deg,#A78BFA,#60D5FF);
+  color:#071225;
+  font:inherit;
+  font-size:.64rem;
+  font-weight:900;
+  cursor:pointer;
+}
+.meditation-generation-card__button:disabled{
+  cursor:default;
+  opacity:.8;
+}
+.meditation-generation-card[data-state="error"]{
+  border-color:color-mix(in srgb,#F59E0B 55%,var(--line));
+}
+@media(max-width:720px){
+  .meditation-generation-card{
+    grid-template-columns:auto 1fr;
+  }
+  .meditation-generation-card__button{
+    grid-column:1 / -1;
+    width:100%;
+  }
+}

@@ -1,1 +1,1 @@
-V81.9.3 | 2026-08-19 | Devocional - validação do SVG/gradiente corrigida
+V81.10 | 2026-08-19 | Devocional + fallback seguro; Treinos + exemplos por nome
