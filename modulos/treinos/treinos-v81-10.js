@@ -4295,7 +4295,7 @@
 
     return `<div class="workout-social-block memory-share-block">
       <div class="memory-share-preview memory-share-preview--workout">
-        <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-official-v81-4-8.png?v=20260819-v81-4-8" alt="Memory"><div><strong>Memory</strong><small>movimento que vira memória</small></div></div>
+        <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-official-v81-11-3.png?v=20260822-v81-11-3" alt="Memory"><div><strong>Memory</strong><small>movimento que vira memória</small></div></div>
         <span class="memory-share-preview__eyebrow">Treino concluído</span>
         <h3>${esc(options.title)}</h3>
         <p class="workout-share-groups">${esc(options.subtitle)}</p>

@@ -88,7 +88,7 @@
       ${done ? `
       <div class="memory-share-block">
         <div class="memory-share-preview memory-share-preview--meditation">
-          <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-official-v81-4-8.png?v=20260819-v81-4-8" alt="Memory"><div><strong>Memory</strong><small>não esqueça do que importa</small></div></div>
+          <div class="memory-share-preview__brand"><img src="assets/imagens/memory-mark-official-v81-11-3.png?v=20260822-v81-11-3" alt="Memory"><div><strong>Memory</strong><small>não esqueça do que importa</small></div></div>
           <span class="memory-share-preview__eyebrow">Devocional concluído</span>
           <h3>Hoje eu parei para cuidar do que importa.</h3>
           ${verse ? `<div class="memory-share-preview__quote">“${esc(verse)}”</div>` : ""}

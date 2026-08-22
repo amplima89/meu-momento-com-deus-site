@@ -10,25 +10,25 @@
   "theme_color": "#06152f",
   "icons": [
     {
-      "src": "assets/imagens/pwa/memory-icon-192-v81-4-8.png?v=20260819-v81-4-8",
+      "src": "assets/imagens/pwa/memory-icon-192-v81-11-3.png?v=20260822-v81-11-3",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/imagens/pwa/memory-icon-512-v81-4-8.png?v=20260819-v81-4-8",
+      "src": "assets/imagens/pwa/memory-icon-512-v81-11-3.png?v=20260822-v81-11-3",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/imagens/pwa/memory-maskable-192-v81-4-8.png?v=20260819-v81-4-8",
+      "src": "assets/imagens/pwa/memory-maskable-192-v81-11-3.png?v=20260822-v81-11-3",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "assets/imagens/pwa/memory-maskable-512-v81-4-8.png?v=20260819-v81-4-8",
+      "src": "assets/imagens/pwa/memory-maskable-512-v81-11-3.png?v=20260822-v81-11-3",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
