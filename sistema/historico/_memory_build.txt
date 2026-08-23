@@ -1,1 +1,1 @@
-V81.14.3 | 2026-08-23 | Paleta Conforto adicional - instalador PowerShell corrigido
+V81.13.4 | 2026-08-23 | Inglês - correção sob demanda, sem scheduler de 5 minutos

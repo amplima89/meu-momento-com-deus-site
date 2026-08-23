@@ -1,0 +1,11 @@
+/* Memory V81.13.4 — correção sob demanda */
+[data-memory-english-demand-trigger]{
+  margin-left:8px;
+}
+
+@media(max-width:720px){
+  [data-memory-english-demand-trigger]{
+    width:100%;
+    margin:8px 0 0;
+  }
+}
