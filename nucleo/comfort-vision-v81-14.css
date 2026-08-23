@@ -1,0 +1,544 @@
+/* ============================================================
+   MEMORY V81.14 — CONFORTO VISUAL
+   Não é tratamento médico. É um modo de interface para reduzir
+   ofuscamento, contraste extremo e fadiga visual.
+   ============================================================ */
+
+:root{
+  --comfort-radius: 14px;
+}
+
+/* ---------- MODO ESCURO SUAVE / DIA ---------- */
+html[data-memory-vision="comfort-day"]{
+  color-scheme: dark;
+
+  --bg:#0B1220!important;
+  --background:#0B1220!important;
+  --page:#0B1220!important;
+
+  --surface:#131D2B!important;
+  --surface-1:#131D2B!important;
+  --surface-2:#1B2738!important;
+  --surface-3:#202D3E!important;
+
+  --text:#E6EBF2!important;
+  --text-strong:#EEF2F6!important;
+  --muted:#A8B3C3!important;
+  --muted-2:#8693A5!important;
+
+  --line:#2B3A4E!important;
+  --border:#2B3A4E!important;
+
+  --accent:#9B8BEF!important;
+  --accent-2:#69C6E6!important;
+  --cyan:#69C6E6!important;
+
+  --nav-hover:#182536!important;
+  --success:#63C69A!important;
+  --warning:#DDA85C!important;
+  --danger:#E17777!important;
+}
+
+/* ---------- MODO NOTURNO: ainda menos brilho e neon ---------- */
+html[data-memory-vision="comfort-night"]{
+  color-scheme: dark;
+
+  --bg:#10151E!important;
+  --background:#10151E!important;
+  --page:#10151E!important;
+
+  --surface:#171F2A!important;
+  --surface-1:#171F2A!important;
+  --surface-2:#202B38!important;
+  --surface-3:#253140!important;
+
+  --text:#D7DCE3!important;
+  --text-strong:#E2E6EB!important;
+  --muted:#98A3B2!important;
+  --muted-2:#7F8A99!important;
+
+  --line:#2C3847!important;
+  --border:#2C3847!important;
+
+  --accent:#9183D2!important;
+  --accent-2:#72B4C9!important;
+  --cyan:#72B4C9!important;
+
+  --nav-hover:#1D2835!important;
+  --success:#70B99B!important;
+  --warning:#D0A465!important;
+  --danger:#CF7C7C!important;
+}
+
+/* ---------- MODO LEITURA CLARA ---------- */
+html[data-memory-vision="reading-light"]{
+  color-scheme: light;
+
+  --bg:#F3F1EC!important;
+  --background:#F3F1EC!important;
+  --page:#F3F1EC!important;
+
+  --surface:#FAF9F6!important;
+  --surface-1:#FAF9F6!important;
+  --surface-2:#ECE9E2!important;
+  --surface-3:#E5E1D8!important;
+
+  --text:#253041!important;
+  --text-strong:#1F2937!important;
+  --muted:#5D6877!important;
+  --muted-2:#748090!important;
+
+  --line:#D8D5CD!important;
+  --border:#D8D5CD!important;
+
+  --accent:#6F5EB4!important;
+  --accent-2:#287D9A!important;
+  --cyan:#287D9A!important;
+
+  --nav-hover:#E7E3DA!important;
+  --success:#377D60!important;
+  --warning:#946B2E!important;
+  --danger:#B75959!important;
+}
+
+/* ============================================================
+   CAMADA GLOBAL DE CONFORTO
+   Só atua quando um modo de conforto está ativo.
+   ============================================================ */
+
+html[data-memory-vision]:not([data-memory-vision="original"]),
+html[data-memory-vision]:not([data-memory-vision="original"]) body{
+  background:var(--bg)!important;
+  color:var(--text)!important;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+html[data-memory-vision]:not([data-memory-vision="original"]) body{
+  min-height:100vh;
+}
+
+/* Superfícies comuns do Memory */
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  .card,
+  .panel,
+  .module-card,
+  .memory-card,
+  .dashboard-card,
+  .finance-kpi,
+  .finance-section-card,
+  .finance-import-card,
+  .finance-tabs,
+  .finance-card-item,
+  .finance-reconcile-item,
+  .english-daily-hero,
+  .english-daily-section,
+  .english-daily-finish,
+  .english-ai-result,
+  .exercise-card,
+  .today-start-card,
+  .workout-header,
+  .meditacao-card,
+  .devotional-card
+){
+  border-color:var(--line)!important;
+}
+
+/* Entradas e campos */
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  input,
+  textarea,
+  select
+){
+  background:var(--surface-2)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  input,
+  textarea
+)::placeholder{
+  color:color-mix(in srgb,var(--muted) 78%,transparent)!important;
+}
+
+/* Menos glow / menos brilho especular */
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  .card,
+  .panel,
+  .module-card,
+  .memory-card,
+  .dashboard-card
+){
+  box-shadow:none!important;
+}
+
+html[data-memory-vision="comfort-night"] :is(
+  [style*="box-shadow"],
+  .glow,
+  .neon,
+  .hero-glow
+){
+  text-shadow:none!important;
+}
+
+/* Gradientes da marca continuam presentes, mas sem neon excessivo */
+html[data-memory-vision="comfort-day"] :is(
+  .memory-gradient,
+  .brand-gradient
+),
+html[data-memory-vision="comfort-night"] :is(
+  .memory-gradient,
+  .brand-gradient
+){
+  filter:saturate(.82) brightness(.96);
+}
+
+/* ============================================================
+   LEITURA — Bíblia, Devocional, Inglês e textos longos
+   ============================================================ */
+
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  .meditacao-content,
+  .meditacao-body,
+  .devotional-content,
+  .devotional-body,
+  .biblia-text,
+  .bible-text,
+  .verse-text,
+  .english-daily-reading,
+  .english-reading-text,
+  .book-content,
+  article p,
+  main p
+){
+  line-height:1.66;
+}
+
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  .meditacao-content,
+  .meditacao-body,
+  .devotional-content,
+  .devotional-body,
+  .biblia-text,
+  .bible-text,
+  .verse-text,
+  .english-daily-reading,
+  .english-reading-text
+){
+  letter-spacing:.006em;
+}
+
+/* Texto não fica branco puro nem cinza fraco */
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  p,
+  li,
+  blockquote
+){
+  color:color-mix(in srgb,var(--text) 94%,var(--muted))!important;
+}
+
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  small,
+  .muted,
+  [class*="muted"],
+  .subtitle,
+  .helper,
+  .meta
+){
+  color:var(--muted)!important;
+}
+
+/* ============================================================
+   TAMANHO DE TEXTO
+   ============================================================ */
+
+html[data-memory-text-size="normal"]{
+  --memory-reading-scale:1;
+}
+
+html[data-memory-text-size="plus"]{
+  --memory-reading-scale:1.075;
+}
+
+html[data-memory-text-size="plus2"]{
+  --memory-reading-scale:1.14;
+}
+
+html[data-memory-vision]:not([data-memory-vision="original"]) :is(
+  .meditacao-content,
+  .meditacao-body,
+  .devotional-content,
+  .devotional-body,
+  .biblia-text,
+  .bible-text,
+  .verse-text,
+  .english-daily-reading,
+  .english-reading-text,
+  .book-content
+){
+  font-size:calc(1em * var(--memory-reading-scale,1));
+}
+
+/* ============================================================
+   BOTÃO / PAINEL
+   ============================================================ */
+
+.memory-vision-trigger{
+  position:fixed;
+  right:16px;
+  bottom:18px;
+  z-index:19990;
+
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+
+  border:1px solid color-mix(in srgb,var(--accent,#9B8BEF) 38%,var(--line,#2B3A4E));
+  border-radius:14px;
+
+  background:color-mix(in srgb,var(--surface,#131D2B) 92%,transparent);
+  color:var(--text,#E6EBF2);
+
+  box-shadow:0 8px 30px rgba(0,0,0,.18);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+
+  cursor:pointer;
+  font:inherit;
+  font-size:1.05rem;
+}
+
+.memory-vision-trigger:hover{
+  border-color:var(--accent,#9B8BEF);
+}
+
+.memory-vision-trigger__dot{
+  position:absolute;
+  width:7px;
+  height:7px;
+  right:7px;
+  top:7px;
+  border-radius:50%;
+  background:var(--accent-2,#69C6E6);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-2,#69C6E6) 15%,transparent);
+}
+
+.memory-vision-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:19991;
+  display:grid;
+  place-items:end center;
+  padding:18px;
+  background:rgba(0,0,0,.34);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+}
+
+.memory-vision-backdrop[hidden]{
+  display:none!important;
+}
+
+.memory-vision-panel{
+  width:min(520px,100%);
+  max-height:min(720px,calc(100vh - 36px));
+  overflow:auto;
+  padding:18px;
+
+  border:1px solid var(--line,#2B3A4E);
+  border-radius:22px;
+
+  background:var(--surface,#131D2B);
+  color:var(--text,#E6EBF2);
+
+  box-shadow:0 20px 80px rgba(0,0,0,.28);
+}
+
+.memory-vision-panel__head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:16px;
+}
+
+.memory-vision-panel__head>div{
+  display:grid;
+  gap:4px;
+}
+
+.memory-vision-panel__eyebrow{
+  color:var(--accent-2,#69C6E6);
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.memory-vision-panel__head h2{
+  margin:0;
+  color:var(--text,#E6EBF2);
+  font-size:1.15rem;
+}
+
+.memory-vision-panel__head p{
+  margin:0;
+  color:var(--muted,#A8B3C3);
+  font-size:.72rem;
+  line-height:1.45;
+}
+
+.memory-vision-close{
+  width:36px;
+  height:36px;
+  flex:0 0 36px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line,#2B3A4E);
+  border-radius:10px;
+  background:transparent;
+  color:var(--muted,#A8B3C3);
+  cursor:pointer;
+  font-size:1.15rem;
+}
+
+.memory-vision-options{
+  display:grid;
+  gap:8px;
+}
+
+.memory-vision-option{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:11px;
+
+  border:1px solid var(--line,#2B3A4E);
+  border-radius:13px;
+
+  background:var(--surface-2,#1B2738);
+  color:var(--text,#E6EBF2);
+  cursor:pointer;
+  text-align:left;
+}
+
+.memory-vision-option.is-active{
+  border-color:color-mix(in srgb,var(--accent,#9B8BEF) 58%,var(--line,#2B3A4E));
+  background:color-mix(in srgb,var(--accent,#9B8BEF) 9%,var(--surface-2,#1B2738));
+}
+
+.memory-vision-option__icon{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:11px;
+  background:color-mix(in srgb,var(--accent,#9B8BEF) 10%,var(--surface,#131D2B));
+  font-size:.92rem;
+}
+
+.memory-vision-option__copy{
+  display:grid;
+  gap:2px;
+}
+
+.memory-vision-option__copy strong{
+  color:var(--text,#E6EBF2);
+  font-size:.72rem;
+}
+
+.memory-vision-option__copy small{
+  color:var(--muted,#A8B3C3)!important;
+  font-size:.61rem;
+  line-height:1.35;
+}
+
+.memory-vision-option__check{
+  color:var(--accent-2,#69C6E6);
+  font-weight:900;
+}
+
+.memory-vision-section{
+  display:grid;
+  gap:9px;
+  margin-top:16px;
+  padding-top:15px;
+  border-top:1px solid var(--line,#2B3A4E);
+}
+
+.memory-vision-section>span{
+  color:var(--muted,#A8B3C3);
+  font-size:.6rem;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+}
+
+.memory-vision-text-size{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+}
+
+.memory-vision-text-size button{
+  min-height:38px;
+  border:1px solid var(--line,#2B3A4E);
+  border-radius:10px;
+  background:var(--surface-2,#1B2738);
+  color:var(--muted,#A8B3C3);
+  cursor:pointer;
+  font:inherit;
+  font-weight:800;
+}
+
+.memory-vision-text-size button.is-active{
+  color:var(--text,#E6EBF2);
+  border-color:var(--accent,#9B8BEF);
+  background:color-mix(in srgb,var(--accent,#9B8BEF) 10%,var(--surface-2,#1B2738));
+}
+
+.memory-vision-auto-status{
+  padding:10px 11px;
+  border:1px solid var(--line,#2B3A4E);
+  border-radius:11px;
+  background:color-mix(in srgb,var(--accent-2,#69C6E6) 5%,var(--surface-2,#1B2738));
+  color:var(--muted,#A8B3C3);
+  font-size:.61rem;
+  line-height:1.45;
+}
+
+.memory-vision-note{
+  margin:12px 0 0;
+  color:var(--muted,#A8B3C3);
+  font-size:.56rem;
+  line-height:1.45;
+}
+
+@media(max-width:720px){
+  .memory-vision-trigger{
+    right:12px;
+    bottom:84px;
+    width:42px;
+    height:42px;
+  }
+
+  .memory-vision-backdrop{
+    padding:8px;
+  }
+
+  .memory-vision-panel{
+    border-radius:20px 20px 14px 14px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .memory-vision-panel,
+  .memory-vision-trigger{
+    scroll-behavior:auto;
+    transition:none!important;
+  }
+}
