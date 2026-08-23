@@ -1,0 +1,90 @@
+/* ============================================================
+   MEMORY V81.16 — FOTO DE PERFIL SEM DISTORÇÃO
+   Camada incremental: não altera layout, logo ou módulos.
+   ============================================================ */
+
+/* Containers mais comuns de avatar/foto de perfil */
+:is(
+  .profile-avatar,
+  .profile-photo,
+  .user-avatar,
+  .user-photo,
+  .avatar,
+  .avatar-wrap,
+  .profile-image,
+  .profile-picture,
+  .sidebar-profile-avatar,
+  .sidebar-profile-photo,
+  [data-profile-avatar],
+  [data-profile-photo],
+  [data-user-avatar],
+  [data-user-photo]
+){
+  overflow:hidden!important;
+}
+
+/* Só força proporção circular em elementos que já funcionam como avatar */
+:is(
+  .profile-avatar,
+  .profile-photo,
+  .user-avatar,
+  .user-photo,
+  .avatar,
+  .profile-image,
+  .profile-picture,
+  .sidebar-profile-avatar,
+  .sidebar-profile-photo,
+  [data-profile-avatar],
+  [data-profile-photo],
+  [data-user-avatar],
+  [data-user-photo]
+) img,
+img[data-profile-avatar],
+img[data-profile-photo],
+img[data-user-avatar],
+img[data-user-photo],
+img[data-memory-profile-photo-v81-16]{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+
+  object-fit:cover!important;
+  object-position:50% 44%!important;
+
+  transform:none!important;
+  scale:1!important;
+
+  image-rendering:auto!important;
+  -ms-interpolation-mode:bicubic;
+
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+
+  filter:none;
+}
+
+/* Evita que o navegador estique uma foto sem dimensão quadrada */
+:is(
+  .profile-avatar,
+  .profile-photo,
+  .user-avatar,
+  .user-photo,
+  .avatar,
+  .profile-image,
+  .profile-picture,
+  .sidebar-profile-avatar,
+  .sidebar-profile-photo,
+  [data-profile-avatar],
+  [data-profile-photo],
+  [data-user-avatar],
+  [data-user-photo]
+){
+  aspect-ratio:1 / 1;
+}
+
+/* Imagem carregada com resolução insuficiente:
+   não "inventa" nitidez, mas evita renderização agressiva. */
+img[data-memory-profile-lowres="1"]{
+  image-rendering:auto!important;
+}

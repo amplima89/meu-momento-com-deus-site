@@ -1,1 +1,1 @@
-V81.13.4 | 2026-08-23 | Inglês - correção sob demanda, sem scheduler de 5 minutos
+V81.16 | 2026-08-23 | Foto de perfil - proporção correta + upload até 1200px em alta qualidade
