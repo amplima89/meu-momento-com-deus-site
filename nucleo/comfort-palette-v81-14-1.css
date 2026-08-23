@@ -1,0 +1,176 @@
+/* ============================================================
+   MEMORY V81.14.1 — PALETA ADICIONAL "CONFORTO VISUAL"
+   IMPORTANTE:
+   - NÃO altera nenhuma paleta existente.
+   - Só entra em ação quando o usuário ativa explicitamente.
+   ============================================================ */
+
+html[data-memory-comfort-palette="on"]{
+  color-scheme: dark;
+
+  --bg:#101722!important;
+  --background:#101722!important;
+  --page:#101722!important;
+
+  --surface:#182230!important;
+  --surface-1:#182230!important;
+  --surface-2:#202C3A!important;
+  --surface-3:#263443!important;
+
+  --text:#DADDE2!important;
+  --text-strong:#E4E6EA!important;
+  --muted:#A4ABB5!important;
+  --muted-2:#858E9A!important;
+
+  --line:#303C4B!important;
+  --border:#303C4B!important;
+
+  --accent:#9488D2!important;
+  --accent-2:#70AFC2!important;
+  --cyan:#70AFC2!important;
+
+  --nav-hover:#1E2937!important;
+
+  --success:#72B698!important;
+  --warning:#CDA56A!important;
+  --danger:#C97A7A!important;
+}
+
+html[data-memory-comfort-palette="on"],
+html[data-memory-comfort-palette="on"] body{
+  background:var(--bg)!important;
+  color:var(--text)!important;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+html[data-memory-comfort-palette="on"] :is(
+  input,
+  textarea,
+  select
+){
+  background:var(--surface-2)!important;
+  border-color:var(--line)!important;
+  color:var(--text)!important;
+}
+
+html[data-memory-comfort-palette="on"] :is(
+  input,
+  textarea
+)::placeholder{
+  color:color-mix(in srgb,var(--muted) 78%,transparent)!important;
+}
+
+/* Menos brilho e glow, sem redesenhar componentes */
+html[data-memory-comfort-palette="on"] :is(
+  .card,
+  .panel,
+  .module-card,
+  .memory-card,
+  .dashboard-card,
+  .english-daily-hero,
+  .english-daily-section,
+  .exercise-card,
+  .meditacao-card,
+  .devotional-card
+){
+  border-color:var(--line)!important;
+  box-shadow:none!important;
+}
+
+/* Leitura longa */
+html[data-memory-comfort-palette="on"] :is(
+  .meditacao-content,
+  .meditacao-body,
+  .devotional-content,
+  .devotional-body,
+  .biblia-text,
+  .bible-text,
+  .verse-text,
+  .english-daily-reading,
+  .english-reading-text,
+  .book-content
+){
+  line-height:1.64;
+  letter-spacing:.004em;
+}
+
+html[data-memory-comfort-palette="on"] :is(
+  p,
+  li,
+  blockquote
+){
+  color:color-mix(in srgb,var(--text) 96%,var(--muted))!important;
+}
+
+html[data-memory-comfort-palette="on"] :is(
+  small,
+  .muted,
+  [class*="muted"],
+  .subtitle,
+  .helper,
+  .meta
+){
+  color:var(--muted)!important;
+}
+
+/* Botão discreto para ligar/desligar apenas esta paleta */
+.memory-comfort-palette-toggle{
+  position:fixed;
+  right:16px;
+  bottom:18px;
+  z-index:19980;
+
+  min-width:44px;
+  height:44px;
+  padding:0 12px;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+
+  border:1px solid color-mix(in srgb,#9488D2 38%,#303C4B);
+  border-radius:14px;
+
+  background:rgba(24,34,48,.92);
+  color:#DADDE2;
+
+  box-shadow:0 8px 28px rgba(0,0,0,.18);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  cursor:pointer;
+  font:inherit;
+  font-size:.62rem;
+  font-weight:850;
+}
+
+.memory-comfort-palette-toggle[aria-pressed="true"]{
+  border-color:#9488D2;
+  background:color-mix(in srgb,#9488D2 14%,#182230);
+}
+
+.memory-comfort-palette-toggle__icon{
+  font-size:.95rem;
+  line-height:1;
+}
+
+.memory-comfort-palette-toggle__label{
+  white-space:nowrap;
+}
+
+@media(max-width:720px){
+  .memory-comfort-palette-toggle{
+    right:12px;
+    bottom:84px;
+    min-width:42px;
+    width:42px;
+    padding:0;
+  }
+
+  .memory-comfort-palette-toggle__label{
+    display:none;
+  }
+}
