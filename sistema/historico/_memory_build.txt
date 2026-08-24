@@ -1,1 +1,1 @@
-V81.16 | 2026-08-23 | Foto de perfil - proporção correta + upload até 1200px em alta qualidade
+V81.13.6 | 2026-08-23 | Inglês - hotfix do validador da correção resposta por resposta
