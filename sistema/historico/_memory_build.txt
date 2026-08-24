@@ -1,1 +1,1 @@
-V81.13.8 | 2026-08-23 | Inglês - uma única correção por IA no final do estudo diário
+V81.13.10 | 2026-08-23 | Inglês - hotfix do instalador V81.13.9
