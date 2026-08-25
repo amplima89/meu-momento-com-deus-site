@@ -1,1 +1,1 @@
-V81.13.11 | 2026-08-24 | Inglês - botão final responsivo + auto-save de pendências prontas
+V81.13.12 | 2026-08-24 | Inglês - status da leitura/produção corrigido + speaking salvo reconhecido
