@@ -13,8 +13,7 @@
     return data?.valor && typeof data.valor === 'object' ? data.valor : {};
   }
 
-  const [productions, conversations, practice] = await Promise.all([
-    readKey('ingles_producoes_v1'),
+  const [conversations, practice] = await Promise.all([
     readKey('ingles_conversas_v1'),
     readKey('ingles_pratica_v2')
   ]);
@@ -35,16 +34,6 @@
   const norm = value => String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
 
   const studyDates = new Set();
-  const readingScores = [];
-  const days = productions?.dias && typeof productions.dias === 'object' ? productions.dias : {};
-  for (const [date, day] of Object.entries(days)) {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) studyDates.add(date);
-    const analysis = day?.audios?.leitura?.analise;
-    if (analysis && typeof analysis === 'object') {
-      const score = numeric(analysis.clarezaReconhecimento, analysis.clareza, analysis.score);
-      if (score !== null) readingScores.push(score);
-    }
-  }
 
   const conversationScores = [];
   let conversationAnswers = 0;
@@ -80,7 +69,6 @@
     }
   }
 
-  const readingScore = avg(readingScores);
   const conversationScore = conversationScores.length ? avg(conversationScores) : (conversationExpected ? pct(conversationAnswers, conversationExpected) : null);
   const practiceScore = avg(practiceScores);
 
@@ -118,17 +106,17 @@
 
   const skills = {
     conversation:{label:'Conversação',score:conversationScore,samples:conversationSessions.length,detail:conversationExpected ? `${conversationAnswers}/${conversationExpected} respostas · ${conversationCompleted} conversa(s) concluída(s)` : 'sem conversa registrada'},
-    reading:{label:'Leitura',score:readingScore,samples:readingScores.length,detail:readingScores.length ? `${readingScores.length} leitura(s) em voz alta analisada(s)` : 'leitura disponível; sem gravação analisada'},
+    reading:{label:'Leitura',score:null,samples:0,detail:'leitura contextual; sem nota independente'},
     practice:{label:'Prática',score:practiceScore,samples:practiceSessions.length,detail:practiceSessions.length ? `${practiceCompleted} prática(s) concluída(s) · ${Object.keys(structureCounts).length} estrutura(s) trabalhada(s)` : 'sem prática estruturada concluída'},
     consistency:{label:'Consistência',score:consistencyScore,samples:completedExpected,detail:expectedDates.length ? `${completedExpected}/${expectedDates.length} dias previstos cumpridos` : 'sem dias previstos no período'}
   };
 
-  const adaptive = [skills.conversation,skills.reading,skills.practice].filter(x=>x.score!==null && Number.isFinite(x.score));
+  const adaptive = [skills.conversation,skills.practice].filter(x=>x.score!==null && Number.isFinite(x.score));
   const overall = adaptive.length ? clamp(adaptive.reduce((s,x)=>s+x.score,0)/adaptive.length) : null;
   const weakest = [...adaptive].sort((a,b)=>a.score-b.score)[0] || null;
   let decision = 'CONTINUAR';
   if (weakest && weakest.score < 60) decision = 'REVISAR';
-  else if (adaptive.length === 3 && adaptive.every(x=>x.score>=80)) decision = 'AVANÇAR';
+  else if (adaptive.length === 2 && adaptive.every(x=>x.score>=80)) decision = 'AVANÇAR';
   const priority = weakest?.label || 'Coletar mais evidências';
   const reason = weakest ? `${priority} é hoje a menor evidência mensurável (${clamp(weakest.score)}%).` : 'Ainda não há evidências suficientes para ajustar a trilha.';
   const latest = sorted.at(-1) || '';
@@ -141,7 +129,7 @@
 
   document.querySelector('#english-overall-ring')?.style.setProperty('--progress',String(overall||0));
   document.querySelector('#english-overall-score').textContent = overall===null?'—':`${overall}%`;
-  document.querySelector('#english-overall-title').textContent = overall===null?'Construindo sua linha de base':overall>=80?'Boa evolução nos três pilares':overall>=65?'Evolução consistente':'Há um pilar pedindo reforço';
+  document.querySelector('#english-overall-title').textContent = overall===null?'Construindo sua linha de base':overall>=80?'Boa evolução no inglês ativo':overall>=65?'Evolução consistente':'Há um ponto pedindo reforço';
   document.querySelector('#english-study-days').textContent = expectedDates.length ? `${completedExpected}/${expectedDates.length} dias previstos cumpridos` : `${activeDays} dia${activeDays===1?'':'s'} com estudo`;
   document.querySelector('#english-last-activity').textContent = `Última atividade: ${latest?latest.split('-').reverse().join('/'):'—'}`;
   document.querySelector('#english-next-focus-title').textContent = priority;
@@ -161,7 +149,6 @@
 
   const evidence = [];
   if (conversationExpected) evidence.push(['Conversa',`${conversationCompleted} conversa(s) concluída(s); ${conversationAnswers}/${conversationExpected} respostas registradas.`]);
-  if (readingScores.length) evidence.push(['Leitura',`${readingScores.length} leitura(s) em voz alta analisada(s); média ${clamp(readingScore)}%.`]);
   if (practiceSessions.length) evidence.push(['Prática',`${practiceCompleted} prática(s) concluída(s) em ${Object.keys(structureCounts).length} estrutura(s).`]);
   evidence.push(['Consistência',expectedDates.length?`${completedExpected} de ${expectedDates.length} dias previstos cumpridos.`:`${activeDays} dias com evidência de estudo.`]);
   document.querySelector('#english-evidence-list').innerHTML = evidence.map(([title,txt])=>`<div class="english-evidence-item"><i></i><div><strong>${title}</strong><span>${txt}</span></div></div>`).join('');

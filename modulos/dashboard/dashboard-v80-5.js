@@ -23,18 +23,16 @@
 
   const [
     englishSummaryValue,
-    englishProductionsValue,
-    englishStructuresValue,
-    englishSeriesValue,
+    englishConversationsValue,
+    englishPracticeValue,
     workoutSessionsValue,
     workoutPlanValue,
     birthdaysValue,
     birthdayRecordsValue
   ] = await Promise.all([
     readUserConfig("ingles_evolucao_v1"),
-    readUserConfig("ingles_producoes_v1"),
-    readUserConfig("ingles_estruturas_v1"),
-    readUserConfig("historico_series_ingles_v1"),
+    readUserConfig("ingles_conversas_v1"),
+    readUserConfig("ingles_pratica_v2"),
     readUserConfig("treino_sessoes_v1"),
     readUserConfig("treino_plano_v1"),
     readUserConfig("memory_aniversarios_v1"),
@@ -590,9 +588,12 @@
   const lastMed = completedMeditationDates.at(-1) || "";
 
   const englishStudyDates = new Set([
-    ...Object.keys(englishProductionsValue?.dias || {}),
-    ...Object.keys(englishStructuresValue?.itens || {}),
-    ...(Array.isArray(englishSeriesValue?.itens) ? englishSeriesValue.itens.map(item => String(item?.data || "")) : [])
+    ...(Array.isArray(englishConversationsValue?.sessions)
+      ? englishConversationsValue.sessions.map(item => String(item?.date || ""))
+      : []),
+    ...(Array.isArray(englishPracticeValue?.sessions)
+      ? englishPracticeValue.sessions.map(item => String(item?.date || ""))
+      : [])
   ].filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value)));
 
   const englishCutoffDate = new Date(today);

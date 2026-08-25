@@ -58,7 +58,7 @@ window.MMCDShell=async function(active){
   ['financeiro','financeiro.html','09','💰','Financeiro','Conciliação e controle','Financeiro'],
   ['estatisticas','relatorios.html','10','📊','Estatísticas','Evolução','Evolução']
  ];
- const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','series','treinos-config','meditacao-links'];
+ const settingsKeys=['configuracoes','aparencia','medidas','metas','perfil','treinos-config','meditacao-links'];
  const settingsActive=settingsKeys.includes(active);
  const careKeys=['mapa-cuidado','arvore-da-vida','aniversarios','boas-acoes','oracoes','registro-rapido','circulo-cuidado','testemunhos'];
  const careActive=careKeys.includes(active);
@@ -316,7 +316,6 @@ window.MMCDShell=async function(active){
   metas:'Memory - Metas',
   perfil:'Memory - Meu perfil',
   'treinos-config':'Memory - Plano de treino',
-  series:'Memory - Séries & filmes',
   aniversarios:'Memory - Aniversários',
   'meditacao-links':'Memory - Links da devocional',
   'arvore-da-vida':'Memory - Mapa de Cuidado',

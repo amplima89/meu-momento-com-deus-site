@@ -1615,7 +1615,6 @@
         nivelTexto: nivelBox?.textContent || ""
       });
     }
-    await prepararEspacosResposta();
   }
 
   function fecharTooltips(excecao = null) {
@@ -1677,12 +1676,6 @@
       MMCDUI.toast("As marcações saíram da tela, mas não sincronizaram.");
     }
   });
-
-  try {
-    await carregarEstadoProducoes();
-  } catch (erro) {
-    console.warn("Não foi possível carregar as produções de inglês.", erro);
-  }
 
   await abrir();
 })();
