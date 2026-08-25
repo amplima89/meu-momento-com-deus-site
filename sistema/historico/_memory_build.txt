@@ -1,1 +1,1 @@
-V81.13.13 | 2026-08-24 | Inglês limpo: Conversa + Leitura + Prática em contexto + 1 correção IA
+V81.13.14 | 2026-08-24 | Inglês - recupera Conversa concluída + corrige [object Object] da Prática
