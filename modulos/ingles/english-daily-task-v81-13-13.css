@@ -1,0 +1,148 @@
+/* ============================================================
+   MEMORY V81.13.13 — LEITURA LIMPA
+   ============================================================ */
+
+.english-reading-clean{
+  display:grid;
+  gap:14px;
+}
+
+.english-reading-clean__hero,
+.english-clean-vocab{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--surface);
+}
+
+.english-reading-clean__hero{
+  padding:22px;
+}
+
+.english-reading-clean__meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.english-reading-clean__meta span,
+.english-clean-vocab header span,
+.english-reading-clean__structures>span{
+  color:var(--accent);
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.english-reading-clean__meta b{
+  color:var(--muted);
+  font-size:.62rem;
+}
+
+.english-reading-clean__hero h2{
+  margin:8px 0 5px;
+  font-size:clamp(1.5rem,2.5vw,2rem);
+}
+
+.english-reading-clean__level{
+  margin:0;
+  color:var(--muted);
+  font-size:.68rem;
+}
+
+.english-reading-clean__structures{
+  display:grid;
+  gap:8px;
+  margin-top:16px;
+  padding:12px;
+  border-left:3px solid var(--accent);
+  border-radius:10px;
+  background:color-mix(in srgb,var(--accent) 5%,var(--surface-2));
+}
+
+.english-reading-clean__structures>div{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.english-reading-clean__structures b{
+  padding:6px 9px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:var(--surface-2);
+  font-size:.58rem;
+}
+
+.english-reading-clean__text{
+  display:grid;
+  gap:14px;
+  margin-top:18px;
+}
+
+.english-reading-clean__text p{
+  margin:0;
+  font-size:.82rem;
+  line-height:1.72;
+}
+
+.english-clean-vocab{
+  padding:16px;
+}
+
+.english-clean-vocab header{
+  display:grid;
+  gap:3px;
+  margin-bottom:10px;
+}
+
+.english-clean-vocab header strong{
+  font-size:.82rem;
+}
+
+.english-clean-vocab>div{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+
+.english-clean-vocab article{
+  padding:10px 11px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface-2);
+}
+
+.english-clean-vocab article>div{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.english-clean-vocab article strong{
+  font-size:.69rem;
+}
+
+.english-clean-vocab article span{
+  color:var(--muted);
+  font-size:.58rem;
+  text-align:right;
+}
+
+.english-clean-vocab article p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:.58rem;
+  line-height:1.45;
+}
+
+@media(max-width:720px){
+  .english-reading-clean__hero{
+    padding:16px;
+  }
+
+  .english-clean-vocab>div{
+    grid-template-columns:1fr;
+  }
+}
