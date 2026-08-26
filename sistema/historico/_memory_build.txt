@@ -1,1 +1,1 @@
-V81.17.7 | 2026-08-25 | Hotfix: restaura identidade oficial antes de validar/publicar V81.17.6
+V81.18 | 2026-08-26 | Devocional - sincronização automática após publicação agendada
