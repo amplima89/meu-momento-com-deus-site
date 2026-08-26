@@ -1,0 +1,90 @@
+/* ============================================================
+   MEMORY V81.17.5 — GRAVAÇÃO DA LEITURA
+   ============================================================ */
+
+.english-reading-recorder-v81175{
+  display:grid;
+  gap:12px;
+  margin-top:18px;
+  padding:14px;
+  border:1px solid color-mix(in srgb,var(--accent-2,#60D5FF) 35%,var(--line));
+  border-radius:12px;
+  background:color-mix(in srgb,var(--accent-2,#60D5FF) 4%,var(--surface-2));
+}
+
+.english-reading-recorder-v81175__head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.english-reading-recorder-v81175__head>div{
+  display:grid;
+  gap:4px;
+}
+
+.english-reading-recorder-v81175__head span{
+  color:var(--accent);
+  font-size:.56rem;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.english-reading-recorder-v81175__head strong{
+  font-size:.76rem;
+}
+
+.english-reading-recorder-v81175__head p,
+.english-reading-recorder-v81175__note{
+  margin:0;
+  color:var(--muted);
+  font-size:.58rem;
+  line-height:1.45;
+}
+
+.english-reading-recorder-v81175__head em{
+  flex:0 0 auto;
+  font-style:normal;
+  font-size:.72rem;
+  font-weight:850;
+}
+
+.english-reading-recorder-v81175__status{
+  display:grid;
+  gap:3px;
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--surface);
+}
+
+.english-reading-recorder-v81175__status strong{
+  font-size:.66rem;
+}
+
+.english-reading-recorder-v81175__status small{
+  color:var(--muted);
+  font-size:.54rem;
+}
+
+.english-reading-recorder-v81175__actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.english-reading-recorder-v81175 audio{
+  width:100%;
+}
+
+@media(max-width:680px){
+  .english-reading-recorder-v81175__head{
+    flex-direction:column;
+  }
+
+  .english-reading-recorder-v81175__actions .btn{
+    width:100%;
+    justify-content:center;
+  }
+}

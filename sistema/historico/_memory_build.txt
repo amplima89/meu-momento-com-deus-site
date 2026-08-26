@@ -1,1 +1,1 @@
-V81.17.4 | 2026-08-25 | Inglês - hotfix do validador da remoção da terceira etapa
+V81.17.5 | 2026-08-25 | Inglês - gravador da Leitura resiliente e auto-montável
