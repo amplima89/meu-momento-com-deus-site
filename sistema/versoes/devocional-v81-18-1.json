@@ -1,0 +1,12 @@
+{
+  "versao": "V81.18.1",
+  "data": "2026-08-26",
+  "componente": "devocional-ingles-automacao",
+  "correcoes": [
+    "alinha o validador ao formato atual da Leitura de ingles",
+    "garante 350-500 palavras e 6-10 expressoes uteis",
+    "preserva e reconstrui __memoryDailyTaskV81_13 no JSON tecnico",
+    "remove dependencias de Concept summary e Writing practice antigos",
+    "adiciona backoff de 60 minutos no watchdog apos falha automatica"
+  ]
+}
