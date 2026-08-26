@@ -1,1 +1,1 @@
-V81.17 | 2026-08-25 | Limpeza estrutural segura + remoção do ecossistema de séries + proteção de logo
+V81.17.4 | 2026-08-25 | Inglês - hotfix do validador da remoção da terceira etapa

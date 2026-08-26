@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="modulos/ingles/ingles.css?v=20260819-v81-4-8">
   <link rel="stylesheet" href="modulos/ingles/ingles-experiencia-v80-7.css?v=20260819-v81-4-8">
   <link rel="stylesheet" href="modulos/ingles/english-conversation-v74.css?v=20260819-v81-4-8">
-  <link rel="stylesheet" href="modulos/ingles/english-practice-v81-13-14.css?v=20260824-v81-13-14">
+  
   <link rel="stylesheet" href="modulos/ingles/ingles-atividade-v81-4.css?v=20260819-v81-4-8">
   <link rel="stylesheet" href="modulos/ingles/english-daily-task-v81-13-13.css?v=20260824-v81-13-13">
   
@@ -31,7 +31,10 @@
   
   
   
-  <link rel="stylesheet" href="modulos/ingles/english-final-correction-v81-13-17.css?v=20260824-v81-13-17">
+  
+    
+    <link rel="stylesheet" href="modulos/ingles/english-reading-recorder-v81-17-1.css?v=20260825-v81-17-1">
+  <link rel="stylesheet" href="modulos/ingles/english-final-correction-v81-17-3.css?v=20260825-v81-17-3">
 </head>
 <body>
   <div class="app-shell">
@@ -48,9 +51,9 @@
     <main class="app-main meditation-page">
       <section class="page-header">
         <div>
-          <p class="eyebrow">Prática diária</p>
+          <p class="eyebrow">Estudo diário</p>
           <h1>Inglês diário</h1>
-          <p class="muted">Uma aula por dia com três pilares: conversa real, leitura contextualizada e prática estruturada de verbos e estruturas.</p>
+          <p class="muted">Uma aula por dia com dois pilares: conversa real e leitura contextualizada. A leitura pode ser gravada para avaliação da IA.</p>
           <div id="ingles-nivel" class="english-level" hidden></div>
         </div>
         <label class="date-select">
@@ -62,13 +65,13 @@
       <section class="card english-study-map" aria-label="Roteiro da aula">
         <div class="english-study-map__summary">
           <div><span>Nível</span><strong id="english-summary-level">—</strong></div>
-          <div><span>Estrutura atual</span><strong id="english-summary-focus">Carregando...</strong></div>
-          <div><span>Carga de prática</span><strong id="english-summary-verbs">Carregando...</strong></div>
+          <div><span>Tema de hoje</span><strong id="english-summary-focus">Carregando...</strong></div>
+          <div><span>Rotina</span><strong id="english-summary-verbs">Conversa + Leitura</strong></div>
         </div>
         <nav class="english-study-map__route" aria-label="Etapas do estudo">
           <button class="english-study-step" type="button" data-english-step="conversation"><b>1</b>Conversa</button>
           <button class="english-study-step" type="button" data-english-step="read"><b>2</b>Leitura</button>
-          <button class="english-study-step" type="button" data-english-step="practice"><b>3</b>Prática em contexto</button>
+          
         </nav>
       </section>
 <!-- MMCD_ENGLISH_STUDY_MAP_END -->
@@ -90,7 +93,7 @@
         </div>
       </article>
 
-      <section id="english-practice-host" class="card english-practice-card"><p class="muted">Carregando prática estruturada...</p></section>
+      
 
       <!-- MMCD_REVIEW_ANKI_START -->
 <!-- MMCD_REVIEW_ANKI_END -->
@@ -104,13 +107,16 @@
   <script src="nucleo/dados-app.js?v=20260819-v81-4-8"></script>
   <script src="nucleo/theme-system-v80.js?v=20260819-v81-4-8"></script><script src="nucleo/shell-v81.js?v=20260819-v81-4-8"></script>
   <script>MMCDShell("ingles")</script>
-  <script src="modulos/ingles/english-practice-v81-13-14.js?v=20260824-v81-13-14"></script>
+  
   <script src="modulos/ingles/english-daily-task-v81-13-13.js?v=20260824-v81-13-13"></script>
-<script src="modulos/ingles/ingles-experiencia-v81-13-17.js?v=20260824-v81-13-17"></script>
+  
+  
+  <script src="modulos/ingles/english-reading-recorder-v81-17-1.js?v=20260825-v81-17-1"></script>
+<script src="modulos/ingles/ingles-experiencia-v81-17-3.js?v=20260825-v81-17-3"></script>
   <script src="modulos/ingles/english-conversation-v74.js?v=20260819-v81-4-8"></script>
   <script src="modulos/ingles/ingles.js?v=20260819-v81-4-8"></script>
   <script src="nucleo/activity-integration-v81-4.js?v=20260819-v81-4-8"></script>
-  <script src="modulos/ingles/ingles-atividade-v81-4-5.js?v=20260819-v81-4-8"></script>
+  <script src="modulos/ingles/ingles-atividade-v81-17-3.js?v=20260825-v81-17-3"></script>
 <script src="nucleo/memory-logo-guard-v81-15.js?v=20260823-v81-15"></script>
   
   <script src="nucleo/comfort-palette-v81-14-1.js?v=20260823-v81-14-3"></script>
@@ -121,6 +127,6 @@
   
   
   
-  <script src="modulos/ingles/english-final-correction-v81-13-17.js?v=20260824-v81-13-17"></script>
+  <script src="modulos/ingles/english-final-correction-v81-17-3.js?v=20260825-v81-17-3"></script>
 </body>
 </html>

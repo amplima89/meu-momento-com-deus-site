@@ -3,8 +3,7 @@
 (() => {
   const READING_KEY="ingles_etapas_v1";
   const CONVERSATION_KEY="ingles_conversas_v1";
-  const PRACTICE_KEY="ingles_pratica_v2";
-  const BACKFILL_MARKER="memory:english:activity-backfill-v81-4-5";
+  const BACKFILL_MARKER="memory:english:activity-backfill-v81-17-3";
 
   let db=null;
   let user=null;
@@ -79,9 +78,8 @@
   }
 
   async function getStates(date) {
-    const [conversation,practice,rawReading]=await Promise.all([
+    const [conversation,rawReading]=await Promise.all([
       readConfig(CONVERSATION_KEY),
-      readConfig(PRACTICE_KEY),
       readConfig(READING_KEY)
     ]);
 
@@ -91,7 +89,6 @@
       date,
       conversation:completedSession(conversation,date),
       reading:completedReading(reading,date),
-      practice:completedSession(practice,date),
       readingStore:reading
     };
   }
@@ -105,10 +102,7 @@
     if(!button) return;
 
     const shouldComplete=Boolean(done);
-
-    if(button.classList.contains("is-complete")!==shouldComplete) {
-      button.classList.toggle("is-complete",shouldComplete);
-    }
+    button.classList.toggle("is-complete",shouldComplete);
 
     let check=button.querySelector(".english-step-check");
 
@@ -118,26 +112,20 @@
       button.append(check);
     }
 
-    if(check.hidden===shouldComplete) {
-      check.hidden=!shouldComplete;
-    }
-
-    const nextText=shouldComplete?"✓":"";
-    if(check.textContent!==nextText) {
-      check.textContent=nextText;
-    }
+    check.hidden=!shouldComplete;
+    check.textContent=shouldComplete ? "✓" : "";
   }
 
   function updateSteps(states) {
     setStepState("conversation",states.conversation);
     setStepState("read",states.reading);
-    setStepState("practice",states.practice);
+    document.querySelector('[data-english-step="practice"]')?.remove();
   }
 
   function ensureReadingButton(states=null) {
     const block=document.querySelector(
       '#ingles-conteudo [data-lesson-kind="reading"]'
-    );
+    ) || document.querySelector("[data-english-reading-clean]");
 
     if(!block) return false;
 
@@ -158,32 +146,18 @@
       block.append(footer);
     }
 
-    // CRÍTICO V81.4.5:
-    // o MutationObserver pode chamar esta função sem estados.
-    // Nesse caso NÃO fazemos nenhuma escrita no DOM depois que o botão já existe.
-    // Isso impede o loop infinito que travava a página.
     if(!states) return true;
 
     const done=Boolean(states.reading);
-
-    if(footer.classList.contains("is-complete")!==done) {
-      footer.classList.toggle("is-complete",done);
-    }
+    footer.classList.toggle("is-complete",done);
 
     const button=footer.querySelector("[data-complete-english-reading]");
 
     if(button) {
-      if(button.disabled!==done) {
-        button.disabled=done;
-      }
-
-      const nextText=done
+      button.disabled=done;
+      button.textContent=done
         ? "✓ Leitura concluída"
         : "Marcar leitura concluída";
-
-      if(button.textContent.trim()!==nextText) {
-        button.textContent=nextText;
-      }
     }
 
     return true;
@@ -209,11 +183,11 @@
       date,
       origin:"ingles_rotina",
       observation:
-        "Inglês concluído automaticamente após Conversa + Leitura + Prática."
+        "Inglês concluído automaticamente após Conversa + Leitura."
     });
   }
 
-  async function refresh({legacy=true}={}) {
+  async function refresh() {
     if(running || !db || !user) return;
 
     running=true;
@@ -222,29 +196,11 @@
       const date=selectedDate();
       const states=await getStates(date);
 
-      if(
-        legacy &&
-        date<today() &&
-        states.conversation &&
-        states.practice &&
-        !states.reading
-      ) {
-        states.readingStore.days[date]={
-          completed:true,
-          legacyInferred:true,
-          completedAt:new Date().toISOString()
-        };
-
-        await saveReading(states.readingStore);
-        states.reading=true;
-      }
-
       lastStates=states;
-
       updateSteps(states);
       ensureReadingButton(states);
 
-      if(states.conversation && states.reading && states.practice) {
+      if(states.conversation && states.reading) {
         const result=await markEnglish(date);
 
         if(result?.ok && !result.already) {
@@ -264,9 +220,8 @@
   }
 
   async function backfillRecent() {
-    const [conversation,practice,rawReading]=await Promise.all([
+    const [conversation,rawReading]=await Promise.all([
       readConfig(CONVERSATION_KEY),
-      readConfig(PRACTICE_KEY),
       readConfig(READING_KEY)
     ]);
 
@@ -278,12 +233,6 @@
         .map(session=>session.date)
     );
 
-    const practices=new Set(
-      (practice?.sessions||[])
-        .filter(session=>session?.completed && session?.date)
-        .map(session=>session.date)
-    );
-
     const limit=new Date();
     limit.setDate(limit.getDate()-45);
 
@@ -291,30 +240,14 @@
       window.MemoryActivitySync?.localIso?.(limit) ||
       limit.toISOString().slice(0,10);
 
-    let changed=false;
     const dates=[];
 
     for(const date of conversations) {
-      if(!practices.has(date) || date>=today() || date<limitIso) continue;
-
-      if(!completedReading(reading,date)) {
-        reading.days[date]={
-          completed:true,
-          legacyInferred:true,
-          completedAt:new Date().toISOString()
-        };
-        changed=true;
-      }
-
+      if(date>=today() || date<limitIso) continue;
+      if(!completedReading(reading,date)) continue;
       dates.push(date);
     }
 
-    if(changed) {
-      await saveReading(reading);
-    }
-
-    // Não dispara dezenas de gravações de uma vez.
-    // Pequeno intervalo entre datas deixa o navegador livre para a interface.
     for(const date of [...new Set(dates)].sort()) {
       await markEnglish(date);
       await new Promise(resolve=>setTimeout(resolve,40));
@@ -329,6 +262,7 @@
     const run=async()=>{
       try {
         await backfillRecent();
+
         try {
           localStorage.setItem(BACKFILL_MARKER,"done");
         } catch {}
@@ -362,7 +296,7 @@
       };
 
       await saveReading(reading);
-      await refresh({legacy:false});
+      await refresh();
 
       window.MMCDUI?.toast?.("Leitura concluída.");
     } catch(error) {
@@ -374,10 +308,7 @@
   }
 
   function delayedRefresh(ms=900) {
-    setTimeout(
-      ()=>refresh({legacy:true}),
-      ms
-    );
+    setTimeout(()=>refresh(),ms);
   }
 
   function wire() {
@@ -387,10 +318,7 @@
         return;
       }
 
-      if(
-        event.target.closest("[data-finish-conversation]") ||
-        event.target.closest("[data-finish-practice]")
-      ) {
+      if(event.target.closest("[data-finish-conversation]")) {
         delayedRefresh(900);
       }
     },true);
@@ -406,8 +334,6 @@
       document.querySelector("#ingles-conteudo") ||
       document.body;
 
-    // Observa apenas a chegada/recriação do bloco de leitura.
-    // A callback agenda no máximo uma operação por frame.
     observer=new MutationObserver(()=>{
       scheduleReadingMount();
     });
@@ -435,10 +361,7 @@
       user=session.user;
 
       wire();
-
-      // Primeiro carrega o estado do dia. O histórico roda depois,
-      // em tempo ocioso, para não segurar a abertura da página.
-      await refresh({legacy:true});
+      await refresh();
       scheduleBackfillOnce();
     } catch(error) {
       console.warn(

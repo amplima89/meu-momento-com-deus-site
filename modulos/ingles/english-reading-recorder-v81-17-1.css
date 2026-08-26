@@ -1,0 +1,107 @@
+/* ============================================================
+   MEMORY V81.17.1 — LEITURA EM VOZ ALTA
+   ============================================================ */
+
+.english-reading-recorder-v81171{
+  display:grid;
+  gap:10px;
+  margin-top:18px;
+  padding:14px;
+  border:1px solid color-mix(in srgb,var(--accent-2,#69C6E6) 35%,var(--line));
+  border-radius:12px;
+  background:color-mix(in srgb,var(--accent-2,#69C6E6) 4%,var(--surface-2));
+}
+
+.english-reading-recorder-v81171__head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.english-reading-recorder-v81171__head>div{
+  display:grid;
+  gap:3px;
+}
+
+.english-reading-recorder-v81171__head span{
+  color:var(--accent);
+  font-size:.55rem;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.english-reading-recorder-v81171__head strong{
+  font-size:.76rem;
+}
+
+.english-reading-recorder-v81171__head p{
+  margin:0;
+  color:var(--muted);
+  font-size:.59rem;
+  line-height:1.45;
+}
+
+.english-reading-recorder-v81171__head em{
+  flex:0 0 auto;
+  min-width:54px;
+  padding:7px 9px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--accent-2,#69C6E6);
+  font-style:normal;
+  font-size:.65rem;
+  font-weight:900;
+  text-align:center;
+}
+
+.english-reading-recorder-v81171__status{
+  display:grid;
+  gap:2px;
+}
+
+.english-reading-recorder-v81171__status strong{
+  font-size:.66rem;
+}
+
+.english-reading-recorder-v81171__status small,
+.english-reading-recorder-v81171__note{
+  color:var(--muted);
+  font-size:.54rem;
+  line-height:1.4;
+}
+
+.english-reading-recorder-v81171__actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.english-reading-recorder-v81171__actions .btn{
+  min-height:34px;
+}
+
+.english-reading-recorder-v81171 audio{
+  width:100%;
+  min-height:34px;
+}
+
+.english-reading-recorder-v81171__note{
+  margin:0;
+}
+
+@media(max-width:720px){
+  .english-reading-recorder-v81171__head{
+    flex-direction:column;
+  }
+
+  .english-reading-recorder-v81171__actions{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  .english-reading-recorder-v81171__actions .btn{
+    width:100%;
+  }
+}
