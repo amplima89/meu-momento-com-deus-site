@@ -242,129 +242,6 @@
   }
 
 
-  const clampScore = value => Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
-  const average = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
-  const tokenize = text => String(text || "").toLocaleLowerCase("en-US").match(/[a-z]+(?:'[a-z]+)?/g) || [];
-  const CONNECTORS = new Set(["because","but","so","then","however","although","also","after","before","first","finally","while","when","if","therefore","instead"]);
-  const VERBS = new Set(["am","is","are","was","were","be","been","being","do","does","did","have","has","had","go","went","get","got","make","made","work","worked","train","trained","feel","felt","want","wanted","need","needed","think","thought","like","liked","prefer","preferred","try","tried","talk","talked","solve","solved","change","changed","spend","spent","help","helped","focus","focused","improve","improved","start","started"]);
-  const FIXES = [
-    [/\bi am agree\b/gi,"I agree","Use “I agree”, sem o verbo to be."],
-    [/\bi have (\d{1,3}) years(?: old)?\b/gi,"I am $1 years old","Para idade, use “I am ... years old”."],
-    [/\bi didn't went\b/gi,"I didn't go","Depois de “didn't”, o verbo volta à forma base."],
-    [/\bi did went\b/gi,"I went","Com passado afirmativo, use “I went” ou “I did go” apenas para ênfase."],
-    [/\bhe don't\b/gi,"he doesn't","Com he/she/it, use “doesn't”."],
-    [/\bshe don't\b/gi,"she doesn't","Com he/she/it, use “doesn't”."],
-    [/\bit don't\b/gi,"it doesn't","Com he/she/it, use “doesn't”."],
-    [/\bpeople is\b/gi,"people are","“People” pede verbo no plural."],
-    [/\bmore better\b/gi,"better","“Better” já é comparativo; não use “more better”."],
-    [/\bdepend of\b/gi,"depend on","A combinação natural é “depend on”."],
-    [/\bmarried with\b/gi,"married to","A combinação natural é “married to”."],
-    [/\bdiscuss about\b/gi,"discuss","“Discuss” normalmente não leva “about”."]
-  ];
-
-  function sentenceCount(text) {
-    const chunks = String(text || "").split(/[.!?]+/).map(x => x.trim()).filter(Boolean);
-    return Math.max(1, chunks.length);
-  }
-
-  function applyKnownFixes(text) {
-    let corrected = String(text || "").trim();
-    const notes = [];
-    for (const [pattern, replacement, note] of FIXES) {
-      pattern.lastIndex = 0;
-      if (pattern.test(corrected)) {
-        pattern.lastIndex = 0;
-        corrected = corrected.replace(pattern, replacement);
-        notes.push(note);
-      }
-    }
-    corrected = corrected.replace(/\s+/g, " ").trim();
-    if (corrected) corrected = corrected.charAt(0).toUpperCase() + corrected.slice(1);
-    if (corrected && !/[.!?]$/.test(corrected)) corrected += ".";
-    return { corrected, notes };
-  }
-
-  function naturalize(text) {
-    let value = String(text || "").trim();
-    const replacements = [
-      [/\bI do not\b/gi,"I don't"],[/\bI did not\b/gi,"I didn't"],[/\bI am not\b/gi,"I'm not"],
-      [/\bI am\b/gi,"I'm"],[/\bI have not\b/gi,"I haven't"],[/\bI would\b/gi,"I'd"],
-      [/\bI will\b/gi,"I'll"],[/\bcannot\b/gi,"can't"],[/\bdo not\b/gi,"don't"],
-      [/\bdoes not\b/gi,"doesn't"],[/\bdid not\b/gi,"didn't"],[/\bwould not\b/gi,"wouldn't"],
-      [/\bcould not\b/gi,"couldn't"],[/\bshould not\b/gi,"shouldn't"]
-    ];
-    for (const [pattern,replacement] of replacements) value=value.replace(pattern,replacement);
-    value=value.replace(/\s+/g," ").trim();
-    if(value) value=value.charAt(0).toUpperCase()+value.slice(1);
-    if(value&&!/[.!?]$/.test(value)) value+='.';
-    return value;
-  }
-
-  function evaluateAnswer(text, stage) {
-    const raw=String(text||"").trim();
-    const words=tokenize(raw);
-    const unique=new Set(words);
-    const expectedWords={1:5,2:14,3:24,4:34}[stage]||14;
-    const connectors=words.filter(word=>CONNECTORS.has(word)).length;
-    const hasVerb=words.some(word=>VERBS.has(word)||/(ed|ing)$/.test(word));
-    const {corrected,notes}=applyKnownFixes(raw);
-    const shortfall=Math.max(0,expectedWords-words.length);
-    const lengthFactor=Math.min(1,words.length/expectedWords);
-    const lexicalRatio=words.length?unique.size/words.length:0;
-    const grammar=clampScore(92-notes.length*16-(hasVerb?0:12)-(words.length<3?18:0));
-    const vocabulary=clampScore(55+Math.min(25,lexicalRatio*32)+Math.min(20,words.length/Math.max(1,expectedWords)*20));
-    const development=clampScore(45+lengthFactor*38+Math.min(17,connectors*6));
-    const naturalBase=notes.length?70:84;
-    const naturalness=clampScore(naturalBase+Math.min(10,connectors*3)+(sentenceCount(raw)>1?5:0)-(shortfall>expectedWords*.6?10:0));
-    const clarity=clampScore(60+Math.min(25,lengthFactor*25)+(hasVerb?10:0)+(connectors?5:0));
-    const overall=clampScore(average([grammar,vocabulary,development,naturalness,clarity]));
-    const natural=naturalize(corrected);
-    const strengths=[];
-    if(grammar>=85) strengths.push("estrutura gramatical estável nos padrões avaliados");
-    if(vocabulary>=80) strengths.push("boa variedade de vocabulário");
-    if(development>=80) strengths.push("resposta desenvolvida, não apenas uma frase curta");
-    if(connectors>=1) strengths.push("uso de conectores para ligar ideias");
-    const improvements=[...notes];
-    if(words.length<expectedWords*.65) improvements.push(`Desenvolva um pouco mais a resposta; para este nível, tente chegar perto de ${expectedWords} palavras quando a pergunta permitir.`);
-    if(!connectors&&stage>=2) improvements.push("Conecte as ideias com because, but, so, then ou however para soar mais fluido.");
-    if(!hasVerb&&words.length) improvements.push("Revise a frase para garantir um verbo principal claro.");
-    return {overall,grammar,vocabulary,naturalness,development,clarity,corrected,natural,notes,strengths,improvements,wordCount:words.length};
-  }
-
-  function evaluateSession(session,prompts) {
-    const answers=prompts.map((prompt,index)=>{
-      const answer=answerFor(session,index);
-      return {index,question:prompt.q,text:String(answer?.text||"").trim(),...evaluateAnswer(answer?.text||"",session.stage)};
-    });
-    const metric=name=>clampScore(average(answers.map(item=>item[name])));
-    const evaluation={
-      overall:metric("overall"),grammar:metric("grammar"),vocabulary:metric("vocabulary"),naturalness:metric("naturalness"),development:metric("development"),clarity:metric("clarity"),answers,
-      evaluatedAt:new Date().toISOString(),method:"memory-local-v71"
-    };
-    evaluation.label=evaluation.overall>=88?"Muito bom":evaluation.overall>=75?"Bom":evaluation.overall>=60?"Em evolução":"Precisa revisar";
-    const allStrengths=[...new Set(answers.flatMap(item=>item.strengths))].slice(0,3);
-    const allImprovements=[...new Set(answers.flatMap(item=>item.improvements))].slice(0,4);
-    evaluation.strengths=allStrengths.length?allStrengths:["Você completou toda a conversa e produziu inglês espontâneo."];
-    evaluation.improvements=allImprovements.length?allImprovements:["Nenhum erro estrutural comum foi detectado. Continue ampliando detalhe e naturalidade."];
-    return evaluation;
-  }
-
-  function metricCard(label,value){return `<div><span>${esc(label)}</span><strong>${clampScore(value)}%</strong><i><b style="width:${clampScore(value)}%"></b></i></div>`}
-
-  function evaluationHtml(session){
-    const a=session?.evaluation;if(!a)return'';
-    const rewrites=(a.answers||[]).filter(item=>item.text&&item.natural&&item.natural.toLocaleLowerCase('en-US')!==item.text.trim().toLocaleLowerCase('en-US')).slice(0,3);
-    return `<section class="conversation-evaluation ${a.overall>=75?'is-good':a.overall>=60?'is-progress':'needs-review'}">
-      <div class="conversation-evaluation__head"><div><p class="eyebrow">Resultado da conversa</p><h3>${esc(a.label)}</h3><p>O Memory avaliou a conversa que você realmente escreveu, sem comparar com uma resposta única esperada.</p></div><strong>${clampScore(a.overall)}%</strong></div>
-      <div class="conversation-evaluation__metrics">${metricCard('Gramática',a.grammar)}${metricCard('Vocabulário',a.vocabulary)}${metricCard('Naturalidade',a.naturalness)}${metricCard('Construção',a.development)}${metricCard('Clareza',a.clarity)}</div>
-      <div class="conversation-evaluation__columns">
-        <div><span class="conversation-evaluation__label">O que você fez bem</span><ul>${(a.strengths||[]).map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
-        <div><span class="conversation-evaluation__label">O que melhorar</span><ul>${(a.improvements||[]).map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>
-      </div>
-      ${rewrites.length?`<div class="conversation-native"><span class="conversation-evaluation__label">Como deixaria mais natural</span>${rewrites.map(item=>`<article><small>Question ${item.index+1}</small><p><b>Você:</b> ${esc(item.text)}</p><p><b>Mais natural:</b> ${esc(item.natural)}</p></article>`).join('')}</div>`:''}
-      <p class="conversation-evaluation__note">Correção automática local: identifica estrutura, desenvolvimento e erros comuns. Quando a construção é ambígua, ela não deve ser usada como penalização definitiva.</p>
-    </section>`;
-  }
 
   async function render(params) {
     const host = document.querySelector('#english-conversation-host');
@@ -383,11 +260,6 @@
       const stage = inferStage(nivelTexto, store.sessions || []);
       const session = ensureSession(store, date, topic, stage);
       const prompts = topic.prompts[session.stage] || topic.prompts[1];
-      if (session.completed && !session.evaluation && prompts.every((_, index) => answerFor(session, index)?.text?.trim())) {
-        session.evaluation = evaluateSession(session, prompts);
-        session.updatedAt = new Date().toISOString();
-        try { await saveStore(db, usuario.id, store); } catch (error) { console.warn("Conversa: não foi possível salvar a avaliação retroativa.", error); }
-      }
       const firstPending = prompts.findIndex((_, index) => !answerFor(session, index)?.text?.trim());
       const unlocked = firstPending === -1 ? prompts.length - 1 : firstPending;
 
@@ -404,7 +276,6 @@
         <div class="conversation-flow">
           ${prompts.map((prompt, index) => cardHtml(prompt, index, answerFor(session, index), index <= unlocked)).join('')}
         </div>
-        ${evaluationHtml(session)}
         <div class="conversation-footer">
           <button type="button" class="btn" data-finish-conversation ${session.completed ? 'disabled' : ''}>${session.completed ? 'Conversa concluída' : 'Concluir conversa de hoje'}</button>
           <p class="muted">Dica: responda com o máximo de naturalidade. Mais para frente, as respostas pedem mais detalhe, opinião e improviso.</p>
@@ -445,11 +316,11 @@
           return;
         }
         session.completed = true;
-        session.evaluation = evaluateSession(session, prompts);
+        delete session.evaluation;
         session.updatedAt = new Date().toISOString();
         try {
           await saveStore(db, usuario.id, store);
-          toast(`Conversa avaliada: ${session.evaluation.label} · ${session.evaluation.overall}%.`);
+          toast("Conversa concluída. A IA corrige tudo quando você finalizar o inglês do dia.");
           await render({ db, usuario, data: date, nivelTexto });
         } catch (error) {
           console.error(error);
@@ -462,5 +333,5 @@
     }
   }
 
-  window.MMCDEnglishConversation = { render };
+  window.MMCDEnglishConversation = { render, version:"v81.17.6" };
 })();

@@ -7,3 +7,10 @@
 .conversation-native{margin-top:12px}.conversation-native article{padding:9px 0;border-top:1px solid var(--line)}.conversation-native article:first-of-type{border-top:0;padding-top:2px}.conversation-native small{color:var(--muted);font-size:.62rem;font-weight:800}.conversation-native p{margin:4px 0;font-size:.76rem;line-height:1.5}.conversation-evaluation__note{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);font-size:.67rem;line-height:1.45}
 @media(max-width:820px){.conversation-evaluation__metrics{grid-template-columns:1fr 1fr}.conversation-evaluation__columns{grid-template-columns:1fr}.conversation-evaluation__head>strong{min-width:62px;height:62px;border-radius:18px;font-size:1.05rem}}
 @media(max-width:480px){.conversation-evaluation{padding:14px}.conversation-evaluation__head{align-items:center}.conversation-evaluation__metrics{grid-template-columns:1fr}.conversation-evaluation__head h3{font-size:1.08rem}}
+
+
+/* V81.17.6 — remove o antigo resultado local da conversa */
+.conversation-evaluation,
+[data-conversation-ai-detail-v81135]{
+  display:none!important;
+}
