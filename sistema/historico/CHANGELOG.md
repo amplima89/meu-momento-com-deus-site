@@ -273,3 +273,10 @@
 - Central de Conciliação com regras e aprendizagem.
 - Dados financeiros normalizados criptografados antes do Supabase.
 - Pagamento de fatura tratado como liquidação, sem dupla contagem.
+
+## V81.19 - 27/08/2026
+- Conversa diaria substituida por dialogos cotidianos encadeados e antirrepeticao.
+- Revisao de domingo usa erros reais de segunda a sabado com forma correta e padrao.
+- Correcao final grava memoria pedagogica no Supabase por sessao/data.
+- Agendador do devocional passa a 05:30 e 07:30, com fallback no login.
+- Polling automatico de 15 minutos removido.
