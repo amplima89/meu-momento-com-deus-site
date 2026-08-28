@@ -280,3 +280,15 @@
 - Correcao final grava memoria pedagogica no Supabase por sessao/data.
 - Agendador do devocional passa a 05:30 e 07:30, com fallback no login.
 - Polling automatico de 15 minutos removido.
+
+## V81.19.1 - 27/08/2026
+- Mantem dialogos cotidianos, antirrepeticao e revisao real de domingo.
+- Corrige a instalacao para NAO substituir a rotina existente do Agendador do Windows.
+- Se a V81.19 anterior tiver sido aplicada, tenta restaurar o agendador a partir do backup criado antes da troca.
+
+## V81.19.2 - 27/08/2026
+- Mantem os dialogos cotidianos e a revisao real de domingo da V81.19.
+- Corrige a restauracao da rotina do Windows apos a V81.19.
+- Restaura a configuracao original V81.10: verificacao a cada 15 minutos + login.
+- Corrige a V81.19.1, que procurava o iniciador dentro do backup em vez da pasta oficial.
+- Valida automaticamente os gatilhos e o iniciador antes da publicacao.

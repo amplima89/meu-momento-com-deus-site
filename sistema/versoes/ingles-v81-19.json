@@ -1,14 +1,14 @@
 {
-  "versao": "V81.19",
+  "versao": "V81.19.2",
   "data": "2026-08-27",
-  "componente": "ingles-dialogo-revisao-semanal-agendamento",
+  "componente": "ingles-dialogo-revisao-semanal-restauracao-agendador",
   "melhorias": [
-    "substitui questionario repetitivo por dialogos cotidianos encadeados com banco amplo de cenarios e antirrepeticao",
-    "inclui contextos de casa, esposa, filho, trabalho, academia, amigos, servicos e viagens",
-    "salva erros reais da conversa corrigidos pela IA com resposta original, correcao, forma natural, padrao e explicacao",
-    "domingo exibe revisao de segunda a sabado apenas com respostas que precisaram de ajuste",
-    "migra correcoes antigas ainda disponiveis no Supabase para a revisao semanal",
-    "agendador do devocional passa a rodar pela manha as 05:30 e 07:30, com fallback no login",
-    "remove polling automatico de 15 minutos do devocional"
+    "dialogos cotidianos encadeados com banco amplo de cenarios e antirrepeticao",
+    "contextos de casa, esposa, filho, trabalho, academia, amigos, servicos e viagens",
+    "erros reais salvos no Supabase com resposta original, correcao, forma natural, padrao e explicacao",
+    "domingo revisa os erros reais de segunda a sabado",
+    "restaura a tarefa original V81.10 do Windows a cada 15 minutos + login",
+    "valida automaticamente o XML da tarefa restaurada antes de publicar",
+    "corrige a falha da V81.19.1 que procurava o iniciador dentro do backup"
   ]
 }
