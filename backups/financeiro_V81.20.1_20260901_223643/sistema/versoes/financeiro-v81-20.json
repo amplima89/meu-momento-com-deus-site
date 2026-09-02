@@ -1,0 +1,12 @@
+{
+  "versao": "V81.20",
+  "data": "2026-09-01",
+  "componente": "financeiro-simples",
+  "mudancas": [
+    "duas guias: Orçamento e Importações",
+    "linhas editáveis com incluir/excluir",
+    "fatura: reconhecido vai para linha orçada; não reconhecido vai para Cartão de crédito",
+    "extrato: reconhecido vai para linha orçada; despesa não reconhecida vai para Outras despesas",
+    "mantém armazenamento criptografado existente no Supabase"
+  ]
+}
