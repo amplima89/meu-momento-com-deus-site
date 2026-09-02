@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/imagens/memory-icon-official-v81-11-3.png?v=20260822-v81-11-3" sizes="any">
   <link rel="stylesheet" href="nucleo/painel.css?v=20260819-v81-4-8">
   <link rel="stylesheet" href="nucleo/comfort-palette-v81-14-1.css?v=20260823-v81-14-3">
-  <link rel="stylesheet" href="modulos/financeiro/financeiro-v81-20.css?v=20260901-v81-20">
+  <link rel="stylesheet" href="modulos/financeiro/financeiro-v81-21.css?v=20260901-v81-21">
 </head>
 <body>
 <div class="app-shell">
@@ -17,40 +17,125 @@
 <main class="app-main finance-page">
   <section id="finance-lock" class="finance-lock">
     <div class="finance-lock__card">
-      <p class="eyebrow">Área protegida</p><h1>Financeiro</h1><p class="muted">Abra seu controle financeiro.</p>
-      <form id="finance-lock-form" class="finance-lock__form"><label for="finance-password">Senha</label><div class="finance-password-field"><input id="finance-password" type="password" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="••••••" required><button id="finance-password-toggle" type="button" class="finance-password-toggle">👁</button></div><button class="btn primary" type="submit">Abrir Financeiro</button><p id="finance-lock-error" class="finance-lock__error"></p></form>
+      <p class="eyebrow">Área protegida</p>
+      <h1>Financeiro</h1>
+      <p class="muted">Abra seu controle financeiro.</p>
+      <form id="finance-lock-form" class="finance-lock__form">
+        <label for="finance-password">Senha</label>
+        <div class="finance-password-field">
+          <input id="finance-password" type="password" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="••••••" required>
+          <button id="finance-password-toggle" type="button" class="finance-password-toggle">👁</button>
+        </div>
+        <button class="btn primary" type="submit">Abrir Financeiro</button>
+        <p id="finance-lock-error" class="finance-lock__error"></p>
+      </form>
     </div>
   </section>
 
   <div id="finance-app" hidden>
-    <section class="finance-header card"><div><p class="eyebrow">Controle mensal</p><h1>Financeiro simples</h1><p class="muted">Orce linha a linha. Depois suba fatura e extrato para o Memory preencher o realizado.</p></div><label class="finance-period">Mês <input id="finance-period" type="month"></label></section>
+    <section class="finance-header card">
+      <div>
+        <p class="eyebrow">Controle financeiro</p>
+        <h1>Orçamento anual</h1>
+        <p class="muted">Uma linha por categoria, como na sua planilha. O controle começa em agosto de 2026.</p>
+      </div>
+      <label class="finance-year">Ano
+        <select id="finance-year"></select>
+      </label>
+    </section>
 
-    <nav class="finance-tabs"><button class="active" data-tab="budget">Orçamento</button><button data-tab="imports">Importações <span id="finance-pending-count" class="finance-count">0</span></button></nav>
+    <nav class="finance-tabs">
+      <button class="active" data-tab="budget">Orçamento</button>
+      <button data-tab="imports">Importações <span id="finance-pending-count" class="finance-count">0</span></button>
+    </nav>
 
     <section class="finance-panel active" data-panel="budget">
-      <div class="finance-summary"><div><span>Orçado</span><strong id="sum-budget">R$ 0,00</strong></div><div><span>Realizado</span><strong id="sum-actual">R$ 0,00</strong></div><div><span>Diferença</span><strong id="sum-diff">R$ 0,00</strong></div></div>
-      <article class="card finance-sheet">
-        <div class="finance-sheet-head"><div><h2>Orçamento do mês</h2><p class="muted">Adicione ou exclua linhas como faria no Excel.</p></div><button id="add-budget-line" class="btn primary" type="button">+ Incluir linha</button></div>
-        <div class="finance-table-wrap"><table class="finance-table"><thead><tr><th>Descrição</th><th>Tipo</th><th>Orçado</th><th>Realizado</th><th>Status</th><th></th></tr></thead><tbody id="budget-body"></tbody></table></div>
-        <div id="budget-empty" class="finance-empty" hidden>Nenhuma linha neste mês.</div>
+      <div class="finance-summary finance-summary--annual">
+        <div><span>Receitas orçadas</span><strong id="sum-income-year">R$ 0,00</strong></div>
+        <div><span>Despesas orçadas</span><strong id="sum-expense-year">R$ 0,00</strong></div>
+        <div><span>Saldo orçado</span><strong id="sum-balance-year">R$ 0,00</strong></div>
+      </div>
+
+      <article class="card finance-sheet finance-annual-section">
+        <div class="finance-sheet-head">
+          <div><h2>Receitas</h2><p class="muted">Edite os valores direto na grade.</p></div>
+          <button id="add-income-line" class="btn primary" type="button">+ Receita</button>
+        </div>
+        <div class="finance-table-wrap finance-annual-wrap">
+          <table class="finance-table finance-annual-table">
+            <thead id="income-head"></thead>
+            <tbody id="income-body"></tbody>
+            <tfoot id="income-foot"></tfoot>
+          </table>
+        </div>
+        <div id="income-empty" class="finance-empty" hidden>Nenhuma receita cadastrada.</div>
+      </article>
+
+      <article class="card finance-sheet finance-annual-section">
+        <div class="finance-sheet-head">
+          <div><h2>Despesas</h2><p class="muted">Uma linha por despesa, seguindo a lógica do Excel.</p></div>
+          <button id="add-expense-line" class="btn primary" type="button">+ Despesa</button>
+        </div>
+        <div class="finance-table-wrap finance-annual-wrap">
+          <table class="finance-table finance-annual-table">
+            <thead id="expense-head"></thead>
+            <tbody id="expense-body"></tbody>
+            <tfoot id="expense-foot"></tfoot>
+          </table>
+        </div>
+        <div id="expense-empty" class="finance-empty" hidden>Nenhuma despesa cadastrada.</div>
       </article>
     </section>
 
     <section class="finance-panel" data-panel="imports">
       <article class="card finance-import-box">
-        <div><h2>Subir arquivos</h2><p class="muted">O arquivo é lido no navegador. Aceita XLS, XLSX e CSV.</p></div>
-        <div class="finance-import-actions"><label class="btn primary">💳 Subir fatura<input id="invoice-input" type="file" accept=".xls,.xlsx,.csv" hidden></label><label class="btn">🏦 Subir extrato<input id="bank-input" type="file" accept=".xls,.xlsx,.csv" hidden></label></div>
+        <div>
+          <h2>Subir arquivos</h2>
+          <p class="muted">Escolha o mês e envie fatura ou extrato. Aceita XLS, XLSX e CSV.</p>
+        </div>
+        <div class="finance-import-controls">
+          <label class="finance-period">Mês
+            <input id="finance-period" type="month" min="2026-08">
+          </label>
+          <div class="finance-import-actions">
+            <label class="btn primary">💳 Subir fatura<input id="invoice-input" type="file" accept=".xls,.xlsx,.csv" hidden></label>
+            <label class="btn">🏦 Subir extrato<input id="bank-input" type="file" accept=".xls,.xlsx,.csv" hidden></label>
+          </div>
+        </div>
         <div id="import-message" class="finance-import-message"></div>
       </article>
 
-      <article class="card finance-sheet"><div class="finance-sheet-head"><div><h2>Lançamentos importados</h2><p class="muted">✓ = encontrou uma linha do orçamento. O restante vai automaticamente para Cartão de crédito ou Outras despesas.</p></div><button id="clear-period-imports" class="btn danger" type="button">Limpar mês</button></div>
-        <div class="finance-table-wrap"><table class="finance-table finance-table--imports"><thead><tr><th>Origem</th><th>Data</th><th>Descrição</th><th>Valor</th><th>Classificação</th><th>Status</th></tr></thead><tbody id="imports-body"></tbody></table></div><div id="imports-empty" class="finance-empty">Nenhum arquivo importado neste mês.</div>
+      <article class="card finance-sheet">
+        <div class="finance-sheet-head">
+          <div>
+            <h2>Lançamentos importados</h2>
+            <p class="muted">✓ = encontrou uma linha do orçamento. O restante vai para Cartão de crédito, Outras despesas ou Outras receitas.</p>
+          </div>
+          <button id="clear-period-imports" class="btn danger" type="button">Limpar mês</button>
+        </div>
+        <div class="finance-table-wrap">
+          <table class="finance-table finance-table--imports">
+            <thead><tr><th>Origem</th><th>Data</th><th>Descrição</th><th>Valor</th><th>Classificação</th><th>Status</th></tr></thead>
+            <tbody id="imports-body"></tbody>
+          </table>
+        </div>
+        <div id="imports-empty" class="finance-empty">Nenhum arquivo importado neste mês.</div>
       </article>
     </section>
   </div>
-</main></div>
+</main>
+</div>
 <div id="finance-modal" class="finance-modal" hidden></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="nucleo/supabase-config.js?v=20260819-v81-4-8"></script><script src="nucleo/supabase-client.js?v=20260819-v81-4-8"></script><script src="nucleo/auth.js?v=20260819-v81-4-8"></script><script src="nucleo/theme-system-v80.js?v=20260819-v81-4-8"></script><script src="modulos/memory/memory-config-v68.js?v=20260819-v81-4-8"></script><script src="nucleo/shell-v81.js?v=20260819-v81-4-8"></script><script>MMCDShell('financeiro')</script><script src="modulos/financeiro/financeiro-v81-20-3.js?v=20260901-v81-20-3"></script>
-</body></html>
+<script src="nucleo/supabase-config.js?v=20260819-v81-4-8"></script>
+<script src="nucleo/supabase-client.js?v=20260819-v81-4-8"></script>
+<script src="nucleo/auth.js?v=20260819-v81-4-8"></script>
+<script src="nucleo/theme-system-v80.js?v=20260819-v81-4-8"></script>
+<script src="modulos/memory/memory-config-v68.js?v=20260819-v81-4-8"></script>
+<script src="nucleo/shell-v81.js?v=20260819-v81-4-8"></script>
+<script>MMCDShell('financeiro')</script>
+<script src="modulos/financeiro/financeiro-v81-21.js?v=20260901-v81-21"></script>
+</body>
+</html>

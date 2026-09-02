@@ -1,7 +1,7 @@
 {
-  "versao": "V81.21",
+  "versao": "V81.20.3",
   "data": "2026-09-01",
-  "componente": "financeiro-orcamento-anual",
+  "componente": "financeiro-simples-hotfix-autenticacao",
   "mudancas": [
     "duas guias: Orçamento e Importações",
     "linhas editáveis com incluir/excluir",
@@ -11,14 +11,6 @@
     "hotfix do instalador: validacao independente de acentos/code page do Windows PowerShell",
     "hotfix: validacao passa a conferir data-tab/data-panel reais (budget/imports), eliminando falso erro budget-tab",
     "corrige abertura por senha: usa MMCDAuth.requireSession(), API real do Memory, em vez de requireAuth() inexistente",
-    "cache bust do JavaScript do Financeiro para impedir reutilizacao da versao quebrada pelo navegador",
-    "orcamento anual em uma unica grade, no estilo planilha",
-    "2026 inicia em agosto e exibe ago/26 a dez/26",
-    "2027 em diante exibe janeiro a dezembro",
-    "receitas e despesas ficam em blocos separados",
-    "cada categoria pode ser editada e excluida, com uma coluna por mes e total anual",
-    "totais mensais e total anual por bloco",
-    "importacoes permanecem em guia separada com selecao mensal",
-    "autenticacao requireSession e armazenamento criptografado existentes preservados"
+    "cache bust do JavaScript do Financeiro para impedir reutilizacao da versao quebrada pelo navegador"
   ]
 }
