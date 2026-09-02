@@ -1,7 +1,7 @@
 {
-  "versao": "V81.20.3",
+  "versao": "V81.20.2",
   "data": "2026-09-01",
-  "componente": "financeiro-simples-hotfix-autenticacao",
+  "componente": "financeiro-simples-hotfix-validacao-abas-reais",
   "mudancas": [
     "duas guias: Orçamento e Importações",
     "linhas editáveis com incluir/excluir",
@@ -9,8 +9,6 @@
     "extrato: reconhecido vai para linha orçada; despesa não reconhecida vai para Outras despesas",
     "mantém armazenamento criptografado existente no Supabase",
     "hotfix do instalador: validacao independente de acentos/code page do Windows PowerShell",
-    "hotfix: validacao passa a conferir data-tab/data-panel reais (budget/imports), eliminando falso erro budget-tab",
-    "corrige abertura por senha: usa MMCDAuth.requireSession(), API real do Memory, em vez de requireAuth() inexistente",
-    "cache bust do JavaScript do Financeiro para impedir reutilizacao da versao quebrada pelo navegador"
+    "hotfix: validacao passa a conferir data-tab/data-panel reais (budget/imports), eliminando falso erro budget-tab"
   ]
 }
